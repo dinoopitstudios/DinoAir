@@ -5,11 +5,10 @@ Shows the new versioned configuration system in action
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from config.versioned_config import SchemaValidationError, VersionedConfigManager
-
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -20,7 +19,8 @@ def demo_basic_usage():
 
     try:
         # Initialize configuration manager
-        VersionedConfigManager(validate_on_load=False)  # Skip validation for demo
+        # Skip validation for demo
+        VersionedConfigManager(validate_on_load=False)
 
         # Show basic configuration access
 

@@ -12,19 +12,16 @@ Usage:
 """
 
 import asyncio
-from pathlib import Path
+import contextlib
 import sys
+from pathlib import Path
 
+from api.services.tool_registry import get_tool_registry
+from api.services.tool_schema_generator import generate_tools_schemas
 
 # Add the 05_api directory to the path
 api_dir = Path(__file__).parent / "05_api"
 sys.path.insert(0, str(api_dir))
-
-import contextlib
-
-from api.services.tool_registry import get_tool_registry
-
-from api.services.tool_schema_generator import generate_tools_schemas
 
 
 async def test_tool_registry():

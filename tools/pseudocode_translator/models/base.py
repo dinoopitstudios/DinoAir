@@ -219,7 +219,6 @@ class BaseModel(ABC):
         """
         results = []
         for _i, instruction in enumerate(instructions):
-
             try:
                 code = self.translate_instruction(instruction)
                 results.append(code)

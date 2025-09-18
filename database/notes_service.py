@@ -8,6 +8,7 @@ from typing import Any
 
 from models.note import Note
 from utils.logger import Logger
+
 from .notes_repository import NotesRepository
 from .notes_security import NotesSecurity
 from .notes_validator import NotesValidator

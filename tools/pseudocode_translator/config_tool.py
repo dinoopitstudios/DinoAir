@@ -9,13 +9,12 @@ import argparse
 import json
 import logging
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import yaml
 
 from .config import ConfigManager, ConfigProfile
-
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -87,7 +86,8 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
             cfg = Config()  # start from defaults
 
             # Top-level fields (excluding nested dataclasses handled below)
-            top_level_fields = set(cfg.__dataclass_fields__.keys())  # type: ignore[attr-defined]
+            # type: ignore[attr-defined]
+            top_level_fields = set(cfg.__dataclass_fields__.keys())
             # Known nested keys we will handle separately
             nested_keys = {"llm", "streaming"}
             for k, v in raw.items():
@@ -101,7 +101,8 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
             # Apply LLM section
             llm_data = raw.get("llm", {})
             if isinstance(llm_data, dict):
-                llm_fields = set(cfg.llm.__dataclass_fields__.keys())  # type: ignore[attr-defined]
+                # type: ignore[attr-defined]
+                llm_fields = set(cfg.llm.__dataclass_fields__.keys())
                 # Map common aliases
                 alias_map = {
                     "path": "model_path",
@@ -136,7 +137,8 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
             # Apply Streaming section
             streaming_data = raw.get("streaming", {})
             if isinstance(streaming_data, dict):
-                streaming_fields = set(cfg.streaming.__dataclass_fields__.keys())  # type: ignore[attr-defined]
+                # type: ignore[attr-defined]
+                streaming_fields = set(cfg.streaming.__dataclass_fields__.keys())
                 for k, v in streaming_data.items():
                     if k in streaming_fields:
                         try:
@@ -450,8 +452,8 @@ class ConfigTool:
 
         try:
             # Load old config
-            if '../' in str(config_path) or '..\\' in str(config_path):
-                raise Exception('Invalid file path')
+            if "../" in str(config_path) or "..\\" in str(config_path):
+                raise Exception("Invalid file path")
             with open(config_path) as f:
                 if config_path.suffix in [".yaml", ".yml"]:
                     old_data = yaml.safe_load(f)

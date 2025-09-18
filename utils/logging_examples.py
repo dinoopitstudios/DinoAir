@@ -17,7 +17,6 @@ import logging
 import time
 from typing import Any
 
-
 # Import enhanced logging components
 try:
     from enhanced_logger import (
@@ -45,7 +44,8 @@ try:
         async_logging=True,
         filter_config=LogFilterConfig(
             sampling_rate=0.8,  # Sample 80% of logs
-            level_filters={"noisy_module": logging.WARNING},  # Higher level for noisy module
+            # Higher level for noisy module
+            level_filters={"noisy_module": logging.WARNING},
         ),
         formatter_config=FormatterConfig(
             include_context=True, include_timestamp=True, include_function=True
