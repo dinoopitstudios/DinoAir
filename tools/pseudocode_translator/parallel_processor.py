@@ -183,7 +183,7 @@ class ParallelProcessor:
 
     def _setup_resource_pools(self):
         """Setup resource pools for parsers and translators"""
-        self._parser_pool = ResourcePool(lambda: ParserModule(), max_size=self.max_workers)
+        self._parser_pool = ResourcePool(ParserModule, max_size=self.max_workers)
 
         self._translator_pool = ResourcePool(
             lambda: TranslationManager(self.config),

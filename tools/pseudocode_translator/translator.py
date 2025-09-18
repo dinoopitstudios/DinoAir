@@ -385,7 +385,7 @@ class TranslationManager:
             dispatcher=self._events,
             recorder=recorder,
             exec_cfg=exec_cfg,
-            ensure_pool_cb=lambda: self._ensure_exec_pool(),
+            ensure_pool_cb=self._ensure_exec_pool,
         )
 
         ok, result = offload.submit("parse", text, timeout=None)
@@ -423,7 +423,7 @@ class TranslationManager:
             dispatcher=self._events,
             recorder=recorder,
             exec_cfg=exec_cfg,
-            ensure_pool_cb=lambda: self._ensure_exec_pool(),
+            ensure_pool_cb=self._ensure_exec_pool,
         )
 
         ok, result = offload.submit("validate", ast_obj, timeout=None)

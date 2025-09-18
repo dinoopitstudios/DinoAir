@@ -76,7 +76,7 @@ def test_read_note_validation_and_success(notesdb_stub: NotesDBStub) -> None:
 
 def test_read_note_not_found(notesdb_stub: NotesDBStub) -> None:
     # Override to return None for unknown ids
-    notesdb_stub.get_note = lambda nid: notesdb_stub._store.get(nid)  # type: ignore[assignment]
+    notesdb_stub.get_note = notesdb_stub._store.get  # type: ignore[assignment]
     missing = nt.read_note("nope")
     assert missing["success"] is False
     assert missing["error"] == "Note not found: nope"

@@ -46,7 +46,7 @@ def test_search_files_by_keywords_success(fsdb_stub: FSDBStub) -> None:
 
 
 def test_get_file_info_not_found(fsdb_stub: FSDBStub) -> None:
-    fsdb_stub.get_file_by_path = lambda file_path: fsdb_stub._files.get(file_path)  # type: ignore[assignment]
+    fsdb_stub.get_file_by_path = fsdb_stub._files.get  # type: ignore[assignment]
     resp = fst.get_file_info("/no/such/file.txt")
     assert resp["success"] is False
     assert resp["error"] == "File not found in index: /no/such/file.txt"

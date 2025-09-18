@@ -172,7 +172,7 @@ def test_disabled_feature_no_change(monkeypatch):
     manager = TranslationManager(cfg)
     try:
         events = []
-        handler = EventHandler(lambda e: events.append(e))
+        handler = EventHandler(events.append)
         manager.get_event_dispatcher().register(handler)
 
         # Monkeypatch translate_text_block to be deterministic and fast
@@ -225,7 +225,7 @@ def test_events_emitted_on_adjustment(monkeypatch):
     manager = TranslationManager(cfg)
     try:
         events = []
-        handler = EventHandler(lambda e: events.append(e))
+        handler = EventHandler(events.append)
         manager.get_event_dispatcher().register(handler)
 
         # Deterministic, fast translation

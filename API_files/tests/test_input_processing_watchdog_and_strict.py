@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def _collector() -> tuple[list[str], Callable[[str], None]]:
     messages: list[str] = []
-    return messages, lambda m: messages.append(m)
+    return messages, messages.append
 
 
 class StubWatchdog:

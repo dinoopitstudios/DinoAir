@@ -109,7 +109,7 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
         dispatcher=dispatcher,
         recorder=recorder,
         exec_cfg=ExecCfg(),
-        ensure_pool_cb=lambda: FakePool(),
+        ensure_pool_cb=FakePool,
     )
 
     # Can offload both kinds
@@ -134,7 +134,7 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
         dispatcher=dispatcher,
         recorder=recorder,
         exec_cfg=ExecCfgDisabled(),
-        ensure_pool_cb=lambda: FakePool(),
+        ensure_pool_cb=FakePool,
     )
     ok_disabled, result_disabled = offload2.submit("parse", "x")
     assert ok_disabled is False

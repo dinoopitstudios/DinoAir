@@ -5,7 +5,7 @@ from input_processing import InputPipeline, IntentType, Severity
 
 def _collector():
     messages: list[str] = []
-    return messages, lambda m: messages.append(m)
+    return messages, messages.append
 
 
 def test_empty_input_returns_unclear():

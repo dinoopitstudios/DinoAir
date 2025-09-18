@@ -104,7 +104,7 @@ class StreamingTranslator:
         self.interactive_session = None
 
         # Helper bindings (extracted to reduce LOC & complexity)
-        self._parse_success = lambda pr: parse_success(pr)
+        self._parse_success = parse_success
         self._parse_and_translate_blocks = (
             lambda text, chunk_index, on_update=None: parse_and_translate_blocks(
                 self, text, chunk_index, on_update
