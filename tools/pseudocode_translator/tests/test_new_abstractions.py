@@ -1,14 +1,14 @@
+import pytest
 from pseudocode_translator import parser as parser_module
 from pseudocode_translator.config import TranslatorConfig
 from pseudocode_translator.models import BlockType, CodeBlock
 from pseudocode_translator.translator import (
     TranslationManager,
-    TranslationResult as ManagerTranslationResult,
 )
+from pseudocode_translator.translator import TranslationResult as ManagerTranslationResult
 from pseudocode_translator.translator_support.dependency_resolver import DependencyResolver
 from pseudocode_translator.translator_support.fix_refiner import attempt_fixes
 from pseudocode_translator.translator_support.offload_executor import OffloadExecutor
-import pytest
 
 
 class FakeValidationResult:
@@ -109,7 +109,7 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
         dispatcher=dispatcher,
         recorder=recorder,
         exec_cfg=ExecCfg(),
-        ensure_pool_cb=lambda: FakePool(),
+        ensure_pool_cb=FakePool,
     )
 
     # Can offload both kinds
@@ -134,7 +134,7 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
         dispatcher=dispatcher,
         recorder=recorder,
         exec_cfg=ExecCfgDisabled(),
-        ensure_pool_cb=lambda: FakePool(),
+        ensure_pool_cb=FakePool,
     )
     ok_disabled, result_disabled = offload2.submit("parse", "x")
     assert ok_disabled is False

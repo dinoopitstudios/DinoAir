@@ -9,15 +9,15 @@ from __future__ import annotations
 
 # Standard imports group
 import ast
-from collections.abc import Callable, Iterator
 import contextlib
+import logging
+import threading
+import time
+from collections.abc import Callable, Iterator
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from enum import Enum
-import logging
 from pathlib import Path
-import threading
-import time
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar, cast
 
 from .assembler import CodeAssembler
@@ -35,8 +35,8 @@ from .models import BlockType, CodeBlock
 from .models.base_model import (
     BaseTranslationModel,
     OutputLanguage,
-    TranslationConfig as ModelTranslationConfig,
 )
+from .models.base_model import TranslationConfig as ModelTranslationConfig
 from .models.model_factory import ModelFactory, create_model
 from .models.plugin_system import get_plugin_system
 from .parser import ParserModule
@@ -44,7 +44,6 @@ from .services.dependency_gateway import DependencyAnalysisGateway
 from .services.validation_service import ValidationService
 from .telemetry import get_recorder
 from .validator import ValidationResult, Validator
-
 
 if TYPE_CHECKING:
     from .config import TranslatorConfig
@@ -57,7 +56,8 @@ except Exception:  # pragma: no cover
     class _FallbackBrokenProcessPool(Exception):
         pass
 
-    _BrokenProcessPool = _FallbackBrokenProcessPool  # type: ignore[misc,assignment]
+    # type: ignore[misc,assignment]
+    _BrokenProcessPool = _FallbackBrokenProcessPool
 BrokenProcessPool = _BrokenProcessPool
 
 # Logger
@@ -170,7 +170,8 @@ def _run_safely(fn: Callable[[], Any], ctx: str) -> Any | None:
     """
     try:
         return fn()
-    except Exception as e:  # TODO: Narrow exceptions (ValueError, RuntimeError) if known.
+    # TODO: Narrow exceptions (ValueError, RuntimeError) if known.
+    except Exception as e:
         logger.exception("Failure in %s: %s", ctx, e)
         return None
 
@@ -385,7 +386,7 @@ class TranslationManager:
             dispatcher=self._events,
             recorder=recorder,
             exec_cfg=exec_cfg,
-            ensure_pool_cb=lambda: self._ensure_exec_pool(),
+            ensure_pool_cb=self._ensure_exec_pool,
         )
 
         ok, result = offload.submit("parse", text, timeout=None)
@@ -423,7 +424,7 @@ class TranslationManager:
             dispatcher=self._events,
             recorder=recorder,
             exec_cfg=exec_cfg,
-            ensure_pool_cb=lambda: self._ensure_exec_pool(),
+            ensure_pool_cb=self._ensure_exec_pool,
         )
 
         ok, result = offload.submit("validate", ast_obj, timeout=None)
@@ -1034,12 +1035,14 @@ class TranslationManager:
                     sub_block.content = code
                     sub_block.type = BlockType.PYTHON
                     try:
-                        sub_block.metadata.update(meta)  # includes {"translated": True}
+                        # includes {"translated": True}
+                        sub_block.metadata.update(meta)
                     except Exception:
                         sub_block.metadata["translated"] = True
                 else:
                     try:
-                        sub_block.metadata.update(meta)  # includes failure + error string
+                        # includes failure + error string
+                        sub_block.metadata.update(meta)
                     except Exception:
                         sub_block.metadata["translation_failed"] = True
                         sub_block.metadata["error"] = meta.get("error", "unknown error")
@@ -1278,7 +1281,8 @@ class TranslationManager:
         """Return telemetry snapshot if enabled, else {}."""
         try:
             # Import on demand to avoid issues if module layout changes
-            from .telemetry import get_recorder as _get_rec, telemetry_enabled as _t_enabled
+            from .telemetry import get_recorder as _get_rec
+            from .telemetry import telemetry_enabled as _t_enabled
 
             if _t_enabled():
                 rec_any: Any = _get_rec()

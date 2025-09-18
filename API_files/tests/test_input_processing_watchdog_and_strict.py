@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from input_processing import InputPipeline, InputPipelineError, IntentType
 import pytest
 
+from input_processing import InputPipeline, InputPipelineError, IntentType
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def _collector() -> tuple[list[str], Callable[[str], None]]:
     messages: list[str] = []
-    return messages, lambda m: messages.append(m)
+    return messages, messages.append
 
 
 class StubWatchdog:

@@ -56,12 +56,12 @@ class TestSecurityConfig:
     def test_security_config_with_mock_config(self, mock_config):
         """Test SecurityConfig with mocked configuration."""
         # Mock configuration responses
-        mock_config.get.side_effect = lambda key, default: {
+        mock_config.get.side_effect = {
             "security.process.allowlist.binaries": ["python", "git"],
             "security.process.allowlist.enable_merge": True,
             "security.process.flags.no_window_windows": False,
             "security.process.logging.log_command_execution": False,
-        }.get(key, default)
+        }.get
 
         config = SecurityConfig()
 
@@ -401,11 +401,11 @@ class TestConfigurationOverrides:
     def test_environment_variable_overrides(self, mock_config):
         """Test that environment variables can override configuration."""
         # Mock config to return environment values
-        mock_config.get.side_effect = lambda key, default: {
+        mock_config.get.side_effect = {
             "security.process.allowlist.binaries": ["python", "custom_binary"],
             "security.process.flags.no_window_windows": False,
             "security.process.logging.log_command_execution": False,
-        }.get(key, default)
+        }.get
 
         config = SecurityConfig()
 
