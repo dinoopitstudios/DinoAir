@@ -81,7 +81,7 @@ def test_enhanced_security_rejection_increments_counter(
     pipeline = InputPipeline(gui_feedback_hook=feedback, enable_enhanced_security=True)
 
     # Monkeypatch sanitize_input to simulate strict mode rejection by raising ValueError
-    def _raise_value_error(user_input: str, **kwargs):
+    def _raise_value_error(_user_input: str, **_kwargs):
         raise ValueError("Rejected by strict policy")
 
     # Ensure enhanced_sanitizer exists
@@ -104,7 +104,7 @@ def test_attacks_blocked_counter_and_feedback(monkeypatch: pytest.MonkeyPatch):
     pipeline = InputPipeline(gui_feedback_hook=feedback, enable_enhanced_security=True)
 
     # Simulate sanitize_input returning a benign string
-    def _sanitize_ok(user_input: str, **kwargs) -> str:
+    def _sanitize_ok(_user_input: str, **_kwargs) -> str:
         return "sanitized"
 
     # Simulate security summary reporting blocked attacks

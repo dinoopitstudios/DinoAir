@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
-from contextlib import suppress
 import hmac
 import logging
+from collections.abc import Awaitable, Callable
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from starlette import status
@@ -11,7 +11,7 @@ from starlette.types import Receive, Scope, Send
 
 from core_router.errors import error_response as core_error_response
 from utils.asgi import get_header
-
+from utils.log_sanitizer import sanitize_for_log
 
 if TYPE_CHECKING:
     from ..settings import Settings
@@ -53,15 +53,16 @@ class AuthMiddleware:
         # OpenAPI docs access - diagnostic logging for potential issues
         openapi_paths = {"/openapi.json", "/docs", "/docs/index.html", "/redoc"}
         if path in openapi_paths:
+            safe_path = sanitize_for_log(path)
             logger.debug(
-                f"OpenAPI path requested: {path}, is_dev={self.settings.is_dev}, "
+                f"OpenAPI path requested: {safe_path}, is_dev={self.settings.is_dev}, "
                 f"expose_openapi_in_dev={self.settings.expose_openapi_in_dev}"
             )
             if self.settings.is_dev and self.settings.expose_openapi_in_dev:
                 logger.debug("Auth skipped: OpenAPI docs in dev mode")
                 return True
             logger.warning(
-                f"OpenAPI path {path} blocked: dev={self.settings.is_dev}, "
+                f"OpenAPI path {safe_path} blocked: dev={self.settings.is_dev}, "
                 f"expose={self.settings.expose_openapi_in_dev}"
             )
 
