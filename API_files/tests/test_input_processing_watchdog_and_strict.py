@@ -6,7 +6,6 @@ import pytest
 
 from input_processing import InputPipeline, InputPipelineError, IntentType
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

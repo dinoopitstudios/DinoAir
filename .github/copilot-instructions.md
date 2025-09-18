@@ -65,7 +65,7 @@ Always reference these instructions first and fallback to search or bash command
 
 1. **Always activate virtual environment first**: `source venv/bin/activate`
 2. **Before making changes**: Run `ruff check .` and `black --check .`
-3. **After making changes**: 
+3. **After making changes**:
    - Run relevant test suite: `python -m pytest [module]/tests/ -v`
    - Run linting: `ruff check --fix .`
    - Run formatting: `black .`
@@ -124,7 +124,7 @@ DinoAir/
 
 - **NEVER CANCEL** any build or test commands. All operations complete within reasonable time:
   - Python dependency install: 1 minute
-  - Node.js dependency install: 23 seconds  
+  - Node.js dependency install: 23 seconds
   - Database tests: 30 seconds
   - Python linting (ruff): < 1 second
   - Python formatting (black): 16 seconds

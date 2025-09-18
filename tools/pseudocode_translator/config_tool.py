@@ -9,13 +9,12 @@ import argparse
 import json
 import logging
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import yaml
 
 from .config import ConfigManager, ConfigProfile
-
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

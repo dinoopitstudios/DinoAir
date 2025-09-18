@@ -3,9 +3,9 @@ Vector search module for DinoAir 2.0 RAG File Search system.
 Provides vector similarity search and hybrid search capabilities.
 """
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
-import json
 from typing import Any, cast
 
 import numpy as np
@@ -14,6 +14,7 @@ from database.file_search_db import FileSearchDB
 
 # Import DinoAir components
 from utils.logger import Logger
+
 # Import RAG components
 from .embedding_generator import EmbeddingGenerator, get_embedding_generator
 from .search_common import compute_cosine_scores, extract_keywords  # shared utilities

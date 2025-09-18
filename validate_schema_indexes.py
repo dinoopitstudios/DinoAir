@@ -3,13 +3,12 @@
 Schema validation script to verify comprehensive index coverage in SCHEMA_DDLS
 """
 
-from pathlib import Path
 import re
 import sys
 import traceback
+from pathlib import Path
 
 from database.initialize_db import SCHEMA_DDLS
-
 
 # Add the current directory to Python path
 sys.path.insert(0, str(Path(__file__).parent))

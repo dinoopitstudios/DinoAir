@@ -7,12 +7,9 @@ used in the test infrastructure, as requested in the code review.
 
 import pytest
 
-from tools.tests.helpers.patching import (
-    patch_file_search_db as _apply_patch_file_search_db,
-    patch_notes_db as _apply_patch_notes_db,
-    patch_projects_db as _apply_patch_projects_db,
-)
-
+from tools.tests.helpers.patching import patch_file_search_db as _apply_patch_file_search_db
+from tools.tests.helpers.patching import patch_notes_db as _apply_patch_notes_db
+from tools.tests.helpers.patching import patch_projects_db as _apply_patch_projects_db
 
 # --- TESTS FOR patch_file_search_db get_embeddings_by_file_func HOOK (Comment 1) ---
 
@@ -237,6 +234,7 @@ def test_patch_tools_autouse_behavior():
 
 def test_conditional_autouse_concept():
     """Test the concept of conditional autouse for patch_tools."""
+
     # Test the logic that could be used to make patch_tools conditional
 
     def should_apply_patches(module_name):

@@ -7,14 +7,14 @@ This module provides a clean interface while hiding internal implementation deta
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 import logging
+from contextlib import contextmanager
 from typing import Any
-
 
 # Import internal modules with error handling
 try:
-    from utils import performance_monitor as _performance_monitor, telemetry as _telemetry
+    from utils import performance_monitor as _performance_monitor
+    from utils import telemetry as _telemetry
 
     _HAS_PERFORMANCE_MONITOR = True
     _HAS_TELEMETRY = True
@@ -26,7 +26,6 @@ except ImportError as e:
     _HAS_TELEMETRY = False
 
 logger = logging.getLogger(__name__)
-
 
 # Re-export key public types (hide internal prefixes)
 if _HAS_PERFORMANCE_MONITOR:
