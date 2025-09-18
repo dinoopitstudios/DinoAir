@@ -92,7 +92,7 @@ def translate_block(
     translator: StreamingTranslator,
     block: CodeBlock,
     chunk_index: int,
-    block_index: int,
+    _block_index: int,
 ) -> str | None:
     try:
         translator._emit_event(

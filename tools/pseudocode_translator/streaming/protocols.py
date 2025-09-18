@@ -551,7 +551,7 @@ class FullDocumentProtocol:
 
 
 def create_stream_protocol(
-    mode: StreamingMode, stream_handler: StreamProtocol | None = None
+    mode: StreamingMode, _stream_handler: StreamProtocol | None = None
 ) -> LineByLineProtocol | BlockByBlockProtocol | FullDocumentProtocol:
     """Create appropriate protocol handler for streaming mode"""
     if mode == StreamingMode.LINE_BY_LINE:

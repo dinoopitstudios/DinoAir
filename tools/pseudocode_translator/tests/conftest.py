@@ -136,7 +136,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "requires_model: marks tests that require the LLM model")
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(_config, items):
     """Modify test collection to add markers"""
     for item in items:
         # Add unit marker to all tests by default
