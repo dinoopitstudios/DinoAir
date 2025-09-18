@@ -231,7 +231,7 @@ def validation_exception_handler(request: Request, exc: Exception):
     )
 
 
-def unhandled_exception_handler(request: Request, exc: Exception):
+def unhandled_exception_handler(request: Request, _exc: Exception):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
     _record_metrics(status_code)

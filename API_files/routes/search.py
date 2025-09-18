@@ -105,7 +105,7 @@ def svc_hybrid(body: HybridSearchRequest) -> HybridSearchResponse:
     response_model=KeywordSearchResponse,
     status_code=status.HTTP_200_OK,
 )
-async def keyword_search(request: Request, body: KeywordSearchRequest) -> KeywordSearchResponse:
+async def keyword_search(_request: Request, body: KeywordSearchRequest) -> KeywordSearchResponse:
     return svc_keyword(body)
 
 
@@ -115,7 +115,7 @@ async def keyword_search(request: Request, body: KeywordSearchRequest) -> Keywor
     response_model=VectorSearchResponse,
     status_code=status.HTTP_200_OK,
 )
-async def vector_search(request: Request, body: VectorSearchRequest) -> VectorSearchResponse:
+async def vector_search(_request: Request, body: VectorSearchRequest) -> VectorSearchResponse:
     return svc_vector(body)
 
 
@@ -125,7 +125,7 @@ async def vector_search(request: Request, body: VectorSearchRequest) -> VectorSe
     response_model=HybridSearchResponse,
     status_code=status.HTTP_200_OK,
 )
-async def hybrid_search(request: Request, body: HybridSearchRequest) -> HybridSearchResponse:
+async def hybrid_search(_request: Request, body: HybridSearchRequest) -> HybridSearchResponse:
     return svc_hybrid(body)
 
 

@@ -33,10 +33,10 @@ except ImportError:  # pragma: no cover
         code: str,
         message: str,
         error: str,
-        details: str | None,
-        endpoint: str | None,
-        operationId: str | None,
-        requestId: str | None,
+        _details: str | None,
+        _endpoint: str | None,
+        _operationId: str | None,
+        _requestId: str | None,
     ) -> _JSONResponse:
         payload = {
             "detail": message,
