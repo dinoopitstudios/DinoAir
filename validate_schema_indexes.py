@@ -3,13 +3,12 @@
 Schema validation script to verify comprehensive index coverage in SCHEMA_DDLS
 """
 
-from pathlib import Path
 import re
 import sys
 import traceback
+from pathlib import Path
 
 from database.initialize_db import SCHEMA_DDLS
-
 
 # Add the current directory to Python path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -75,8 +74,7 @@ def validate_notes_indexes() -> bool:
             missing_patterns.append(pattern)
 
     if missing_patterns:
-        for _pattern in missing_patterns:
-            pass
+        pass
 
     # Analyze specific query scenarios
 
@@ -97,9 +95,6 @@ def validate_notes_indexes() -> bool:
             if all(col.lower() in ddl_lower for col in required_columns):
                 found_match = True
                 break
-
-        if not found_match:
-            pass
 
     success = len(missing_patterns) == 0
 

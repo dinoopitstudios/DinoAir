@@ -3,12 +3,11 @@ Test runner and configuration for the utils folder test suite.
 Provides comprehensive test execution with coverage reporting and parallel execution.
 """
 
-from pathlib import Path
 import subprocess
 import sys
 import time
+from pathlib import Path
 from typing import Any
-
 
 # Add utils directory to Python path for imports
 utils_dir = Path(__file__).parent.parent
@@ -231,7 +230,8 @@ class TestRunner:
             lines = pytest_result["stdout"].split("\n")
             coverage_lines = [line for line in lines if "%" in line and "cov" in line.lower()]
             if coverage_lines:
-                report.extend(f"  {line}" for line in coverage_lines[-5:])  # Last 5 coverage lines
+                # Last 5 coverage lines
+                report.extend(f"  {line}" for line in coverage_lines[-5:])
             report.append("")
 
         # Execution details
@@ -299,8 +299,6 @@ class TestRunner:
                 issues.append(f"Cannot read {filename}")
 
         if issues:
-            for _issue in issues:
-                pass
             return False
 
         return True
@@ -322,10 +320,6 @@ class TestRunner:
 
         if not stop_on_failure:
             extra_args.remove("-x") if "-x" in extra_args else None
-
-        if not coverage:
-            # Remove coverage args if disabled
-            pass  # Coverage args are added in run_pytest_command based on availability
 
         # Run the tests
         result = self.run_pytest_command(extra_args)
@@ -370,8 +364,6 @@ def main():
             sys.exit(1)
 
         result = runner.run_individual_test_file(test_file)
-        if result["errors"]:
-            pass
 
         sys.exit(0 if result["success"] else 1)
 

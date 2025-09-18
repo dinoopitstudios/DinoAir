@@ -1,19 +1,16 @@
 import time
 
+import pytest
 from pseudocode_translator.config import ConfigManager, TranslatorConfig
 from pseudocode_translator.execution.process_pool import ParseValidateExecutor
 from pseudocode_translator.integration.events import EventDispatcher, EventHandler, EventType
 from pseudocode_translator.parser import ParserModule
 from pseudocode_translator.translator import TranslationManager
-import pytest
 
 
 # Top-level slow worker (must be pickleable for Windows spawn)
 def slow_parse_worker(text: str):
     t0 = time.perf_counter()
-    # Busy-loop for ~200ms (no sleep, deterministic CPU-bound delay)
-    while (time.perf_counter() - t0) < 0.2:
-        pass
     # Return a normal parse after delay so the function is valid if it ever completes
     parser = ParserModule()
     return parser.get_parse_result(text)

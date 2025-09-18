@@ -90,7 +90,4 @@ class AnnotationChecker(ast.NodeVisitor):
 
     def visit_Name(self, node: ast.Name):
         """Check name usage in annotations."""
-        if self.in_annotation and isinstance(node.ctx, ast.Load):
-            # Could check if annotation types are valid
-            pass
         self.generic_visit(node)

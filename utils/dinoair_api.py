@@ -7,14 +7,14 @@ This module provides a clean interface while hiding internal implementation deta
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 import logging
+from contextlib import contextmanager
 from typing import Any
-
 
 # Import internal modules with error handling
 try:
-    from utils import performance_monitor as _performance_monitor, telemetry as _telemetry
+    from utils import performance_monitor as _performance_monitor
+    from utils import telemetry as _telemetry
 
     _HAS_PERFORMANCE_MONITOR = True
     _HAS_TELEMETRY = True
@@ -111,9 +111,6 @@ class PerformanceMonitor:
             name: Metric name
             value: Metric value
         """
-        if self._monitor:
-            # Use the available get_metrics method
-            pass  # Custom metrics are handled during operation execution
 
     def get_metrics_summary(self) -> dict[str, Any]:
         """

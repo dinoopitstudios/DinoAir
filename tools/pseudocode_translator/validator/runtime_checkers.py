@@ -171,8 +171,6 @@ class ConcurrencyRiskChecker(ast.NodeVisitor):
     def visit_Call(self, node: ast.Call):
         """Check for thread-unsafe operations."""
         if isinstance(node.func, ast.Name):
-            if node.func.id in ["print"]:  # print can be unsafe in multithreaded context
-                # This is a mild suggestion
-                pass
+            pass
 
         self.generic_visit(node)

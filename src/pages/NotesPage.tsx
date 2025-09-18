@@ -237,7 +237,7 @@ export default function NotesPage() {
       </main>
 
       {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Notes page announcements' showLatestOnly={true} />
+      <LiveRegion ariaLabel='Notes page announcements' showLatestOnly />
     </PageContainer>
   );
 }

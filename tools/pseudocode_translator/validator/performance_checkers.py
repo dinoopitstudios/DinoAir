@@ -191,11 +191,6 @@ class DataStructureChecker(ast.NodeVisitor):
                     f"Using list.count() at line {node.lineno} - consider using 'in' operator or set for membership testing"
                 )
 
-        # Check for multiple list.append() calls (suggests list comprehension)
-        if isinstance(node.func, ast.Attribute) and node.func.attr == "append":
-            # This is handled by PerformanceChecker, but could be enhanced here
-            pass
-
         self.generic_visit(node)
 
     def visit_Compare(self, node: ast.Compare):

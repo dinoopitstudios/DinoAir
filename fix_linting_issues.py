@@ -9,8 +9,8 @@ This handles:
 Usage: python fix_linting_issues.py
 """
 
-from pathlib import Path
 import re
+from pathlib import Path
 
 
 def get_python_files(directory: Path) -> list[Path]:
@@ -161,8 +161,7 @@ def main():
                     syntax_errors.append((file_path, e))
 
             if syntax_errors:
-                for file_path, _error in syntax_errors:
-                    pass
+                pass
             else:
                 pass
 
