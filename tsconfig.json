@@ -20,17 +20,17 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["10_src/*"],
-      "@/components/*": ["10_src/components/*"],
-      "@/services/*": ["10_src/services/*"],
-      "@/hooks/*": ["10_src/hooks/*"],
-      "@/contexts/*": ["10_src/contexts/*"],
-      "@/pages/*": ["10_src/pages/*"],
-      "@/layout/*": ["10_src/layout/*"],
-      "@/lib/*": ["10_src/lib/*"],
+      "@/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/services/*": ["src/services/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/contexts/*": ["src/contexts/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/layout/*": ["src/layout/*"],
+      "@/lib/*": ["src/lib/*"],
       "@/utils/*": ["utils/*"]
     }
   },
-  "include": ["10_src/**/*", "10_src/**/*.ts", "10_src/**/*.tsx"],
+  "include": ["src/**/*", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "build", "**/*.test.ts", "**/*.test.tsx"]
 }
