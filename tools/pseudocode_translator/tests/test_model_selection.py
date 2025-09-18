@@ -138,9 +138,7 @@ def test_factory_prefers_streaming_capable_when_required():
     model = ModelFactory.create_model(require_streaming=True, language="python")
     caps = model.get_capabilities()
     if caps["supports_streaming"] is not True:
-        raise AssertionError(
-            "Factory should prefer a streaming-capable model when required"
-        )
+        raise AssertionError("Factory should prefer a streaming-capable model when required")
 
 
 def test_factory_filters_by_supported_language():
@@ -153,17 +151,13 @@ def test_factory_filters_by_supported_language():
     model_py = ModelFactory.create_model(language="python")
     caps_py = model_py.get_capabilities()
     if "python" not in [l.lower() for l in caps_py["supported_languages"]]:
-        raise AssertionError(
-            "Factory should select a model that supports Python"
-        )
+        raise AssertionError("Factory should select a model that supports Python")
 
     # language=java should select java-capable model
     model_java = ModelFactory.create_model(language="java")
     caps_java = model_java.get_capabilities()
     if "java" not in [l.lower() for l in caps_java["supported_languages"]]:
-        raise AssertionError(
-            "Factory should select a model that supports Java"
-        )
+        raise AssertionError("Factory should select a model that supports Java")
 
 
 def test_factory_prefers_higher_quality_or_tps():

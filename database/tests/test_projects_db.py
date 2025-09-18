@@ -31,7 +31,8 @@ def test_projects_crud_black_box(db_manager, _projects_connection, sample_projec
     if (
         db.update_project(
             sample_project.id, {"name": "Updated Name", "status": ProjectStatus.COMPLETED.value}
-        ) is not True
+        )
+        is not True
     ):
         raise AssertionError
     updated = db.get_project(sample_project.id)

@@ -39,9 +39,7 @@ def test_no_in_place_mutation():
 
     # Verify the original asdict output was not mutated
     if original_dict["tags"] != original_tags:
-        raise AssertionError(
-            f"tags were mutated: {original_dict['tags']} != {original_tags}"
-        )
+        raise AssertionError(f"tags were mutated: {original_dict['tags']} != {original_tags}")
     if original_dict["encrypted_fields"] != original_encrypted_fields:
         raise AssertionError(
             f"encrypted_fields were mutated: {original_dict['encrypted_fields']} != {original_encrypted_fields}"
@@ -88,9 +86,7 @@ def test_json_encoding_for_lists():
     if artifact_dict["tags"] == "python,test,example":
         raise AssertionError("tags should not be comma-joined")
     if artifact_dict["encrypted_fields"] == "content,metadata,description":
-        raise AssertionError(
-            "encrypted_fields should not be comma-joined"
-        )
+        raise AssertionError("encrypted_fields should not be comma-joined")
 
 
 def test_json_decoding_roundtrip():
@@ -181,9 +177,7 @@ def test_edge_cases():
         f"encrypted_fields should be list, got {type(restored_invalid.encrypted_fields)}"
     )
     if restored_invalid.tags != ["invalid json ["]:
-        raise AssertionError(
-            f"tags should contain the invalid string: {restored_invalid.tags}"
-        )
+        raise AssertionError(f"tags should contain the invalid string: {restored_invalid.tags}")
     if restored_invalid.encrypted_fields != ["also invalid {"]:
         raise AssertionError(
             f"encrypted_fields should contain the invalid string: {restored_invalid.encrypted_fields}"
@@ -220,9 +214,7 @@ def test_backward_compatibility():
         f"encrypted_fields should be list, got {type(restored_legacy.encrypted_fields)}"
     )
     if restored_legacy.tags != ["tag1,tag2,tag3"]:
-        raise AssertionError(
-            f"tags should contain the whole string: {restored_legacy.tags}"
-        )
+        raise AssertionError(f"tags should contain the whole string: {restored_legacy.tags}")
     if restored_legacy.encrypted_fields != ["field1,field2"]:
         raise AssertionError(
             f"encrypted_fields should contain the whole string: {restored_legacy.encrypted_fields}"
@@ -236,13 +228,9 @@ def test_backward_compatibility():
         f"properties should be dict, got {type(restored_legacy.properties)}"
     )
     if restored_legacy.metadata != {"key": "value"}:
-        raise AssertionError(
-            f"metadata should be decoded: {restored_legacy.metadata}"
-        )
+        raise AssertionError(f"metadata should be decoded: {restored_legacy.metadata}")
     if restored_legacy.properties != {"prop": "value"}:
-        raise AssertionError(
-            f"properties should be decoded: {restored_legacy.properties}"
-        )
+        raise AssertionError(f"properties should be decoded: {restored_legacy.properties}")
 
 
 def main():

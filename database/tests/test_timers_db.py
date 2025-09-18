@@ -2,8 +2,8 @@
 Tests for TimersDatabase functionality
 """
 
-from datetime import datetime
 import sqlite3
+from datetime import datetime
 
 import pytest
 

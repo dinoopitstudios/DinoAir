@@ -3,8 +3,8 @@ from collections.abc import Callable
 from pseudocode_translator.config import TranslatorConfig
 from pseudocode_translator.models.base_model import (
     OutputLanguage,
-    TranslationResult as ModelTranslationResult,
 )
+from pseudocode_translator.models.base_model import TranslationResult as ModelTranslationResult
 from pseudocode_translator.streaming.stream_translator import (
     StreamingEvent,
     StreamingEventData,

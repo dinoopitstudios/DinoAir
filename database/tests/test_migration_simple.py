@@ -3,10 +3,10 @@
 Simple test script to verify migration system functionality.
 """
 
-from pathlib import Path
 import sqlite3
 import sys
 import tempfile
+from pathlib import Path
 
 from database.migrations.base import (
     BaseMigration,
@@ -15,7 +15,6 @@ from database.migrations.base import (
     record_migration,
 )
 from database.migrations.runner import MigrationRunner
-
 
 # Add the project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))

@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 try:
     import src.tools.basic_tools as bt
 except Exception:
