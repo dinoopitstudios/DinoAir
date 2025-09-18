@@ -3,10 +3,10 @@ Real integration tests for NotesService orchestrating NotesRepository, NotesVali
 Uses real DatabaseManager via fixture and the real Note model. Covers CRUD, validation, security, tags, projects, soft deletes.
 """
 
-from datetime import datetime
 import os
-from unittest.mock import patch
 import uuid
+from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 

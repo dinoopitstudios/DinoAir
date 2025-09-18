@@ -11,13 +11,13 @@ Synchronous router that:
 
 from __future__ import annotations
 
-from collections import deque
-from collections.abc import Callable, Mapping, Sequence
-from contextlib import suppress
 import json
 import logging
 import threading
 import time
+from collections import deque
+from collections.abc import Callable, Mapping, Sequence
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 from .adapters import make_adapter
@@ -29,17 +29,16 @@ from .errors import (
     ValidationError,
     not_implemented,
 )
+
+# Import HealthState for runtime use
+from .health import HealthState
 from .metrics import record_error, record_success
 from .registry import ServiceDescriptor, ServiceRegistry
 from .schemas import validate_input, validate_output
 
-
 # Import types that can be used for annotations without causing cycles
 if TYPE_CHECKING:
     from .health import HealthState
-
-# Import HealthState for runtime use
-from .health import HealthState
 
 
 # Type alias for adapter factory to keep signatures short

@@ -3,9 +3,9 @@ Additional real-database tests for NotesRepository focusing on schema readiness 
 No mocks of repository logic; uses real SQLite via db_manager fixture.
 """
 
+import uuid
 from datetime import datetime
 from unittest.mock import patch
-import uuid
 
 import pytest
 
