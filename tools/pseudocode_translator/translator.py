@@ -9,15 +9,15 @@ from __future__ import annotations
 
 # Standard imports group
 import ast
-from collections.abc import Callable, Iterator
 import contextlib
+import logging
+import threading
+import time
+from collections.abc import Callable, Iterator
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from enum import Enum
-import logging
 from pathlib import Path
-import threading
-import time
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar, cast
 
 from .assembler import CodeAssembler
@@ -35,8 +35,8 @@ from .models import BlockType, CodeBlock
 from .models.base_model import (
     BaseTranslationModel,
     OutputLanguage,
-    TranslationConfig as ModelTranslationConfig,
 )
+from .models.base_model import TranslationConfig as ModelTranslationConfig
 from .models.model_factory import ModelFactory, create_model
 from .models.plugin_system import get_plugin_system
 from .parser import ParserModule
@@ -45,10 +45,8 @@ from .services.validation_service import ValidationService
 from .telemetry import get_recorder
 from .validator import ValidationResult, Validator
 
-
 if TYPE_CHECKING:
     from .config import TranslatorConfig
-
 
 try:
     from concurrent.futures.process import BrokenProcessPool as _BrokenProcessPool  # type: ignore
@@ -1282,7 +1280,8 @@ class TranslationManager:
         """Return telemetry snapshot if enabled, else {}."""
         try:
             # Import on demand to avoid issues if module layout changes
-            from .telemetry import get_recorder as _get_rec, telemetry_enabled as _t_enabled
+            from .telemetry import get_recorder as _get_rec
+            from .telemetry import telemetry_enabled as _t_enabled
 
             if _t_enabled():
                 rec_any: Any = _get_rec()

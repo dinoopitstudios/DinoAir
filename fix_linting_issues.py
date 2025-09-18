@@ -9,8 +9,8 @@ This handles:
 Usage: python fix_linting_issues.py
 """
 
-from pathlib import Path
 import re
+from pathlib import Path
 
 
 def get_python_files(directory: Path) -> list[Path]:

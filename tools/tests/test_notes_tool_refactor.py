@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-
 if TYPE_CHECKING:
     from tools.tests.helpers.db_stubs import NotesDBStub
-
 
 pytestmark = pytest.mark.usefixtures("patch_tools")
 
