@@ -96,14 +96,19 @@ def test_well_formed_blank_pdfs_property(num_pages: int, meta: str):
     proc = SafePDFProcessor(timeout=2, max_pages=3, max_file_size=5 * 1024 * 1024)  # 5 MiB cap
     result = proc.extract_text_from_bytes(pdf_bytes, filename="fuzz.pdf")
 
-    assert result["success"] is True
-    assert result["error"] is None
-    assert result["total_pages"] == num_pages
+    if result["success"] is not True:
+        raise AssertionError
+    if result["error"] is not None:
+        raise AssertionError
+    if result["total_pages"] != num_pages:
+        raise AssertionError
     assert isinstance(result["text"], str)
     assert isinstance(result["warnings"], list)
-    assert 0 <= result["pages_processed"] <= num_pages
+    if not 0 <= result["pages_processed"] <= num_pages:
+        raise AssertionError
     # Bound result size comfortably (blank pages should be very small)
-    assert len(result["text"]) <= 10000
+    if len(result["text"]) > 10000:
+        raise AssertionError
 
 
 @pytest.mark.fuzz
@@ -121,11 +126,15 @@ def test_malformed_bytes_without_header_returns_error(payload: bytes):
     """
     proc = SafePDFProcessor(timeout=1)
     result = proc.extract_text_from_bytes(payload, filename="random.bin")
-    assert result["success"] is False
-    assert result["text"] == ""
-    assert result["error"] is not None
+    if result["success"] is not False:
+        raise AssertionError
+    if result["text"] != "":
+        raise AssertionError
+    if result["error"] is None:
+        raise AssertionError
     # Error should indicate missing/invalid header
-    assert "valid PDF header" in (result.get("error") or "")
+    if "valid PDF header" not in (result.get("error") or ""):
+        raise AssertionError
 
 
 @pytest.mark.fuzz
@@ -148,14 +157,17 @@ def test_random_bytes_with_pdf_header_never_crash(rest: bytes):
     assert isinstance(result.get("warnings"), list)
     # Either we got a parse error or a parsed doc (possibly 0 pages)
     if result["success"]:
-        assert result["error"] in (None, "")
+        if result["error"] not in (None, ""):
+            raise AssertionError
         assert isinstance(result.get("total_pages"), int)
         assert isinstance(result.get("pages_processed"), int)
     else:
-        assert result["error"] is not None
+        if result["error"] is None:
+            raise AssertionError
 
     # Keep output bounded for safety; real extractor also truncates per page to ~100KB
-    assert len(result["text"]) <= 300000
+    if len(result["text"]) > 300000:
+        raise AssertionError
 
 
 @pytest.mark.unit
@@ -179,5 +191,7 @@ def test_tiny_timeout_induces_timeout_on_reader_construction(monkeypatch):
     proc = SafePDFProcessor(timeout=0.05)
     result = proc.extract_text_from_bytes(pdf_bytes, filename="slow.pdf")
 
-    assert result["success"] is False
-    assert "timed out" in (result.get("error") or "")
+    if result["success"] is not False:
+        raise AssertionError
+    if "timed out" not in (result.get("error") or ""):
+        raise AssertionError

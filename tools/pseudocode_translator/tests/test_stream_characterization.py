@@ -85,21 +85,28 @@ def test_line_by_line_yields_and_events(monkeypatch):
     )
 
     # Yields: one per input line, each with trailing newline
-    assert out == ["print('ok')\n", "print('ok')\n"]
+    if out != ["print('ok')\n", "print('ok')\n"]:
+        raise AssertionError
 
     # Event lifecycle presence and order
-    assert len(seen_types) >= 2
-    assert seen_types[0] == StreamingEvent.STARTED
+    if len(seen_types) < 2:
+        raise AssertionError
+    if seen_types[0] != StreamingEvent.STARTED:
+        raise AssertionError
     # COMPLETED may be emitted asynchronously; assert presence only if delivered
     if StreamingEvent.COMPLETED in seen_types:
-        assert seen_types.index(StreamingEvent.COMPLETED) > seen_types.index(StreamingEvent.STARTED)
+        if seen_types.index(StreamingEvent.COMPLETED) <= seen_types.index(StreamingEvent.STARTED):
+            raise AssertionError
     # Presence of translation events
-    assert StreamingEvent.TRANSLATION_STARTED in seen_types
-    assert StreamingEvent.TRANSLATION_COMPLETED in seen_types
+    if StreamingEvent.TRANSLATION_STARTED not in seen_types:
+        raise AssertionError
+    if StreamingEvent.TRANSLATION_COMPLETED not in seen_types:
+        raise AssertionError
 
     # on_update called once per translated block with expected fields
     assert len(updates) == 2
-    assert all(u.translated_content == "print('ok')" for u in updates)
+    if not all(u.translated_content == "print('ok')" for u in updates):
+        raise AssertionError
 
 
 def test_full_document_chunk_events_and_yields(monkeypatch):
@@ -138,30 +145,40 @@ def test_full_document_chunk_events_and_yields(monkeypatch):
     )
 
     # Expect at least one output item; each chunk result ends with \n\n
-    assert len(out) >= 1
+    if len(out) < 1:
+        raise AssertionError
     for chunk_out in out:
-        assert chunk_out.endswith("\n\n")
+        if not chunk_out.endswith("\n\n"):
+            raise AssertionError
 
     # Event lifecycle and chunk events
-    assert seen_types[0] == StreamingEvent.STARTED
+    if seen_types[0] != StreamingEvent.STARTED:
+        raise AssertionError
     # COMPLETED may be emitted asynchronously; assert presence only if delivered
     if StreamingEvent.COMPLETED in seen_types:
-        assert seen_types.index(StreamingEvent.COMPLETED) > seen_types.index(StreamingEvent.STARTED)
-    assert StreamingEvent.CHUNK_STARTED in seen_types
+        if seen_types.index(StreamingEvent.COMPLETED) <= seen_types.index(StreamingEvent.STARTED):
+            raise AssertionError
+    if StreamingEvent.CHUNK_STARTED not in seen_types:
+        raise AssertionError
     if StreamingEvent.CHUNK_COMPLETED in seen_types:
-        assert seen_types.index(StreamingEvent.CHUNK_COMPLETED) > seen_types.index(
+        if seen_types.index(StreamingEvent.CHUNK_COMPLETED) <= seen_types.index(
             StreamingEvent.CHUNK_STARTED
-        )
+        ):
+            raise AssertionError
     # Translation events also present for ENGLISH blocks
-    assert StreamingEvent.TRANSLATION_STARTED in seen_types
+    if StreamingEvent.TRANSLATION_STARTED not in seen_types:
+        raise AssertionError
     if StreamingEvent.TRANSLATION_COMPLETED in seen_types:
-        assert seen_types.index(StreamingEvent.TRANSLATION_COMPLETED) > seen_types.index(
+        if seen_types.index(StreamingEvent.TRANSLATION_COMPLETED) <= seen_types.index(
             StreamingEvent.TRANSLATION_STARTED
-        )
+        ):
+            raise AssertionError
 
     # on_update called for translated ENGLISH blocks
-    assert len(updates) >= 1
-    assert all(u.translated_content is not None for u in updates)
+    if len(updates) < 1:
+        raise AssertionError
+    if not all(u.translated_content is not None for u in updates):
+        raise AssertionError
 
 
 def test_interactive_session_prefix_and_updates(monkeypatch):
@@ -200,20 +217,29 @@ def test_interactive_session_prefix_and_updates(monkeypatch):
 
     # Expect one response per input with the documented prefix and trailing double newline
     assert len(out) == 2
-    assert out[0].startswith("# Translation 0:\n")
-    assert out[0].endswith("\n\n")
-    assert out[1].startswith("# Translation 1:\n")
-    assert out[1].endswith("\n\n")
+    if not out[0].startswith("# Translation 0:\n"):
+        raise AssertionError
+    if not out[0].endswith("\n\n"):
+        raise AssertionError
+    if not out[1].startswith("# Translation 1:\n"):
+        raise AssertionError
+    if not out[1].endswith("\n\n"):
+        raise AssertionError
 
     # on_update metadata should mark interactive=True
-    assert len(updates) >= 2
-    assert all(u.metadata.get("interactive") is True for u in updates)
+    if len(updates) < 2:
+        raise AssertionError
+    if not all(u.metadata.get("interactive") is True for u in updates):
+        raise AssertionError
 
     # Event lifecycle present; translation events occur
-    assert seen_types[0] == StreamingEvent.STARTED
+    if seen_types[0] != StreamingEvent.STARTED:
+        raise AssertionError
     # COMPLETED may be emitted asynchronously; assert presence only if delivered
     if StreamingEvent.COMPLETED in seen_types:
-        assert seen_types.index(StreamingEvent.COMPLETED) > seen_types.index(StreamingEvent.STARTED)
+        if seen_types.index(StreamingEvent.COMPLETED) <= seen_types.index(StreamingEvent.STARTED):
+            raise AssertionError
     # Interactive may or may not emit TRANSLATION_* via the same path; if present, ensure pairing
     if StreamingEvent.TRANSLATION_STARTED in seen_types:
-        assert StreamingEvent.TRANSLATION_COMPLETED in seen_types
+        if StreamingEvent.TRANSLATION_COMPLETED not in seen_types:
+            raise AssertionError

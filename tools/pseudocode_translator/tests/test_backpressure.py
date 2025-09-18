@@ -133,10 +133,11 @@ def test_backpressure_enabled_limits_window(monkeypatch):
     _ = list(pipeline.stream_translate(input_text))
 
     expected_window = stream_cfg.max_concurrent_chunks + stream_cfg.max_queue_size
-    assert TrackingExecutor.peak_outstanding <= expected_window, (
-        f"Peak outstanding {TrackingExecutor.peak_outstanding} exceeded expected window {expected_window} "
-        f"with backpressure enabled."
-    )
+    if TrackingExecutor.peak_outstanding > expected_window:
+        raise AssertionError(
+            f"Peak outstanding {TrackingExecutor.peak_outstanding} exceeded expected window {expected_window} "
+            f"with backpressure enabled."
+        )
 
 
 def test_backpressure_disabled_limits_window(monkeypatch):
@@ -252,7 +253,8 @@ def test_backpressure_disabled_limits_window(monkeypatch):
     _ = list(pipeline.stream_translate(input_text))
 
     expected_window = stream_cfg.max_concurrent_chunks
-    assert TrackingExecutor.peak_outstanding <= expected_window, (
-        f"Peak outstanding {TrackingExecutor.peak_outstanding} exceeded expected window {expected_window} "
-        f"with backpressure disabled."
-    )
+    if TrackingExecutor.peak_outstanding > expected_window:
+        raise AssertionError(
+            f"Peak outstanding {TrackingExecutor.peak_outstanding} exceeded expected window {expected_window} "
+            f"with backpressure disabled."
+        )

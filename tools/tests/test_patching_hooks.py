@@ -41,8 +41,10 @@ def test_patch_file_search_db_with_override(monkeypatch, fsdb_with_original):
     # Test that the override function is called
     result = fsdb_with_original.get_embeddings_by_file("test_path")
     assert len(result) == 1
-    assert result[0]["chunk_id"] == "override"
-    assert "Overridden" in result[0]["content"]
+    if result[0]["chunk_id"] != "override":
+        raise AssertionError
+    if "Overridden" not in result[0]["content"]:
+        raise AssertionError
 
 
 def test_patch_file_search_db_without_override(monkeypatch, fsdb_with_original):
@@ -51,8 +53,10 @@ def test_patch_file_search_db_without_override(monkeypatch, fsdb_with_original):
 
     result = fsdb_with_original.get_embeddings_by_file("test_path")
     assert len(result) == 1
-    assert result[0]["chunk_id"] == "original"
-    assert "Original" in result[0]["content"]
+    if result[0]["chunk_id"] != "original":
+        raise AssertionError
+    if "Original" not in result[0]["content"]:
+        raise AssertionError
 
 
 def test_patch_file_search_db_override_exception(monkeypatch, fsdb_with_original):
@@ -79,7 +83,8 @@ def test_patch_file_search_db_override_unset(monkeypatch):
     _apply_patch_file_search_db(monkeypatch, stub)
 
     result = stub.get_embeddings_by_file("test_path")
-    assert result == []
+    if result != []:
+        raise AssertionError
 
 
 # --- TESTS FOR patch_notes_db _create_note_override HOOK (Comment 2) ---
@@ -116,8 +121,10 @@ def test_patch_notes_db_with_override(monkeypatch, notesdb_with_original):
 
     note = DummyNote("override_id")
     result = notesdb_with_original.create_note(note, "content")
-    assert result["message"] == "Overridden!"
-    assert result["note_id"] == "override_id"
+    if result["message"] != "Overridden!":
+        raise AssertionError
+    if result["note_id"] != "override_id":
+        raise AssertionError
 
 
 def test_patch_notes_db_without_override(monkeypatch, notesdb_with_original):
@@ -126,8 +133,10 @@ def test_patch_notes_db_without_override(monkeypatch, notesdb_with_original):
 
     note = DummyNote("orig_id")
     result = notesdb_with_original.create_note(note, "content")
-    assert result["message"] == "Original create_note"
-    assert result["note_id"] == "orig_id"
+    if result["message"] != "Original create_note":
+        raise AssertionError
+    if result["note_id"] != "orig_id":
+        raise AssertionError
 
 
 def test_patch_notes_db_fallback(monkeypatch):
@@ -177,7 +186,8 @@ def test_patch_projects_db_module_override(monkeypatch):
     # This test demonstrates the expected behavior, though the actual
     # implementation would need to be tested with real module imports
     db = mock_module.projectsdb_stub
-    assert db.get_project("123")["name"] == "module_override"
+    if db.get_project("123")["name"] != "module_override":
+        raise AssertionError
 
 
 def test_patch_projects_db_function_override(monkeypatch):
@@ -191,7 +201,8 @@ def test_patch_projects_db_function_override(monkeypatch):
     _apply_patch_projects_db(monkeypatch, stub)
 
     # The patching should make this stub available to the tool functions
-    assert stub.get_project("456")["name"] == "function_override"
+    if stub.get_project("456")["name"] != "function_override":
+        raise AssertionError
 
 
 def test_patch_projects_db_fallback(monkeypatch):
@@ -204,7 +215,8 @@ def test_patch_projects_db_fallback(monkeypatch):
     stub = DefaultProjectsDBStub()
     _apply_patch_projects_db(monkeypatch, stub)
 
-    assert stub.get_project("789")["name"] == "default_stub"
+    if stub.get_project("789")["name"] != "default_stub":
+        raise AssertionError
 
 
 def test_patch_projects_db_missing_override(monkeypatch):
@@ -225,7 +237,8 @@ def test_patch_tools_autouse_behavior():
     from tools.tests.conftest import patch_tools
 
     # Verify the fixture is callable (indicating it's properly defined)
-    assert callable(patch_tools)
+    if not callable(patch_tools):
+        raise AssertionError
 
     # The current implementation uses autouse=True for all tests
     # Future improvement: Make it conditional based on test module names
@@ -247,16 +260,19 @@ def test_conditional_autouse_concept():
         )
 
     # Test smoke tests get patches
-    assert should_apply_patches("tools.tests.test_tool_runtime_smoke") is True
+    if should_apply_patches("tools.tests.test_tool_runtime_smoke") is not True:
+        raise AssertionError
 
     # Test tool refactor tests get patches
-    assert should_apply_patches("tools.tests.test_file_search_tool_refactor") is True
+    if should_apply_patches("tools.tests.test_file_search_tool_refactor") is not True:
+        raise AssertionError
 
     # Test that other tests might be excluded (future enhancement)
     # For now, we include the hooks test as well since it tests the infrastructure
-    assert (
-        should_apply_patches("tools.tests.test_patching_hooks") is False
-    )  # Would be excluded in conditional mode
+    if (
+        should_apply_patches("tools.tests.test_patching_hooks") is not False
+    ):
+        raise AssertionError
 
 
 # Tests for Comment 5 - _safe_patch and _patch_many helpers
@@ -289,7 +305,8 @@ def test_safe_patch_successful_patching(monkeypatch):
     target = f"{module_name}.TestTarget.value"
 
     _safe_patch(monkeypatch, target, "patched")
-    assert TestTarget.value == "patched"
+    if TestTarget.value != "patched":
+        raise AssertionError
 
 
 def test_safe_patch_missing_target(monkeypatch):
@@ -320,8 +337,10 @@ def test_patch_many_multiple_targets(monkeypatch):
 
     _patch_many(monkeypatch, targets, "patched")
 
-    assert TestTarget1.value == "patched"
-    assert TestTarget2.value == "patched"
+    if TestTarget1.value != "patched":
+        raise AssertionError
+    if TestTarget2.value != "patched":
+        raise AssertionError
 
 
 def test_patch_many_error_handling(monkeypatch):
@@ -344,4 +363,5 @@ def test_patch_many_error_handling(monkeypatch):
     _patch_many(monkeypatch, targets, "patched")
 
     # Should successfully patch the valid target
-    assert TestTarget.value == "patched"
+    if TestTarget.value != "patched":
+        raise AssertionError

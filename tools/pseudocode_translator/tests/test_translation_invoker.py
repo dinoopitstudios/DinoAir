@@ -69,16 +69,21 @@ def test_invoker_emits_started_then_completed_and_updates_buffer():
     )
 
     # Validate return and buffer update
-    assert out == "x = 1"
-    assert "x = 1" in buffer.get_context()
+    if out != "x = 1":
+        raise AssertionError
+    if "x = 1" not in buffer.get_context():
+        raise AssertionError
 
     # Validate event ordering and types
-    assert len(events) >= 2
+    if len(events) < 2:
+        raise AssertionError
     from pseudocode_translator.streaming.stream_translator import StreamingEvent
 
     types = [e.event for e in events]
-    assert types[0] == StreamingEvent.TRANSLATION_STARTED
-    assert types[-1] == StreamingEvent.TRANSLATION_COMPLETED
+    if types[0] != StreamingEvent.TRANSLATION_STARTED:
+        raise AssertionError
+    if types[-1] != StreamingEvent.TRANSLATION_COMPLETED:
+        raise AssertionError
 
 
 def test_invoker_failure_no_code_returns_expected_message():
@@ -93,7 +98,8 @@ def test_invoker_failure_no_code_returns_expected_message():
             manager=_ManagerNoCode(),
             chunk_index=0,
         )
-    assert "Translation failed: No code returned" in str(ex.value)
+    if "Translation failed: No code returned" not in str(ex.value):
+        raise AssertionError
 
 
 def test_invoker_failure_with_errors_list_in_message():
@@ -109,4 +115,5 @@ def test_invoker_failure_with_errors_list_in_message():
             chunk_index=0,
         )
     # Comma-joined errors should be present
-    assert "Translation failed: err_a, err_b" in str(ex.value)
+    if "Translation failed: err_a, err_b" not in str(ex.value):
+        raise AssertionError

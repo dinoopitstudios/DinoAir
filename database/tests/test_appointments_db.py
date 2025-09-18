@@ -76,17 +76,24 @@ def test_appointments_crud_workflow(db_manager):
         created_ids.append(new_event.id)
 
         create_result = db.create_event(new_event)
-        assert create_result["success"] is True
+        if create_result["success"] is not True:
+            raise AssertionError
 
         # READ - Test event retrieval
         retrieved_event = db.get_event(new_event.id)
         assert retrieved_event is not None
-        assert retrieved_event.id == new_event.id
-        assert retrieved_event.title == "CRUD Test Event"
-        assert retrieved_event.description == "Testing CRUD operations"
-        assert retrieved_event.event_type == "meeting"
-        assert retrieved_event.location == "Conference Room A"
-        assert retrieved_event.status == "scheduled"
+        if retrieved_event.id != new_event.id:
+            raise AssertionError
+        if retrieved_event.title != "CRUD Test Event":
+            raise AssertionError
+        if retrieved_event.description != "Testing CRUD operations":
+            raise AssertionError
+        if retrieved_event.event_type != "meeting":
+            raise AssertionError
+        if retrieved_event.location != "Conference Room A":
+            raise AssertionError
+        if retrieved_event.status != "scheduled":
+            raise AssertionError
 
         # UPDATE - Test event modification
         update_data = {
@@ -97,18 +104,24 @@ def test_appointments_crud_workflow(db_manager):
         }
 
         update_result = db.update_event(new_event.id, update_data)
-        assert update_result is True
+        if update_result is not True:
+            raise AssertionError
 
         # Verify updates
         updated_event = db.get_event(new_event.id)
-        assert updated_event.title == "Updated CRUD Test Event"
-        assert updated_event.description == "Updated description"
-        assert updated_event.status == "in_progress"
-        assert updated_event.location == "Conference Room B"
+        if updated_event.title != "Updated CRUD Test Event":
+            raise AssertionError
+        if updated_event.description != "Updated description":
+            raise AssertionError
+        if updated_event.status != "in_progress":
+            raise AssertionError
+        if updated_event.location != "Conference Room B":
+            raise AssertionError
 
         # DELETE - Test event removal
         delete_result = db.delete_event(new_event.id)
-        assert delete_result is True
+        if delete_result is not True:
+            raise AssertionError
 
         # Verify deletion
         deleted_event = db.get_event(new_event.id)
@@ -171,36 +184,48 @@ def test_appointments_query_operations(db_manager):
             created_events.append(event)
 
             result = db.create_event(event)
-            assert result["success"] is True
+            if result["success"] is not True:
+                raise AssertionError
 
         # Test date range queries
         date_range_events = db.get_events_for_date_range(today, tomorrow)
         date_range_ids = [e.id for e in date_range_events]
 
         # Should include today and tomorrow events
-        assert created_events[0].id in date_range_ids  # Daily Standup
-        assert created_events[1].id in date_range_ids  # Project Review
-        assert created_events[3].id in date_range_ids  # Completed Task
+        if created_events[0].id not in date_range_ids:
+            raise AssertionError
+        if created_events[1].id not in date_range_ids:
+            raise AssertionError
+        if created_events[3].id not in date_range_ids:
+            raise AssertionError
 
         # Test search functionality
         search_results = db.search_events("standup")
-        assert len(search_results) >= 1
-        assert any(e.id == created_events[0].id for e in search_results)
+        if len(search_results) < 1:
+            raise AssertionError
+        if not any(e.id == created_events[0].id for e in search_results):
+            raise AssertionError
 
         search_results = db.search_events("project")
-        assert len(search_results) >= 1
-        assert any(e.id == created_events[1].id for e in search_results)
+        if len(search_results) < 1:
+            raise AssertionError
+        if not any(e.id == created_events[1].id for e in search_results):
+            raise AssertionError
 
         # Test status filtering
         scheduled_events = db.get_events_by_status("scheduled")
         scheduled_ids = [e.id for e in scheduled_events]
-        assert created_events[0].id in scheduled_ids
-        assert created_events[1].id in scheduled_ids
-        assert created_events[2].id in scheduled_ids
+        if created_events[0].id not in scheduled_ids:
+            raise AssertionError
+        if created_events[1].id not in scheduled_ids:
+            raise AssertionError
+        if created_events[2].id not in scheduled_ids:
+            raise AssertionError
 
         completed_events = db.get_events_by_status("completed")
         completed_ids = [e.id for e in completed_events]
-        assert created_events[3].id in completed_ids
+        if created_events[3].id not in completed_ids:
+            raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)
@@ -224,7 +249,8 @@ def test_appointments_reminder_functionality(db_manager):
         created_ids.append(reminder_event.id)
 
         result = db.create_event(reminder_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Test reminder retrieval
         upcoming_reminders = db.get_upcoming_reminders()
@@ -242,7 +268,8 @@ def test_appointments_reminder_functionality(db_manager):
         created_ids.append(past_event.id)
 
         result = db.create_event(past_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Check for reminders
         upcoming_reminders = db.get_upcoming_reminders()
@@ -251,13 +278,15 @@ def test_appointments_reminder_functionality(db_manager):
         if upcoming_reminders:
             reminder_id = upcoming_reminders[0]["id"]
             mark_result = db.mark_reminder_sent(reminder_id)
-            assert mark_result is True
+            if mark_result is not True:
+                raise AssertionError
 
             # Verify reminder was marked as sent
             updated_reminders = db.get_upcoming_reminders()
             # The sent reminder should no longer appear in upcoming
             updated_reminder_ids = [r["id"] for r in updated_reminders]
-            assert reminder_id not in updated_reminder_ids
+            if reminder_id in updated_reminder_ids:
+                raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)
@@ -284,17 +313,21 @@ def test_appointments_recurring_events(db_manager):
         created_ids.append(recurring_event.id)
 
         result = db.create_event(recurring_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Verify recurring event was created
         retrieved_event = db.get_event(recurring_event.id)
         assert retrieved_event is not None
-        assert retrieved_event.recurrence_pattern == "weekly"
+        if retrieved_event.recurrence_pattern != "weekly":
+            raise AssertionError
 
         # Test search for recurring events
         recurring_search = db.search_events("weekly")
-        assert len(recurring_search) >= 1
-        assert any(e.id == recurring_event.id for e in recurring_search)
+        if len(recurring_search) < 1:
+            raise AssertionError
+        if not any(e.id == recurring_event.id for e in recurring_search):
+            raise AssertionError
 
         # Create monthly recurring event
         monthly_event = _new_calendar_event(title="Monthly Review", event_type="meeting")
@@ -302,7 +335,8 @@ def test_appointments_recurring_events(db_manager):
         created_ids.append(monthly_event.id)
 
         result = db.create_event(monthly_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)
@@ -320,7 +354,8 @@ def test_appointments_validation_and_edge_cases(db_manager):
         created_ids.append(minimal_event.id)
 
         result = db.create_event(minimal_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Test get non-existent event
         non_existent = db.get_event("non-existent-id")
@@ -328,18 +363,21 @@ def test_appointments_validation_and_edge_cases(db_manager):
 
         # Test update non-existent event
         update_result = db.update_event("non-existent-id", {"title": "New Title"})
-        assert update_result is False
+        if update_result is not False:
+            raise AssertionError
 
         # Test delete non-existent event
         delete_result = db.delete_event("non-existent-id")
-        assert delete_result is False
+        if delete_result is not False:
+            raise AssertionError
 
         # Test create event with duplicate ID (should handle gracefully)
         duplicate_event = CalendarEvent(id=minimal_event.id, title="Duplicate Event")
 
         duplicate_result = db.create_event(duplicate_event)
         # Should either succeed with update or fail gracefully
-        assert "success" in duplicate_result
+        if "success" not in duplicate_result:
+            raise AssertionError
 
         # Test all-day event
         all_day_event = _new_calendar_event(title="All Day Event", start_time=None, end_time=None)
@@ -347,11 +385,13 @@ def test_appointments_validation_and_edge_cases(db_manager):
         created_ids.append(all_day_event.id)
 
         all_day_result = db.create_event(all_day_event)
-        assert all_day_result["success"] is True
+        if all_day_result["success"] is not True:
+            raise AssertionError
 
         retrieved_all_day = db.get_event(all_day_event.id)
         assert retrieved_all_day is not None
-        assert retrieved_all_day.all_day is True
+        if retrieved_all_day.all_day is not True:
+            raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)
@@ -380,7 +420,8 @@ def test_appointments_complex_data_handling(db_manager):
         created_ids.append(complex_event.id)
 
         result = db.create_event(complex_event)
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Retrieve and verify complex data
         retrieved = db.get_event(complex_event.id)
@@ -388,24 +429,35 @@ def test_appointments_complex_data_handling(db_manager):
 
         # Verify participants handling
         assert len(retrieved.participants) == 3
-        assert "alice@test.com" in retrieved.participants
-        assert "bob@test.com" in retrieved.participants
-        assert "charlie@test.com" in retrieved.participants
+        if "alice@test.com" not in retrieved.participants:
+            raise AssertionError
+        if "bob@test.com" not in retrieved.participants:
+            raise AssertionError
+        if "charlie@test.com" not in retrieved.participants:
+            raise AssertionError
 
         assert len(retrieved.tags) == 3
-        assert "important" in retrieved.tags
-        assert "quarterly" in retrieved.tags
-        assert "review" in retrieved.tags
+        if "important" not in retrieved.tags:
+            raise AssertionError
+        if "quarterly" not in retrieved.tags:
+            raise AssertionError
+        if "review" not in retrieved.tags:
+            raise AssertionError
 
         if retrieved.metadata:
-            assert retrieved.metadata.get("room") == "Conference Room A"
-            assert retrieved.metadata.get("catering") is True
-            assert retrieved.metadata.get("attendee_count") == 15
+            if retrieved.metadata.get("room") != "Conference Room A":
+                raise AssertionError
+            if retrieved.metadata.get("catering") is not True:
+                raise AssertionError
+            if retrieved.metadata.get("attendee_count") != 15:
+                raise AssertionError
 
         # Test search by participants (use search functionality)
         quarterly_events = db.search_events("Quarterly")
-        assert len(quarterly_events) >= 1
-        assert any(e.id == complex_event.id for e in quarterly_events)
+        if len(quarterly_events) < 1:
+            raise AssertionError
+        if not any(e.id == complex_event.id for e in quarterly_events):
+            raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)
@@ -433,7 +485,8 @@ def test_appointments_performance_bulk_operations(db_manager):
         # Bulk create
         for event in events:
             result = db.create_event(event)
-            assert result["success"] is True
+            if result["success"] is not True:
+                raise AssertionError
 
         # Test bulk retrieval using date range
         today = date.today()
@@ -444,18 +497,21 @@ def test_appointments_performance_bulk_operations(db_manager):
 
         # Verify all created events are in the retrieved list
         for event_id in created_event_ids:
-            assert event_id in retrieved_ids
+            if event_id not in retrieved_ids:
+                raise AssertionError
 
         # Test bulk update (update all to completed status)
         for event in events:
             update_result = db.update_event(event.id, {"status": "completed"})
-            assert update_result is True
+            if update_result is not True:
+                raise AssertionError
 
         # Verify bulk updates
         completed_events = db.get_events_by_status("completed")
         completed_ids = [e.id for e in completed_events]
         for event_id in created_event_ids:
-            assert event_id in completed_ids
+            if event_id not in completed_ids:
+                raise AssertionError
 
     finally:
         _cleanup_events(db, created_ids)

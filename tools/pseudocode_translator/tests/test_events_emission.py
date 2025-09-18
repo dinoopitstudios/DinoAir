@@ -35,7 +35,8 @@ def test_translation_events_emitted_on_success():
         instruction = "Define a function add(a, b) that returns their sum."
         result = manager.translate_pseudocode(instruction)
 
-        assert result.success is True
+        if result.success is not True:
+            raise AssertionError
 
         # Capture translation lifecycle events in order
         lifecycle = _events_of(
@@ -46,15 +47,19 @@ def test_translation_events_emitted_on_success():
         )
         # Must have STARTED then COMPLETED (no FAILED expected on success path)
         types_in_order = [e.type for e in lifecycle]
-        assert EventType.TRANSLATION_STARTED in types_in_order
-        assert EventType.TRANSLATION_COMPLETED in types_in_order
-        assert types_in_order.index(EventType.TRANSLATION_STARTED) < types_in_order.index(
+        if EventType.TRANSLATION_STARTED not in types_in_order:
+            raise AssertionError
+        if EventType.TRANSLATION_COMPLETED not in types_in_order:
+            raise AssertionError
+        if types_in_order.index(EventType.TRANSLATION_STARTED) >= types_in_order.index(
             EventType.TRANSLATION_COMPLETED
-        )
+        ):
+            raise AssertionError
 
         # Completed payload should include success True
         completed = next(e for e in lifecycle if e.type == EventType.TRANSLATION_COMPLETED)
-        assert completed.data.get("success") is True
+        if completed.data.get("success") is not True:
+            raise AssertionError
     finally:
         manager.shutdown()
 
@@ -74,8 +79,10 @@ def test_model_changed_event_emitted():
         manager.switch_model("mock")
 
         model_events = _events_of(events, EventType.MODEL_CHANGED)
-        assert len(model_events) >= 1
-        assert model_events[-1].data.get("model") == "mock"
+        if len(model_events) < 1:
+            raise AssertionError
+        if model_events[-1].data.get("model") != "mock":
+            raise AssertionError
     finally:
         manager.shutdown()
 
@@ -118,16 +125,21 @@ def test_stream_events_emitted(monkeypatch):
 
     # Execute streaming
     results = list(pipeline.stream_translate(input_text))
-    assert len(results) >= 1
+    if len(results) < 1:
+        raise AssertionError
 
     # Verify emissions: STREAM_STARTED, at least one STREAM_CHUNK_PROCESSED, STREAM_COMPLETED
     started = any(e.type == EventType.STREAM_STARTED for e in events)
     completed = any(e.type == EventType.STREAM_COMPLETED for e in events)
     chunk_events = [e for e in events if e.type == EventType.STREAM_CHUNK_PROCESSED]
 
-    assert started is True
-    assert completed is True
-    assert len(chunk_events) >= 1
+    if started is not True:
+        raise AssertionError
+    if completed is not True:
+        raise AssertionError
+    if len(chunk_events) < 1:
+        raise AssertionError
 
     # Per-chunk event should include a boolean success
-    assert all(isinstance(e.data.get("success"), bool) for e in chunk_events)
+    if not all(isinstance(e.data.get("success"), bool) for e in chunk_events):
+        raise AssertionError

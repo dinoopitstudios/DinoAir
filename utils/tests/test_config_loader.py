@@ -36,7 +36,8 @@ EMPTY_VAR=
                     "DB_TIMEOUT": "30",
                     "EMPTY_VAR": "",
                 }
-                assert result == expected
+                if result != expected:
+                    raise AssertionError
             finally:
                 f.close()  # Explicitly close file handle on Windows
                 os.unlink(f.name)
@@ -44,7 +45,8 @@ EMPTY_VAR=
     def test_load_env_file_not_exists(self):
         """Test loading non-existent .env file."""
         result = load_env_file(Path("/nonexistent/.env"))
-        assert result == {}
+        if result != {}:
+            raise AssertionError
 
     def test_load_env_file_empty(self):
         """Test loading empty .env file."""
@@ -54,7 +56,8 @@ EMPTY_VAR=
 
             try:
                 result = load_env_file(Path(f.name))
-                assert result == {}
+                if result != {}:
+                    raise AssertionError
             finally:
                 f.close()  # Explicitly close file handle on Windows
                 os.unlink(f.name)
@@ -73,7 +76,8 @@ ANOTHER=valid
             try:
                 result = load_env_file(Path(f.name))
                 expected = {"VALID": "value", "ANOTHER": "valid"}
-                assert result == expected
+                if result != expected:
+                    raise AssertionError
             finally:
                 f.close()  # Explicitly close file handle on Windows
                 os.unlink(f.name)
@@ -88,8 +92,10 @@ class TestConfigLoader:
             config_path = Path(temp_dir) / "test_config.json"
             loader = ConfigLoader(config_path)
 
-            assert loader.config_path == config_path
-            assert loader.env_path == Path(temp_dir) / ".env"
+            if loader.config_path != config_path:
+                raise AssertionError
+            if loader.env_path != Path(temp_dir) / ".env":
+                raise AssertionError
 
     def test_load_config_file_exists(self):
         """Test loading configuration when file exists."""
@@ -106,11 +112,16 @@ class TestConfigLoader:
             with patch("utils.config_loader.load_env_file", return_value={}):
                 loader = ConfigLoader(config_path)
                 # Config should merge file data with defaults
-                assert loader.config_data["app"]["name"] == "TestApp"  # From config file
-                assert loader.config_data["app"]["version"] == "1.0.0"  # From config file
-                assert loader.config_data["database"]["host"] == "localhost"  # From config file
-                assert loader.config_data["app"]["theme"] == "light"  # From defaults
-                assert loader.config_data["ai"]["model"] == "gpt-3.5-turbo"  # From defaults
+                if loader.config_data["app"]["name"] != "TestApp":
+                    raise AssertionError
+                if loader.config_data["app"]["version"] != "1.0.0":
+                    raise AssertionError
+                if loader.config_data["database"]["host"] != "localhost":
+                    raise AssertionError
+                if loader.config_data["app"]["theme"] != "light":
+                    raise AssertionError
+                if loader.config_data["ai"]["model"] != "gpt-3.5-turbo":
+                    raise AssertionError
 
     def test_load_config_file_not_exists(self):
         """Test loading configuration when file doesn't exist."""
@@ -120,8 +131,10 @@ class TestConfigLoader:
             with patch("utils.config_loader.load_env_file", return_value={}):
                 loader = ConfigLoader(config_path)
                 # Should create default config
-                assert "app" in loader.config_data
-                assert "database" in loader.config_data
+                if "app" not in loader.config_data:
+                    raise AssertionError
+                if "database" not in loader.config_data:
+                    raise AssertionError
 
     def test_env_overrides(self):
         """Test environment variable overrides."""
@@ -142,9 +155,12 @@ class TestConfigLoader:
                 loader = ConfigLoader(config_path)
 
                 # Check that env vars overrode config
-                assert loader.get("app.debug") is True
-                assert loader.get("logging.level") == "INFO"
-                assert loader.get("database.connection_timeout") == 30
+                if loader.get("app.debug") is not True:
+                    raise AssertionError
+                if loader.get("logging.level") != "INFO":
+                    raise AssertionError
+                if loader.get("database.connection_timeout") != 30:
+                    raise AssertionError
 
     def test_env_type_conversion(self):
         """Test environment variable type conversion."""
@@ -164,11 +180,16 @@ class TestConfigLoader:
             with patch("utils.config_loader.load_env_file", return_value=env_vars):
                 loader = ConfigLoader(config_path)
 
-                assert loader.get("app.debug") is True  # bool
-                assert loader.get("logging.level") == "INFO"  # string
-                assert loader.get("database.connection_timeout") == 30  # int
-                assert loader.get("ai.temperature") == 0.7  # float
-                assert loader.get("ai.max_tokens") == 2000  # int
+                if loader.get("app.debug") is not True:
+                    raise AssertionError
+                if loader.get("logging.level") != "INFO":
+                    raise AssertionError
+                if loader.get("database.connection_timeout") != 30:
+                    raise AssertionError
+                if loader.get("ai.temperature") != 0.7:
+                    raise AssertionError
+                if loader.get("ai.max_tokens") != 2000:
+                    raise AssertionError
 
     def test_get_method(self):
         """Test get method with dot notation."""
@@ -185,11 +206,16 @@ class TestConfigLoader:
             with patch("utils.config_loader.load_env_file", return_value={}):
                 loader = ConfigLoader(config_path)
 
-                assert loader.get("app.name") == "TestApp"
-                assert loader.get("app.settings.theme") == "dark"
-                assert loader.get("database.host") == "localhost"
-                assert loader.get("nonexistent.key", "default") == "default"
-                assert loader.get("nonexistent.key") is None
+                if loader.get("app.name") != "TestApp":
+                    raise AssertionError
+                if loader.get("app.settings.theme") != "dark":
+                    raise AssertionError
+                if loader.get("database.host") != "localhost":
+                    raise AssertionError
+                if loader.get("nonexistent.key", "default") != "default":
+                    raise AssertionError
+                if loader.get("nonexistent.key") is not None:
+                    raise AssertionError
 
     def test_get_env_method(self):
         """Test get_env method."""
@@ -201,10 +227,14 @@ class TestConfigLoader:
             with patch("utils.config_loader.load_env_file", return_value=env_vars):
                 loader = ConfigLoader(config_path)
 
-                assert loader.get_env("API_KEY") == "secret123"
-                assert loader.get_env("DEBUG") == "true"
-                assert loader.get_env("NONEXISTENT", "default") == "default"
-                assert loader.get_env("NONEXISTENT") == ""
+                if loader.get_env("API_KEY") != "secret123":
+                    raise AssertionError
+                if loader.get_env("DEBUG") != "true":
+                    raise AssertionError
+                if loader.get_env("NONEXISTENT", "default") != "default":
+                    raise AssertionError
+                if loader.get_env("NONEXISTENT") != "":
+                    raise AssertionError
 
     def test_set_method(self):
         """Test set method with dot notation."""
@@ -216,15 +246,18 @@ class TestConfigLoader:
 
                 # Test setting new values
                 loader.set("app.new_setting", "value")
-                assert loader.get("app.new_setting") == "value"
+                if loader.get("app.new_setting") != "value":
+                    raise AssertionError
 
                 # Test updating existing values
                 loader.set("app.name", "UpdatedApp")
-                assert loader.get("app.name") == "UpdatedApp"
+                if loader.get("app.name") != "UpdatedApp":
+                    raise AssertionError
 
                 # Test nested creation
                 loader.set("new.section.deep.value", 42)
-                assert loader.get("new.section.deep.value") == 42
+                if loader.get("new.section.deep.value") != 42:
+                    raise AssertionError
 
     def test_save_config(self):
         """Test saving configuration to file."""
@@ -241,10 +274,12 @@ class TestConfigLoader:
                 loader.save_config()
 
                 # Verify file was written
-                assert config_path.exists()
+                if not config_path.exists():
+                    raise AssertionError
                 with open(config_path) as f:
                     saved_data = json.load(f)
-                    assert saved_data["test"]["key"] == "test_value"
+                    if saved_data["test"]["key"] != "test_value":
+                        raise AssertionError
 
     def test_create_default_config(self):
         """Test default configuration creation."""
@@ -255,17 +290,26 @@ class TestConfigLoader:
                 loader = ConfigLoader(config_path)
 
                 # Should have all expected sections
-                assert "app" in loader.config_data
-                assert "database" in loader.config_data
-                assert "ai" in loader.config_data
-                assert "ui" in loader.config_data
-                assert "error_handling" in loader.config_data
+                if "app" not in loader.config_data:
+                    raise AssertionError
+                if "database" not in loader.config_data:
+                    raise AssertionError
+                if "ai" not in loader.config_data:
+                    raise AssertionError
+                if "ui" not in loader.config_data:
+                    raise AssertionError
+                if "error_handling" not in loader.config_data:
+                    raise AssertionError
 
                 # Check some default values
-                assert loader.get("app.name") == "DinoAir 2.0"
-                assert loader.get("app.version") == "2.0.0"
-                assert loader.get("database.backup_on_startup") is True
-                assert loader.get("ai.model") == "gpt-3.5-turbo"
+                if loader.get("app.name") != "DinoAir 2.0":
+                    raise AssertionError
+                if loader.get("app.version") != "2.0.0":
+                    raise AssertionError
+                if loader.get("database.backup_on_startup") is not True:
+                    raise AssertionError
+                if loader.get("ai.model") != "gpt-3.5-turbo":
+                    raise AssertionError
 
     def test_error_handling(self):
         """Test error handling in config loading."""
@@ -284,7 +328,8 @@ class TestConfigLoader:
                     mock_logger().error.assert_called()
 
                     # Should have created default config
-                    assert "app" in loader.config_data
+                    if "app" not in loader.config_data:
+                        raise AssertionError
 
     def test_save_config_error_handling(self):
         """Test error handling in config saving."""
@@ -325,8 +370,10 @@ class TestConfigLoaderIntegration:
             loader = ConfigLoader(config_path)
 
             # Check that env overrode config
-            assert loader.get("app.debug") is True
-            assert loader.get("database.host") == "testdb"
+            if loader.get("app.debug") is not True:
+                raise AssertionError
+            if loader.get("database.host") != "testdb":
+                raise AssertionError
 
             # Modify and save
             loader.set("app.version", "2.0.0")
@@ -335,5 +382,7 @@ class TestConfigLoaderIntegration:
             # Verify persistence
             with open(config_path) as f:
                 saved = json.load(f)
-                assert saved["app"]["version"] == "2.0.0"
-                assert saved["app"]["debug"] is True  # From env
+                if saved["app"]["version"] != "2.0.0":
+                    raise AssertionError
+                if saved["app"]["debug"] is not True:
+                    raise AssertionError

@@ -8,11 +8,14 @@ def test_validate_config_valid_strict_ok():
     path = str(Path(__file__).parent / "fixtures" / "configs" / "valid_config.yaml")
     exit_code, result = validate_config(path, lenient=False)
 
-    assert exit_code == 0, f"Expected strict validation to pass, got {exit_code} with {result}"
+    if exit_code != 0:
+        raise AssertionError(f"Expected strict validation to pass, got {exit_code} with {result}")
     assert isinstance(result, dict)
-    assert result.get("errors") == []
+    if result.get("errors") != []:
+        raise AssertionError
     assert isinstance(result.get("warnings"), list)
-    assert result.get("path") == path
+    if result.get("path") != path:
+        raise AssertionError
 
 
 def test_validate_config_invalid_strict_errors():
@@ -20,11 +23,13 @@ def test_validate_config_invalid_strict_errors():
     path = str(Path(__file__).parent / "fixtures" / "configs" / "invalid_config.yaml")
     exit_code, result = validate_config(path, lenient=False)
 
-    assert exit_code == 1, "Strict mode should return nonzero exit on invalid config"
+    if exit_code != 1:
+        raise AssertionError("Strict mode should return nonzero exit on invalid config")
     assert isinstance(result, dict)
     errors = result.get("errors", [])
     assert isinstance(errors, list)
-    assert len(errors) > 0
+    if len(errors) <= 0:
+        raise AssertionError
     assert isinstance(result.get("warnings"), list)
 
 
@@ -38,20 +43,28 @@ def test_validate_config_lenient_collects_warnings():
     assert isinstance(result, dict)
     assert isinstance(result.get("errors"), list)
     assert isinstance(result.get("warnings"), list)
-    assert result.get("path") == path
+    if result.get("path") != path:
+        raise AssertionError
     # Accept both 0 or 1 depending on validator behavior; primarily ensure function executes and returns keys
-    assert exit_code in (0, 1)
+    if exit_code not in (0, 1):
+        raise AssertionError
 
 
 def test_validate_config_missing_file():
     missing = str(Path(__file__).parent / "fixtures" / "configs" / "does_not_exist.yaml")
     exit_code, result = validate_config(missing, lenient=False)
 
-    assert exit_code == 1
+    if exit_code != 1:
+        raise AssertionError
     assert isinstance(result, dict)
-    assert isinstance(result.get("errors"), list) and result["errors"], "Expected an error message"
+    if not (isinstance(result.get("errors"), list) and result["errors"]):
+        raise AssertionError("Expected an error message")
     # The first error should clearly mention path; allow partial match
-    assert "File not found or unreadable" in result["errors"][0]
-    assert missing in result["errors"][0]
-    assert result.get("warnings") == []
-    assert result.get("path") == missing
+    if "File not found or unreadable" not in result["errors"][0]:
+        raise AssertionError
+    if missing not in result["errors"][0]:
+        raise AssertionError
+    if result.get("warnings") != []:
+        raise AssertionError
+    if result.get("path") != missing:
+        raise AssertionError

@@ -25,11 +25,15 @@ def test_assemble_minimal_python_blocks_executes():
     code = assembler.assemble(blocks)
 
     assert isinstance(code, str)
-    assert "def add(" in code
+    if "def add(" not in code:
+        raise AssertionError
 
     # Validate it executes and the function works
     env = {}
     exec(code, env, env)  # nosec - controlled test input
-    assert "add" in env
-    assert callable(env["add"])
-    assert env["add"](2, 3) == 5
+    if "add" not in env:
+        raise AssertionError
+    if not callable(env["add"]):
+        raise AssertionError
+    if env["add"](2, 3) != 5:
+        raise AssertionError

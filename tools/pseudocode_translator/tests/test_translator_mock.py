@@ -14,9 +14,11 @@ def test_translate_with_mock_model_produces_output():
         result = manager.translate_pseudocode(instruction)
 
         assert isinstance(result.success, bool)
-        assert result.success  # should validate as syntactically valid
+        if not result.success:
+            raise AssertionError
         assert isinstance(result.code, str)
-        assert len(result.code) > 0
+        if len(result.code) <= 0:
+            raise AssertionError
 
         # Sanity check: compiled as Python without executing arbitrary code
         compile(result.code, "<test>", "exec")

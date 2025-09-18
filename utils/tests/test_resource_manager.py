@@ -24,14 +24,22 @@ class TestResourceType:
 
     def test_resource_type_values(self):
         """Test ResourceType enum values."""
-        assert ResourceType.DATABASE.value == "database"
-        assert ResourceType.THREAD.value == "thread"
-        assert ResourceType.TIMER.value == "timer"
-        assert ResourceType.WATCHDOG.value == "watchdog"
-        assert ResourceType.FILE_HANDLE.value == "file_handle"
-        assert ResourceType.NETWORK.value == "network"
-        assert ResourceType.GUI_COMPONENT.value == "gui_component"
-        assert ResourceType.CUSTOM.value == "custom"
+        if ResourceType.DATABASE.value != "database":
+            raise AssertionError
+        if ResourceType.THREAD.value != "thread":
+            raise AssertionError
+        if ResourceType.TIMER.value != "timer":
+            raise AssertionError
+        if ResourceType.WATCHDOG.value != "watchdog":
+            raise AssertionError
+        if ResourceType.FILE_HANDLE.value != "file_handle":
+            raise AssertionError
+        if ResourceType.NETWORK.value != "network":
+            raise AssertionError
+        if ResourceType.GUI_COMPONENT.value != "gui_component":
+            raise AssertionError
+        if ResourceType.CUSTOM.value != "custom":
+            raise AssertionError
 
 
 class TestResourceState:
@@ -39,11 +47,16 @@ class TestResourceState:
 
     def test_resource_state_values(self):
         """Test ResourceState enum values."""
-        assert ResourceState.INITIALIZING.value == "initializing"
-        assert ResourceState.ACTIVE.value == "active"
-        assert ResourceState.SHUTTING_DOWN.value == "shutting_down"
-        assert ResourceState.SHUTDOWN.value == "shutdown"
-        assert ResourceState.ERROR.value == "error"
+        if ResourceState.INITIALIZING.value != "initializing":
+            raise AssertionError
+        if ResourceState.ACTIVE.value != "active":
+            raise AssertionError
+        if ResourceState.SHUTTING_DOWN.value != "shutting_down":
+            raise AssertionError
+        if ResourceState.SHUTDOWN.value != "shutdown":
+            raise AssertionError
+        if ResourceState.ERROR.value != "error":
+            raise AssertionError
 
 
 class TestResourceInfo:
@@ -71,17 +84,28 @@ class TestResourceInfo:
             metadata={"connection_string": "test://localhost"},
         )
 
-        assert info.resource_id == "test_resource"
-        assert info.resource_type == ResourceType.DATABASE
-        assert info.resource == "mock_db_connection"
-        assert info.cleanup_func == cleanup_func
-        assert info.shutdown_timeout == 15.0
-        assert info.priority == 50
-        assert info.state == ResourceState.ACTIVE
-        assert info.created_at == created_time
-        assert info.shutdown_at == shutdown_time
-        assert info.dependencies == ["dep1", "dep2"]
-        assert info.metadata == {"connection_string": "test://localhost"}
+        if info.resource_id != "test_resource":
+            raise AssertionError
+        if info.resource_type != ResourceType.DATABASE:
+            raise AssertionError
+        if info.resource != "mock_db_connection":
+            raise AssertionError
+        if info.cleanup_func != cleanup_func:
+            raise AssertionError
+        if info.shutdown_timeout != 15.0:
+            raise AssertionError
+        if info.priority != 50:
+            raise AssertionError
+        if info.state != ResourceState.ACTIVE:
+            raise AssertionError
+        if info.created_at != created_time:
+            raise AssertionError
+        if info.shutdown_at != shutdown_time:
+            raise AssertionError
+        if info.dependencies != ["dep1", "dep2"]:
+            raise AssertionError
+        if info.metadata != {"connection_string": "test://localhost"}:
+            raise AssertionError
 
     def test_resource_info_defaults(self):
         """Test ResourceInfo with default values."""
@@ -90,13 +114,18 @@ class TestResourceInfo:
         )
 
         assert info.cleanup_func is None
-        assert info.shutdown_timeout == 10.0
-        assert info.priority == 100
-        assert info.state == ResourceState.INITIALIZING
+        if info.shutdown_timeout != 10.0:
+            raise AssertionError
+        if info.priority != 100:
+            raise AssertionError
+        if info.state != ResourceState.INITIALIZING:
+            raise AssertionError
         assert isinstance(info.created_at, datetime)
         assert info.shutdown_at is None
-        assert info.dependencies == []
-        assert info.metadata == {}
+        if info.dependencies != []:
+            raise AssertionError
+        if info.metadata != {}:
+            raise AssertionError
 
 
 class TestResourceManager:
@@ -107,7 +136,8 @@ class TestResourceManager:
         manager = ResourceManager()
 
         assert len(manager.list_resources()) == 0
-        assert manager._shutdown_initiated is False
+        if manager._shutdown_initiated is not False:
+            raise AssertionError
 
     def test_register_resource_basic(self):
         """Test basic resource registration."""
@@ -120,10 +150,14 @@ class TestResourceManager:
 
         info = manager.get_resource_info("test_id")
         assert info is not None
-        assert info.resource_id == "test_id"
-        assert info.resource == resource
-        assert info.resource_type == ResourceType.CUSTOM
-        assert info.state == ResourceState.ACTIVE
+        if info.resource_id != "test_id":
+            raise AssertionError
+        if info.resource != resource:
+            raise AssertionError
+        if info.resource_type != ResourceType.CUSTOM:
+            raise AssertionError
+        if info.state != ResourceState.ACTIVE:
+            raise AssertionError
 
     def test_register_resource_with_cleanup(self):
         """Test resource registration with cleanup function."""
@@ -144,9 +178,12 @@ class TestResourceManager:
         )
 
         info = manager.get_resource_info("test_id")
-        assert info.cleanup_func == cleanup_func
-        assert info.shutdown_timeout == 5.0
-        assert info.priority == 50
+        if info.cleanup_func != cleanup_func:
+            raise AssertionError
+        if info.shutdown_timeout != 5.0:
+            raise AssertionError
+        if info.priority != 50:
+            raise AssertionError
 
     def test_register_resource_with_dependencies(self):
         """Test resource registration with dependencies."""
@@ -161,8 +198,10 @@ class TestResourceManager:
         )
 
         info = manager.get_resource_info("test_id")
-        assert info.dependencies == ["dep1", "dep2"]
-        assert info.metadata == {"key": "value"}
+        if info.dependencies != ["dep1", "dep2"]:
+            raise AssertionError
+        if info.metadata != {"key": "value"}:
+            raise AssertionError
 
     def test_register_during_shutdown(self):
         """Test that registration is blocked during shutdown."""
@@ -190,13 +229,16 @@ class TestResourceManager:
         )
 
         # Verify resource is registered
-        assert manager.get_resource("test_id") == resource
+        if manager.get_resource("test_id") != resource:
+            raise AssertionError
 
         # Unregister
         success = manager.unregister_resource("test_id")
 
-        assert success is True
-        assert manager.get_resource("test_id") is None
+        if success is not True:
+            raise AssertionError
+        if manager.get_resource("test_id") is not None:
+            raise AssertionError
 
     def test_unregister_nonexistent_resource(self):
         """Test unregistering non-existent resource."""
@@ -204,7 +246,8 @@ class TestResourceManager:
 
         success = manager.unregister_resource("nonexistent")
 
-        assert success is False
+        if success is not False:
+            raise AssertionError
 
     def test_get_resource(self):
         """Test getting registered resource."""
@@ -216,7 +259,8 @@ class TestResourceManager:
         )
 
         retrieved = manager.get_resource("test_id")
-        assert retrieved == resource
+        if retrieved != resource:
+            raise AssertionError
 
     def test_get_nonexistent_resource(self):
         """Test getting non-existent resource."""
@@ -238,9 +282,12 @@ class TestResourceManager:
         assert len(resources) == 3
 
         resource_ids = [r.resource_id for r in resources]
-        assert "db" in resource_ids
-        assert "timer" in resource_ids
-        assert "thread" in resource_ids
+        if "db" not in resource_ids:
+            raise AssertionError
+        if "timer" not in resource_ids:
+            raise AssertionError
+        if "thread" not in resource_ids:
+            raise AssertionError
 
     def test_list_resources_by_type(self):
         """Test listing resources filtered by type."""
@@ -256,8 +303,10 @@ class TestResourceManager:
         assert len(db_resources) == 2
 
         db_ids = [r.resource_id for r in db_resources]
-        assert "db1" in db_ids
-        assert "db2" in db_ids
+        if "db1" not in db_ids:
+            raise AssertionError
+        if "db2" not in db_ids:
+            raise AssertionError
 
     def test_get_resource_status(self):
         """Test getting resource manager status."""
@@ -269,13 +318,20 @@ class TestResourceManager:
 
         status = manager.get_resource_status()
 
-        assert status["total_resources"] == 2
-        assert status["shutdown_initiated"] is False
-        assert "resources_by_type" in status
-        assert "resources_by_state" in status
-        assert status["resources_by_type"]["database"] == 1
-        assert status["resources_by_type"]["timer"] == 1
-        assert status["resources_by_state"]["active"] == 2
+        if status["total_resources"] != 2:
+            raise AssertionError
+        if status["shutdown_initiated"] is not False:
+            raise AssertionError
+        if "resources_by_type" not in status:
+            raise AssertionError
+        if "resources_by_state" not in status:
+            raise AssertionError
+        if status["resources_by_type"]["database"] != 1:
+            raise AssertionError
+        if status["resources_by_type"]["timer"] != 1:
+            raise AssertionError
+        if status["resources_by_state"]["active"] != 2:
+            raise AssertionError
 
     def test_shutdown_single_resource_with_cleanup(self):
         """Test shutting down single resource with cleanup function."""
@@ -299,9 +355,12 @@ class TestResourceManager:
         # Shutdown the resource
         success = manager._shutdown_single_resource(info)
 
-        assert success is True
-        assert cleanup_called == [True]
-        assert info.state == ResourceState.SHUTDOWN
+        if success is not True:
+            raise AssertionError
+        if cleanup_called != [True]:
+            raise AssertionError
+        if info.state != ResourceState.SHUTDOWN:
+            raise AssertionError
         assert isinstance(info.shutdown_at, datetime)
 
     def test_shutdown_single_resource_with_methods(self):
@@ -319,9 +378,11 @@ class TestResourceManager:
         info = manager.get_resource_info("test_id")
         success = manager._shutdown_single_resource(info)
 
-        assert success is True
+        if success is not True:
+            raise AssertionError
         resource.close.assert_called_once()
-        assert info.state == ResourceState.SHUTDOWN
+        if info.state != ResourceState.SHUTDOWN:
+            raise AssertionError
 
     def test_shutdown_single_resource_methods_priority(self):
         """Test shutdown method priority (close > shutdown > stop > quit)."""
@@ -358,8 +419,10 @@ class TestResourceManager:
         with patch("utils.resource_manager.logger") as mock_logger:
             success = manager._shutdown_single_resource(info)
 
-            assert success is False
-            assert info.state == ResourceState.ERROR
+            if success is not False:
+                raise AssertionError
+            if info.state != ResourceState.ERROR:
+                raise AssertionError
             mock_logger.error.assert_called()
 
     def test_calculate_shutdown_order(self):
@@ -375,9 +438,12 @@ class TestResourceManager:
 
         # Should be ordered by priority (lower = first)
         assert len(shutdown_order) == 3
-        assert shutdown_order[0].resource_id == "gui"
-        assert shutdown_order[1].resource_id == "timer"
-        assert shutdown_order[2].resource_id == "db"
+        if shutdown_order[0].resource_id != "gui":
+            raise AssertionError
+        if shutdown_order[1].resource_id != "timer":
+            raise AssertionError
+        if shutdown_order[2].resource_id != "db":
+            raise AssertionError
 
     def test_shutdown_all_resources(self):
         """Test shutting down all resources."""
@@ -400,10 +466,14 @@ class TestResourceManager:
 
         success = manager.shutdown_all_resources()
 
-        assert success is True
-        assert manager._shutdown_initiated is True
-        assert "cleanup1" in cleanup_calls
-        assert "cleanup2" in cleanup_calls
+        if success is not True:
+            raise AssertionError
+        if manager._shutdown_initiated is not True:
+            raise AssertionError
+        if "cleanup1" not in cleanup_calls:
+            raise AssertionError
+        if "cleanup2" not in cleanup_calls:
+            raise AssertionError
 
     def test_shutdown_all_resources_timeout(self):
         """Test shutdown with timeout."""
@@ -425,7 +495,8 @@ class TestResourceManager:
         end_time = time.time()
 
         # Should complete quickly due to timeout
-        assert (end_time - start_time) < 1.0
+        if (end_time - start_time) >= 1.0:
+            raise AssertionError
         # May or may not be successful depending on timing
 
     def test_shutdown_already_in_progress(self):
@@ -436,7 +507,8 @@ class TestResourceManager:
         with patch("utils.resource_manager.logger") as mock_logger:
             success = manager.shutdown_all_resources()
 
-            assert success is True
+            if success is not True:
+                raise AssertionError
             mock_logger.warning.assert_called()
 
     def test_force_shutdown_resource(self):
@@ -453,8 +525,10 @@ class TestResourceManager:
 
         success = manager.force_shutdown_resource("test_resource")
 
-        assert success is True
-        assert cleanup_called == [True]
+        if success is not True:
+            raise AssertionError
+        if cleanup_called != [True]:
+            raise AssertionError
 
     def test_force_shutdown_nonexistent_resource(self):
         """Test force shutdown of non-existent resource."""
@@ -462,7 +536,8 @@ class TestResourceManager:
 
         success = manager.force_shutdown_resource("nonexistent")
 
-        assert success is False
+        if success is not False:
+            raise AssertionError
 
     def test_wait_for_shutdown(self):
         """Test waiting for shutdown completion."""
@@ -480,7 +555,8 @@ class TestResourceManager:
         success = manager.wait_for_shutdown(timeout=1.0)
 
         thread.join()
-        assert success is True
+        if success is not True:
+            raise AssertionError
 
     def test_wait_for_shutdown_timeout(self):
         """Test waiting for shutdown with timeout."""
@@ -489,7 +565,8 @@ class TestResourceManager:
         # Wait without setting shutdown event
         success = manager.wait_for_shutdown(timeout=0.1)
 
-        assert success is False
+        if success is not False:
+            raise AssertionError
 
 
 class TestResourceManagerIntegration:
@@ -515,14 +592,18 @@ class TestResourceManagerIntegration:
 
         # Verify resource is active
         info = manager.get_resource_info("disposable")
-        assert info.state == ResourceState.ACTIVE
-        assert not resource.disposed
+        if info.state != ResourceState.ACTIVE:
+            raise AssertionError
+        if resource.disposed:
+            raise AssertionError
 
         # Shutdown
         success = manager.shutdown_all_resources()
 
-        assert success is True
-        assert resource.disposed is True
+        if success is not True:
+            raise AssertionError
+        if resource.disposed is not True:
+            raise AssertionError
 
     def test_complex_dependency_shutdown(self):
         """Test shutdown with complex resource dependencies."""
@@ -566,9 +647,11 @@ class TestResourceManagerIntegration:
 
         success = manager.shutdown_all_resources()
 
-        assert success is True
+        if success is not True:
+            raise AssertionError
         # Should shutdown in priority order (lower priority first)
-        assert cleanup_order == ["gui", "timer", "database"]
+        if cleanup_order != ["gui", "timer", "database"]:
+            raise AssertionError
 
     def test_resource_with_standard_methods(self):
         """Test resource with standard cleanup methods."""
@@ -596,8 +679,10 @@ class TestResourceManagerIntegration:
         info1 = manager.get_resource_info("res1")
         manager._shutdown_single_resource(info1)
 
-        assert resource1.closed is True
-        assert resource1.shutdown_called is False  # Should not call lower priority methods
+        if resource1.closed is not True:
+            raise AssertionError
+        if resource1.shutdown_called is not False:
+            raise AssertionError
 
         # Test shutdown method when close not available
         class ResourceWithShutdown:
@@ -613,7 +698,8 @@ class TestResourceManagerIntegration:
         info2 = manager.get_resource_info("res2")
         manager._shutdown_single_resource(info2)
 
-        assert resource2.shutdown_called is True
+        if resource2.shutdown_called is not True:
+            raise AssertionError
 
     def test_concurrent_resource_operations(self):
         """Test concurrent resource operations."""
@@ -642,7 +728,8 @@ class TestResourceManagerIntegration:
         # All registrations should succeed
         assert len(results) == 5
         for result in results.values():
-            assert result == "success"
+            if result != "success":
+                raise AssertionError
 
         # Verify all resources were registered
         resources = manager.list_resources()
@@ -665,15 +752,18 @@ class TestResourceManagerIntegration:
         registration_time = time.time() - start_time
 
         # Registration should be fast
-        assert registration_time < 1.0
+        if registration_time >= 1.0:
+            raise AssertionError
 
         # Shutdown should also be reasonably fast
         shutdown_start = time.time()
         success = manager.shutdown_all_resources(timeout=5.0)
         shutdown_time = time.time() - shutdown_start
 
-        assert success is True
-        assert shutdown_time < 5.0
+        if success is not True:
+            raise AssertionError
+        if shutdown_time >= 5.0:
+            raise AssertionError
 
     def test_resource_metadata_persistence(self):
         """Test that resource metadata is maintained."""
@@ -686,11 +776,13 @@ class TestResourceManagerIntegration:
         )
 
         info = manager.get_resource_info("database")
-        assert info.metadata == metadata
+        if info.metadata != metadata:
+            raise AssertionError
 
         # Metadata should persist after state changes
         manager._shutdown_single_resource(info)
-        assert info.metadata == metadata
+        if info.metadata != metadata:
+            raise AssertionError
 
 
 class TestGlobalResourceManager:
@@ -701,7 +793,8 @@ class TestGlobalResourceManager:
         rm1 = get_resource_manager()
         rm2 = get_resource_manager()
 
-        assert rm1 is rm2
+        if rm1 is not rm2:
+            raise AssertionError
         assert isinstance(rm1, ResourceManager)
 
     def test_register_resource_convenience(self):
@@ -715,8 +808,10 @@ class TestGlobalResourceManager:
 
         info = manager.get_resource_info("test_resource")
         assert info is not None
-        assert info.resource_id == "test_resource"
-        assert info.shutdown_timeout == 15.0
+        if info.resource_id != "test_resource":
+            raise AssertionError
+        if info.shutdown_timeout != 15.0:
+            raise AssertionError
 
     def test_shutdown_all_resources_convenience(self):
         """Test convenience shutdown function."""
@@ -725,7 +820,8 @@ class TestGlobalResourceManager:
 
         success = shutdown_all_resources(timeout=10.0)
 
-        assert success is True
+        if success is not True:
+            raise AssertionError
 
     def test_global_manager_thread_safety(self):
         """Test thread safety of global manager access."""
@@ -767,7 +863,8 @@ class TestResourceManagerEdgeCases:
         with patch("utils.resource_manager.logger") as mock_logger:
             success = manager._shutdown_single_resource(info)
 
-            assert success is True
+            if success is not True:
+                raise AssertionError
             mock_logger.debug.assert_called()
 
     def test_resource_cleanup_exception(self):
@@ -786,8 +883,10 @@ class TestResourceManagerEdgeCases:
         with patch("utils.resource_manager.logger") as mock_logger:
             success = manager._shutdown_single_resource(info)
 
-            assert success is False
-            assert info.state == ResourceState.ERROR
+            if success is not False:
+                raise AssertionError
+            if info.state != ResourceState.ERROR:
+                raise AssertionError
             mock_logger.error.assert_called()
 
     def test_empty_resource_manager_shutdown(self):
@@ -796,8 +895,10 @@ class TestResourceManagerEdgeCases:
 
         success = manager.shutdown_all_resources()
 
-        assert success is True
-        assert manager._shutdown_initiated is True
+        if success is not True:
+            raise AssertionError
+        if manager._shutdown_initiated is not True:
+            raise AssertionError
 
     def test_duplicate_resource_registration_handling(self):
         """Test handling of duplicate resource registrations."""
@@ -823,11 +924,13 @@ class TestResourceManagerEdgeCases:
         info = manager.get_resource_info("test")
 
         # Initial state should be ACTIVE (after registration)
-        assert info.state == ResourceState.ACTIVE
+        if info.state != ResourceState.ACTIVE:
+            raise AssertionError
 
         # Shutdown should change state
         manager._shutdown_single_resource(info)
-        assert info.state == ResourceState.SHUTDOWN
+        if info.state != ResourceState.SHUTDOWN:
+            raise AssertionError
 
     def test_resource_timing_information(self):
         """Test that timing information is properly recorded."""
@@ -840,7 +943,8 @@ class TestResourceManagerEdgeCases:
         info = manager.get_resource_info("test")
 
         # Created time should be between before and after
-        assert created_before <= info.created_at <= created_after
+        if not created_before <= info.created_at <= created_after:
+            raise AssertionError
         assert info.shutdown_at is None
 
         # Shutdown and check timing
@@ -849,4 +953,5 @@ class TestResourceManagerEdgeCases:
         shutdown_after = datetime.now()
 
         assert info.shutdown_at is not None
-        assert shutdown_before <= info.shutdown_at <= shutdown_after
+        if not shutdown_before <= info.shutdown_at <= shutdown_after:
+            raise AssertionError

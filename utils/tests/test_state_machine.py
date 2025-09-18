@@ -27,16 +27,26 @@ class TestApplicationState:
 
     def test_application_state_values(self):
         """Test ApplicationState enum values."""
-        assert ApplicationState.INITIALIZING.value == "initializing"
-        assert ApplicationState.STARTING.value == "starting"
-        assert ApplicationState.RUNNING.value == "running"
-        assert ApplicationState.PAUSING.value == "pausing"
-        assert ApplicationState.PAUSED.value == "paused"
-        assert ApplicationState.RESUMING.value == "resuming"
-        assert ApplicationState.SHUTTING_DOWN.value == "shutting_down"
-        assert ApplicationState.SHUTDOWN.value == "shutdown"
-        assert ApplicationState.ERROR.value == "error"
-        assert ApplicationState.MAINTENANCE.value == "maintenance"
+        if ApplicationState.INITIALIZING.value != "initializing":
+            raise AssertionError
+        if ApplicationState.STARTING.value != "starting":
+            raise AssertionError
+        if ApplicationState.RUNNING.value != "running":
+            raise AssertionError
+        if ApplicationState.PAUSING.value != "pausing":
+            raise AssertionError
+        if ApplicationState.PAUSED.value != "paused":
+            raise AssertionError
+        if ApplicationState.RESUMING.value != "resuming":
+            raise AssertionError
+        if ApplicationState.SHUTTING_DOWN.value != "shutting_down":
+            raise AssertionError
+        if ApplicationState.SHUTDOWN.value != "shutdown":
+            raise AssertionError
+        if ApplicationState.ERROR.value != "error":
+            raise AssertionError
+        if ApplicationState.MAINTENANCE.value != "maintenance":
+            raise AssertionError
 
     def test_application_state_membership(self):
         """Test ApplicationState enum membership."""
@@ -60,10 +70,14 @@ class TestTransitionResult:
 
     def test_transition_result_values(self):
         """Test TransitionResult enum values."""
-        assert TransitionResult.SUCCESS.value == "success"
-        assert TransitionResult.FAILED.value == "failed"
-        assert TransitionResult.BLOCKED.value == "blocked"
-        assert TransitionResult.INVALID.value == "invalid"
+        if TransitionResult.SUCCESS.value != "success":
+            raise AssertionError
+        if TransitionResult.FAILED.value != "failed":
+            raise AssertionError
+        if TransitionResult.BLOCKED.value != "blocked":
+            raise AssertionError
+        if TransitionResult.INVALID.value != "invalid":
+            raise AssertionError
 
 
 class TestStateTransition:
@@ -82,13 +96,19 @@ class TestStateTransition:
             metadata={"user": "test_user"},
         )
 
-        assert transition.from_state == ApplicationState.STARTING
-        assert transition.to_state == ApplicationState.RUNNING
-        assert transition.timestamp == timestamp
-        assert transition.duration_ms == 150
-        assert transition.result == TransitionResult.SUCCESS
+        if transition.from_state != ApplicationState.STARTING:
+            raise AssertionError
+        if transition.to_state != ApplicationState.RUNNING:
+            raise AssertionError
+        if transition.timestamp != timestamp:
+            raise AssertionError
+        if transition.duration_ms != 150:
+            raise AssertionError
+        if transition.result != TransitionResult.SUCCESS:
+            raise AssertionError
         assert transition.error_message is None
-        assert transition.metadata == {"user": "test_user"}
+        if transition.metadata != {"user": "test_user"}:
+            raise AssertionError
 
     def test_state_transition_with_error(self):
         """Test StateTransition creation with error."""
@@ -101,8 +121,10 @@ class TestStateTransition:
             error_message="Test error occurred",
         )
 
-        assert transition.result == TransitionResult.FAILED
-        assert transition.error_message == "Test error occurred"
+        if transition.result != TransitionResult.FAILED:
+            raise AssertionError
+        if transition.error_message != "Test error occurred":
+            raise AssertionError
 
 
 class TestStateInfo:
@@ -119,19 +141,27 @@ class TestStateInfo:
             metadata={"performance": "good"},
         )
 
-        assert info.state == ApplicationState.RUNNING
-        assert info.entry_time == entry_time
-        assert info.duration_ms == 5000
-        assert info.entry_count == 3
-        assert info.metadata == {"performance": "good"}
+        if info.state != ApplicationState.RUNNING:
+            raise AssertionError
+        if info.entry_time != entry_time:
+            raise AssertionError
+        if info.duration_ms != 5000:
+            raise AssertionError
+        if info.entry_count != 3:
+            raise AssertionError
+        if info.metadata != {"performance": "good"}:
+            raise AssertionError
 
     def test_state_info_defaults(self):
         """Test StateInfo with default values."""
         info = StateInfo(state=ApplicationState.INITIALIZING, entry_time=datetime.now())
 
-        assert info.duration_ms == 0
-        assert info.entry_count == 0
-        assert info.metadata == {}
+        if info.duration_ms != 0:
+            raise AssertionError
+        if info.entry_count != 0:
+            raise AssertionError
+        if info.metadata != {}:
+            raise AssertionError
 
 
 class TestDefaultStateValidator:
@@ -140,7 +170,8 @@ class TestDefaultStateValidator:
     def test_default_validator_initialization(self):
         """Test DefaultStateValidator initialization."""
         validator = DefaultStateValidator()
-        assert hasattr(validator, "_valid_transitions")
+        if not hasattr(validator, "_valid_transitions"):
+            raise AssertionError
 
     def test_valid_transitions(self):
         """Test valid state transitions."""
@@ -159,8 +190,10 @@ class TestDefaultStateValidator:
 
         for from_state, to_state in valid_transitions:
             can_transition, error_msg = validator.can_transition(from_state, to_state, {})
-            assert can_transition is True, f"Should allow {from_state.value} -> {to_state.value}"
-            assert error_msg == ""
+            if can_transition is not True:
+                raise AssertionError(f"Should allow {from_state.value} -> {to_state.value}")
+            if error_msg != "":
+                raise AssertionError
 
     def test_invalid_transitions(self):
         """Test invalid state transitions."""
@@ -175,8 +208,10 @@ class TestDefaultStateValidator:
 
         for from_state, to_state in invalid_transitions:
             can_transition, error_msg = validator.can_transition(from_state, to_state, {})
-            assert can_transition is False, f"Should block {from_state.value} -> {to_state.value}"
-            assert error_msg != ""
+            if can_transition is not False:
+                raise AssertionError(f"Should block {from_state.value} -> {to_state.value}")
+            if error_msg == "":
+                raise AssertionError
 
     def test_error_state_transitions(self):
         """Test transitions from ERROR state."""
@@ -193,13 +228,15 @@ class TestDefaultStateValidator:
             can_transition, error_msg = validator.can_transition(
                 ApplicationState.ERROR, to_state, {}
             )
-            assert can_transition is True
+            if can_transition is not True:
+                raise AssertionError
 
         # Should block transition back to RUNNING directly
         can_transition, error_msg = validator.can_transition(
             ApplicationState.ERROR, ApplicationState.RUNNING, {}
         )
-        assert can_transition is False
+        if can_transition is not False:
+            raise AssertionError
 
     def test_maintenance_state_transitions(self):
         """Test transitions from MAINTENANCE state."""
@@ -215,7 +252,8 @@ class TestDefaultStateValidator:
             can_transition, error_msg = validator.can_transition(
                 ApplicationState.MAINTENANCE, to_state, {}
             )
-            assert can_transition is True
+            if can_transition is not True:
+                raise AssertionError
 
 
 class TestStateMachine:
@@ -225,14 +263,17 @@ class TestStateMachine:
         """Test StateMachine initialization."""
         state_machine = StateMachine()
 
-        assert state_machine.get_current_state() == ApplicationState.INITIALIZING
-        assert state_machine.get_previous_state() is None
+        if state_machine.get_current_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
+        if state_machine.get_previous_state() is not None:
+            raise AssertionError
 
     def test_state_machine_custom_initial_state(self):
         """Test StateMachine with custom initial state."""
         state_machine = StateMachine(initial_state=ApplicationState.RUNNING)
 
-        assert state_machine.get_current_state() == ApplicationState.RUNNING
+        if state_machine.get_current_state() != ApplicationState.RUNNING:
+            raise AssertionError
 
     def test_state_machine_custom_validator(self):
         """Test StateMachine with custom validator."""
@@ -240,7 +281,8 @@ class TestStateMachine:
         mock_validator.can_transition.return_value = (True, "")
 
         state_machine = StateMachine(validator=mock_validator)
-        assert state_machine._validator == mock_validator
+        if state_machine._validator != mock_validator:
+            raise AssertionError
 
     def test_successful_transition(self):
         """Test successful state transition."""
@@ -248,9 +290,12 @@ class TestStateMachine:
 
         result = state_machine.transition_to(ApplicationState.STARTING)
 
-        assert result == TransitionResult.SUCCESS
-        assert state_machine.get_current_state() == ApplicationState.STARTING
-        assert state_machine.get_previous_state() == ApplicationState.INITIALIZING
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.STARTING:
+            raise AssertionError
+        if state_machine.get_previous_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
 
     def test_blocked_transition(self):
         """Test blocked state transition."""
@@ -259,8 +304,10 @@ class TestStateMachine:
         # Try invalid transition (INITIALIZING -> RUNNING, should go through STARTING)
         result = state_machine.transition_to(ApplicationState.RUNNING)
 
-        assert result == TransitionResult.BLOCKED
-        assert state_machine.get_current_state() == ApplicationState.INITIALIZING
+        if result != TransitionResult.BLOCKED:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
 
     def test_transition_to_same_state(self):
         """Test transition to the same state."""
@@ -268,8 +315,10 @@ class TestStateMachine:
 
         result = state_machine.transition_to(ApplicationState.INITIALIZING)
 
-        assert result == TransitionResult.SUCCESS
-        assert state_machine.get_current_state() == ApplicationState.INITIALIZING
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
 
     def test_forced_transition(self):
         """Test forced state transition."""
@@ -278,8 +327,10 @@ class TestStateMachine:
         # Force invalid transition
         result = state_machine.transition_to(ApplicationState.RUNNING, force=True)
 
-        assert result == TransitionResult.SUCCESS
-        assert state_machine.get_current_state() == ApplicationState.RUNNING
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.RUNNING:
+            raise AssertionError
 
     def test_transition_with_context(self):
         """Test state transition with context."""
@@ -288,12 +339,14 @@ class TestStateMachine:
         context = {"reason": "test transition", "user": "test_user"}
         result = state_machine.transition_to(ApplicationState.STARTING, context=context)
 
-        assert result == TransitionResult.SUCCESS
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
 
         # Check that context was recorded in history
         history = state_machine.get_state_history(limit=1)
         assert len(history) == 1
-        assert history[0].metadata == context
+        if history[0].metadata != context:
+            raise AssertionError
 
     def test_transition_callbacks(self):
         """Test state transition callbacks."""
@@ -329,7 +382,8 @@ class TestStateMachine:
         with patch("utils.state_machine.logger") as mock_logger:
             result = state_machine.transition_to(ApplicationState.STARTING)
 
-            assert result == TransitionResult.SUCCESS
+            if result != TransitionResult.SUCCESS:
+                raise AssertionError
             mock_logger.error.assert_called()
 
     def test_get_state_history(self):
@@ -343,10 +397,14 @@ class TestStateMachine:
         history = state_machine.get_state_history()
 
         assert len(history) == 2
-        assert history[0].from_state == ApplicationState.INITIALIZING
-        assert history[0].to_state == ApplicationState.STARTING
-        assert history[1].from_state == ApplicationState.STARTING
-        assert history[1].to_state == ApplicationState.RUNNING
+        if history[0].from_state != ApplicationState.INITIALIZING:
+            raise AssertionError
+        if history[0].to_state != ApplicationState.STARTING:
+            raise AssertionError
+        if history[1].from_state != ApplicationState.STARTING:
+            raise AssertionError
+        if history[1].to_state != ApplicationState.RUNNING:
+            raise AssertionError
 
     def test_get_state_history_with_limit(self):
         """Test getting state history with limit."""
@@ -361,7 +419,8 @@ class TestStateMachine:
 
         assert len(history) == 2
         # Should get the most recent transitions
-        assert history[-1].to_state == ApplicationState.PAUSING
+        if history[-1].to_state != ApplicationState.PAUSING:
+            raise AssertionError
 
     def test_get_state_info(self):
         """Test getting state information."""
@@ -371,15 +430,18 @@ class TestStateMachine:
         info = state_machine.get_state_info(ApplicationState.INITIALIZING)
 
         assert info is not None
-        assert info.state == ApplicationState.INITIALIZING
-        assert info.entry_count == 1
+        if info.state != ApplicationState.INITIALIZING:
+            raise AssertionError
+        if info.entry_count != 1:
+            raise AssertionError
 
         # Transition and check info updates
         state_machine.transition_to(ApplicationState.STARTING)
         starting_info = state_machine.get_state_info(ApplicationState.STARTING)
 
         assert starting_info is not None
-        assert starting_info.entry_count == 1
+        if starting_info.entry_count != 1:
+            raise AssertionError
 
     def test_get_all_state_info(self):
         """Test getting all state information."""
@@ -391,9 +453,12 @@ class TestStateMachine:
 
         all_info = state_machine.get_all_state_info()
 
-        assert ApplicationState.INITIALIZING in all_info
-        assert ApplicationState.STARTING in all_info
-        assert ApplicationState.RUNNING in all_info
+        if ApplicationState.INITIALIZING not in all_info:
+            raise AssertionError
+        if ApplicationState.STARTING not in all_info:
+            raise AssertionError
+        if ApplicationState.RUNNING not in all_info:
+            raise AssertionError
 
     def test_get_current_state_duration(self):
         """Test getting current state duration."""
@@ -404,24 +469,29 @@ class TestStateMachine:
 
         duration = state_machine.get_current_state_duration()
 
-        assert duration > 0
+        if duration <= 0:
+            raise AssertionError
         assert isinstance(duration, int)
 
     def test_is_in_state(self):
         """Test checking if in specific state(s)."""
         state_machine = StateMachine()
 
-        assert state_machine.is_in_state(ApplicationState.INITIALIZING) is True
-        assert state_machine.is_in_state(ApplicationState.RUNNING) is False
-        assert (
-            state_machine.is_in_state(ApplicationState.INITIALIZING, ApplicationState.STARTING)
-            is True
-        )
+        if state_machine.is_in_state(ApplicationState.INITIALIZING) is not True:
+            raise AssertionError
+        if state_machine.is_in_state(ApplicationState.RUNNING) is not False:
+            raise AssertionError
+        if (
+            state_machine.is_in_state(ApplicationState.INITIALIZING, ApplicationState.STARTING) is not True
+        ):
+            raise AssertionError
 
         # Transition and test again
         state_machine.transition_to(ApplicationState.STARTING)
-        assert state_machine.is_in_state(ApplicationState.STARTING) is True
-        assert state_machine.is_in_state(ApplicationState.INITIALIZING) is False
+        if state_machine.is_in_state(ApplicationState.STARTING) is not True:
+            raise AssertionError
+        if state_machine.is_in_state(ApplicationState.INITIALIZING) is not False:
+            raise AssertionError
 
     def test_wait_for_state(self):
         """Test waiting for a specific state."""
@@ -439,8 +509,10 @@ class TestStateMachine:
         success = state_machine.wait_for_state(ApplicationState.STARTING, timeout=1.0)
 
         thread.join()
-        assert success is True
-        assert state_machine.get_current_state() == ApplicationState.STARTING
+        if success is not True:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.STARTING:
+            raise AssertionError
 
     def test_wait_for_state_timeout(self):
         """Test waiting for state with timeout."""
@@ -449,8 +521,10 @@ class TestStateMachine:
         # Wait for state that will never occur
         success = state_machine.wait_for_state(ApplicationState.SHUTDOWN, timeout=0.1)
 
-        assert success is False
-        assert state_machine.get_current_state() == ApplicationState.INITIALIZING
+        if success is not False:
+            raise AssertionError
+        if state_machine.get_current_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
 
     def test_get_status_report(self):
         """Test getting comprehensive status report."""
@@ -462,19 +536,30 @@ class TestStateMachine:
 
         report = state_machine.get_status_report()
 
-        assert report["current_state"] == "running"
-        assert report["previous_state"] == "starting"
-        assert "current_state_duration_ms" in report
-        assert "total_transitions" in report
-        assert "successful_transitions" in report
-        assert "success_rate" in report
-        assert "state_statistics" in report
-        assert "recent_transitions" in report
+        if report["current_state"] != "running":
+            raise AssertionError
+        if report["previous_state"] != "starting":
+            raise AssertionError
+        if "current_state_duration_ms" not in report:
+            raise AssertionError
+        if "total_transitions" not in report:
+            raise AssertionError
+        if "successful_transitions" not in report:
+            raise AssertionError
+        if "success_rate" not in report:
+            raise AssertionError
+        if "state_statistics" not in report:
+            raise AssertionError
+        if "recent_transitions" not in report:
+            raise AssertionError
 
         # Check that all transitions were successful
-        assert report["total_transitions"] == 2
-        assert report["successful_transitions"] == 2
-        assert report["success_rate"] == 100.0
+        if report["total_transitions"] != 2:
+            raise AssertionError
+        if report["successful_transitions"] != 2:
+            raise AssertionError
+        if report["success_rate"] != 100.0:
+            raise AssertionError
 
     def test_reset_state_machine(self):
         """Test resetting the state machine."""
@@ -487,13 +572,16 @@ class TestStateMachine:
         # Reset to default state
         state_machine.reset()
 
-        assert state_machine.get_current_state() == ApplicationState.INITIALIZING
-        assert state_machine.get_previous_state() is None
+        if state_machine.get_current_state() != ApplicationState.INITIALIZING:
+            raise AssertionError
+        if state_machine.get_previous_state() is not None:
+            raise AssertionError
 
         # History should be cleared (except reset transition)
         history = state_machine.get_state_history()
         assert len(history) == 1  # Only the reset transition
-        assert history[0].error_message == "State machine reset"
+        if history[0].error_message != "State machine reset":
+            raise AssertionError
 
     def test_reset_to_custom_state(self):
         """Test resetting to custom initial state."""
@@ -501,7 +589,8 @@ class TestStateMachine:
 
         state_machine.reset(initial_state=ApplicationState.MAINTENANCE)
 
-        assert state_machine.get_current_state() == ApplicationState.MAINTENANCE
+        if state_machine.get_current_state() != ApplicationState.MAINTENANCE:
+            raise AssertionError
 
     def test_transition_error_handling(self):
         """Test error handling during transitions."""
@@ -516,7 +605,8 @@ class TestStateMachine:
             result = state_machine.transition_to(ApplicationState.STARTING)
 
             # Transition should fail due to callback error
-            assert result == TransitionResult.FAILED
+            if result != TransitionResult.FAILED:
+                raise AssertionError
             mock_logger.error.assert_called()
 
     def test_thread_safety(self):
@@ -542,7 +632,8 @@ class TestStateMachine:
 
         # At least one transition should succeed
         successful_results = [r for r in results.values() if r == TransitionResult.SUCCESS]
-        assert len(successful_results) >= 1
+        if len(successful_results) < 1:
+            raise AssertionError
 
     def test_state_history_size_limit(self):
         """Test that state history is limited in size."""
@@ -558,7 +649,8 @@ class TestStateMachine:
         history = state_machine.get_state_history()
 
         # History should be limited to 500 (after trimming)
-        assert len(history) <= 500
+        if len(history) > 500:
+            raise AssertionError
 
     def test_multiple_entry_to_same_state(self):
         """Test multiple entries to the same state."""
@@ -570,7 +662,8 @@ class TestStateMachine:
         state_machine.transition_to(ApplicationState.STARTING)
 
         info = state_machine.get_state_info(ApplicationState.STARTING)
-        assert info.entry_count == 2
+        if info.entry_count != 2:
+            raise AssertionError
 
 
 class TestCustomStateValidator:
@@ -594,11 +687,13 @@ class TestCustomStateValidator:
 
         # Should allow INITIALIZING -> STARTING
         result = state_machine.transition_to(ApplicationState.STARTING)
-        assert result == TransitionResult.SUCCESS
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
 
         # Should block STARTING -> RUNNING
         result = state_machine.transition_to(ApplicationState.RUNNING)
-        assert result == TransitionResult.BLOCKED
+        if result != TransitionResult.BLOCKED:
+            raise AssertionError
 
     def test_context_based_validation(self):
         """Test validator that uses context for decisions."""
@@ -617,13 +712,15 @@ class TestCustomStateValidator:
 
         # Should block maintenance without authorization
         result = state_machine.transition_to(ApplicationState.MAINTENANCE)
-        assert result == TransitionResult.BLOCKED
+        if result != TransitionResult.BLOCKED:
+            raise AssertionError
 
         # Should allow maintenance with authorization
         result = state_machine.transition_to(
             ApplicationState.MAINTENANCE, context={"authorized_maintenance": True}
         )
-        assert result == TransitionResult.SUCCESS
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
 
 
 class TestGlobalStateMachine:
@@ -634,7 +731,8 @@ class TestGlobalStateMachine:
         sm1 = get_state_machine()
         sm2 = get_state_machine()
 
-        assert sm1 is sm2
+        if sm1 is not sm2:
+            raise AssertionError
         assert isinstance(sm1, StateMachine)
 
     def test_get_current_state_function(self):
@@ -642,15 +740,18 @@ class TestGlobalStateMachine:
         # Reset global state machine
         with patch("utils.state_machine._state_machine", None):
             current_state = get_current_state()
-            assert current_state == ApplicationState.INITIALIZING
+            if current_state != ApplicationState.INITIALIZING:
+                raise AssertionError
 
     def test_transition_to_state_function(self):
         """Test global transition_to_state function."""
         result = transition_to_state(ApplicationState.STARTING)
-        assert result == TransitionResult.SUCCESS
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
 
         current_state = get_current_state()
-        assert current_state == ApplicationState.STARTING
+        if current_state != ApplicationState.STARTING:
+            raise AssertionError
 
     def test_global_state_machine_thread_safety(self):
         """Test thread safety of global state machine access."""
@@ -698,8 +799,10 @@ class TestStateMachineEdgeCases:
         duration = end_time - start_time
 
         # Should handle rapid transitions efficiently
-        assert duration < 1.0  # Less than 1 second for 100 transitions
-        assert transition_count > 0
+        if duration >= 1.0:
+            raise AssertionError
+        if transition_count <= 0:
+            raise AssertionError
 
     def test_concurrent_transitions(self):
         """Test concurrent state transitions."""
@@ -729,7 +832,8 @@ class TestStateMachineEdgeCases:
 
         # At least one should succeed (due to forced transitions)
         successful = [r for _, r in results if r == TransitionResult.SUCCESS]
-        assert len(successful) >= 1
+        if len(successful) < 1:
+            raise AssertionError
 
     def test_state_duration_accuracy(self):
         """Test accuracy of state duration measurements."""
@@ -742,7 +846,8 @@ class TestStateMachineEdgeCases:
         duration = state_machine.get_current_state_duration()
 
         # Duration should be approximately 100ms (allow some variance)
-        assert 80 <= duration <= 200  # 80-200ms range to account for system variance
+        if not 80 <= duration <= 200:
+            raise AssertionError
 
     def test_large_metadata_handling(self):
         """Test handling of large metadata in transitions."""
@@ -753,7 +858,8 @@ class TestStateMachineEdgeCases:
 
         result = state_machine.transition_to(ApplicationState.STARTING, context=large_metadata)
 
-        assert result == TransitionResult.SUCCESS
+        if result != TransitionResult.SUCCESS:
+            raise AssertionError
 
         # Verify metadata was stored
         history = state_machine.get_state_history(limit=1)
@@ -782,11 +888,13 @@ class TestStateMachineEdgeCases:
         duration = end_time - start_time
 
         # Should complete in reasonable time
-        assert duration < 5.0  # Less than 5 seconds
+        if duration >= 5.0:
+            raise AssertionError
 
         # State machine should still be functional
         current_state = state_machine.get_current_state()
-        assert current_state in [ApplicationState.INITIALIZING, ApplicationState.STARTING]
+        if current_state not in [ApplicationState.INITIALIZING, ApplicationState.STARTING]:
+            raise AssertionError
 
 
 class TestStateMachineIntegration:
@@ -810,16 +918,19 @@ class TestStateMachineIntegration:
 
         for target_state in lifecycle_states:
             result = state_machine.transition_to(target_state)
-            assert result == TransitionResult.SUCCESS, (
-                f"Failed to transition to {target_state.value}"
-            )
+            if result != TransitionResult.SUCCESS:
+                raise AssertionError(
+                    f"Failed to transition to {target_state.value}"
+                )
 
-        assert state_machine.get_current_state() == ApplicationState.SHUTDOWN
+        if state_machine.get_current_state() != ApplicationState.SHUTDOWN:
+            raise AssertionError
 
         # Check that all states were recorded
         all_info = state_machine.get_all_state_info()
         for state in lifecycle_states:
-            assert state in all_info
+            if state not in all_info:
+                raise AssertionError
 
     def test_error_recovery_workflow(self):
         """Test error recovery workflow."""
@@ -836,7 +947,8 @@ class TestStateMachineIntegration:
         state_machine.transition_to(ApplicationState.MAINTENANCE)
         state_machine.transition_to(ApplicationState.RUNNING)
 
-        assert state_machine.get_current_state() == ApplicationState.RUNNING
+        if state_machine.get_current_state() != ApplicationState.RUNNING:
+            raise AssertionError
 
         # Check error was recorded in history
         history = state_machine.get_state_history()
@@ -868,9 +980,12 @@ class TestStateMachineIntegration:
 
         # Verify monitoring data was collected
         assert len(monitoring_data) == 2
-        assert monitoring_data[0]["from"] == "initializing"
-        assert monitoring_data[0]["to"] == "starting"
-        assert monitoring_data[1]["context"]["load"] == "high"
+        if monitoring_data[0]["from"] != "initializing":
+            raise AssertionError
+        if monitoring_data[0]["to"] != "starting":
+            raise AssertionError
+        if monitoring_data[1]["context"]["load"] != "high":
+            raise AssertionError
 
     def test_persistence_simulation(self):
         """Test simulation of state persistence."""
@@ -888,8 +1003,10 @@ class TestStateMachineIntegration:
         # Simulate restart with restored state
         new_state_machine = StateMachine(initial_state=current_state)
 
-        assert new_state_machine.get_current_state() == current_state
-        assert new_state_machine.get_current_state() == ApplicationState.RUNNING
+        if new_state_machine.get_current_state() != current_state:
+            raise AssertionError
+        if new_state_machine.get_current_state() != ApplicationState.RUNNING:
+            raise AssertionError
 
     def test_callback_chain_execution(self):
         """Test execution of callback chains."""
@@ -915,7 +1032,10 @@ class TestStateMachineIntegration:
         state_machine.transition_to(ApplicationState.STARTING)
 
         # All callbacks should execute
-        assert "callback1" in execution_order
-        assert "callback2" in execution_order
-        assert "callback3" in execution_order
+        if "callback1" not in execution_order:
+            raise AssertionError
+        if "callback2" not in execution_order:
+            raise AssertionError
+        if "callback3" not in execution_order:
+            raise AssertionError
         assert len(execution_order) == 3

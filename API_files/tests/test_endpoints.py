@@ -34,7 +34,8 @@ BAD_AUTH = {"X-DinoAir-Auth": "bad"}
 def test_router_execute_happy(monkeypatch: pytest.MonkeyPatch):
     class FakeRouter:
         def execute(self, service_name: str, payload: dict[str, Any]):
-            assert service_name == "search.local.default"
+            if service_name != "search.local.default":
+                raise AssertionError
             return {"hits": []}
 
     monkeypatch.setattr(router_client, "get_router", FakeRouter)
@@ -44,8 +45,10 @@ def test_router_execute_happy(monkeypatch: pytest.MonkeyPatch):
         json={"serviceName": "search.local.default", "payload": {}},
         headers=GOOD_AUTH,
     )
-    assert r.status_code == 200
-    assert r.json() == {"hits": []}
+    if r.status_code != 200:
+        raise AssertionError
+    if r.json() != {"hits": []}:
+        raise AssertionError
 
 
 @pytest.mark.parametrize(
@@ -67,13 +70,15 @@ def test_router_execute_errors(monkeypatch: pytest.MonkeyPatch, exc: Exception, 
     r = client.post(
         "/router/execute", json={"serviceName": "svc", "payload": {}}, headers=GOOD_AUTH
     )
-    assert r.status_code == expected
+    if r.status_code != expected:
+        raise AssertionError
 
 
 def test_router_execute_by_happy(monkeypatch: pytest.MonkeyPatch):
     class FakeRouter:
         def execute_by(self, tag: str, payload: dict[str, Any], policy: str):
-            assert tag == "chat"
+            if tag != "chat":
+                raise AssertionError
             return {
                 "choices": [{"message": {"content": "hello"}}],
                 "model": "test",
@@ -87,14 +92,17 @@ def test_router_execute_by_happy(monkeypatch: pytest.MonkeyPatch):
         json={"tag": "chat", "payload": {}, "policy": "first_healthy"},
         headers=GOOD_AUTH,
     )
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
-    assert "choices" in body
+    if "choices" not in body:
+        raise AssertionError
 
 
 def test_router_metrics_endpoint_smoke():
     r = client.get("/router/metrics", headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     assert isinstance(r.json(), dict)
 
 
@@ -105,16 +113,20 @@ def test_router_metrics_endpoint_smoke():
 
 def test_health_endpoint_public():
     r = client.get("/health")
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     assert isinstance(body, dict)
-    assert "status" in body
+    if "status" not in body:
+        raise AssertionError
 
 
 def test_metrics_endpoint_smoke():
     r = client.get("/metrics", headers=GOOD_AUTH)
-    assert r.status_code == 200
-    assert "uptimeSeconds" in r.json()
+    if r.status_code != 200:
+        raise AssertionError
+    if "uptimeSeconds" not in r.json():
+        raise AssertionError
 
 
 def test_config_dirs_happy(monkeypatch: pytest.MonkeyPatch):
@@ -135,10 +147,13 @@ def test_config_dirs_happy(monkeypatch: pytest.MonkeyPatch):
     )
 
     r = client.get("/config/dirs", headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
-    assert body["total_allowed"] == 2
-    assert body["total_excluded"] == 1
+    if body["total_allowed"] != 2:
+        raise AssertionError
+    if body["total_excluded"] != 1:
+        raise AssertionError
 
 
 # -------------------------
@@ -148,17 +163,21 @@ def test_config_dirs_happy(monkeypatch: pytest.MonkeyPatch):
 
 def test_search_keyword_happy():
     r = client.post("/file-search/keyword", json={"query": "foo", "top_k": 5}, headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
-    assert "hits" in body
+    if "hits" not in body:
+        raise AssertionError
     assert isinstance(body["hits"], list)
 
 
 def test_search_vector_happy():
     # Vector path consults ServiceRouter in this API layer (which is stubbed)
     r = client.post("/file-search/vector", json={"query": "foo", "top_k": 5}, headers=GOOD_AUTH)
-    assert r.status_code == 200
-    assert "hits" in r.json()
+    if r.status_code != 200:
+        raise AssertionError
+    if "hits" not in r.json():
+        raise AssertionError
 
 
 def test_search_hybrid_happy():
@@ -167,8 +186,10 @@ def test_search_hybrid_happy():
         json={"query": "foo", "top_k": 5, "vector_weight": 0.6, "keyword_weight": 0.4},
         headers=GOOD_AUTH,
     )
-    assert r.status_code == 200
-    assert "hits" in r.json()
+    if r.status_code != 200:
+        raise AssertionError
+    if "hits" not in r.json():
+        raise AssertionError
 
 
 @pytest.mark.parametrize(
@@ -193,7 +214,8 @@ def test_search_keyword_error_mapping(
     monkeypatch.setattr(search_routes, "get_router", FakeRouter)
 
     r = client.post("/file-search/keyword", json={"query": "foo", "top_k": 5}, headers=GOOD_AUTH)
-    assert r.status_code == expected
+    if r.status_code != expected:
+        raise AssertionError
 
 
 # -------------------------
@@ -220,19 +242,23 @@ def test_ai_chat_happy(monkeypatch: pytest.MonkeyPatch):
         "extra_params": {"router_tag": "chat"},
     }
     r = client.post("/ai/chat", json=payload, headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
-    assert body.get("success") in (
+    if body.get("success") not in (
         True,
         False,
-    )  # success is True when non-empty text is extracted
-    assert "content" in body
+    ):
+        raise AssertionError
+    if "content" not in body:
+        raise AssertionError
 
 
 def test_ai_chat_validation_error_422():
     payload = {"messages": []}  # invalid: empty list
     r = client.post("/ai/chat", json=payload, headers=GOOD_AUTH)
-    assert r.status_code == 422
+    if r.status_code != 422:
+        raise AssertionError
 
 
 @pytest.mark.parametrize(
@@ -259,7 +285,8 @@ def test_ai_chat_error_mapping(monkeypatch: pytest.MonkeyPatch, exc: Exception, 
         "extra_params": {"router_tag": "chat"},
     }
     r = client.post("/ai/chat", json=payload, headers=GOOD_AUTH)
-    assert r.status_code == expected
+    if r.status_code != expected:
+        raise AssertionError
 
 
 # -------------------------
@@ -274,7 +301,8 @@ def test_content_type_middleware_415():
         data="text body",
         headers={"Content-Type": "text/plain", **GOOD_AUTH},
     )
-    assert r.status_code == 415
+    if r.status_code != 415:
+        raise AssertionError
 
 
 def test_body_limit_middleware_413(monkeypatch: pytest.MonkeyPatch):
@@ -285,31 +313,38 @@ def test_body_limit_middleware_413(monkeypatch: pytest.MonkeyPatch):
 
     payload = {"pseudocode": "X" * 100}  # JSON well over 10 bytes
     r = small_client.post("/translate", json=payload, headers=GOOD_AUTH)
-    assert r.status_code == 413
+    if r.status_code != 413:
+        raise AssertionError
 
 
 def test_request_id_header_present():
     r = client.get("/health")
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     # Case-insensitive header mapping
-    assert "x-trace-id" in {k.lower(): v for k, v in r.headers.items()}
+    if "x-trace-id" not in {k.lower(): v for k, v in r.headers.items()}:
+        raise AssertionError
 
 
 def test_auth_middleware_401_and_bypass():
     # Protected endpoint without/invalid auth => 401
     r1 = client.post("/translate", json={"pseudocode": "print 1"})
-    assert r1.status_code == 401
+    if r1.status_code != 401:
+        raise AssertionError
 
     r2 = client.post("/translate", json={"pseudocode": "print 1"}, headers=BAD_AUTH)
-    assert r2.status_code == 401
+    if r2.status_code != 401:
+        raise AssertionError
 
     # /health is public even when auth is required
     rh = client.get("/health")
-    assert rh.status_code == 200
+    if rh.status_code != 200:
+        raise AssertionError
 
     # Docs may be exposed in dev
     ro = client.get("/openapi.json")
-    assert ro.status_code in (200, 404)
+    if ro.status_code not in (200, 404):
+        raise AssertionError
 
 
 # -------------------------
@@ -321,14 +356,19 @@ def test_error_handler_404_shape_and_metric_delta():
     before = metrics_snapshot()
     r = client.get("/does-not-exist", headers=GOOD_AUTH)
     after = metrics_snapshot()
-    assert r.status_code == 404
+    if r.status_code != 404:
+        raise AssertionError
     body = r.json()
     assert isinstance(body, dict)
-    assert body.get("code") == "ERR_NOT_FOUND"
-    assert body.get("error") == "Not Found"
+    if body.get("code") != "ERR_NOT_FOUND":
+        raise AssertionError
+    if body.get("error") != "Not Found":
+        raise AssertionError
     # Verify counters moved forward by at least one
-    assert after.get("requests_total", 0) >= before.get("requests_total", 0) + 1
-    assert after.get("status_4xx", 0) >= before.get("status_4xx", 0) + 1
+    if after.get("requests_total", 0) < before.get("requests_total", 0) + 1:
+        raise AssertionError
+    if after.get("status_4xx", 0) < before.get("status_4xx", 0) + 1:
+        raise AssertionError
 
 
 def test_error_handler_422_shape_and_metric_delta():
@@ -336,9 +376,14 @@ def test_error_handler_422_shape_and_metric_delta():
     # Missing required field 'pseudocode' triggers FastAPI RequestValidationError
     r = client.post("/translate", json={}, headers=GOOD_AUTH)
     after = metrics_snapshot()
-    assert r.status_code == 422
+    if r.status_code != 422:
+        raise AssertionError
     body = r.json()
-    assert body.get("code") == "ERR_VALIDATION"
-    assert body.get("error") == "Validation Error"
-    assert after.get("requests_total", 0) >= before.get("requests_total", 0) + 1
-    assert after.get("status_4xx", 0) >= before.get("status_4xx", 0) + 1
+    if body.get("code") != "ERR_VALIDATION":
+        raise AssertionError
+    if body.get("error") != "Validation Error":
+        raise AssertionError
+    if after.get("requests_total", 0) < before.get("requests_total", 0) + 1:
+        raise AssertionError
+    if after.get("status_4xx", 0) < before.get("status_4xx", 0) + 1:
+        raise AssertionError

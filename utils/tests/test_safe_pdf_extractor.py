@@ -28,13 +28,15 @@ class TestPDFExceptions:
         """Test PDFProcessingTimeout exception."""
         error = PDFProcessingTimeout("Processing timed out")
         assert isinstance(error, Exception)
-        assert str(error) == "Processing timed out"
+        if str(error) != "Processing timed out":
+            raise AssertionError
 
     def test_pdf_processing_error_exception(self):
         """Test PDFProcessingError exception."""
         error = PDFProcessingError("Processing failed")
         assert isinstance(error, Exception)
-        assert str(error) == "Processing failed"
+        if str(error) != "Processing failed":
+            raise AssertionError
 
 
 class TestSafePDFProcessor:
@@ -45,10 +47,14 @@ class TestSafePDFProcessor:
         with patch("utils.safe_pdf_extractor.PdfReader", MagicMock()):
             processor = SafePDFProcessor()
 
-            assert processor.timeout == 30
-            assert processor.max_pages == 1000
-            assert processor.max_file_size == 50 * 1024 * 1024
-            assert processor.max_memory_usage == 100 * 1024 * 1024
+            if processor.timeout != 30:
+                raise AssertionError
+            if processor.max_pages != 1000:
+                raise AssertionError
+            if processor.max_file_size != 50 * 1024 * 1024:
+                raise AssertionError
+            if processor.max_memory_usage != 100 * 1024 * 1024:
+                raise AssertionError
 
     def test_processor_initialization_custom(self):
         """Test SafePDFProcessor initialization with custom values."""
@@ -60,10 +66,14 @@ class TestSafePDFProcessor:
                 max_memory_usage=50 * 1024 * 1024,
             )
 
-            assert processor.timeout == 60
-            assert processor.max_pages == 500
-            assert processor.max_file_size == 10 * 1024 * 1024
-            assert processor.max_memory_usage == 50 * 1024 * 1024
+            if processor.timeout != 60:
+                raise AssertionError
+            if processor.max_pages != 500:
+                raise AssertionError
+            if processor.max_file_size != 10 * 1024 * 1024:
+                raise AssertionError
+            if processor.max_memory_usage != 50 * 1024 * 1024:
+                raise AssertionError
 
     def test_processor_initialization_without_pypdf2(self):
         """Test SafePDFProcessor initialization when PyPDF2 is not available."""
@@ -78,7 +88,8 @@ class TestSafePDFProcessor:
 
             with processor._timeout_handler() as timeout_checker:
                 assert timeout_checker is not None
-                assert hasattr(timeout_checker, "check_timeout")
+                if not hasattr(timeout_checker, "check_timeout"):
+                    raise AssertionError
 
     def test_timeout_handler_timeout_detection(self):
         """Test timeout handler timeout detection."""
@@ -181,23 +192,28 @@ class TestSafePDFProcessor:
             # Test case 1: Comment at end of line without character
             content1 = b"%PDF-1.4\nsome content\n%\nmore content"
             result1 = processor._preprocess_pdf_content(content1)
-            assert b"% safe" in result1
-            assert result1 != content1
+            if b"% safe" not in result1:
+                raise AssertionError
+            if result1 == content1:
+                raise AssertionError
 
             # Test case 2: Comment at end of file
             content2 = b"%PDF-1.4\nsome content%"
             result2 = processor._preprocess_pdf_content(content2)
-            assert result2.endswith(b"% safe")
+            if not result2.endswith(b"% safe"):
+                raise AssertionError
 
             # Test case 3: Comment with non-printable characters
             content3 = b"%PDF-1.4\nsome content\n%\x00\nmore content"
             result3 = processor._preprocess_pdf_content(content3)
-            assert b"% safe" in result3
+            if b"% safe" not in result3:
+                raise AssertionError
 
             # Test case 4: Normal comments should be preserved
             content4 = b"%PDF-1.4\n% This is a normal comment\nsome content"
             result4 = processor._preprocess_pdf_content(content4)
-            assert b"% This is a normal comment" in result4
+            if b"% This is a normal comment" not in result4:
+                raise AssertionError
 
             # Test case 5: Bare % on its own line
             content5 = b"%PDF-1.4\nsome content\n%\nmore content"
@@ -205,7 +221,8 @@ class TestSafePDFProcessor:
             # Should not have any line with just '%'
             lines = result5.decode("latin-1", errors="ignore").split("\n")
             for line in lines:
-                assert line.strip() != "%", f"Found bare % in line: {repr(line)}"
+                if line.strip() == "%":
+                    raise AssertionError(f"Found bare % in line: {repr(line)}")
 
     def test_preprocess_pdf_content_error_handling(self):
         """Test PDF content preprocessing error handling."""
@@ -219,7 +236,8 @@ class TestSafePDFProcessor:
             with patch("re.sub", side_effect=Exception("regex error")):
                 result = processor._preprocess_pdf_content(content)
                 # Should return original content on error
-                assert result == content
+                if result != content:
+                    raise AssertionError
 
     def test_safe_read_pdf_with_preprocessing(self):
         """Test PDF reading with content preprocessing."""
@@ -238,7 +256,8 @@ class TestSafePDFProcessor:
 
                 try:
                     result = processor._safe_read_pdf(temp_file.name)
-                    assert result == mock_reader
+                    if result != mock_reader:
+                        raise AssertionError
 
                     # Verify PdfReader was called with preprocessed content
                     mock_pdf_reader.assert_called_once()
@@ -250,7 +269,8 @@ class TestSafePDFProcessor:
 
                     # Read the content to verify preprocessing occurred
                     preprocessed_content = bytes_io_arg.getvalue()
-                    assert b"% " in preprocessed_content  # Should have fixed the malformed comment
+                    if b"% " not in preprocessed_content:
+                        raise AssertionError
 
                 finally:
                     temp_file.close()
@@ -270,7 +290,8 @@ class TestSafePDFProcessor:
 
                 try:
                     result = processor._safe_read_pdf(temp_file.name)
-                    assert result == mock_reader
+                    if result != mock_reader:
+                        raise AssertionError
                     mock_pdf_reader.assert_called_once()
                 finally:
                     temp_file.close()
@@ -309,7 +330,8 @@ class TestSafePDFProcessor:
 
             result = processor._extract_page_text_safe(mock_page, 1)
 
-            assert result == "This is test content from PDF page."
+            if result != "This is test content from PDF page.":
+                raise AssertionError
             mock_page.extract_text.assert_called_once()
 
     def test_extract_page_text_safe_timeout(self):
@@ -339,7 +361,8 @@ class TestSafePDFProcessor:
             with patch("utils.safe_pdf_extractor.logger") as mock_logger:
                 result = processor._extract_page_text_safe(mock_page, 1)
 
-                assert "[ERROR EXTRACTING PAGE 1:" in result
+                if "[ERROR EXTRACTING PAGE 1:" not in result:
+                    raise AssertionError
                 mock_logger.warning.assert_called()
 
     def test_extract_page_text_sanitization(self):
@@ -355,11 +378,16 @@ class TestSafePDFProcessor:
             result = processor._extract_page_text_safe(mock_page, 1)
 
             # Should remove control characters but keep newlines and tabs
-            assert "\x00" not in result
-            assert "\x01" not in result
-            assert "\n" in result
-            assert "\t" in result
-            assert "Clean text" in result
+            if "\x00" in result:
+                raise AssertionError
+            if "\x01" in result:
+                raise AssertionError
+            if "\n" not in result:
+                raise AssertionError
+            if "\t" not in result:
+                raise AssertionError
+            if "Clean text" not in result:
+                raise AssertionError
 
     def test_extract_page_text_length_limit(self):
         """Test page text length limiting."""
@@ -374,8 +402,10 @@ class TestSafePDFProcessor:
             result = processor._extract_page_text_safe(mock_page, 1)
 
             # Should be truncated
-            assert len(result) <= 100020  # 100K + truncation message
-            assert "[TEXT TRUNCATED - Page too long]" in result
+            if len(result) > 100020:
+                raise AssertionError
+            if "[TEXT TRUNCATED - Page too long]" not in result:
+                raise AssertionError
 
     def test_extract_text_from_file_success(self):
         """Test successful text extraction from file."""
@@ -396,13 +426,19 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is True
-                    assert "Test PDF content" in result["text"]
-                    assert result["pages_processed"] == 1
-                    assert result["total_pages"] == 1
-                    assert result["processing_time"] > 0
+                    if result["success"] is not True:
+                        raise AssertionError
+                    if "Test PDF content" not in result["text"]:
+                        raise AssertionError
+                    if result["pages_processed"] != 1:
+                        raise AssertionError
+                    if result["total_pages"] != 1:
+                        raise AssertionError
+                    if result["processing_time"] <= 0:
+                        raise AssertionError
                     assert isinstance(result["warnings"], list)
-                    assert result["error"] is None
+                    if result["error"] is not None:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -414,11 +450,16 @@ class TestSafePDFProcessor:
 
             result = processor.extract_text("/nonexistent/file.pdf")
 
-            assert result["success"] is False
-            assert result["error"] is not None
-            assert "does not exist" in result["error"]
-            assert result["text"] == ""
-            assert result["pages_processed"] == 0
+            if result["success"] is not False:
+                raise AssertionError
+            if result["error"] is None:
+                raise AssertionError
+            if "does not exist" not in result["error"]:
+                raise AssertionError
+            if result["text"] != "":
+                raise AssertionError
+            if result["pages_processed"] != 0:
+                raise AssertionError
 
     def test_extract_text_no_pages(self):
         """Test text extraction from PDF with no pages."""
@@ -436,9 +477,12 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is True
-                    assert result["total_pages"] == 0
-                    assert "PDF has no pages" in result["warnings"]
+                    if result["success"] is not True:
+                        raise AssertionError
+                    if result["total_pages"] != 0:
+                        raise AssertionError
+                    if "PDF has no pages" not in result["warnings"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -467,13 +511,20 @@ class TestSafePDFProcessor:
                     # Limit to 3 pages
                     result = processor.extract_text(temp_file.name, max_pages=3)
 
-                    assert result["success"] is True
-                    assert result["total_pages"] == 10
-                    assert result["pages_processed"] == 3
-                    assert "Processing limited to 3 pages" in result["warnings"]
-                    assert "Page 1 content" in result["text"]
-                    assert "Page 3 content" in result["text"]
-                    assert "Page 4 content" not in result["text"]
+                    if result["success"] is not True:
+                        raise AssertionError
+                    if result["total_pages"] != 10:
+                        raise AssertionError
+                    if result["pages_processed"] != 3:
+                        raise AssertionError
+                    if "Processing limited to 3 pages" not in result["warnings"]:
+                        raise AssertionError
+                    if "Page 1 content" not in result["text"]:
+                        raise AssertionError
+                    if "Page 3 content" not in result["text"]:
+                        raise AssertionError
+                    if "Page 4 content" in result["text"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -501,8 +552,10 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is False
-                    assert "timed out" in result["error"]
+                    if result["success"] is not False:
+                        raise AssertionError
+                    if "timed out" not in result["error"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -521,9 +574,12 @@ class TestSafePDFProcessor:
             pdf_bytes = b"%PDF-1.4\ntest content"
             result = processor.extract_text_from_bytes(pdf_bytes, "test.pdf")
 
-            assert result["success"] is True
-            assert "Content from bytes" in result["text"]
-            assert result["total_pages"] == 1
+            if result["success"] is not True:
+                raise AssertionError
+            if "Content from bytes" not in result["text"]:
+                raise AssertionError
+            if result["total_pages"] != 1:
+                raise AssertionError
 
     def test_extract_text_from_bytes_too_large(self):
         """Test text extraction from bytes that are too large."""
@@ -533,8 +589,10 @@ class TestSafePDFProcessor:
             large_pdf_bytes = b"%PDF-1.4\n" + b"x" * 200
             result = processor.extract_text_from_bytes(large_pdf_bytes)
 
-            assert result["success"] is False
-            assert "too large" in result["error"]
+            if result["success"] is not False:
+                raise AssertionError
+            if "too large" not in result["error"]:
+                raise AssertionError
 
     def test_extract_text_from_bytes_invalid_header(self):
         """Test text extraction from bytes with invalid header."""
@@ -544,8 +602,10 @@ class TestSafePDFProcessor:
             invalid_bytes = b"Not a PDF file"
             result = processor.extract_text_from_bytes(invalid_bytes)
 
-            assert result["success"] is False
-            assert "valid PDF header" in result["error"]
+            if result["success"] is not False:
+                raise AssertionError
+            if "valid PDF header" not in result["error"]:
+                raise AssertionError
 
     def test_is_pdf_safe_valid_file(self):
         """Test PDF safety check with valid file."""
@@ -564,11 +624,16 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.is_pdf_safe(temp_file.name)
 
-                    assert result["safe"] is True
-                    assert "File validation" in result["checks_passed"]
-                    assert "PDF parsing" in result["checks_passed"]
-                    assert "Page count reasonable" in result["checks_passed"]
-                    assert "Metadata present" in result["checks_passed"]
+                    if result["safe"] is not True:
+                        raise AssertionError
+                    if "File validation" not in result["checks_passed"]:
+                        raise AssertionError
+                    if "PDF parsing" not in result["checks_passed"]:
+                        raise AssertionError
+                    if "Page count reasonable" not in result["checks_passed"]:
+                        raise AssertionError
+                    if "Metadata present" not in result["checks_passed"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -591,9 +656,12 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.is_pdf_safe(temp_file.name)
 
-                    assert result["safe"] is True
-                    assert "Large document: 2000 pages" in result["warnings"]
-                    assert "No metadata found" in result["warnings"]
+                    if result["safe"] is not True:
+                        raise AssertionError
+                    if "Large document: 2000 pages" not in result["warnings"]:
+                        raise AssertionError
+                    if "No metadata found" not in result["warnings"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -617,8 +685,10 @@ class TestSafePDFProcessor:
                 try:
                     result = processor.is_pdf_safe(temp_file.name)
 
-                    assert result["safe"] is False
-                    assert "Processing timeout" in result["checks_failed"]
+                    if result["safe"] is not False:
+                        raise AssertionError
+                    if "Processing timeout" not in result["checks_failed"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -642,8 +712,10 @@ class TestSafePDFProcessor:
                 try:
                     result = await processor.extract_text_async(temp_file.name)
 
-                    assert result["success"] is True
-                    assert "Async extracted content" in result["text"]
+                    if result["success"] is not True:
+                        raise AssertionError
+                    if "Async extracted content" not in result["text"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -666,8 +738,10 @@ class TestSafePDFProcessor:
                 try:
                     result = await processor.is_pdf_safe_async(temp_file.name)
 
-                    assert result["safe"] is True
-                    assert "File validation" in result["checks_passed"]
+                    if result["safe"] is not True:
+                        raise AssertionError
+                    if "File validation" not in result["checks_passed"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -684,9 +758,12 @@ class TestFactoryAndConvenienceFunctions:
             )
 
             assert isinstance(processor, SafePDFProcessor)
-            assert processor.timeout == 60
-            assert processor.max_pages == 500
-            assert processor.max_file_size == 25 * 1024 * 1024
+            if processor.timeout != 60:
+                raise AssertionError
+            if processor.max_pages != 500:
+                raise AssertionError
+            if processor.max_file_size != 25 * 1024 * 1024:
+                raise AssertionError
 
     def test_extract_pdf_text_safe_success(self):
         """Test extract_pdf_text_safe convenience function success."""
@@ -700,7 +777,8 @@ class TestFactoryAndConvenienceFunctions:
 
             result = extract_pdf_text_safe("test.pdf", timeout=30, max_pages=100)
 
-            assert result == "Extracted text content"
+            if result != "Extracted text content":
+                raise AssertionError
             mock_processor_class.assert_called_with(timeout=30)
             mock_processor.extract_text.assert_called_with("test.pdf", max_pages=100)
 
@@ -718,7 +796,8 @@ class TestFactoryAndConvenienceFunctions:
             with patch("utils.safe_pdf_extractor.logger") as mock_logger:
                 result = extract_pdf_text_safe("test.pdf")
 
-                assert result == ""
+                if result != "":
+                    raise AssertionError
                 mock_logger.error.assert_called()
 
     @pytest.mark.asyncio
@@ -734,7 +813,8 @@ class TestFactoryAndConvenienceFunctions:
 
             result = await extract_pdf_text_safe_async("test.pdf", timeout=45)
 
-            assert result == "Async extracted content"
+            if result != "Async extracted content":
+                raise AssertionError
             mock_processor_class.assert_called_with(timeout=45)
 
     @pytest.mark.asyncio
@@ -752,7 +832,8 @@ class TestFactoryAndConvenienceFunctions:
             with patch("utils.safe_pdf_extractor.logger") as mock_logger:
                 result = await extract_pdf_text_safe_async("test.pdf")
 
-                assert result == ""
+                if result != "":
+                    raise AssertionError
                 mock_logger.error.assert_called()
 
 
@@ -776,8 +857,10 @@ class TestSecurityAndRobustness:
             for filename in malicious_names:
                 result = processor.extract_text(filename)
                 # Should fail safely without crashing
-                assert result["success"] is False
-                assert result["error"] is not None
+                if result["success"] is not False:
+                    raise AssertionError
+                if result["error"] is None:
+                    raise AssertionError
 
     def test_memory_exhaustion_protection(self):
         """Test protection against memory exhaustion."""
@@ -801,10 +884,12 @@ class TestSecurityAndRobustness:
                     result = processor.extract_text(temp_file.name)
 
                     # Should complete but with truncated pages
-                    assert result["success"] is True
+                    if result["success"] is not True:
+                        raise AssertionError
                     # Each page should be truncated to ~100KB
                     pages_in_text = result["text"].count("=== Page")
-                    assert pages_in_text <= 10
+                    if pages_in_text > 10:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -839,7 +924,8 @@ class TestSecurityAndRobustness:
                     end_time = time.time()
 
                     # Should complete within reasonable time (timeout + overhead)
-                    assert (end_time - start_time) < 1.0
+                    if (end_time - start_time) >= 1.0:
+                        raise AssertionError
                     # Result depends on timeout implementation
                 finally:
                     temp_file.close()
@@ -859,8 +945,10 @@ class TestSecurityAndRobustness:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is False
-                    assert "Error reading PDF" in result["error"]
+                    if result["success"] is not False:
+                        raise AssertionError
+                    if "Error reading PDF" not in result["error"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -877,8 +965,10 @@ class TestSecurityAndRobustness:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is False
-                    assert "valid PDF header" in result["error"]
+                    if result["success"] is not False:
+                        raise AssertionError
+                    if "valid PDF header" not in result["error"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -912,10 +1002,14 @@ class TestPerformanceAndScaling:
                     result = processor.extract_text(temp_file.name)
                     end_time = time.time()
 
-                    assert result["success"] is True
-                    assert result["total_pages"] == 100
-                    assert result["pages_processed"] == 50  # Limited by max_pages
-                    assert (end_time - start_time) < 5.0  # Should complete in reasonable time
+                    if result["success"] is not True:
+                        raise AssertionError
+                    if result["total_pages"] != 100:
+                        raise AssertionError
+                    if result["pages_processed"] != 50:
+                        raise AssertionError
+                    if (end_time - start_time) >= 5.0:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -962,7 +1056,8 @@ class TestPerformanceAndScaling:
             # All should succeed
             assert len(results) == 3
             for success in results.values():
-                assert success is True
+                if success is not True:
+                    raise AssertionError
 
     def test_resource_cleanup(self):
         """Test that resources are properly cleaned up."""
@@ -981,7 +1076,8 @@ class TestPerformanceAndScaling:
 
                     try:
                         result = processor.extract_text(temp_file.name)
-                        assert result["success"] is True
+                        if result["success"] is not True:
+                            raise AssertionError
                     finally:
                         temp_file.close()
                     Path(temp_file.name).unlink()
@@ -1017,8 +1113,10 @@ class TestEdgeCasesAndErrorConditions:
             processor = SafePDFProcessor(timeout=1, max_pages=-1, max_file_size=-1)
 
             # Processor should be created but may not work as expected
-            assert processor.max_pages == -1
-            assert processor.max_file_size == -1
+            if processor.max_pages != -1:
+                raise AssertionError
+            if processor.max_file_size != -1:
+                raise AssertionError
 
     def test_unicode_filename_handling(self):
         """Test handling of unicode filenames."""
@@ -1029,8 +1127,10 @@ class TestEdgeCasesAndErrorConditions:
             result = processor.extract_text(unicode_filename)
 
             # Should fail safely (file doesn't exist) without encoding errors
-            assert result["success"] is False
-            assert "does not exist" in result["error"]
+            if result["success"] is not False:
+                raise AssertionError
+            if "does not exist" not in result["error"]:
+                raise AssertionError
 
     def test_very_long_filename(self):
         """Test handling of very long filenames."""
@@ -1041,7 +1141,8 @@ class TestEdgeCasesAndErrorConditions:
             result = processor.extract_text(long_filename)
 
             # Should fail safely without crashing
-            assert result["success"] is False
+            if result["success"] is not False:
+                raise AssertionError
 
     def test_process_reader_timeout_near_limit(self):
         """Test _process_reader with timeout near the limit."""
@@ -1064,7 +1165,8 @@ class TestEdgeCasesAndErrorConditions:
             )
 
             # Should have stopped before processing all pages
-            assert pages_processed <= 10
+            if pages_processed > 10:
+                raise AssertionError
             # May have timeout warning
             [w for w in warnings if "timeout" in w.lower()]
             # Depending on timing, may or may not have timeout warnings
@@ -1101,10 +1203,13 @@ class TestEdgeCasesAndErrorConditions:
                 try:
                     result = processor.extract_text(temp_file.name)
 
-                    assert result["success"] is True
+                    if result["success"] is not True:
+                        raise AssertionError
                     # Should handle all content types gracefully
-                    assert "Normal text content" in result["text"]
-                    assert "special characters" in result["text"]
+                    if "Normal text content" not in result["text"]:
+                        raise AssertionError
+                    if "special characters" not in result["text"]:
+                        raise AssertionError
                 finally:
                     temp_file.close()
                     Path(temp_file.name).unlink()
@@ -1118,8 +1223,10 @@ class TestEdgeCasesAndErrorConditions:
             with patch("builtins.open", side_effect=PermissionError("Access denied")):
                 result = processor.extract_text("test.pdf")
 
-                assert result["success"] is False
-                assert "Error reading PDF file" in result["error"]
+                if result["success"] is not False:
+                    raise AssertionError
+                if "Error reading PDF file" not in result["error"]:
+                    raise AssertionError
 
     def test_disk_space_errors(self):
         """Test handling of disk space errors during processing."""
@@ -1130,8 +1237,10 @@ class TestEdgeCasesAndErrorConditions:
             with patch("builtins.open", side_effect=OSError("No space left on device")):
                 result = processor.extract_text("test.pdf")
 
-                assert result["success"] is False
-                assert "Error reading PDF file" in result["error"]
+                if result["success"] is not False:
+                    raise AssertionError
+                if "Error reading PDF file" not in result["error"]:
+                    raise AssertionError
 
     def test_concurrent_timeout_protection(self):
         """Test timeout protection under concurrent access."""
@@ -1184,4 +1293,5 @@ class TestEdgeCasesAndErrorConditions:
 
             # All workers should complete within reasonable time
             for worker_result in results.values():
-                assert worker_result["duration"] < 1.0  # Should timeout quickly
+                if worker_result["duration"] >= 1.0:
+                    raise AssertionError

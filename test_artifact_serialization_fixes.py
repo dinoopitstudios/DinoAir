@@ -38,12 +38,14 @@ def test_no_in_place_mutation():
     artifact.to_dict()
 
     # Verify the original asdict output was not mutated
-    assert original_dict["tags"] == original_tags, (
-        f"tags were mutated: {original_dict['tags']} != {original_tags}"
-    )
-    assert original_dict["encrypted_fields"] == original_encrypted_fields, (
-        f"encrypted_fields were mutated: {original_dict['encrypted_fields']} != {original_encrypted_fields}"
-    )
+    if original_dict["tags"] != original_tags:
+        raise AssertionError(
+            f"tags were mutated: {original_dict['tags']} != {original_tags}"
+        )
+    if original_dict["encrypted_fields"] != original_encrypted_fields:
+        raise AssertionError(
+            f"encrypted_fields were mutated: {original_dict['encrypted_fields']} != {original_encrypted_fields}"
+        )
 
 
 def test_json_encoding_for_lists():
@@ -69,22 +71,26 @@ def test_json_encoding_for_lists():
     decoded_tags = json.loads(artifact_dict["tags"])
     decoded_encrypted_fields = json.loads(artifact_dict["encrypted_fields"])
 
-    assert decoded_tags == [
+    if decoded_tags != [
         "python",
         "test",
         "example",
-    ], f"decoded tags don't match: {decoded_tags}"
-    assert decoded_encrypted_fields == [
+    ]:
+        raise AssertionError(f"decoded tags don't match: {decoded_tags}")
+    if decoded_encrypted_fields != [
         "content",
         "metadata",
         "description",
-    ], f"decoded encrypted_fields don't match: {decoded_encrypted_fields}"
+    ]:
+        raise AssertionError(f"decoded encrypted_fields don't match: {decoded_encrypted_fields}")
 
     # Verify it's NOT comma-joined (would fail if it was)
-    assert artifact_dict["tags"] != "python,test,example", "tags should not be comma-joined"
-    assert artifact_dict["encrypted_fields"] != "content,metadata,description", (
-        "encrypted_fields should not be comma-joined"
-    )
+    if artifact_dict["tags"] == "python,test,example":
+        raise AssertionError("tags should not be comma-joined")
+    if artifact_dict["encrypted_fields"] == "content,metadata,description":
+        raise AssertionError(
+            "encrypted_fields should not be comma-joined"
+        )
 
 
 def test_json_decoding_roundtrip():
@@ -105,18 +111,22 @@ def test_json_decoding_roundtrip():
     restored_artifact = Artifact.from_dict(artifact_dict)
 
     # Verify all data matches exactly
-    assert restored_artifact.tags == original_artifact.tags, (
-        f"tags don't match: {restored_artifact.tags} != {original_artifact.tags}"
-    )
-    assert restored_artifact.encrypted_fields == original_artifact.encrypted_fields, (
-        f"encrypted_fields don't match: {restored_artifact.encrypted_fields} != {original_artifact.encrypted_fields}"
-    )
-    assert restored_artifact.metadata == original_artifact.metadata, (
-        f"metadata don't match: {restored_artifact.metadata} != {original_artifact.metadata}"
-    )
-    assert restored_artifact.properties == original_artifact.properties, (
-        f"properties don't match: {restored_artifact.properties} != {original_artifact.properties}"
-    )
+    if restored_artifact.tags != original_artifact.tags:
+        raise AssertionError(
+            f"tags don't match: {restored_artifact.tags} != {original_artifact.tags}"
+        )
+    if restored_artifact.encrypted_fields != original_artifact.encrypted_fields:
+        raise AssertionError(
+            f"encrypted_fields don't match: {restored_artifact.encrypted_fields} != {original_artifact.encrypted_fields}"
+        )
+    if restored_artifact.metadata != original_artifact.metadata:
+        raise AssertionError(
+            f"metadata don't match: {restored_artifact.metadata} != {original_artifact.metadata}"
+        )
+    if restored_artifact.properties != original_artifact.properties:
+        raise AssertionError(
+            f"properties don't match: {restored_artifact.properties} != {original_artifact.properties}"
+        )
 
     # Verify correct types
     assert isinstance(restored_artifact.tags, list), (
@@ -170,12 +180,14 @@ def test_edge_cases():
     assert isinstance(restored_invalid.encrypted_fields, list), (
         f"encrypted_fields should be list, got {type(restored_invalid.encrypted_fields)}"
     )
-    assert restored_invalid.tags == ["invalid json ["], (
-        f"tags should contain the invalid string: {restored_invalid.tags}"
-    )
-    assert restored_invalid.encrypted_fields == ["also invalid {"], (
-        f"encrypted_fields should contain the invalid string: {restored_invalid.encrypted_fields}"
-    )
+    if restored_invalid.tags != ["invalid json ["]:
+        raise AssertionError(
+            f"tags should contain the invalid string: {restored_invalid.tags}"
+        )
+    if restored_invalid.encrypted_fields != ["also invalid {"]:
+        raise AssertionError(
+            f"encrypted_fields should contain the invalid string: {restored_invalid.encrypted_fields}"
+        )
 
     # Invalid JSON for dicts should return None
     assert restored_invalid.metadata is None, (
@@ -207,12 +219,14 @@ def test_backward_compatibility():
     assert isinstance(restored_legacy.encrypted_fields, list), (
         f"encrypted_fields should be list, got {type(restored_legacy.encrypted_fields)}"
     )
-    assert restored_legacy.tags == ["tag1,tag2,tag3"], (
-        f"tags should contain the whole string: {restored_legacy.tags}"
-    )
-    assert restored_legacy.encrypted_fields == ["field1,field2"], (
-        f"encrypted_fields should contain the whole string: {restored_legacy.encrypted_fields}"
-    )
+    if restored_legacy.tags != ["tag1,tag2,tag3"]:
+        raise AssertionError(
+            f"tags should contain the whole string: {restored_legacy.tags}"
+        )
+    if restored_legacy.encrypted_fields != ["field1,field2"]:
+        raise AssertionError(
+            f"encrypted_fields should contain the whole string: {restored_legacy.encrypted_fields}"
+        )
 
     # JSON strings for dicts should be decoded properly
     assert isinstance(restored_legacy.metadata, dict), (
@@ -221,12 +235,14 @@ def test_backward_compatibility():
     assert isinstance(restored_legacy.properties, dict), (
         f"properties should be dict, got {type(restored_legacy.properties)}"
     )
-    assert restored_legacy.metadata == {"key": "value"}, (
-        f"metadata should be decoded: {restored_legacy.metadata}"
-    )
-    assert restored_legacy.properties == {"prop": "value"}, (
-        f"properties should be decoded: {restored_legacy.properties}"
-    )
+    if restored_legacy.metadata != {"key": "value"}:
+        raise AssertionError(
+            f"metadata should be decoded: {restored_legacy.metadata}"
+        )
+    if restored_legacy.properties != {"prop": "value"}:
+        raise AssertionError(
+            f"properties should be decoded: {restored_legacy.properties}"
+        )
 
 
 def main():

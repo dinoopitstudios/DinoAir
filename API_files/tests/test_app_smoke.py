@@ -18,15 +18,18 @@ client = TestClient(app)
 
 def test_health_ok():
     r = client.get("/health")
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     assert isinstance(body, dict)
-    assert body.get("status") in {"ok", "degraded", "unhealthy"}
+    if body.get("status") not in {"ok", "degraded", "unhealthy"}:
+        raise AssertionError
 
 
 def test_openapi_docs_available_in_dev():
     r = client.get("/openapi.json")
-    assert r.status_code in (200, 404)  # 404 if dev flag disabled
+    if r.status_code not in (200, 404):
+        raise AssertionError
 
 
 def test_translate_stub_success():
@@ -35,10 +38,13 @@ def test_translate_stub_success():
         json={"pseudocode": "PRINT 1", "target_language": "python"},
         headers={"X-DinoAir-Auth": "test-token"},
     )
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
-    assert body.get("success") is True
-    assert body.get("language")
+    if body.get("success") is not True:
+        raise AssertionError
+    if not body.get("language"):
+        raise AssertionError
 
 
 def test_translate_stub_unauthorized():
@@ -48,10 +54,12 @@ def test_translate_stub_unauthorized():
         json={"pseudocode": "PRINT 1", "target_language": "python"},
         headers={"X-DinoAir-Auth": "bad"},
     )
-    assert r.status_code == 401
+    if r.status_code != 401:
+        raise AssertionError
 
 
 def test_router_metrics_smoke():
     r = client.get("/router/metrics", headers={"X-DinoAir-Auth": "test-token"})
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     assert isinstance(r.json(), dict)

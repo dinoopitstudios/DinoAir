@@ -30,19 +30,26 @@ class TestConfigSource(unittest.TestCase):
         """Test ConfigSource creation with different parameters"""
         # Basic source
         source = ConfigSource("test")
-        assert source.name == "test"
+        if source.name != "test":
+            raise AssertionError
         assert source.path is None
-        assert source.data == {}
-        assert source.priority == 0
-        assert not source.loaded
+        if source.data != {}:
+            raise AssertionError
+        if source.priority != 0:
+            raise AssertionError
+        if source.loaded:
+            raise AssertionError
         assert source.error is None
 
         # Source with path
         path = Path("/test/path")
         source = ConfigSource("test", path, {"key": "value"}, 5)
-        assert source.path == path
-        assert source.data == {"key": "value"}
-        assert source.priority == 5
+        if source.path != path:
+            raise AssertionError
+        if source.data != {"key": "value"}:
+            raise AssertionError
+        if source.priority != 5:
+            raise AssertionError
 
 
 class TestConfigValue(unittest.TestCase):
@@ -59,12 +66,18 @@ class TestConfigValue(unittest.TestCase):
             schema_type="string",
         )
 
-        assert value.value == "test_value"
-        assert value.source == "file"
-        assert value.path == "app.name"
-        assert value.env_var == "APP_NAME"
-        assert value.default == "default_value"
-        assert value.schema_type == "string"
+        if value.value != "test_value":
+            raise AssertionError
+        if value.source != "file":
+            raise AssertionError
+        if value.path != "app.name":
+            raise AssertionError
+        if value.env_var != "APP_NAME":
+            raise AssertionError
+        if value.default != "default_value":
+            raise AssertionError
+        if value.schema_type != "string":
+            raise AssertionError
 
 
 class TestVersionedConfigManager(unittest.TestCase):
@@ -137,10 +150,13 @@ class TestVersionedConfigManager(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get_schema_version() == "1.0.0"
+        if config.get_schema_version() != "1.0.0":
+            raise AssertionError
         assert len(config.env_mappings) == 4
-        assert "APP_NAME" in config.env_mappings
-        assert config.env_mappings["APP_NAME"] == "app.name"
+        if "APP_NAME" not in config.env_mappings:
+            raise AssertionError
+        if config.env_mappings["APP_NAME"] != "app.name":
+            raise AssertionError
 
     def test_missing_schema_error(self):
         """Test error handling for missing schema"""
@@ -158,10 +174,14 @@ class TestVersionedConfigManager(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get("app.name") == "Test App"
-        assert not config.get("app.debug")
-        assert config.get("app.port") == 8080
-        assert config.get("database.timeout") == 30
+        if config.get("app.name") != "Test App":
+            raise AssertionError
+        if config.get("app.debug"):
+            raise AssertionError
+        if config.get("app.port") != 8080:
+            raise AssertionError
+        if config.get("database.timeout") != 30:
+            raise AssertionError
 
     def test_file_config_override(self):
         """Test file configuration overriding defaults"""
@@ -178,10 +198,14 @@ class TestVersionedConfigManager(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get("app.name") == "File App"
-        assert config.get("app.debug")
-        assert config.get("app.port") == 8080  # Still default
-        assert config.get("database.timeout") == 60
+        if config.get("app.name") != "File App":
+            raise AssertionError
+        if not config.get("app.debug"):
+            raise AssertionError
+        if config.get("app.port") != 8080:
+            raise AssertionError
+        if config.get("database.timeout") != 60:
+            raise AssertionError
 
     def test_environment_override(self):
         """Test environment variables overriding file and defaults"""
@@ -202,9 +226,12 @@ class TestVersionedConfigManager(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get("app.name") == "Env App"  # From env
-        assert config.get("app.debug")  # From file
-        assert config.get("app.port") == 9000  # From env (converted to int)
+        if config.get("app.name") != "Env App":
+            raise AssertionError
+        if not config.get("app.debug"):
+            raise AssertionError
+        if config.get("app.port") != 9000:
+            raise AssertionError
 
     def test_env_file_override(self):
         """Test .env file overriding other sources"""
@@ -226,10 +253,14 @@ class TestVersionedConfigManager(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get("app.name") == "DotEnv App"
-        assert not config.get("app.debug")
-        assert config.get("app.port") == 7000
-        assert config.get("database.timeout") == 120
+        if config.get("app.name") != "DotEnv App":
+            raise AssertionError
+        if config.get("app.debug"):
+            raise AssertionError
+        if config.get("app.port") != 7000:
+            raise AssertionError
+        if config.get("database.timeout") != 120:
+            raise AssertionError
 
     def test_precedence_order(self):
         """Test complete precedence: env > env_file > file > defaults"""
@@ -253,13 +284,17 @@ class TestVersionedConfigManager(unittest.TestCase):
         )
 
         # System env wins for app.name
-        assert config.get("app.name") == "System Env App"
+        if config.get("app.name") != "System Env App":
+            raise AssertionError
         # .env file wins for port
-        assert config.get("app.port") == 6000
+        if config.get("app.port") != 6000:
+            raise AssertionError
         # File wins for debug (not overridden)
-        assert config.get("app.debug")
+        if not config.get("app.debug"):
+            raise AssertionError
         # Default wins for database.timeout
-        assert config.get("database.timeout") == 30
+        if config.get("database.timeout") != 30:
+            raise AssertionError
 
     def test_type_conversion(self):
         """Test environment variable type conversion"""
@@ -275,13 +310,16 @@ class TestVersionedConfigManager(unittest.TestCase):
         )
 
         assert isinstance(config.get("app.debug"), bool)
-        assert config.get("app.debug")
+        if not config.get("app.debug"):
+            raise AssertionError
 
         assert isinstance(config.get("app.port"), int)
-        assert config.get("app.port") == 8080
+        if config.get("app.port") != 8080:
+            raise AssertionError
 
         assert isinstance(config.get("database.timeout"), int)
-        assert config.get("database.timeout") == 45
+        if config.get("database.timeout") != 45:
+            raise AssertionError
 
     def test_get_with_source(self):
         """Test getting configuration values with source information"""
@@ -301,19 +339,26 @@ class TestVersionedConfigManager(unittest.TestCase):
 
         # Test value from environment
         name_value = config.get_with_source("app.name")
-        assert name_value.value == "Env App"
-        assert name_value.source == "environment"
-        assert name_value.env_var == "APP_NAME"
+        if name_value.value != "Env App":
+            raise AssertionError
+        if name_value.source != "environment":
+            raise AssertionError
+        if name_value.env_var != "APP_NAME":
+            raise AssertionError
 
         # Test value from file
         debug_value = config.get_with_source("app.debug")
-        assert debug_value.value
-        assert debug_value.source == "file"
+        if not debug_value.value:
+            raise AssertionError
+        if debug_value.source != "file":
+            raise AssertionError
 
         # Test value from defaults
         port_value = config.get_with_source("app.port")
-        assert port_value.value == 8080
-        assert port_value.source == "defaults"
+        if port_value.value != 8080:
+            raise AssertionError
+        if port_value.source != "defaults":
+            raise AssertionError
 
     def test_set_and_save(self):
         """Test setting values and saving configuration"""
@@ -326,13 +371,15 @@ class TestVersionedConfigManager(unittest.TestCase):
 
         # Set a value
         config.set("app.name", "New App Name")
-        assert config.get("app.name") == "New App Name"
+        if config.get("app.name") != "New App Name":
+            raise AssertionError
 
         # Save configuration
         config.save_config_file()
 
         # Verify it was saved
-        assert self.config_path.exists()
+        if not self.config_path.exists():
+            raise AssertionError
         with open(self.config_path) as f:
             json.load(f)
 
@@ -383,7 +430,8 @@ class TestCompatibilityConfigLoader(unittest.TestCase):
 
         # Test set method
         loader.set("app.debug", True, save=False)
-        assert loader.get("app.debug")
+        if not loader.get("app.debug"):
+            raise AssertionError
 
         # Test async compatibility methods
         assert isinstance(loader.is_async_enabled(), bool)
@@ -413,7 +461,8 @@ class TestLegacyDefaults(unittest.TestCase):
         ]
 
         for key in expected_keys:
-            assert key in defaults
+            if key not in defaults:
+                raise AssertionError
 
         # Check types
         assert isinstance(defaults["APP_NAME"], str)
@@ -493,7 +542,8 @@ class TestEnvironmentParsing(unittest.TestCase):
             )
 
             result = config.get("test.boolean_val")
-            assert result == expected, f"Failed for {env_value}"
+            if result != expected:
+                raise AssertionError(f"Failed for {env_value}")
 
             del os.environ["TEST_BOOL"]
 
@@ -512,10 +562,12 @@ class TestEnvironmentParsing(unittest.TestCase):
             validate_on_load=False,
         )
 
-        assert config.get("test.integer_val") == 42
+        if config.get("test.integer_val") != 42:
+            raise AssertionError
         assert isinstance(config.get("test.integer_val"), int)
 
-        assert config.get("test.number_val") == 3.14
+        if config.get("test.number_val") != 3.14:
+            raise AssertionError
         assert isinstance(config.get("test.number_val"), float)
 
 

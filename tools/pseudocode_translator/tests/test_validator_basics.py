@@ -16,8 +16,10 @@ def test_validate_syntax_passes_on_simple_code():
     code = "def add(a, b):\n    return a + b\n"
     result = validator.validate_syntax(code)
     assert isinstance(result, ValidationResult)
-    assert result.is_valid
-    assert result.errors == []
+    if not result.is_valid:
+        raise AssertionError
+    if result.errors != []:
+        raise AssertionError
 
 
 def test_validate_syntax_flags_invalid_code():
@@ -25,8 +27,10 @@ def test_validate_syntax_flags_invalid_code():
     bad_code = "def broken(\n    return 1\n"
     result = validator.validate_syntax(bad_code)
     assert isinstance(result, ValidationResult)
-    assert not result.is_valid
-    assert any("Syntax error" in err or "Failed to parse code" in err for err in result.errors)
+    if result.is_valid:
+        raise AssertionError
+    if not any("Syntax error" in err or "Failed to parse code" in err for err in result.errors):
+        raise AssertionError
 
 
 def test_security_finding_detects_eval_exec():
@@ -34,7 +38,9 @@ def test_security_finding_detects_eval_exec():
     validator = make_validator(allow_unsafe=False)
     insecure_code = "def risky(x):\n    return eval('x + 1')\n"
     result = validator.validate_syntax(insecure_code)
-    assert not result.is_valid
-    assert any(
+    if result.is_valid:
+        raise AssertionError
+    if not any(
         "Unsafe operation detected" in err or "Unsafe operation" in err for err in result.errors
-    )
+    ):
+        raise AssertionError

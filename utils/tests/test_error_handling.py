@@ -33,22 +33,35 @@ class TestErrorEnums:
 
     def test_error_severity_values(self) -> None:
         """Test ErrorSeverity enum values."""
-        assert ErrorSeverity.LOW.value == "low"
-        assert ErrorSeverity.MEDIUM.value == "medium"
-        assert ErrorSeverity.HIGH.value == "high"
-        assert ErrorSeverity.CRITICAL.value == "critical"
+        if ErrorSeverity.LOW.value != "low":
+            raise AssertionError
+        if ErrorSeverity.MEDIUM.value != "medium":
+            raise AssertionError
+        if ErrorSeverity.HIGH.value != "high":
+            raise AssertionError
+        if ErrorSeverity.CRITICAL.value != "critical":
+            raise AssertionError
 
     def test_error_category_values(self) -> None:
         """Test ErrorCategory enum values."""
-        assert ErrorCategory.NETWORK.value == "network"
-        assert ErrorCategory.FILESYSTEM.value == "filesystem"
-        assert ErrorCategory.DATABASE.value == "database"
-        assert ErrorCategory.EXTERNAL_SERVICE.value == "external_service"
-        assert ErrorCategory.RESOURCE.value == "resource"
-        assert ErrorCategory.CONFIGURATION.value == "configuration"
-        assert ErrorCategory.VALIDATION.value == "validation"
-        assert ErrorCategory.TIMEOUT.value == "timeout"
-        assert ErrorCategory.UNKNOWN.value == "unknown"
+        if ErrorCategory.NETWORK.value != "network":
+            raise AssertionError
+        if ErrorCategory.FILESYSTEM.value != "filesystem":
+            raise AssertionError
+        if ErrorCategory.DATABASE.value != "database":
+            raise AssertionError
+        if ErrorCategory.EXTERNAL_SERVICE.value != "external_service":
+            raise AssertionError
+        if ErrorCategory.RESOURCE.value != "resource":
+            raise AssertionError
+        if ErrorCategory.CONFIGURATION.value != "configuration":
+            raise AssertionError
+        if ErrorCategory.VALIDATION.value != "validation":
+            raise AssertionError
+        if ErrorCategory.TIMEOUT.value != "timeout":
+            raise AssertionError
+        if ErrorCategory.UNKNOWN.value != "unknown":
+            raise AssertionError
 
 
 class TestErrorContext:
@@ -65,12 +78,18 @@ class TestErrorContext:
             details={"url": "http://example.com"},
         )
 
-        assert context.category == ErrorCategory.NETWORK
-        assert context.severity == ErrorSeverity.MEDIUM
-        assert context.message == "Connection failed"
-        assert context.operation == "api_call"
-        assert context.retryable is True
-        assert context.details == {"url": "http://example.com"}
+        if context.category != ErrorCategory.NETWORK:
+            raise AssertionError
+        if context.severity != ErrorSeverity.MEDIUM:
+            raise AssertionError
+        if context.message != "Connection failed":
+            raise AssertionError
+        if context.operation != "api_call":
+            raise AssertionError
+        if context.retryable is not True:
+            raise AssertionError
+        if context.details != {"url": "http://example.com"}:
+            raise AssertionError
 
     def test_error_context_defaults(self) -> None:
         """Test ErrorContext with default values."""
@@ -81,9 +100,12 @@ class TestErrorContext:
             operation="",
         )
 
-        assert context.retryable is True
-        assert context.details == {}
-        assert context.operation == ""
+        if context.retryable is not True:
+            raise AssertionError
+        if context.details != {}:
+            raise AssertionError
+        if context.operation != "":
+            raise AssertionError
 
 
 class TestErrorClassifier:
@@ -94,55 +116,74 @@ class TestErrorClassifier:
         error = ConnectionError("Connection refused")
         context = ErrorClassifier.classify_error(error, "network_request")
 
-        assert context.category == ErrorCategory.NETWORK
-        assert context.severity == ErrorSeverity.MEDIUM
-        assert context.retryable is True
-        assert context.operation == "network_request"
+        if context.category != ErrorCategory.NETWORK:
+            raise AssertionError
+        if context.severity != ErrorSeverity.MEDIUM:
+            raise AssertionError
+        if context.retryable is not True:
+            raise AssertionError
+        if context.operation != "network_request":
+            raise AssertionError
 
     def test_classify_timeout_error(self) -> None:
         """Test classification of TimeoutError."""
         error = TimeoutError("Operation timed out")
         context = ErrorClassifier.classify_error(error)
 
-        assert context.category == ErrorCategory.TIMEOUT
-        assert context.severity == ErrorSeverity.MEDIUM
-        assert context.retryable is True
+        if context.category != ErrorCategory.TIMEOUT:
+            raise AssertionError
+        if context.severity != ErrorSeverity.MEDIUM:
+            raise AssertionError
+        if context.retryable is not True:
+            raise AssertionError
 
     def test_classify_file_not_found_error(self) -> None:
         """Test classification of FileNotFoundError."""
         error = FileNotFoundError("File not found")
         context = ErrorClassifier.classify_error(error)
 
-        assert context.category == ErrorCategory.FILESYSTEM
-        assert context.severity == ErrorSeverity.MEDIUM
-        assert context.retryable is True
+        if context.category != ErrorCategory.FILESYSTEM:
+            raise AssertionError
+        if context.severity != ErrorSeverity.MEDIUM:
+            raise AssertionError
+        if context.retryable is not True:
+            raise AssertionError
 
     def test_classify_value_error(self) -> None:
         """Test classification of ValueError."""
         error = ValueError("Invalid value")
         context = ErrorClassifier.classify_error(error)
 
-        assert context.category == ErrorCategory.CONFIGURATION
-        assert context.severity == ErrorSeverity.LOW
-        assert context.retryable is False
+        if context.category != ErrorCategory.CONFIGURATION:
+            raise AssertionError
+        if context.severity != ErrorSeverity.LOW:
+            raise AssertionError
+        if context.retryable is not False:
+            raise AssertionError
 
     def test_classify_memory_error(self) -> None:
         """Test classification of MemoryError."""
         error = MemoryError("Out of memory")
         context = ErrorClassifier.classify_error(error)
 
-        assert context.category == ErrorCategory.RESOURCE
-        assert context.severity == ErrorSeverity.CRITICAL
-        assert context.retryable is False
+        if context.category != ErrorCategory.RESOURCE:
+            raise AssertionError
+        if context.severity != ErrorSeverity.CRITICAL:
+            raise AssertionError
+        if context.retryable is not False:
+            raise AssertionError
 
     def test_classify_unknown_error(self) -> None:
         """Test classification of unknown error type."""
         error = RuntimeError("Unknown error")
         context = ErrorClassifier.classify_error(error)
 
-        assert context.category == ErrorCategory.UNKNOWN
-        assert context.severity == ErrorSeverity.LOW
-        assert context.retryable is True
+        if context.category != ErrorCategory.UNKNOWN:
+            raise AssertionError
+        if context.severity != ErrorSeverity.LOW:
+            raise AssertionError
+        if context.retryable is not True:
+            raise AssertionError
 
 
 class TestRetryConfig:
@@ -152,12 +193,18 @@ class TestRetryConfig:
         """Test RetryConfig with default values."""
         config = RetryConfig()
 
-        assert config.max_attempts == 3
-        assert config.initial_delay == 1.0
-        assert config.max_delay == 30.0
-        assert config.backoff_factor == 2.0
-        assert config.jitter is True
-        assert config.retryable_exceptions == (Exception,)
+        if config.max_attempts != 3:
+            raise AssertionError
+        if config.initial_delay != 1.0:
+            raise AssertionError
+        if config.max_delay != 30.0:
+            raise AssertionError
+        if config.backoff_factor != 2.0:
+            raise AssertionError
+        if config.jitter is not True:
+            raise AssertionError
+        if config.retryable_exceptions != (Exception,):
+            raise AssertionError
 
     def test_retry_config_custom_values(self) -> None:
         """Test RetryConfig with custom values."""
@@ -170,12 +217,18 @@ class TestRetryConfig:
             retryable_exceptions=(ValueError, KeyError),
         )
 
-        assert config.max_attempts == 5
-        assert config.initial_delay == 2.0
-        assert config.max_delay == 60.0
-        assert config.backoff_factor == 1.5
-        assert config.jitter is False
-        assert config.retryable_exceptions == (ValueError, KeyError)
+        if config.max_attempts != 5:
+            raise AssertionError
+        if config.initial_delay != 2.0:
+            raise AssertionError
+        if config.max_delay != 60.0:
+            raise AssertionError
+        if config.backoff_factor != 1.5:
+            raise AssertionError
+        if config.jitter is not False:
+            raise AssertionError
+        if config.retryable_exceptions != (ValueError, KeyError):
+            raise AssertionError
 
 
 class TestCircuitBreakerConfig:
@@ -185,10 +238,14 @@ class TestCircuitBreakerConfig:
         """Test CircuitBreakerConfig with default values."""
         config = CircuitBreakerConfig()
 
-        assert config.failure_threshold == 5
-        assert config.recovery_timeout == 60.0
-        assert config.success_threshold == 3
-        assert config.timeout == 5.0
+        if config.failure_threshold != 5:
+            raise AssertionError
+        if config.recovery_timeout != 60.0:
+            raise AssertionError
+        if config.success_threshold != 3:
+            raise AssertionError
+        if config.timeout != 5.0:
+            raise AssertionError
 
 
 class TestCircuitBreaker:
@@ -200,12 +257,17 @@ class TestCircuitBreaker:
         cb = CircuitBreaker(config)
 
         # Test through public interface where possible
-        assert cb.get_state() == "closed"
+        if cb.get_state() != "closed":
+            raise AssertionError
         # Test internal state - this is acceptable for unit tests
-        assert cb._state == CircuitBreakerState.CLOSED  # type: ignore
-        assert cb._stats.total_calls == 0  # type: ignore
-        assert cb._stats.successful_calls == 0  # type: ignore
-        assert cb._stats.failed_calls == 0  # type: ignore
+        if cb._state != CircuitBreakerState.CLOSED:
+            raise AssertionError
+        if cb._stats.total_calls != 0:
+            raise AssertionError
+        if cb._stats.successful_calls != 0:
+            raise AssertionError
+        if cb._stats.failed_calls != 0:
+            raise AssertionError
 
     def test_circuit_breaker_successful_call(self) -> None:
         """Test successful call through circuit breaker."""
@@ -215,10 +277,14 @@ class TestCircuitBreaker:
             return "success"
 
         result = cb.call(successful_func)
-        assert result == "success"
-        assert cb._stats.total_calls == 1  # type: ignore
-        assert cb._stats.successful_calls == 1  # type: ignore
-        assert cb._stats.failed_calls == 0  # type: ignore
+        if result != "success":
+            raise AssertionError
+        if cb._stats.total_calls != 1:
+            raise AssertionError
+        if cb._stats.successful_calls != 1:
+            raise AssertionError
+        if cb._stats.failed_calls != 0:
+            raise AssertionError
 
     def test_circuit_breaker_failed_call(self) -> None:
         """Test failed call through circuit breaker."""
@@ -230,9 +296,12 @@ class TestCircuitBreaker:
         with pytest.raises(ValueError):
             cb.call(failing_func)
 
-        assert cb._stats.total_calls == 1  # type: ignore
-        assert cb._stats.successful_calls == 0  # type: ignore
-        assert cb._stats.failed_calls == 1  # type: ignore
+        if cb._stats.total_calls != 1:
+            raise AssertionError
+        if cb._stats.successful_calls != 0:
+            raise AssertionError
+        if cb._stats.failed_calls != 1:
+            raise AssertionError
 
     def test_circuit_breaker_open_after_failures(self) -> None:
         """Test circuit breaker opens after failure threshold."""
@@ -245,12 +314,14 @@ class TestCircuitBreaker:
         # First failure
         with pytest.raises(RuntimeError):
             cb.call(failing_func)
-        assert cb._state == CircuitBreakerState.CLOSED  # type: ignore
+        if cb._state != CircuitBreakerState.CLOSED:
+            raise AssertionError
 
         # Second failure - should open circuit
         with pytest.raises(RuntimeError):
             cb.call(failing_func)
-        assert cb._state == CircuitBreakerState.OPEN  # type: ignore
+        if cb._state != CircuitBreakerState.OPEN:
+            raise AssertionError
 
     def test_circuit_breaker_open_blocks_calls(self) -> None:
         """Test that open circuit breaker blocks calls."""
@@ -262,13 +333,15 @@ class TestCircuitBreaker:
         # Open the circuit
         with pytest.raises(RuntimeError):
             cb.call(failing_func)
-        assert cb._state == CircuitBreakerState.OPEN  # type: ignore
+        if cb._state != CircuitBreakerState.OPEN:
+            raise AssertionError
 
         # Next call should be blocked
         with pytest.raises(Exception) as exc_info:
             cb.call(lambda: "success")
 
-        assert "Circuit breaker is open" in str(exc_info.value)
+        if "Circuit breaker is open" not in str(exc_info.value):
+            raise AssertionError
 
     def test_circuit_breaker_recovery(self) -> None:
         """Test circuit breaker recovery after timeout."""
@@ -283,15 +356,18 @@ class TestCircuitBreaker:
         # Open the circuit
         with pytest.raises(RuntimeError):
             cb.call(failing_func)
-        assert cb._state == CircuitBreakerState.OPEN  # type: ignore
+        if cb._state != CircuitBreakerState.OPEN:
+            raise AssertionError
 
         # Wait for recovery timeout
         time.sleep(0.2)
 
         # Next call should attempt recovery (half-open state)
         result = cb.call(lambda: "success")
-        assert result == "success"
-        assert cb._state == CircuitBreakerState.CLOSED  # type: ignore
+        if result != "success":
+            raise AssertionError
+        if cb._state != CircuitBreakerState.CLOSED:
+            raise AssertionError
 
     def test_circuit_breaker_reset(self) -> None:
         """Test circuit breaker reset functionality."""
@@ -303,12 +379,15 @@ class TestCircuitBreaker:
         # Open the circuit
         with pytest.raises(RuntimeError):
             cb.call(failing_func)
-        assert cb._state == CircuitBreakerState.OPEN  # type: ignore
+        if cb._state != CircuitBreakerState.OPEN:
+            raise AssertionError
 
         # Reset
         cb.reset()
-        assert cb._state == CircuitBreakerState.CLOSED  # type: ignore
-        assert cb._stats.total_calls == 0  # type: ignore
+        if cb._state != CircuitBreakerState.CLOSED:
+            raise AssertionError
+        if cb._stats.total_calls != 0:
+            raise AssertionError
 
 
 class TestRetryDecorator:
@@ -327,8 +406,10 @@ class TestRetryDecorator:
             return "success"
 
         result = test_func()
-        assert result == "success"
-        assert call_count == 1
+        if result != "success":
+            raise AssertionError
+        if call_count != 1:
+            raise AssertionError
 
     def test_retry_success_after_failures(self):
         """Test retry decorator when function succeeds after failures."""
@@ -345,8 +426,10 @@ class TestRetryDecorator:
             return "success"
 
         result = test_func()
-        assert result == "success"
-        assert call_count == 2
+        if result != "success":
+            raise AssertionError
+        if call_count != 2:
+            raise AssertionError
 
     def test_retry_exhausts_attempts(self):
         """Test retry decorator exhausts all attempts."""
@@ -363,8 +446,10 @@ class TestRetryDecorator:
         with pytest.raises(ValueError) as exc_info:
             test_func()
 
-        assert str(exc_info.value) == "Persistent error"
-        assert call_count == 2
+        if str(exc_info.value) != "Persistent error":
+            raise AssertionError
+        if call_count != 2:
+            raise AssertionError
 
     def test_retry_non_retryable_exception(self):
         """Test retry decorator with non-retryable exception."""
@@ -392,8 +477,10 @@ class TestCircuitBreakerDecorator:
             return "success"
 
         result = test_func()
-        assert result == "success"
-        assert call_count == 1
+        if result != "success":
+            raise AssertionError
+        if call_count != 1:
+            raise AssertionError
 
     def test_circuit_breaker_decorator_failure(self):
         """Test circuit breaker decorator with failures."""
@@ -410,18 +497,22 @@ class TestCircuitBreakerDecorator:
         # First failure
         with pytest.raises(ValueError):
             test_func()
-        assert call_count == 1
+        if call_count != 1:
+            raise AssertionError
 
         # Second failure - circuit opens
         with pytest.raises(ValueError):
             test_func()
-        assert call_count == 2
+        if call_count != 2:
+            raise AssertionError
 
         # Third call should be blocked
         with pytest.raises(Exception) as exc_info:
             test_func()
-        assert "Circuit breaker is open" in str(exc_info.value)
-        assert call_count == 2  # No additional calls
+        if "Circuit breaker is open" not in str(exc_info.value):
+            raise AssertionError
+        if call_count != 2:
+            raise AssertionError
 
 
 class TestTimeoutContext:
@@ -448,7 +539,8 @@ class TestTimeoutContext:
             return "success"
 
         result = test_func()
-        assert result == "success"
+        if result != "success":
+            raise AssertionError
 
     def test_with_timeout_decorator_timeout(self):
         """Test with_timeout decorator timeout."""
@@ -478,9 +570,12 @@ class TestTryMultiple:
             return "success3"
 
         result = try_multiple(strategy1, strategy2, strategy3)
-        assert result.success is True
-        assert result.result == "success1"
-        assert result.fallback_used is False
+        if result.success is not True:
+            raise AssertionError
+        if result.result != "success1":
+            raise AssertionError
+        if result.fallback_used is not False:
+            raise AssertionError
 
     def test_try_multiple_fallback_success(self):
         """Test try_multiple with fallback strategy succeeding."""
@@ -502,10 +597,14 @@ class TestTryMultiple:
             return "success3"
 
         result = try_multiple(strategy1, strategy2, strategy3)
-        assert result.success is True
-        assert result.result == "success2"
-        assert result.fallback_used is True
-        assert call_count == 2
+        if result.success is not True:
+            raise AssertionError
+        if result.result != "success2":
+            raise AssertionError
+        if result.fallback_used is not True:
+            raise AssertionError
+        if call_count != 2:
+            raise AssertionError
 
     def test_try_multiple_all_fail(self):
         """Test try_multiple when all strategies fail."""
@@ -519,9 +618,11 @@ class TestTryMultiple:
         strategies = [strategy1, strategy2]
 
         result = try_multiple(*strategies)
-        assert result.success is False
+        if result.success is not False:
+            raise AssertionError
         assert result.result is None
-        assert result.fallback_used is True
+        if result.fallback_used is not True:
+            raise AssertionError
         assert isinstance(result.error, ValueError)
 
 
@@ -533,7 +634,8 @@ class TestErrorAggregator:
         aggregator = ErrorAggregator()
 
         stats = aggregator.get_stats()
-        assert stats.total_errors == 0
+        if stats.total_errors != 0:
+            raise AssertionError
         assert len(stats.errors_by_category) == 0
         assert len(stats.errors_by_severity) == 0
         assert len(stats.recent_errors) == 0
@@ -546,14 +648,19 @@ class TestErrorAggregator:
         aggregator.record_error(error, "test_operation")
 
         stats = aggregator.get_stats()
-        assert stats.total_errors == 1
-        assert stats.errors_by_category[ErrorCategory.CONFIGURATION] == 1
-        assert stats.errors_by_severity[ErrorSeverity.LOW] == 1
+        if stats.total_errors != 1:
+            raise AssertionError
+        if stats.errors_by_category[ErrorCategory.CONFIGURATION] != 1:
+            raise AssertionError
+        if stats.errors_by_severity[ErrorSeverity.LOW] != 1:
+            raise AssertionError
         assert len(stats.recent_errors) == 1
 
         recent_error = stats.recent_errors[0]
-        assert recent_error["error"] == "Test error"
-        assert recent_error["context"].operation == "test_operation"
+        if recent_error["error"] != "Test error":
+            raise AssertionError
+        if recent_error["context"].operation != "test_operation":
+            raise AssertionError
 
     def test_error_aggregator_reset(self):
         """Test resetting error aggregator."""
@@ -563,14 +670,16 @@ class TestErrorAggregator:
         aggregator.record_error(error)
 
         # Verify error was recorded
-        assert aggregator.get_stats().total_errors == 1
+        if aggregator.get_stats().total_errors != 1:
+            raise AssertionError
 
         # Reset
         aggregator.reset()
 
         # Verify reset worked
         stats = aggregator.get_stats()
-        assert stats.total_errors == 0
+        if stats.total_errors != 0:
+            raise AssertionError
         assert len(stats.errors_by_category) == 0
         assert len(stats.errors_by_severity) == 0
 
@@ -594,15 +703,18 @@ class TestRetryDelayCalculation:
 
         # First attempt (attempt=0)
         delay = self._calculate_retry_delay(config, 0)
-        assert delay == 1.0
+        if delay != 1.0:
+            raise AssertionError
 
         # Second attempt (attempt=1)
         delay = self._calculate_retry_delay(config, 1)
-        assert delay == 2.0
+        if delay != 2.0:
+            raise AssertionError
 
         # Third attempt (attempt=2)
         delay = self._calculate_retry_delay(config, 2)
-        assert delay == 4.0
+        if delay != 4.0:
+            raise AssertionError
 
     def test_calculate_retry_delay_with_jitter(self) -> None:
         """Test retry delay calculation with jitter."""
@@ -610,7 +722,8 @@ class TestRetryDelayCalculation:
 
         delay = self._calculate_retry_delay(config, 0)
         # Delay should be between 1.0 and 1.1 (with 10% jitter)
-        assert 1.0 <= delay <= 1.1
+        if not 1.0 <= delay <= 1.1:
+            raise AssertionError
 
     def test_calculate_retry_delay_max_delay(self) -> None:
         """Test retry delay respects max_delay."""
@@ -618,7 +731,8 @@ class TestRetryDelayCalculation:
 
         # High attempt number that would exceed max_delay
         delay = self._calculate_retry_delay(config, 5)  # 1.0 * (10.0^5) = 100000.0
-        assert delay == 5.0  # Should be capped at max_delay
+        if delay != 5.0:
+            raise AssertionError
 
 
 class TestSafeOperations:
@@ -631,7 +745,8 @@ class TestSafeOperations:
             return "success"
 
         result = safe_operation(test_func)
-        assert result == "success"
+        if result != "success":
+            raise AssertionError
 
     def test_safe_operation_failure_with_fallback(self):
         """Test safe_operation with failure and fallback."""
@@ -640,7 +755,8 @@ class TestSafeOperations:
             raise ValueError("Test error")
 
         result = safe_operation(failing_func, fallback="fallback_value")
-        assert result == "fallback_value"
+        if result != "fallback_value":
+            raise AssertionError
 
     def test_safe_operation_failure_no_fallback(self):
         """Test safe_operation with failure and no fallback."""
@@ -659,7 +775,8 @@ class TestSafeOperations:
             return "async_success"
 
         result = await safe_async_operation(test_coro)
-        assert result == "async_success"
+        if result != "async_success":
+            raise AssertionError
 
     @pytest.mark.asyncio
     async def test_safe_async_operation_failure(self):
@@ -669,7 +786,8 @@ class TestSafeOperations:
             raise RuntimeError("Async error")
 
         result = await safe_async_operation(failing_coro, fallback="async_fallback")
-        assert result == "async_fallback"
+        if result != "async_fallback":
+            raise AssertionError
 
 
 class TestGlobalErrorAggregator:
@@ -688,4 +806,5 @@ class TestGlobalErrorAggregator:
         error_aggregator.record_error(error, "global_test")
 
         new_count = error_aggregator.get_stats().total_errors
-        assert new_count == initial_count + 1
+        if new_count != initial_count + 1:
+            raise AssertionError
