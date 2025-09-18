@@ -299,8 +299,6 @@ class TestRunner:
                 issues.append(f"Cannot read {filename}")
 
         if issues:
-            for _issue in issues:
-                pass
             return False
 
         return True
@@ -322,10 +320,6 @@ class TestRunner:
 
         if not stop_on_failure:
             extra_args.remove("-x") if "-x" in extra_args else None
-
-        if not coverage:
-            # Remove coverage args if disabled
-            pass  # Coverage args are added in run_pytest_command based on availability
 
         # Run the tests
         result = self.run_pytest_command(extra_args)
@@ -370,8 +364,6 @@ def main():
             sys.exit(1)
 
         result = runner.run_individual_test_file(test_file)
-        if result["errors"]:
-            pass
 
         sys.exit(0 if result["success"] else 1)
 

@@ -219,8 +219,6 @@ class BaseModel(ABC):
         """
         results = []
         for _i, instruction in enumerate(instructions):
-            if show_progress:
-                pass
 
             try:
                 code = self.translate_instruction(instruction)

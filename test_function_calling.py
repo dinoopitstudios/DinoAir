@@ -100,8 +100,6 @@ async def test_function_calling_flow():
 
         # Test message building
         messages = _build_function_call_messages(mock_openai_response, function_results)
-        for _i, _msg in enumerate(messages):
-            pass
 
 
 async def main():

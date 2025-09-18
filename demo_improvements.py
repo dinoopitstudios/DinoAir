@@ -60,15 +60,6 @@ def demo_modern_type_hints():
         updated_at=None,  # Optional field properly handled
     )
 
-    # All these demonstrate the modern type system working correctly:
-
-    # Show type-safe operations
-    if project.tags:  # Type system knows this is list[str] | None
-        pass
-
-    if project.metadata:  # Type system knows this is dict[str, Any] | None
-        pass
-
 
 def demo_equality_and_representation():
     """Demonstrate equality and representation methods for debugging."""
@@ -135,29 +126,7 @@ def demo_packaging_structure():
         # Read and parse basic info (simplified parsing)
         content = pyproject_path.read_text()
 
-        if "[build-system]" in content:
-            pass
-
-        if "[project]" in content:
-            pass
-
         if "[project.optional-dependencies]" in content:
-            if "dev =" in content:
-                pass
-            if "ai =" in content:
-                pass
-            if "web =" in content:
-                pass
-            if "database =" in content:
-                pass
-
-        if "[tool.ruff]" in content:
-            pass
-
-        if "[tool.pytest]" in content:
-            pass
-
-        if "[tool.coverage]" in content:
             pass
 
     else:
@@ -165,8 +134,6 @@ def demo_packaging_structure():
 
     # Check for type checking configuration
     mypy_configs = list(Path().glob("mypy*.ini"))
-    if mypy_configs:
-        pass
 
 
 def main():

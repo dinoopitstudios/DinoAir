@@ -161,8 +161,7 @@ def main():
                     syntax_errors.append((file_path, e))
 
             if syntax_errors:
-                for file_path, _error in syntax_errors:
-                    pass
+                pass
             else:
                 pass
 

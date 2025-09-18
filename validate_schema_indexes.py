@@ -75,8 +75,7 @@ def validate_notes_indexes() -> bool:
             missing_patterns.append(pattern)
 
     if missing_patterns:
-        for _pattern in missing_patterns:
-            pass
+        pass
 
     # Analyze specific query scenarios
 
@@ -97,9 +96,6 @@ def validate_notes_indexes() -> bool:
             if all(col.lower() in ddl_lower for col in required_columns):
                 found_match = True
                 break
-
-        if not found_match:
-            pass
 
     success = len(missing_patterns) == 0
 

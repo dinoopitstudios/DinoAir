@@ -39,20 +39,12 @@ def demo_precedence():
         # Show source information
         for source_info in config.get_source_info():
             "✅" if source_info["loaded"] else "❌"
-            if source_info["path"]:
-                pass
-            if source_info["error"]:
-                pass
 
         # Demonstrate value sources
         test_keys = ["app.name", "app.debug", "database.connection_timeout", "ai.temperature"]
 
         for key in test_keys:
             value_info = config.get_with_source(key)
-            if value_info.env_var:
-                pass
-            if value_info.default is not None:
-                pass
 
         return True
 
@@ -80,8 +72,6 @@ def demo_environment_override():
 
         # Show environment mappings
         mappings = config.get_env_mappings()
-        for _env_var, _config_path in sorted(mappings.items())[:10]:  # Show first 10
-            pass
 
         # Cleanup
         for key in test_env_vars:
@@ -151,8 +141,6 @@ def demo_settings_overview():
         for category, category_settings in sorted(categories.items()):
             for setting in sorted(category_settings, key=lambda s: s.path):
                 setting.path.replace(f"{category}.", "  ")
-                if setting.env_var:
-                    pass
 
         return True
 

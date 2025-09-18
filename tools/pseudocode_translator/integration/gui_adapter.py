@@ -390,9 +390,6 @@ def create_result_handler(
             code_editor.setText(code)
         if language_label:
             language_label.setText(f"Language: {language}")
-        if save_dialog_func and save_dialog_func():  # If user wants to save
-            # Save logic would go here
-            pass
 
     return handle_result
 

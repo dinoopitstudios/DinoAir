@@ -24,8 +24,7 @@ def test_migration_loader():
         migrations = get_notes_migrations()
 
         if migrations:
-            for _migration in migrations:
-                pass
+            pass
 
         # Test 2: Test with runner
 

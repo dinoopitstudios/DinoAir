@@ -363,8 +363,7 @@ class ConfigTool:
                 "Yes" if info["needs_migration"] else "No"
 
                 if info["issues"]:
-                    for _issue in info["issues"]:
-                        pass
+                    pass
             else:
                 pass
         else:
@@ -393,9 +392,6 @@ class ConfigTool:
                 value = os.getenv(var)
                 if value:
                     found_any = True
-
-            if not found_any:
-                pass
 
         return 0
 
@@ -432,8 +428,7 @@ class ConfigTool:
             config_path.stat()
 
             for _name, model in config.llm.models.items():
-                if model.enabled:
-                    pass
+                pass
 
             return 0
 
@@ -492,8 +487,7 @@ class ConfigTool:
             # Validate the new config
             errors = config.validate()
             if errors:
-                for _error in errors:
-                    pass
+                pass
 
             return 0
 

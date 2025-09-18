@@ -354,8 +354,7 @@ def main():
         analysis = cleanup_manager.analyze_user_data()
 
         for _location, info in analysis.items():
-            if info["status"] == "found" or info["status"] == "error":
-                pass
+            pass
     else:
         results = cleanup_manager.full_cleanup(
             max_age_hours=args.max_age_hours,
@@ -366,8 +365,6 @@ def main():
         for operation, stats in results.items():
             if operation == "summary":
                 continue
-            for _key, _value in stats.items():
-                pass
 
         summary = results["summary"]
         if summary["dry_run"]:

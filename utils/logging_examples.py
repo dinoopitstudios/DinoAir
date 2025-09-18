@@ -282,8 +282,6 @@ def example_log_aggregation() -> None:
     aggregator = get_log_aggregator()
     if aggregator:
         summary = aggregator.get_summary(time_window_seconds=60)
-        if "error_rate" in summary:
-            pass
 
         # Get error patterns
         aggregator.get_error_patterns()
@@ -306,8 +304,6 @@ def example_anomaly_detection() -> None:
 
     # Detect anomalies
     anomalies = detect_log_anomalies(baseline_window=300)
-    if anomalies["anomalies_detected"]:
-        pass
 
 
 def example_comprehensive_scenario() -> None:

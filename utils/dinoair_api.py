@@ -111,9 +111,6 @@ class PerformanceMonitor:
             name: Metric name
             value: Metric value
         """
-        if self._monitor:
-            # Use the available get_metrics method
-            pass  # Custom metrics are handled during operation execution
 
     def get_metrics_summary(self) -> dict[str, Any]:
         """

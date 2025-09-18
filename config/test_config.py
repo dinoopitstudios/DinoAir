@@ -547,12 +547,10 @@ def run_tests():
     # Print results
 
     if result.failures:
-        for _test, _traceback in result.failures:
-            pass
+        pass
 
     if result.errors:
-        for _test, _traceback in result.errors:
-            pass
+        pass
 
     success = len(result.failures) == 0 and len(result.errors) == 0
 

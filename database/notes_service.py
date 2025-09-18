@@ -47,10 +47,6 @@ class NotesService:
         """Clean up test data in test environments"""
         try:
             import os
-
-            if os.environ.get("PYTEST_CURRENT_TEST"):
-                # This would be handled by the repository in a real implementation
-                pass
         except Exception as e:
             self.logger.error(f"Error during test data cleanup: {str(e)}")
 
