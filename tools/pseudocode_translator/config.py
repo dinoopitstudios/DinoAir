@@ -9,18 +9,17 @@ This module provides a simple, user-friendly configuration system with:
 - Simple version handling without complex migrations
 """
 
-from contextlib import suppress
-from dataclasses import asdict, dataclass, field
-from enum import Enum
 import json
 import logging
 import os
-from pathlib import Path
 import sys
+from contextlib import suppress
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import yaml
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -377,7 +376,8 @@ class ExecutionConfig:
     process_pool_max_workers: int | None = (
         None  # None -> resolve at runtime to max(2, os.cpu_count() or 2)
     )
-    process_pool_target: str = "parse_validate"  # {"parse_validate","parse_only","validate_only"}
+    # {"parse_validate","parse_only","validate_only"}
+    process_pool_target: str = "parse_validate"
 
     # Task constraints
     process_pool_task_timeout_ms: int = 5000
@@ -916,8 +916,8 @@ class ConfigManager:
         # 2) If file exists, merge file values on top of defaults
         if config_path.exists():
             try:
-                if '../' in str(config_path) or '..\\' in str(config_path):
-                    raise Exception('Invalid file path')
+                if "../" in str(config_path) or "..\\" in str(config_path):
+                    raise Exception("Invalid file path")
                 with open(config_path) as f:
                     if config_path.suffix in [".yaml", ".yml"]:
                         data = yaml.safe_load(f)
@@ -967,8 +967,8 @@ class ConfigManager:
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Save based on file extension
-        if '../' in str(config_path) or '..\\' in str(config_path):
-            raise Exception('Invalid file path')
+        if "../" in str(config_path) or "..\\" in str(config_path):
+            raise Exception("Invalid file path")
         with open(config_path, "w") as f:
             if config_path.suffix in [".yaml", ".yml"]:
                 yaml.dump(config.to_dict(), f, default_flow_style=False, sort_keys=False)
@@ -1110,8 +1110,8 @@ class ConfigManager:
             return cast("dict[str, Any]", info)
 
         try:
-            if '../' in str(path) or '..\\' in str(path):
-                raise Exception('Invalid file path')
+            if "../" in str(path) or "..\\" in str(path):
+                raise Exception("Invalid file path")
             with open(path) as f:
                 data = yaml.safe_load(f) if path.suffix in [".yaml", ".yml"] else json.load(f)
 
