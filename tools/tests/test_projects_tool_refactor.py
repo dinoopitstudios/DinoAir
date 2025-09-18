@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from tools.tests.helpers.db_stubs import ProjectsDBStub
 
+from tools.tests.helpers.db_stubs import ProjectsDBStub
 
 pytestmark = pytest.mark.usefixtures("patch_tools")
 
@@ -14,7 +14,7 @@ except Exception:
     import tools.projects_tool as pt
 
 
-def test_create_project_validation_error(projectsdb_stub: ProjectsDBStub) -> None:
+def test_create_project_validation_error(_projectsdb_stub: ProjectsDBStub) -> None:
     resp = pt.create_project("")
     assert resp["success"] is False
     assert resp["error"] == "Project name is required"
@@ -88,7 +88,7 @@ def test_get_project_validation_and_paths(projectsdb_stub: ProjectsDBStub) -> No
 
 
 def test_update_project_validation_and_no_fields(
-    projectsdb_stub: ProjectsDBStub,
+    _projectsdb_stub: ProjectsDBStub,
 ) -> None:
     # Validation
     bad = pt.update_project("")
@@ -142,7 +142,7 @@ def test_delete_project_validation_success_and_cascade(
     assert ok2["cascade"] is True
 
 
-def test_list_all_projects_success(projectsdb_stub: ProjectsDBStub) -> None:
+def test_list_all_projects_success(_projectsdb_stub: ProjectsDBStub) -> None:
     resp = pt.list_all_projects()
     assert resp["success"] is True
     assert resp["message"] == "Retrieved 1 projects"
@@ -166,7 +166,7 @@ def test_list_all_projects_success(projectsdb_stub: ProjectsDBStub) -> None:
 
 
 def test_search_projects_validation_and_success(
-    projectsdb_stub: ProjectsDBStub,
+    _projectsdb_stub: ProjectsDBStub,
 ) -> None:
     # Validation
     bad = pt.search_projects("")
@@ -183,7 +183,7 @@ def test_search_projects_validation_and_success(
 
 
 def test_get_projects_by_status_validation_and_success(
-    projectsdb_stub: ProjectsDBStub,
+    _projectsdb_stub: ProjectsDBStub,
 ) -> None:
     # Validation
     bad = pt.get_projects_by_status("")
@@ -199,7 +199,7 @@ def test_get_projects_by_status_validation_and_success(
 
 
 def test_get_project_statistics_validation_and_success(
-    projectsdb_stub: ProjectsDBStub,
+    _projectsdb_stub: ProjectsDBStub,
 ) -> None:
     # Validation
     bad = pt.get_project_statistics("")

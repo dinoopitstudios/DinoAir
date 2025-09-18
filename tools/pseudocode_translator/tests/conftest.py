@@ -2,12 +2,11 @@
 Pytest configuration and shared fixtures for pseudocode_translator tests
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
-
 
 # Add parent directory to path so we can import the modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -136,7 +135,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "requires_model: marks tests that require the LLM model")
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(_config, items):
     """Modify test collection to add markers"""
     for item in items:
         # Add unit marker to all tests by default

@@ -3,19 +3,18 @@ from __future__ import annotations
 import os
 from typing import Any
 
+import pytest
+from fastapi.testclient import TestClient
+
 from api.app import app, create_app  # noqa: E402
 from api.metrics_state import snapshot as metrics_snapshot  # noqa: E402
-from fastapi.testclient import TestClient
-import pytest
-
 from api.services import router_client  # noqa: E402
 from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,  # noqa: E402
 )
-
+from core_router.errors import ValidationError as CoreValidationError  # noqa: E402
 
 # Ensure dev/docs and auth are consistently set for this test module
 os.environ.setdefault("DINOAIR_ENV", "dev")
@@ -40,7 +39,7 @@ def test_router_execute_happy(monkeypatch: pytest.MonkeyPatch):
             assert service_name == "search.local.default"
             return {"hits": []}
 
-    monkeypatch.setattr(router_client, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(router_client, "get_router", FakeRouter)
 
     r = client.post(
         "/router/execute",
@@ -65,7 +64,7 @@ def test_router_execute_errors(monkeypatch: pytest.MonkeyPatch, exc: Exception, 
         def execute(self, service_name: str, payload: dict[str, Any]):
             raise exc
 
-    monkeypatch.setattr(router_client, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(router_client, "get_router", FakeRouter)
 
     r = client.post(
         "/router/execute", json={"serviceName": "svc", "payload": {}}, headers=GOOD_AUTH
@@ -83,7 +82,7 @@ def test_router_execute_by_happy(monkeypatch: pytest.MonkeyPatch):
                 "usage": {"total_tokens": 2},
             }
 
-    monkeypatch.setattr(router_client, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(router_client, "get_router", FakeRouter)
 
     r = client.post(
         "/router/executeBy",
@@ -193,7 +192,7 @@ def test_search_keyword_error_mapping(
     # For search routes, the router accessor is imported directly in the module.
     import api.routes.search as search_routes
 
-    monkeypatch.setattr(search_routes, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(search_routes, "get_router", FakeRouter)
 
     r = client.post("/file-search/keyword", json={"query": "foo", "top_k": 5}, headers=GOOD_AUTH)
     assert r.status_code == expected
@@ -216,7 +215,7 @@ def test_ai_chat_happy(monkeypatch: pytest.MonkeyPatch):
     # Patch the router accessor as imported inside the ai route module
     import api.routes.ai as ai_routes
 
-    monkeypatch.setattr(ai_routes.router_client, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(ai_routes.router_client, "get_router", FakeRouter)
 
     payload = {
         "messages": [{"role": "user", "content": "hi"}],
@@ -255,7 +254,7 @@ def test_ai_chat_error_mapping(monkeypatch: pytest.MonkeyPatch, exc: Exception, 
     # Patch the accessor inside the ai route module to ensure our FakeRouter is used
     import api.routes.ai as ai_routes
 
-    monkeypatch.setattr(ai_routes.router_client, "get_router", lambda: FakeRouter())
+    monkeypatch.setattr(ai_routes.router_client, "get_router", FakeRouter)
 
     payload = {
         "messages": [{"role": "user", "content": "hi"}],

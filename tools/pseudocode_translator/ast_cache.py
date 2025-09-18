@@ -6,20 +6,19 @@ for AST parsing results to improve performance by avoiding redundant parsing.
 """
 
 import ast
-from collections import OrderedDict
-from dataclasses import dataclass, field
 import hashlib
 
 # Use the standard library 'json' module for serialization instead of 'pickle' to avoid
 # arbitrary code execution vulnerabilities. JSON only allows safe data types.
 import json
 import logging
-from pathlib import Path
 import shutil
 import threading
 import time
+from collections import OrderedDict
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 
@@ -278,11 +277,7 @@ class ASTCache:
             get_recorder().record_event("cache", counters={"miss": 1})  # counters: "miss"
 
         # Parse outside the lock to avoid blocking
-        try:
-            ast_obj = ast.parse(source, filename, mode)
-        except Exception:
-            # Re-raise any parsing errors
-            raise
+        ast_obj = ast.parse(source, filename, mode)
 
         # Calculate size
         size_bytes = self._estimate_ast_size(ast_obj)

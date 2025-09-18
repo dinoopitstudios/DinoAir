@@ -69,7 +69,7 @@ except ImportError:
     def update_log_context(**kwargs: Any) -> None:
         pass
 
-    def log_context(**kwargs: Any):
+    def log_context(**_kwargs: Any):
         from contextlib import nullcontext
 
         return nullcontext()
@@ -80,7 +80,7 @@ except ImportError:
     def get_log_analysis_report():
         return "Enhanced logging not available"
 
-    def detect_log_anomalies(**kwargs: Any) -> dict[str, Any]:
+    def detect_log_anomalies(**_kwargs: Any) -> dict[str, Any]:
         return {"anomalies_detected": False, "reason": "Enhanced logging not available"}
 
     trace_level = 5

@@ -5,22 +5,21 @@ Provides concurrent processing capabilities for handling multiple files
 efficiently with thread-safe operations and resource pooling.
 """
 
+import logging
+import multiprocessing
+import queue
+import threading
+import time
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
-import multiprocessing
 from pathlib import Path
-import queue
-import threading
-import time
 from typing import Any
 
 from .config import TranslatorConfig
 from .parser import ParserModule
 from .translator import TranslationManager
-
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +182,7 @@ class ParallelProcessor:
 
     def _setup_resource_pools(self):
         """Setup resource pools for parsers and translators"""
-        self._parser_pool = ResourcePool(lambda: ParserModule(), max_size=self.max_workers)
+        self._parser_pool = ResourcePool(ParserModule, max_size=self.max_workers)
 
         self._translator_pool = ResourcePool(
             lambda: TranslationManager(self.config),

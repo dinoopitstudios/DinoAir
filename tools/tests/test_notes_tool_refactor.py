@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-
 if TYPE_CHECKING:
     from tools.tests.helpers.db_stubs import NotesDBStub
 
@@ -34,7 +33,8 @@ def test_create_note_success(notesdb_stub: NotesDBStub) -> None:
             "message": "Note created successfully",
         }
 
-    notesdb_stub._create_note_override = _fake_create  # type: ignore[attr-defined]
+    # type: ignore[attr-defined]
+    notesdb_stub._create_note_override = _fake_create
 
     resp = nt.create_note("Title", "Body", tags=["a", "b"], project_id="P1")
     assert resp["success"] is True
@@ -76,7 +76,7 @@ def test_read_note_validation_and_success(notesdb_stub: NotesDBStub) -> None:
 
 def test_read_note_not_found(notesdb_stub: NotesDBStub) -> None:
     # Override to return None for unknown ids
-    notesdb_stub.get_note = lambda nid: notesdb_stub._store.get(nid)  # type: ignore[assignment]
+    notesdb_stub.get_note = notesdb_stub._store.get  # type: ignore[assignment]
     missing = nt.read_note("nope")
     assert missing["success"] is False
     assert missing["error"] == "Note not found: nope"
@@ -177,7 +177,7 @@ def test_list_all_notes_success(notesdb_stub: NotesDBStub) -> None:
     assert len(n["content"]) == 103  # 100 + "..."
 
 
-def test_get_notes_by_tag_validation_and_success(notesdb_stub: NotesDBStub) -> None:
+def test_get_notes_by_tag_validation_and_success(_notesdb_stub: NotesDBStub) -> None:
     # Validation
     bad = nt.get_notes_by_tag("")
     assert bad["success"] is False

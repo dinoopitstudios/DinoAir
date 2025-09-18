@@ -9,8 +9,9 @@ from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,
 )
+from core_router.errors import ValidationError as CoreValidationError
+
 from ..schemas import (
     ContextRequest,
     GenerateMissingEmbeddingsRequest,
@@ -19,7 +20,6 @@ from ..schemas import (
     MonitorStartRequest,
 )
 from ..services.router_client import get_router
-
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
@@ -51,33 +51,33 @@ def _exec(service_name: str, payload: dict[str, Any]) -> Any:
 
 
 @router.post("/ingest/directory", status_code=status.HTTP_200_OK)
-async def ingest_directory(request: Request, body: IngestDirectoryRequest) -> Any:
+async def ingest_directory(_request: Request, body: IngestDirectoryRequest) -> Any:
     payload = body.model_dump(mode="json", by_alias=False, exclude_none=True)
     return _exec(SVC_INGEST_DIR, payload)
 
 
 @router.post("/ingest/files", status_code=status.HTTP_200_OK)
-async def ingest_files(request: Request, body: IngestFilesRequest) -> Any:
+async def ingest_files(_request: Request, body: IngestFilesRequest) -> Any:
     payload = body.model_dump(mode="json", by_alias=False, exclude_none=True)
     return _exec(SVC_INGEST_FILES, payload)
 
 
 @router.post("/embeddings/generate-missing", status_code=status.HTTP_200_OK)
 async def generate_missing_embeddings(
-    request: Request, body: GenerateMissingEmbeddingsRequest
+    _request: Request, body: GenerateMissingEmbeddingsRequest
 ) -> Any:
     payload = body.model_dump(mode="json", by_alias=False, exclude_none=True)
     return _exec(SVC_GENERATE_EMB, payload)
 
 
 @router.post("/context", status_code=status.HTTP_200_OK)
-async def get_context(request: Request, body: ContextRequest) -> Any:
+async def get_context(_request: Request, body: ContextRequest) -> Any:
     payload = body.model_dump(mode="json", by_alias=False, exclude_none=True)
     return _exec(SVC_CONTEXT, payload)
 
 
 @router.post("/monitor/start", status_code=status.HTTP_200_OK)
-async def monitor_start(request: Request, body: MonitorStartRequest) -> Any:
+async def monitor_start(_request: Request, body: MonitorStartRequest) -> Any:
     payload = body.model_dump(mode="json", by_alias=False, exclude_none=True)
     return _exec(SVC_MONITOR_START, payload)
 

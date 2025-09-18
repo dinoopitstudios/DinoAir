@@ -200,7 +200,7 @@ class TestResilientDB:
         db_path = temp_db_dir / "test.db"
         callback_executed = False
 
-        def schema_callback(conn):
+        def schema_callback(_conn):
             nonlocal callback_executed
             callback_executed = True
 
@@ -222,7 +222,7 @@ class TestResilientDBErrorScenarios:
         """Test corruption detected during schema setup"""
         db_path = temp_db_dir / "test.db"
 
-        def failing_schema_callback(conn):
+        def failing_schema_callback(_conn):
             raise sqlite3.DatabaseError("Schema setup failed")
 
         db = ResilientDB(db_path, failing_schema_callback)

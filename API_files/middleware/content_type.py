@@ -8,9 +8,9 @@ from starlette.types import Receive, Scope, Send
 
 from utils.asgi import get_header
 
-
 try:
-    from core_router.errors import error_response as core_error_response  # type: ignore[import]
+    # type: ignore[import]
+    from core_router.errors import error_response as core_error_response
 except ImportError:  # pragma: no cover
     from fastapi.responses import JSONResponse as _JSONResponse
 
@@ -20,10 +20,10 @@ except ImportError:  # pragma: no cover
         code: str,
         message: str,
         error: str,
-        details: str | None,
-        endpoint: str | None,
-        operationId: str | None,
-        requestId: str | None,
+        _details: str | None,
+        _endpoint: str | None,
+        _operationId: str | None,
+        _requestId: str | None,
     ) -> _JSONResponse:
         payload = {
             "detail": message,

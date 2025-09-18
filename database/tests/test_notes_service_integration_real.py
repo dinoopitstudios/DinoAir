@@ -3,10 +3,10 @@ Real integration tests for NotesService orchestrating NotesRepository, NotesVali
 Uses real DatabaseManager via fixture and the real Note model. Covers CRUD, validation, security, tags, projects, soft deletes.
 """
 
-from datetime import datetime
 import os
-from unittest.mock import patch
 import uuid
+from datetime import datetime
+from unittest.mock import patch
 
 import pytest
 
@@ -154,7 +154,7 @@ def test_full_workflow_create_read_update_search_delete_restore_harddelete(servi
         _cleanup_ids(db_manager, created_ids)
 
 
-def test_validation_failure_on_create(service, db_manager):
+def test_validation_failure_on_create(service, _db_manager):
     """Business validation should fail on empty title."""
     bad = _new_note(title="", content="ok", tags=[])
     res = service.create_note(bad)

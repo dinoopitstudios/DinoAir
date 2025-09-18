@@ -9,7 +9,7 @@ from database.projects_db import ProjectsDatabase
 from models.project import Project, ProjectStatus
 
 
-def test_projects_crud_black_box(db_manager, projects_connection, sample_project):
+def test_projects_crud_black_box(db_manager, _projects_connection, sample_project):
     db = ProjectsDatabase(db_manager)
 
     # Create
@@ -66,7 +66,7 @@ def test_projects_hierarchy_and_tree_black_box(db_manager, projects_connection):
     assert any(c["id"] == child.id for c in tree["children"])
 
 
-def test_projects_search_and_filters_black_box(db_manager, projects_connection):
+def test_projects_search_and_filters_black_box(db_manager, _projects_connection):
     db = ProjectsDatabase(db_manager)
 
     a = Project(id="proj-a", name="Alpha", description="first", tags=["one", "alpha"])
@@ -96,7 +96,7 @@ def test_projects_search_and_filters_black_box(db_manager, projects_connection):
     assert "proj-c" in ids
 
 
-def test_delete_cascade_black_box(db_manager, projects_connection):
+def test_delete_cascade_black_box(db_manager, _projects_connection):
     db = ProjectsDatabase(db_manager)
 
     root = Project(id="root-x", name="Root X")
