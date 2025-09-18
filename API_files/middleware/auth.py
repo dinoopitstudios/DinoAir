@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
-from contextlib import suppress
 import hmac
 import logging
+from collections.abc import Awaitable, Callable
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from starlette import status
@@ -12,7 +12,6 @@ from starlette.types import Receive, Scope, Send
 from core_router.errors import error_response as core_error_response
 from utils.asgi import get_header
 from utils.log_sanitizer import sanitize_for_log
-
 
 if TYPE_CHECKING:
     from ..settings import Settings

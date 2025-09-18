@@ -1,6 +1,7 @@
 """Tests for log sanitization utilities."""
 
 import pytest
+
 from utils.log_sanitizer import sanitize_for_log
 
 
@@ -33,7 +34,7 @@ class TestLogSanitizer:
 
     def test_sanitize_control_characters(self):
         """Test that control characters are removed."""
-        malicious = "path/to/file.txt\x00\x07\x1FFAKE"
+        malicious = "path/to/file.txt\x00\x07\x1fFAKE"
         result = sanitize_for_log(malicious)
         assert result == "path/to/file.txtFAKE"
 
@@ -56,7 +57,9 @@ class TestLogSanitizer:
 
     def test_sanitize_complex_log_injection(self):
         """Test a complex log injection attack."""
-        attack = "/api/test\n2023-01-01 FAKE INFO: Admin login successful\r\nAttacker controlled content"
+        attack = (
+            "/api/test\n2023-01-01 FAKE INFO: Admin login successful\r\nAttacker controlled content"
+        )
         result = sanitize_for_log(attack)
         expected = "/api/test\\n2023-01-01 FAKE INFO: Admin login successful\\r\\nAttacker controlled content"
         assert result == expected
