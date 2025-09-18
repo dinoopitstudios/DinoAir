@@ -2,8 +2,8 @@ from pseudocode_translator.config import TranslatorConfig
 from pseudocode_translator.integration.events import EventHandler, EventType
 from pseudocode_translator.models.base_model import (
     OutputLanguage,
+    TranslationResult as ModelTranslationResult,
 )
-from pseudocode_translator.models.base_model import TranslationResult as ModelTranslationResult
 from pseudocode_translator.streaming.adaptive import AdaptiveChunkSizer
 from pseudocode_translator.streaming.pipeline import StreamingPipeline
 from pseudocode_translator.translator import TranslationManager

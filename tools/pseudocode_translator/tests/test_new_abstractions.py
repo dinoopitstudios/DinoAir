@@ -1,14 +1,14 @@
-import pytest
 from pseudocode_translator import parser as parser_module
 from pseudocode_translator.config import TranslatorConfig
 from pseudocode_translator.models import BlockType, CodeBlock
 from pseudocode_translator.translator import (
     TranslationManager,
+    TranslationResult as ManagerTranslationResult,
 )
-from pseudocode_translator.translator import TranslationResult as ManagerTranslationResult
 from pseudocode_translator.translator_support.dependency_resolver import DependencyResolver
 from pseudocode_translator.translator_support.fix_refiner import attempt_fixes
 from pseudocode_translator.translator_support.offload_executor import OffloadExecutor
+import pytest
 
 
 class FakeValidationResult:

@@ -16,7 +16,6 @@ from tools.common.db import get_projects_db
 from tools.common.formatters import format_project
 from tools.common.logging_utils import log_exception
 from tools.common.validators import validate_non_empty_str
-
 from ..models.project import Project
 
 

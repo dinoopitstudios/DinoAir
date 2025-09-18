@@ -1,11 +1,11 @@
 import time
 
-import pytest
 from pseudocode_translator.config import ConfigManager, TranslatorConfig
 from pseudocode_translator.execution.process_pool import ParseValidateExecutor
 from pseudocode_translator.integration.events import EventDispatcher, EventHandler, EventType
 from pseudocode_translator.parser import ParserModule
 from pseudocode_translator.translator import TranslationManager
+import pytest
 
 
 # Top-level slow worker (must be pickleable for Windows spawn)

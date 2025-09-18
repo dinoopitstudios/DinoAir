@@ -5,10 +5,11 @@ Shows the new versioned configuration system in action
 """
 
 import os
-import sys
 from pathlib import Path
+import sys
 
 from config.versioned_config import SchemaValidationError, VersionedConfigManager
+
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
