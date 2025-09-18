@@ -278,11 +278,7 @@ class ASTCache:
             get_recorder().record_event("cache", counters={"miss": 1})  # counters: "miss"
 
         # Parse outside the lock to avoid blocking
-        try:
-            ast_obj = ast.parse(source, filename, mode)
-        except Exception:
-            # Re-raise any parsing errors
-            raise
+        ast_obj = ast.parse(source, filename, mode)
 
         # Calculate size
         size_bytes = self._estimate_ast_size(ast_obj)

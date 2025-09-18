@@ -816,49 +816,36 @@ class ConfigManager:
         all_warnings: list[str] = []
 
         # LLM validation
-        try:
-            res_llm = cfg.llm.validate(strict=strict)
-            if isinstance(res_llm, dict):
-                all_errors.extend(res_llm.get("errors", []))
-                all_warnings.extend(res_llm.get("warnings", []))
-            else:
-                all_errors.extend(res_llm)
-        except Exception:
-            # If validators raise in strict mode, propagate
-            raise
+        res_llm = cfg.llm.validate(strict=strict)
+        if isinstance(res_llm, dict):
+            all_errors.extend(res_llm.get("errors", []))
+            all_warnings.extend(res_llm.get("warnings", []))
+        else:
+            all_errors.extend(res_llm)
 
         # Streaming validation
-        try:
-            res_stream = cfg.streaming.validate(strict=strict)
-            if isinstance(res_stream, dict):
-                all_errors.extend(res_stream.get("errors", []))
-                all_warnings.extend(res_stream.get("warnings", []))
-            else:
-                all_errors.extend(res_stream)
-        except Exception:
-            raise
+        res_stream = cfg.streaming.validate(strict=strict)
+        if isinstance(res_stream, dict):
+            all_errors.extend(res_stream.get("errors", []))
+            all_warnings.extend(res_stream.get("warnings", []))
+        else:
+            all_errors.extend(res_stream)
 
         # Execution validation
-        try:
-            res_exec = cfg.execution.validate(strict=strict)
-            if isinstance(res_exec, dict):
-                all_errors.extend(res_exec.get("errors", []))
-                all_warnings.extend(res_exec.get("warnings", []))
-            else:
-                all_errors.extend(res_exec)
-        except Exception:
-            raise
+        res_exec = cfg.execution.validate(strict=strict)
+        if isinstance(res_exec, dict):
+            all_errors.extend(res_exec.get("errors", []))
+            all_warnings.extend(res_exec.get("warnings", []))
+        else:
+            all_errors.extend(res_exec)
 
         # Cache validation
-        try:
-            res_cache = cfg.cache.validate(strict=strict)
-            if isinstance(res_cache, dict):
-                all_errors.extend(res_cache.get("errors", []))
-                all_warnings.extend(res_cache.get("warnings", []))
-            else:
-                all_errors.extend(res_cache)
-        except Exception:
-            raise
+        res_cache = cfg.cache.validate(strict=strict)
+        if isinstance(res_cache, dict):
+            all_errors.extend(res_cache.get("errors", []))
+            all_warnings.extend(res_cache.get("warnings", []))
+        else:
+            all_errors.extend(res_cache)
 
         # Top-level config constraints
         if cfg.indent_size not in [2, 4, 8]:
