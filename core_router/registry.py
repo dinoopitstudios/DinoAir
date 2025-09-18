@@ -19,7 +19,6 @@ from pydantic.config import ConfigDict
 from .errors import ServiceNotFound
 from .health import HealthState
 
-
 if TYPE_CHECKING:
     import builtins
 
@@ -42,7 +41,8 @@ class ServiceDescriptor(BaseModel):
     adapter_config: dict[str, Any] = Field(default_factory=dict)
 
     # Optional operational knobs and metadata
-    rate_limits: dict[str, Any] | None = None  # e.g. {"qps": 5} or {"rpm": 300}
+    # e.g. {"qps": 5} or {"rpm": 300}
+    rate_limits: dict[str, Any] | None = None
     deps: list[str] | None = None
     # health snapshot: {"state": "...", "latency_ms": number}
     health: dict[str, Any] | None = None
