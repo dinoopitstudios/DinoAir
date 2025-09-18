@@ -6,11 +6,10 @@ and predictable error messages that callers can map to outward-facing strings.
 
 from __future__ import annotations
 
-from functools import wraps
 import inspect
+from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
