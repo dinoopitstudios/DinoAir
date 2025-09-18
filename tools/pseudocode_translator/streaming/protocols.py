@@ -5,17 +5,16 @@ This module defines the protocols, interfaces, and message formats for
 streaming communication in the pseudocode translator.
 """
 
+import json
+import time
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import json
-import time
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 from .stream_translator import StreamingMode
-
 
 if TYPE_CHECKING:
     from ..models import CodeBlock
@@ -551,7 +550,7 @@ class FullDocumentProtocol:
 
 
 def create_stream_protocol(
-    mode: StreamingMode, stream_handler: StreamProtocol | None = None
+    mode: StreamingMode, _stream_handler: StreamProtocol | None = None
 ) -> LineByLineProtocol | BlockByBlockProtocol | FullDocumentProtocol:
     """Create appropriate protocol handler for streaming mode"""
     if mode == StreamingMode.LINE_BY_LINE:

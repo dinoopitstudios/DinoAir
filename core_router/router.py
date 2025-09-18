@@ -11,13 +11,13 @@ Synchronous router that:
 
 from __future__ import annotations
 
-from collections import deque
-from collections.abc import Callable, Mapping, Sequence
-from contextlib import suppress
 import json
 import logging
 import threading
 import time
+from collections import deque
+from collections.abc import Callable, Mapping, Sequence
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 from .adapters import make_adapter
@@ -29,17 +29,16 @@ from .errors import (
     ValidationError,
     not_implemented,
 )
+
+# Import HealthState for runtime use
+from .health import HealthState
 from .metrics import record_error, record_success
 from .registry import ServiceDescriptor, ServiceRegistry
 from .schemas import validate_input, validate_output
 
-
 # Import types that can be used for annotations without causing cycles
 if TYPE_CHECKING:
     from .health import HealthState
-
-# Import HealthState for runtime use
-from .health import HealthState
 
 
 # Type alias for adapter factory to keep signatures short
@@ -575,24 +574,24 @@ def version_get() -> Any:
         )
 
 
-def translate_post(body: Any) -> Any:
+def translate_post(_body: Any) -> Any:
     """POST /translate — operationId: translate_translate_post"""
     return not_implemented("POST", "/translate", "translate_translate_post")
 
 
-def file_search_keyword_post(body: Any) -> Any:
+def file_search_keyword_post(_body: Any) -> Any:
     """POST /file-search/keyword — operationId: keyword_search_file_search_keyword_post"""
     return not_implemented(
         "POST", "/file-search/keyword", "keyword_search_file_search_keyword_post"
     )
 
 
-def file_search_vector_post(body: Any) -> Any:
+def file_search_vector_post(_body: Any) -> Any:
     """POST /file-search/vector — operationId: vector_search_file_search_vector_post"""
     return not_implemented("POST", "/file-search/vector", "vector_search_file_search_vector_post")
 
 
-def file_search_hybrid_post(body: Any) -> Any:
+def file_search_hybrid_post(_body: Any) -> Any:
     """POST /file-search/hybrid — operationId: hybrid_search_file_search_hybrid_post"""
     return not_implemented("POST", "/file-search/hybrid", "hybrid_search_file_search_hybrid_post")
 
@@ -628,17 +627,17 @@ def metrics_get() -> Any:
         )
 
 
-def ai_chat_post(body: Any) -> Any:
+def ai_chat_post(_body: Any) -> Any:
     """POST /ai/chat — operationId: ai_chat_ai_chat_post"""
     return not_implemented("POST", "/ai/chat", "ai_chat_ai_chat_post")
 
 
-def router_execute_post(body: Any) -> Any:
+def router_execute_post(_body: Any) -> Any:
     """POST /router/execute — operationId: router_execute_router_execute_post"""
     return not_implemented("POST", "/router/execute", "router_execute_router_execute_post")
 
 
-def router_execute_by_post(body: Any) -> Any:
+def router_execute_by_post(_body: Any) -> Any:
     """POST /router/executeBy — operationId: router_execute_by_router_executeBy_post"""
     return not_implemented("POST", "/router/executeBy", "router_execute_by_router_executeBy_post")
 

@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 from ..models import BlockType, CodeBlock
 from .events import StreamingEvent, StreamingEventData, TranslationUpdate
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -92,7 +91,7 @@ def translate_block(
     translator: StreamingTranslator,
     block: CodeBlock,
     chunk_index: int,
-    block_index: int,
+    _block_index: int,
 ) -> str | None:
     try:
         translator._emit_event(

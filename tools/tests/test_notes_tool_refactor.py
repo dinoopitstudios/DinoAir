@@ -177,7 +177,7 @@ def test_list_all_notes_success(notesdb_stub: NotesDBStub) -> None:
     assert len(n["content"]) == 103  # 100 + "..."
 
 
-def test_get_notes_by_tag_validation_and_success(notesdb_stub: NotesDBStub) -> None:
+def test_get_notes_by_tag_validation_and_success(_notesdb_stub: NotesDBStub) -> None:
     # Validation
     bad = nt.get_notes_by_tag("")
     assert bad["success"] is False

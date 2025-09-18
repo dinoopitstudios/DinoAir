@@ -40,7 +40,7 @@ except ImportError:
     class QtThread:
         pass
 
-    def Slot(*args):
+    def Slot(*_args):
         """Dummy Slot decorator"""
 
         def decorator(func):
@@ -372,7 +372,7 @@ def create_progress_reporter(
 
 
 def create_result_handler(
-    code_editor=None, language_label=None, save_dialog_func: Callable | None = None
+    code_editor=None, language_label=None, _save_dialog_func: Callable | None = None
 ) -> Callable[[str, str], None]:
     """
     Create a result handler function for GUI elements
