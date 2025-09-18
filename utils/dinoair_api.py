@@ -271,7 +271,7 @@ def performance_decorator(operation: str | None = None, **metadata: Any):
     return decorator
 
 
-def enable_performance_monitoring(config: PerformanceConfig | None = None) -> None:
+def enable_performance_monitoring(_config: PerformanceConfig | None = None) -> None:
     """
     Enable global performance monitoring.
 

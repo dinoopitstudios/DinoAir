@@ -6,11 +6,10 @@ and predictable error messages that callers can map to outward-facing strings.
 
 from __future__ import annotations
 
-from functools import wraps
 import inspect
+from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -84,7 +83,7 @@ def _check_dir(p: Path, raw_value: Any) -> None:
         raise ValueError(f"Path is not a directory: {raw_value}")
 
 
-def _validate_type_flags(must_be_file: bool | None, must_be_dir: bool | None) -> None:
+def _validate_type_flags(_must_be_file: bool | None, _must_be_dir: bool | None) -> None:
     """Preserve current behavior: allow any combination; no pre-validation."""
     return
 
