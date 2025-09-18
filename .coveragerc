@@ -1,0 +1,19 @@
+[run]
+source = DinoAir3.0
+omit =
+    .venv/*
+    **/tests/*
+    DinoAir3.0/utils/docs/*
+
+[report]
+# Progressive enforcement plan:
+#   current: 50
+#   future: 65 → 80
+# Raise 'fail_under' incrementally as coverage improves.
+fail_under = 50
+show_missing = True
+skip_covered = False
+precision = 2
+
+[xml]
+output = coverage.xml

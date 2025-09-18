@@ -1,0 +1,44 @@
+import { useEffect, useState } from 'react';
+
+import Button from '../common/Button';
+import Card from '../common/Card';
+
+export default function SmartTimerCard() {
+  const [running, setRunning] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!running) {
+      return;
+    }
+    const id = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [running]);
+
+  function reset() {
+    setSeconds(0);
+    setRunning(false);
+  }
+
+  return (
+    <Card title='Smart Timer'>
+      <div style={{ display: 'grid', gap: 10 }}>
+        <div style={{ fontSize: 32, fontWeight: 700 }}>
+          {String(Math.floor(seconds / 60)).padStart(2, '0')}:
+          {String(seconds % 60).padStart(2, '0')}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button variant='primary' onClick={() => setRunning(true)} disabled={running}>
+            Start
+          </Button>
+          <Button variant='secondary' onClick={() => setRunning(false)} disabled={!running}>
+            Stop
+          </Button>
+          <Button variant='ghost' onClick={reset}>
+            Reset
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}

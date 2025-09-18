@@ -1,0 +1,110 @@
+# ---- Python bytecode ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- C extensions ----
+*.so
+*.pyd
+*.dll
+
+# ---- Distribution / packaging ----
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- Installer logs ----
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---- Unit test / coverage ----
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# ---- Cython debug symbols ----
+cython_debug/
+
+# ---- PyBuilder ----
+target/
+
+# ---- Sphinx documentation build ----
+docs/_build/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+ENV/
+env/
+.conda/
+.venv.bak/
+venv.bak/
+
+# ---- Environment files / secrets ----
+.env
+.env.*
+*.env
+
+# ---- Type checkers / linters caches ----
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pylint.d/
+.ruff_cache/
+
+# ---- Editor / IDE ----
+# VS Code: ignore all by default but keep common project configs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.code-workspace
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Logs & temp files ----
+*.log
+logs/
+*.tmp
+*.temp
+
+# ---- SQLite & local DBs (uncomment if you create local dev DBs) ----
+# *.sqlite
+# *.sqlite3
+
+# ---- Tools / lockfiles notes ----
+# Keep uv.lock if present (do NOT ignore)
+# Keep poetry.lock / Pipfile.lock if you use them (do NOT ignore)

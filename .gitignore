@@ -1,0 +1,228 @@
+# ---- Python bytecode ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- C extensions ----
+*.so
+*.pyd
+*.dll
+
+# ---- Distribution / packaging ----
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- Installer logs ----
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---- Unit test / coverage ----
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test_results.xml
+
+# ---- Cython debug symbols ----
+cython_debug/
+
+# ---- PyBuilder ----
+target/
+
+# ---- Sphinx documentation build ----
+docs/_build/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+ENV/
+env/
+.conda/
+.venv.bak/
+venv.bak/
+
+# ---- Environment files / secrets ----
+.env
+.env.*
+*.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# ---- Sentry configuration files ----
+sentry_dsn.txt
+sentry.conf
+sentry.properties
+
+# ---- API keys and secrets ----
+**/secrets/
+secrets/
+*.secret
+*.secrets
+*_secret.txt
+*_secrets.txt
+*_secret.json
+*_secrets.json
+*_secret.yaml
+*_secrets.yaml
+*_secret.yml
+*_secrets.yml
+api_key.txt
+api_keys.txt
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.keystore
+*.truststore
+
+# ---- Database connection strings ----
+database.conf
+db.conf
+connection_string.txt
+dsn.txt
+*.dsn
+
+# ---- Authentication tokens ----
+*token.txt
+*tokens.txt
+auth_token.txt
+access_token.txt
+refresh_token.txt
+jwt_secret.txt
+
+# ---- Cloud provider credentials ----
+aws_credentials
+gcp_credentials.json
+azure_credentials.json
+service_account.json
+
+# ---- Docker secrets ----
+docker_secrets/
+*.dockersecret
+
+# ---- Type checkers / linters caches ----
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pylint.d/
+.ruff_cache/
+
+# ---- Editor / IDE ----
+# VS Code: ignore all by default but keep common project configs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.code-workspace
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Logs & temp files ----
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+*.swp
+*.swo
+
+# ---- Backup files that might contain secrets ----
+*.orig
+*.backup
+config.backup
+.env.backup
+secrets.backup
+database.backup
+
+# ---- Node.js (if any frontend components) ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Project-specific directories (based on workspace structure) ----
+/.roo
+/.roomodes
+
+# ---- Configuration files that may contain secrets ----
+# Note: Keep example configs, but exclude actual config files with secrets
+config.local.*
+config.production.*
+config.staging.*
+**/config/local.*
+**/config/production.*
+**/config/staging.*
+settings.local.*
+settings.production.*
+settings.staging.*
+# Exception: Keep committed config templates
+!config/*.example.*
+!config/*.template.*
+!**/config/*.example.*
+!**/config/*.template.*
+
+# ---- User data directory - never commit user data ----
+/user_data/
+user_data/
+**/user_data/**
+**/*user_data*/**
+
+# ---- Database files ----
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Project-specific test files and artifacts ----
+/tag_normalization_strategy.md
+/test_connection_management.py
+/test_index_coverage.py
+/test_index_performance.py
+/test_real_db.py
+/test_tag_core.py
+/test_tag_improvements.py
+
+# ---- Keep important lockfiles (do NOT ignore) ----
+# Keep uv.lock if present
+# Keep poetry.lock / Pipfile.lock if you use them
+# Keep requirements.txt / requirements-dev.txt (these should be committed)

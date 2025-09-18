@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dylib
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Type checking / linters
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.dmypy.json
+.cache/
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+*.env
+.env
+.env.*
+pip-wheel-metadata/
+
+# Build
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# IDE/editor
+.vscode/
+.idea/
+.roo/
+.roomodes
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config (keep example templates)
+config/*.yaml
+!config/services.lmstudio.example.yaml

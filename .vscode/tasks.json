@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "ESLint (CI strict)",
+			"type": "shell",
+			"command": "npm run lint:ci",
+			"problemMatcher": [
+				"$eslint-stylish"
+			]
+		}
+	]
+}

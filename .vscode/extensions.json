@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-python.black-formatter",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "elagil.pre-commit-helper",
+    "github.vscode-github-actions"
+  ],
+  "unwantedRecommendations": [
+    "bradlc.vscode-tailwindcss",
+    "redhat.vscode-xml",
+    "mechatroner.rainbow-csv",
+    "rvest.vs-code-prettier-eslint",
+    "kevinrose.vsc-python-indent",
+    "visualstudioexptteam.vscodeintellicode",
+    "visualstudioexptteam.intellicode-api-usage-examples",
+    "tabnine.tabnine-vscode",
+    "sourcery.sourcery",
+    "coderabbit.coderabbit-vscode",
+    "rooveterinaryinc.roo-cline",
+    "upstash.context7-mcp"
+  ]
+}
