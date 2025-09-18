@@ -5,10 +5,10 @@ Tests schema validation, precedence, environment overrides, and compatibility
 
 import json
 import os
+from pathlib import Path
 import sys
 import tempfile
 import unittest
-from pathlib import Path
 
 import pytest
 
@@ -19,6 +19,7 @@ from config.versioned_config import (
     ConfigValue,
     VersionedConfigManager,
 )
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

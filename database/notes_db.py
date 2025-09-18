@@ -7,7 +7,6 @@ from typing import Any, cast
 
 from models.note import Note
 from utils.logger import Logger
-
 # Import factory to break circular dependency
 from .factory import create_notes_service
 

@@ -9,7 +9,6 @@ from datetime import datetime
 from typing import Any, Protocol
 
 from utils.logger import Logger
-
 # Import command handlers
 from .command_handlers import WatchdogCommandHandler
 

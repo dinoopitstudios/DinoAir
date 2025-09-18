@@ -6,6 +6,7 @@ used in the test infrastructure, as requested in the code review.
 """
 
 import pytest
+
 from tools.tests.helpers.patching import (
     patch_file_search_db as _apply_patch_file_search_db,
     patch_notes_db as _apply_patch_notes_db,

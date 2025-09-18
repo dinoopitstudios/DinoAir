@@ -6,6 +6,7 @@ Run this to test if Sentry is properly set up.
 import os
 import sys
 
+
 # Add the current directory to Python path so we can import the API
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
