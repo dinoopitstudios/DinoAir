@@ -264,9 +264,6 @@ class SafePDFProcessor:
                 timeout_checker.check_timeout()
 
             return reader
-
-        except PDFProcessingTimeout:
-            raise
         except RuntimeError as e:
             raise PDFProcessingError(f"Error reading PDF: {str(e)}") from e
 
@@ -303,9 +300,6 @@ class SafePDFProcessor:
                 timeout_checker.check_timeout()
 
             return reader
-
-        except PDFProcessingTimeout:
-            raise
         except RuntimeError as e:
             raise PDFProcessingError(f"Error reading PDF: {str(e)}") from e
 
