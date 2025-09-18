@@ -14,9 +14,8 @@ import logging
 import sys
 from typing import Final
 
-import uvicorn
-
 from api.settings import Settings
+import uvicorn
 
 
 LOGGER = logging.getLogger(__name__)

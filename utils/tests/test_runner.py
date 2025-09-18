@@ -3,11 +3,12 @@ Test runner and configuration for the utils folder test suite.
 Provides comprehensive test execution with coverage reporting and parallel execution.
 """
 
+from pathlib import Path
 import subprocess
 import sys
 import time
-from pathlib import Path
 from typing import Any
+
 
 # Add utils directory to Python path for imports
 utils_dir = Path(__file__).parent.parent

@@ -12,12 +12,11 @@ documentation and error handling for proper AI discovery and usage.
 import logging
 from typing import Any
 
+from models.note import Note
 from tools.common.db import get_notes_db
 from tools.common.formatters import format_note
 from tools.common.logging_utils import log_exception
 from tools.common.validators import validate_non_empty_str
-
-from models.note import Note
 
 
 logger = logging.getLogger(__name__)

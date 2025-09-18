@@ -8,11 +8,12 @@ extending beyond the basic memory DB cleanup to handle all user data safely.
 
 import logging
 import os
+from pathlib import Path
 import shutil
 import tempfile
-from pathlib import Path
 
 from database.initialize_db import DatabaseManager, _get_default_user_data_directory
+
 
 LOGGER = logging.getLogger(__name__)
 
