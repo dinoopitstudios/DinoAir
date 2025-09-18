@@ -2,12 +2,12 @@ import concurrent.futures as cf
 import threading
 import time
 
+import pseudocode_translator.streaming.pipeline as pipeline_module
 from pseudocode_translator.config import TranslatorConfig
 from pseudocode_translator.models.base_model import (
     OutputLanguage,
-    TranslationResult as ModelTranslationResult,
 )
-import pseudocode_translator.streaming.pipeline as pipeline_module
+from pseudocode_translator.models.base_model import TranslationResult as ModelTranslationResult
 from pseudocode_translator.streaming.pipeline import StreamConfig, StreamingPipeline
 from pseudocode_translator.translator import TranslationManager
 
@@ -124,7 +124,8 @@ def test_backpressure_enabled_limits_window(monkeypatch):
     pipeline = StreamingPipeline(cfg, stream_config=stream_cfg)
 
     # Ensure we get at least ~6 chunks by exceeding the internal chunker's max_chunk_size (≈ 2 * max_context_length)
-    max_chunk_size = cfg.max_context_length * 2  # matches StreamingPipeline's ChunkConfig
+    # matches StreamingPipeline's ChunkConfig
+    max_chunk_size = cfg.max_context_length * 2
     target_chunks = 6
     input_text = _build_long_input(min_bytes=max_chunk_size * target_chunks + 1024)
 

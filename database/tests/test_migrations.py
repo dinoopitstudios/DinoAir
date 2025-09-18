@@ -2,9 +2,9 @@
 Tests for the database migration system.
 """
 
-from pathlib import Path
 import sqlite3
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -100,12 +100,10 @@ class TestMigrationTable:
         ensure_migrations_table(temp_db)
 
         cursor = temp_db.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='schema_migrations'
-        """
-        )
+        """)
 
         if cursor.fetchone() is None:
             raise AssertionError
@@ -251,12 +249,10 @@ class TestMigrationRunner:
 
         # Check that table was created
         cursor = temp_db.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='test_table'
-        """
-        )
+        """)
         if cursor.fetchone() is None:
             raise AssertionError
 
@@ -293,12 +289,10 @@ class TestMigrationRunner:
 
         # But should not actually execute them
         cursor = temp_db.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='test_table'
-        """
-        )
+        """)
         if cursor.fetchone() is not None:
             raise AssertionError
 
@@ -425,12 +419,10 @@ class TestMigrationRunner:
 
         # Table should be gone
         cursor = temp_db.cursor()
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='test_table'
-        """
-        )
+        """)
         if cursor.fetchone() is not None:
             raise AssertionError
 

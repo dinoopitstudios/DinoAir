@@ -781,9 +781,7 @@ class TestEnhancedLogger:
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
             enhanced_logger.set_module_level("test_module", "ERROR")
 
-            if (
-                enhanced_logger.config.filter_config.level_filters["test_module"] != logging.ERROR
-            ):
+            if enhanced_logger.config.filter_config.level_filters["test_module"] != logging.ERROR:
                 raise AssertionError
             mock_setup.assert_called_once()
 

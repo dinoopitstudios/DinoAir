@@ -292,14 +292,12 @@ class TestResilientDBIntegration:
 
         def schema_callback(conn):
             cursor = conn.cursor()
-            cursor.execute(
-                """
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS test_table (
                     id INTEGER PRIMARY KEY,
                     name TEXT NOT NULL
                 )
-            """
-            )
+            """)
             conn.commit()
 
         db = ResilientDB(db_path, schema_callback)
@@ -326,14 +324,12 @@ class TestResilientDBIntegration:
 
         def schema_callback(conn):
             cursor = conn.cursor()
-            cursor.execute(
-                """
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS recovery_test (
                     id INTEGER PRIMARY KEY,
                     data TEXT
                 )
-            """
-            )
+            """)
             conn.commit()
 
         # Create initial database
@@ -410,25 +406,21 @@ def test_schema_callback_with_complex_setup(temp_db_dir):
         cursor = conn.cursor()
 
         # Create multiple tables with relationships
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS posts (
                 id INTEGER PRIMARY KEY,
                 user_id INTEGER,
                 title TEXT NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
-        """
-        )
+        """)
 
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id)")
 

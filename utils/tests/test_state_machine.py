@@ -3,9 +3,9 @@ Unit tests for state_machine.py module.
 Tests state machine functionality, transitions, validators, and callbacks.
 """
 
-from datetime import datetime
 import threading
 import time
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 from ..state_machine import (
@@ -482,7 +482,8 @@ class TestStateMachine:
         if state_machine.is_in_state(ApplicationState.RUNNING) is not False:
             raise AssertionError
         if (
-            state_machine.is_in_state(ApplicationState.INITIALIZING, ApplicationState.STARTING) is not True
+            state_machine.is_in_state(ApplicationState.INITIALIZING, ApplicationState.STARTING)
+            is not True
         ):
             raise AssertionError
 
@@ -919,9 +920,7 @@ class TestStateMachineIntegration:
         for target_state in lifecycle_states:
             result = state_machine.transition_to(target_state)
             if result != TransitionResult.SUCCESS:
-                raise AssertionError(
-                    f"Failed to transition to {target_state.value}"
-                )
+                raise AssertionError(f"Failed to transition to {target_state.value}")
 
         if state_machine.get_current_state() != ApplicationState.SHUTDOWN:
             raise AssertionError

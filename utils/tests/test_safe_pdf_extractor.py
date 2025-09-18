@@ -4,9 +4,9 @@ Tests secure PDF text extraction with timeout protection and error handling.
 """
 
 import io
-from pathlib import Path
 import tempfile
 import time
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest

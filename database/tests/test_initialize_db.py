@@ -3,8 +3,8 @@ Tests for DatabaseManager initialization and management functionality
 """
 
 import os
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest

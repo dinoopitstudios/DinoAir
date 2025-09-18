@@ -1,7 +1,6 @@
 import ast
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 TOOLS_ROOT = Path(__file__).resolve().parent.parent
 
@@ -64,25 +63,19 @@ class TestToolSetup(unittest.TestCase):
         notes_file = TOOLS_ROOT / "notes_tool.py"
         notes_keys = set(_first_dict_assignment_keys(notes_file, "NOTES_TOOLS"))
         if notes_keys - _top_level_functions(notes_file):
-            raise AssertionError(
-                "notes_tool has keys without functions"
-            )
+            raise AssertionError("notes_tool has keys without functions")
 
         # file search
         fs_file = TOOLS_ROOT / "file_search_tool.py"
         fs_keys = set(_first_dict_assignment_keys(fs_file, "FILE_SEARCH_TOOLS"))
         if fs_keys - _top_level_functions(fs_file):
-            raise AssertionError(
-                "file_search_tool has keys without functions"
-            )
+            raise AssertionError("file_search_tool has keys without functions")
 
         # projects
         proj_file = TOOLS_ROOT / "projects_tool.py"
         proj_keys = set(_first_dict_assignment_keys(proj_file, "PROJECTS_TOOLS"))
         if proj_keys - _top_level_functions(proj_file):
-            raise AssertionError(
-                "projects_tool has keys without functions"
-            )
+            raise AssertionError("projects_tool has keys without functions")
 
     def test_inventory_consistency(self):
         """Ensure inventory mentions all tool names and shows 31 total badge."""

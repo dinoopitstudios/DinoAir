@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import os
 
-from api.app import app  # noqa: E402
 from fastapi.testclient import TestClient
 
+from api.app import app  # noqa: E402
 
 # Ensure dev docs are visible for this smoke test
 os.environ.setdefault("DINOAIR_ENV", "dev")
 os.environ.setdefault("DINOAIR_EXPOSE_OPENAPI_IN_DEV", "true")
 # Require auth during tests by setting a non-empty token; success test will use this value
 os.environ.setdefault("DINOAIR_AUTH_TOKEN", "test-token")
-
 
 client = TestClient(app)
 

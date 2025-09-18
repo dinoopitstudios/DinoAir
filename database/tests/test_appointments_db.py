@@ -6,8 +6,8 @@ to test the database operations, following the pattern established
 in the notes service tests.
 """
 
-from datetime import date, datetime, timedelta
 import uuid
+from datetime import date, datetime, timedelta
 
 import pytest
 
