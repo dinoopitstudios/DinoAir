@@ -84,7 +84,7 @@ def _check_dir(p: Path, raw_value: Any) -> None:
         raise ValueError(f"Path is not a directory: {raw_value}")
 
 
-def _validate_type_flags(must_be_file: bool | None, must_be_dir: bool | None) -> None:
+def _validate_type_flags(_must_be_file: bool | None, _must_be_dir: bool | None) -> None:
     """Preserve current behavior: allow any combination; no pre-validation."""
     return
 

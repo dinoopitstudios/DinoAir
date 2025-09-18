@@ -40,7 +40,7 @@ except ImportError:
     class QtThread:
         pass
 
-    def Slot(*args):
+    def Slot(*_args):
         """Dummy Slot decorator"""
 
         def decorator(func):
