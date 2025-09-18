@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from utils import Logger
+from utils.log_sanitizer import sanitize_for_log
 
 
 class DirectoryValidator:
@@ -301,12 +302,14 @@ class DirectoryValidator:
             allowed: Whether access was allowed
             reason: Optional reason for denial
         """
+        safe_path = sanitize_for_log(path)
         if allowed:
-            self.logger.info("File access allowed: %s", path)
+            self.logger.info("File access allowed: %s", safe_path)
         else:
-            msg = f"File access denied: {path}"
-            if reason:
-                msg += f" (Reason: {reason})"
+            safe_reason = sanitize_for_log(reason) if reason else None
+            msg = f"File access denied: {safe_path}"
+            if safe_reason:
+                msg += f" (Reason: {safe_reason})"
             self.logger.warning(msg)
 
     def validate_directory_list(self, directories: list[str]) -> dict[str, Any]:
