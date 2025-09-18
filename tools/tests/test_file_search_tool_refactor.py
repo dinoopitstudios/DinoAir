@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 
     from tools.tests.helpers.db_stubs import FSDBStub
-
 
 pytestmark = pytest.mark.usefixtures("patch_tools")
 

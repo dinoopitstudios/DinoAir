@@ -18,7 +18,6 @@ from tools.common.formatters import format_note
 from tools.common.logging_utils import log_exception
 from tools.common.validators import validate_non_empty_str
 
-
 logger = logging.getLogger(__name__)
 
 

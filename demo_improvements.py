@@ -22,9 +22,8 @@ This script demonstrates all the improvements made to the DinoAir codebase:
 Run this script to see all improvements in action!
 """
 
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 # Add models to path
 sys.path.append(str(Path(__file__).parent / "models"))

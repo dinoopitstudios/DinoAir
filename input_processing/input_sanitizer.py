@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Any, Protocol
 
 from utils.logger import Logger
+
 # Import command handlers
 from .command_handlers import WatchdogCommandHandler
 
@@ -360,7 +361,6 @@ Intent = IntentType
 # Maintain backward compatibility for InputSanitizer
 InputSanitizer = InputPipeline
 
-
 # Example: Integration with PySide6 GUI
 # =====================================
 """
@@ -416,7 +416,6 @@ class ChatWindow(QWidget):
         }
         return stats
 """
-
 
 # Example: Unit Testing with New Modules
 # ======================================
