@@ -18,13 +18,13 @@ try:
     from error_handling import circuit_breaker, retry_on_failure
 except ImportError:
     # Fallback if error_handling not available
-    def retry_on_failure(config: Any = None, exceptions: Any = None):
+    def retry_on_failure(_config: Any = None, _exceptions: Any = None):
         def decorator(func: Any) -> Any:
             return func
 
         return decorator
 
-    def circuit_breaker(config: Any = None, name: str = ""):
+    def circuit_breaker(_config: Any = None, _name: str = ""):
         def decorator(func: Any) -> Any:
             return func
 

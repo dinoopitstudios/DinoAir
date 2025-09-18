@@ -49,7 +49,7 @@ def repo(db_manager):
         yield NotesRepository(user_name="test_user")
 
 
-def test_schema_contains_is_deleted_and_content_html(repo, db_manager):
+def test_schema_contains_is_deleted_and_content_html(_repo, db_manager):
     # The repository ensures these columns exist on init (via _ensure_database_ready)
     with db_manager.get_notes_connection() as conn:
         cur = conn.cursor()
