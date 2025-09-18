@@ -6,20 +6,19 @@ for AST parsing results to improve performance by avoiding redundant parsing.
 """
 
 import ast
-from collections import OrderedDict
-from dataclasses import dataclass, field
 import hashlib
 
 # Use the standard library 'json' module for serialization instead of 'pickle' to avoid
 # arbitrary code execution vulnerabilities. JSON only allows safe data types.
 import json
 import logging
-from pathlib import Path
 import shutil
 import threading
 import time
+from collections import OrderedDict
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 
