@@ -239,7 +239,7 @@ export default function ChatPage() {
       </main>
 
       {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Chat page announcements' showLatestOnly={true} />
+      <LiveRegion ariaLabel='Chat page announcements' showLatestOnly />
     </PageContainer>
   );
 }

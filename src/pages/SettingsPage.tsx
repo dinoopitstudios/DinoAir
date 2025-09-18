@@ -354,7 +354,7 @@ export default function SettingsPage() {
       </main>
 
       {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Settings page announcements' showLatestOnly={true} />
+      <LiveRegion ariaLabel='Settings page announcements' showLatestOnly />
     </PageContainer>
   );
 }
