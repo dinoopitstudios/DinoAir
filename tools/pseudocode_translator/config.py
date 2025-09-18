@@ -9,18 +9,17 @@ This module provides a simple, user-friendly configuration system with:
 - Simple version handling without complex migrations
 """
 
-from contextlib import suppress
-from dataclasses import asdict, dataclass, field
-from enum import Enum
 import json
 import logging
 import os
-from pathlib import Path
 import sys
+from contextlib import suppress
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import yaml
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -377,7 +376,8 @@ class ExecutionConfig:
     process_pool_max_workers: int | None = (
         None  # None -> resolve at runtime to max(2, os.cpu_count() or 2)
     )
-    process_pool_target: str = "parse_validate"  # {"parse_validate","parse_only","validate_only"}
+    # {"parse_validate","parse_only","validate_only"}
+    process_pool_target: str = "parse_validate"
 
     # Task constraints
     process_pool_task_timeout_ms: int = 5000
@@ -816,49 +816,36 @@ class ConfigManager:
         all_warnings: list[str] = []
 
         # LLM validation
-        try:
-            res_llm = cfg.llm.validate(strict=strict)
-            if isinstance(res_llm, dict):
-                all_errors.extend(res_llm.get("errors", []))
-                all_warnings.extend(res_llm.get("warnings", []))
-            else:
-                all_errors.extend(res_llm)
-        except Exception:
-            # If validators raise in strict mode, propagate
-            raise
+        res_llm = cfg.llm.validate(strict=strict)
+        if isinstance(res_llm, dict):
+            all_errors.extend(res_llm.get("errors", []))
+            all_warnings.extend(res_llm.get("warnings", []))
+        else:
+            all_errors.extend(res_llm)
 
         # Streaming validation
-        try:
-            res_stream = cfg.streaming.validate(strict=strict)
-            if isinstance(res_stream, dict):
-                all_errors.extend(res_stream.get("errors", []))
-                all_warnings.extend(res_stream.get("warnings", []))
-            else:
-                all_errors.extend(res_stream)
-        except Exception:
-            raise
+        res_stream = cfg.streaming.validate(strict=strict)
+        if isinstance(res_stream, dict):
+            all_errors.extend(res_stream.get("errors", []))
+            all_warnings.extend(res_stream.get("warnings", []))
+        else:
+            all_errors.extend(res_stream)
 
         # Execution validation
-        try:
-            res_exec = cfg.execution.validate(strict=strict)
-            if isinstance(res_exec, dict):
-                all_errors.extend(res_exec.get("errors", []))
-                all_warnings.extend(res_exec.get("warnings", []))
-            else:
-                all_errors.extend(res_exec)
-        except Exception:
-            raise
+        res_exec = cfg.execution.validate(strict=strict)
+        if isinstance(res_exec, dict):
+            all_errors.extend(res_exec.get("errors", []))
+            all_warnings.extend(res_exec.get("warnings", []))
+        else:
+            all_errors.extend(res_exec)
 
         # Cache validation
-        try:
-            res_cache = cfg.cache.validate(strict=strict)
-            if isinstance(res_cache, dict):
-                all_errors.extend(res_cache.get("errors", []))
-                all_warnings.extend(res_cache.get("warnings", []))
-            else:
-                all_errors.extend(res_cache)
-        except Exception:
-            raise
+        res_cache = cfg.cache.validate(strict=strict)
+        if isinstance(res_cache, dict):
+            all_errors.extend(res_cache.get("errors", []))
+            all_warnings.extend(res_cache.get("warnings", []))
+        else:
+            all_errors.extend(res_cache)
 
         # Top-level config constraints
         if cfg.indent_size not in [2, 4, 8]:
@@ -929,8 +916,8 @@ class ConfigManager:
         # 2) If file exists, merge file values on top of defaults
         if config_path.exists():
             try:
-                if '../' in str(config_path) or '..\\' in str(config_path):
-                    raise Exception('Invalid file path')
+                if "../" in str(config_path) or "..\\" in str(config_path):
+                    raise Exception("Invalid file path")
                 with open(config_path) as f:
                     if config_path.suffix in [".yaml", ".yml"]:
                         data = yaml.safe_load(f)
@@ -980,8 +967,8 @@ class ConfigManager:
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Save based on file extension
-        if '../' in str(config_path) or '..\\' in str(config_path):
-            raise Exception('Invalid file path')
+        if "../" in str(config_path) or "..\\" in str(config_path):
+            raise Exception("Invalid file path")
         with open(config_path, "w") as f:
             if config_path.suffix in [".yaml", ".yml"]:
                 yaml.dump(config.to_dict(), f, default_flow_style=False, sort_keys=False)
@@ -1123,8 +1110,8 @@ class ConfigManager:
             return cast("dict[str, Any]", info)
 
         try:
-            if '../' in str(path) or '..\\' in str(path):
-                raise Exception('Invalid file path')
+            if "../" in str(path) or "..\\" in str(path):
+                raise Exception("Invalid file path")
             with open(path) as f:
                 data = yaml.safe_load(f) if path.suffix in [".yaml", ".yml"] else json.load(f)
 

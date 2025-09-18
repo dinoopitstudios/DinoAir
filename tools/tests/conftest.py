@@ -4,23 +4,20 @@
 
 from __future__ import annotations
 
-from importlib.util import module_from_spec, spec_from_file_location
 import os
-from pathlib import Path
 import sys
 import types
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
 
 # 4) Focused, composable fixtures replacing the monolithic _patch_tools
 from .helpers.db_stubs import FSDBStub, NotesDBStub, ProjectsDBStub
-from .helpers.patching import (
-    patch_file_search_db as _apply_patch_file_search_db,
-    patch_notes_db as _apply_patch_notes_db,
-    patch_projects_db as _apply_patch_projects_db,
-)
-
+from .helpers.patching import patch_file_search_db as _apply_patch_file_search_db
+from .helpers.patching import patch_notes_db as _apply_patch_notes_db
+from .helpers.patching import patch_projects_db as _apply_patch_projects_db
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -335,8 +332,6 @@ def patch_projects_db(
     except Exception:
         pass
     try:
-        import sys as _sys
-
         _repo_pt = _sys.modules.get("repo.tools.projects_tool")
         if _repo_pt is not None:
             monkeypatch.setattr(_repo_pt, "get_projects_db", _choose_stub, raising=False)

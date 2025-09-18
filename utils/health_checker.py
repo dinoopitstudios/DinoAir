@@ -3,28 +3,27 @@ Enhanced health checking system for DinoAir dependencies and services.
 Provides comprehensive health monitoring with retry logic and detailed reporting.
 """
 
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import os
 import time
+from dataclasses import dataclass
+from enum import Enum
 from types import TracebackType
 from typing import Any, cast
 
 import httpx
 
-
 try:
     from error_handling import circuit_breaker, retry_on_failure
 except ImportError:
     # Fallback if error_handling not available
-    def retry_on_failure(config: Any = None, exceptions: Any = None):
+    def retry_on_failure(_config: Any = None, _exceptions: Any = None):
         def decorator(func: Any) -> Any:
             return func
 
         return decorator
 
-    def circuit_breaker(config: Any = None, name: str = ""):
+    def circuit_breaker(_config: Any = None, _name: str = ""):
         def decorator(func: Any) -> Any:
             return func
 
@@ -32,7 +31,8 @@ except ImportError:
 
 
 try:
-    import redis.asyncio as aioredis  # type: ignore[import]  # pylint: disable=import-error
+    # type: ignore[import]  # pylint: disable=import-error
+    import redis.asyncio as aioredis
 except ImportError:  # pragma: no cover - optional dependency
     aioredis = None  # type: ignore[assignment]
 try:
@@ -272,7 +272,8 @@ class HealthChecker:
                 message="asyncpg not installed",
             )
         try:
-            conn = cast("Any", await asyncpg.connect(dsn))  # type: ignore[union-attr]
+            # type: ignore[union-attr]
+            conn = cast("Any", await asyncpg.connect(dsn))
 
             # Test basic query
             result: Any = await conn.fetchval("SELECT 1")

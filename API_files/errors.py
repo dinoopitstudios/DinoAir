@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterable, Mapping
 from contextlib import suppress
-import logging
 from typing import TYPE_CHECKING, Any, cast
 
 from fastapi.exceptions import RequestValidationError
@@ -11,8 +11,8 @@ from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from core_router.errors import error_response as core_error_response
-from .metrics_state import inc_counter
 
+from .metrics_state import inc_counter
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request
@@ -231,7 +231,7 @@ def validation_exception_handler(request: Request, exc: Exception):
     )
 
 
-def unhandled_exception_handler(request: Request, exc: Exception):
+def unhandled_exception_handler(request: Request, _exc: Exception):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
     _record_metrics(status_code)

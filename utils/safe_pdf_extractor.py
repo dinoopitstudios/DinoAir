@@ -12,17 +12,16 @@ The extractor implements several defensive measures:
 - Safe parsing with error handling and recovery
 """
 
-from collections.abc import Generator
-from contextlib import contextmanager
 import io
 import logging
-from pathlib import Path
 import re
 import time
+from collections.abc import Generator
+from contextlib import contextmanager
+from pathlib import Path
 from typing import Any, cast
 
 import aiofiles
-
 
 try:
     from pypdf import PdfReader  # type: ignore[import]
@@ -264,9 +263,6 @@ class SafePDFProcessor:
                 timeout_checker.check_timeout()
 
             return reader
-
-        except PDFProcessingTimeout:
-            raise
         except RuntimeError as e:
             raise PDFProcessingError(f"Error reading PDF: {str(e)}") from e
 
@@ -303,9 +299,6 @@ class SafePDFProcessor:
                 timeout_checker.check_timeout()
 
             return reader
-
-        except PDFProcessingTimeout:
-            raise
         except RuntimeError as e:
             raise PDFProcessingError(f"Error reading PDF: {str(e)}") from e
 
@@ -576,7 +569,8 @@ class SafePDFProcessor:
             pdf_stream = io.BytesIO(pdf_bytes)
 
             with self._timeout_handler() as timeout_checker:
-                if PdfReader is None: raise AssertionError("PdfReader is None")
+                if PdfReader is None:
+                    raise AssertionError("PdfReader is None")
                 reader = cast("Any", PdfReader)(pdf_stream, strict=False)
                 timeout_checker.check_timeout()
 
