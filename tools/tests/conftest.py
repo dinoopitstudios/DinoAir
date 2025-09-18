@@ -335,7 +335,6 @@ def patch_projects_db(
     except Exception:
         pass
     try:
-        import sys as _sys
 
         _repo_pt = _sys.modules.get("repo.tools.projects_tool")
         if _repo_pt is not None:

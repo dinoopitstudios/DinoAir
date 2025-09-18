@@ -38,7 +38,7 @@ from .schemas import validate_input, validate_output
 
 # Import types that can be used for annotations without causing cycles
 if TYPE_CHECKING:
-    from .health import HealthState
+    pass
 
 
 # Type alias for adapter factory to keep signatures short

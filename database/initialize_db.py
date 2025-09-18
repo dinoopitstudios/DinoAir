@@ -929,7 +929,6 @@ class DatabaseManager:
 
             # 3. Clean old backup files
             if cleanup_old_backups:
-                import time
 
                 cutoff_time = time.time() - (max_backup_age_days * 24 * 3600)
                 backup_patterns = ["*backup*", "*.bak", "*_old*"]
