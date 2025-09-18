@@ -241,7 +241,7 @@ export default function ProjectsPage() {
       </main>
 
       {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Projects page announcements' showLatestOnly={true} />
+      <LiveRegion ariaLabel='Projects page announcements' showLatestOnly />
     </PageContainer>
   );
 }

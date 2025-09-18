@@ -396,7 +396,7 @@ export default function FilesPage() {
       </main>
 
       {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Files page announcements' showLatestOnly={true} />
+      <LiveRegion ariaLabel='Files page announcements' showLatestOnly />
     </PageContainer>
   );
 }
