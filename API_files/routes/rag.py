@@ -9,8 +9,9 @@ from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,
 )
+from core_router.errors import ValidationError as CoreValidationError
+
 from ..schemas import (
     ContextRequest,
     GenerateMissingEmbeddingsRequest,
@@ -19,7 +20,6 @@ from ..schemas import (
     MonitorStartRequest,
 )
 from ..services.router_client import get_router
-
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 

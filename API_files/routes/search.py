@@ -7,8 +7,9 @@ from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,
 )
+from core_router.errors import ValidationError as CoreValidationError
+
 from ..schemas import (
     FileIndexStatsResponse,
     HybridSearchRequest,
@@ -20,7 +21,6 @@ from ..schemas import (
 )
 from ..services.router_client import get_router
 from ..services.search import index_stats as svc_index_stats
-
 
 router = APIRouter()
 

@@ -8,9 +8,9 @@ from starlette.types import Receive, Scope, Send
 
 from utils.asgi import get_header
 
-
 try:
-    from core_router.errors import error_response as core_error_response  # type: ignore[import]
+    # type: ignore[import]
+    from core_router.errors import error_response as core_error_response
 except ImportError:  # pragma: no cover
     from fastapi.responses import JSONResponse as _JSONResponse
 
