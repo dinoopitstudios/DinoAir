@@ -11,11 +11,10 @@ This script verifies that:
 """
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from models.artifact import Artifact
-
 
 # Add the project root to the path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -260,5 +259,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     sys.exit(0 if main() else 1)
