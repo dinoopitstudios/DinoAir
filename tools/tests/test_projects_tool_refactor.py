@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-
 from tools.tests.helpers.db_stubs import ProjectsDBStub
+
 pytestmark = pytest.mark.usefixtures("patch_tools")
 
 try:
