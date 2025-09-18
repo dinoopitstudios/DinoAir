@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from tools.tests.helpers.db_stubs import ProjectsDBStub
 
+from tools.tests.helpers.db_stubs import ProjectsDBStub
 
 pytestmark = pytest.mark.usefixtures("patch_tools")
 
