@@ -12,48 +12,56 @@ class TestLogSanitizer:
         """Test that normal strings pass through unchanged."""
         normal = "normal/path/to/file.txt"
         result = sanitize_for_log(normal)
-        assert result == normal
+        if result != normal:
+            raise AssertionError
 
     def test_sanitize_newlines(self):
         """Test that newlines are escaped."""
         malicious = "path/to/file.txt\nFAKE LOG ENTRY"
         result = sanitize_for_log(malicious)
-        assert result == "path/to/file.txt\\nFAKE LOG ENTRY"
+        if result != "path/to/file.txt\\nFAKE LOG ENTRY":
+            raise AssertionError
 
     def test_sanitize_carriage_returns(self):
         """Test that carriage returns are escaped."""
         malicious = "path/to/file.txt\rFAKE LOG ENTRY"
         result = sanitize_for_log(malicious)
-        assert result == "path/to/file.txt\\rFAKE LOG ENTRY"
+        if result != "path/to/file.txt\\rFAKE LOG ENTRY":
+            raise AssertionError
 
     def test_sanitize_tabs(self):
         """Test that tabs are escaped."""
         malicious = "path/to/file.txt\tFAKE LOG ENTRY"
         result = sanitize_for_log(malicious)
-        assert result == "path/to/file.txt\\tFAKE LOG ENTRY"
+        if result != "path/to/file.txt\\tFAKE LOG ENTRY":
+            raise AssertionError
 
     def test_sanitize_control_characters(self):
         """Test that control characters are removed."""
         malicious = "path/to/file.txt\x00\x07\x1fFAKE"
         result = sanitize_for_log(malicious)
-        assert result == "path/to/file.txtFAKE"
+        if result != "path/to/file.txtFAKE":
+            raise AssertionError
 
     def test_sanitize_length_limit(self):
         """Test that overly long strings are truncated."""
         long_string = "A" * 250
         result = sanitize_for_log(long_string, max_length=50)
         assert len(result) == 50
-        assert result.endswith("...")
+        if not result.endswith("..."):
+            raise AssertionError
 
     def test_sanitize_none_value(self):
         """Test that None is handled gracefully."""
         result = sanitize_for_log(None)
-        assert result == "None"
+        if result != "None":
+            raise AssertionError
 
     def test_sanitize_non_string_value(self):
         """Test that non-string values are converted to string."""
         result = sanitize_for_log(123)
-        assert result == "123"
+        if result != "123":
+            raise AssertionError
 
     def test_sanitize_complex_log_injection(self):
         """Test a complex log injection attack."""
@@ -62,10 +70,12 @@ class TestLogSanitizer:
         )
         result = sanitize_for_log(attack)
         expected = "/api/test\\n2023-01-01 FAKE INFO: Admin login successful\\r\\nAttacker controlled content"
-        assert result == expected
+        if result != expected:
+            raise AssertionError
 
     def test_sanitize_unicode_preserved(self):
         """Test that safe Unicode characters are preserved."""
         unicode_path = "/home/user/文档/file.txt"
         result = sanitize_for_log(unicode_path)
-        assert result == unicode_path
+        if result != unicode_path:
+            raise AssertionError

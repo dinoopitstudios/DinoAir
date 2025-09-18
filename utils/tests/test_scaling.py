@@ -16,8 +16,10 @@ class TestScalingHelper:
 
         assert helper._scale_factor is None
         assert helper._font_metrics is None
-        assert helper._zoom_level == ScalingHelper.DEFAULT_ZOOM
-        assert helper.logger.name == "utils.scaling"
+        if helper._zoom_level != ScalingHelper.DEFAULT_ZOOM:
+            raise AssertionError
+        if helper.logger.name != "utils.scaling":
+            raise AssertionError
 
     def test_scaling_helper_constants(self):
         """Test ScalingHelper constants are defined and of correct type."""
@@ -35,8 +37,10 @@ class TestScalingHelper:
         helper = ScalingHelper()
         scale_factor = helper.get_scale_factor()
 
-        assert scale_factor == 1.0
-        assert helper._scale_factor == 1.0
+        if scale_factor != 1.0:
+            raise AssertionError
+        if helper._scale_factor != 1.0:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_get_scale_factor_with_app(self, mock_qapp):
@@ -52,8 +56,10 @@ class TestScalingHelper:
         scale_factor = helper.get_scale_factor()
 
         expected_scale = 144 / ScalingHelper.BASELINE_DPI
-        assert scale_factor == expected_scale
-        assert helper._scale_factor == expected_scale
+        if scale_factor != expected_scale:
+            raise AssertionError
+        if helper._scale_factor != expected_scale:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_get_scale_factor_exception_handling(self, mock_qapp):
@@ -66,20 +72,24 @@ class TestScalingHelper:
         helper = ScalingHelper()
         scale_factor = helper.get_scale_factor()
 
-        assert scale_factor == 1.0
+        if scale_factor != 1.0:
+            raise AssertionError
 
     def test_set_zoom_level_valid(self):
         """Test setting valid zoom levels."""
         helper = ScalingHelper()
 
         helper.set_zoom_level(1.5)
-        assert helper._zoom_level == 1.5
+        if helper._zoom_level != 1.5:
+            raise AssertionError
 
         helper.set_zoom_level(ScalingHelper.MIN_ZOOM)
-        assert helper._zoom_level == ScalingHelper.MIN_ZOOM
+        if helper._zoom_level != ScalingHelper.MIN_ZOOM:
+            raise AssertionError
 
         helper.set_zoom_level(ScalingHelper.MAX_ZOOM)
-        assert helper._zoom_level == ScalingHelper.MAX_ZOOM
+        if helper._zoom_level != ScalingHelper.MAX_ZOOM:
+            raise AssertionError
 
     def test_set_zoom_level_clamping(self):
         """Test zoom level clamping to valid range."""
@@ -87,20 +97,24 @@ class TestScalingHelper:
 
         # Test below minimum
         helper.set_zoom_level(0.3)
-        assert helper._zoom_level == ScalingHelper.MIN_ZOOM
+        if helper._zoom_level != ScalingHelper.MIN_ZOOM:
+            raise AssertionError
 
         # Test above maximum
         helper.set_zoom_level(5.0)
-        assert helper._zoom_level == ScalingHelper.MAX_ZOOM
+        if helper._zoom_level != ScalingHelper.MAX_ZOOM:
+            raise AssertionError
 
     def test_get_current_zoom_level(self):
         """Test getting current zoom level."""
         helper = ScalingHelper()
 
-        assert helper.get_current_zoom_level() == ScalingHelper.DEFAULT_ZOOM
+        if helper.get_current_zoom_level() != ScalingHelper.DEFAULT_ZOOM:
+            raise AssertionError
 
         helper.set_zoom_level(1.2)
-        assert helper.get_current_zoom_level() == 1.2
+        if helper.get_current_zoom_level() != 1.2:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_scaled_font_size(self, mock_qapp):
@@ -112,7 +126,8 @@ class TestScalingHelper:
 
         # Base size 12, scale factor 1.0, zoom 1.2 = 12 * 1.0 * 1.2 = 14.4 -> 14
         scaled_size = helper.scaled_font_size(12)
-        assert scaled_size == 14
+        if scaled_size != 14:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_scaled_size(self, mock_qapp):
@@ -124,7 +139,8 @@ class TestScalingHelper:
 
         # Base size 100, scale factor 1.0, zoom 1.5 = 100 * 1.0 * 1.5 = 150
         scaled_size = helper.scaled_size(100)
-        assert scaled_size == 150
+        if scaled_size != 150:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     @patch("utils.scaling.QFontMetrics")
@@ -140,7 +156,8 @@ class TestScalingHelper:
         helper = ScalingHelper()
         metrics = helper.get_font_metrics()
 
-        assert metrics == mock_font_metrics_instance
+        if metrics != mock_font_metrics_instance:
+            raise AssertionError
         mock_font_metrics.assert_called_once_with(mock_app_font)
 
     @patch("utils.scaling.QFontMetrics")
@@ -153,7 +170,8 @@ class TestScalingHelper:
         helper = ScalingHelper()
         metrics = helper.get_font_metrics(mock_font)
 
-        assert metrics == mock_font_metrics_instance
+        if metrics != mock_font_metrics_instance:
+            raise AssertionError
         mock_font_metrics.assert_called_once_with(mock_font)
 
     def test_reset_cache(self):
@@ -175,7 +193,8 @@ class TestScalingHelper:
         helper.zoom_in()
 
         expected_zoom = min(initial_zoom + ScalingHelper.ZOOM_STEP, ScalingHelper.MAX_ZOOM)
-        assert helper._zoom_level == expected_zoom
+        if helper._zoom_level != expected_zoom:
+            raise AssertionError
 
     def test_zoom_out(self):
         """Test zoom out functionality."""
@@ -185,7 +204,8 @@ class TestScalingHelper:
         helper.zoom_out()
 
         expected_zoom = max(1.5 - ScalingHelper.ZOOM_STEP, ScalingHelper.MIN_ZOOM)
-        assert helper._zoom_level == expected_zoom
+        if helper._zoom_level != expected_zoom:
+            raise AssertionError
 
     def test_reset_zoom(self):
         """Test zoom reset functionality."""
@@ -194,7 +214,8 @@ class TestScalingHelper:
 
         helper.reset_zoom()
 
-        assert helper._zoom_level == ScalingHelper.DEFAULT_ZOOM
+        if helper._zoom_level != ScalingHelper.DEFAULT_ZOOM:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_get_font_scale(self, mock_qapp):
@@ -206,13 +227,18 @@ class TestScalingHelper:
 
         scale_info = helper.get_font_scale()
 
-        assert "small" in scale_info
-        assert "normal" in scale_info
-        assert "large" in scale_info
-        assert "title" in scale_info
+        if "small" not in scale_info:
+            raise AssertionError
+        if "normal" not in scale_info:
+            raise AssertionError
+        if "large" not in scale_info:
+            raise AssertionError
+        if "title" not in scale_info:
+            raise AssertionError
 
         # Should be scaled by zoom level (1.2)
-        assert scale_info["normal"] == int(12 * 1.2)
+        if scale_info["normal"] != int(12 * 1.2):
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_get_dpi_scale(self, mock_qapp):
@@ -222,7 +248,8 @@ class TestScalingHelper:
         helper = ScalingHelper()
         dpi_scale = helper.get_dpi_scale()
 
-        assert dpi_scale == 1.0
+        if dpi_scale != 1.0:
+            raise AssertionError
 
     @patch("utils.scaling.QApplication")
     def test_get_font_for_role(self, mock_qapp):
@@ -238,11 +265,13 @@ class TestScalingHelper:
         large_font = helper.get_font_for_role("large")
         title_font = helper.get_font_for_role("title")
 
-        assert small_font < normal_font < large_font < title_font
+        if not small_font < normal_font < large_font < title_font:
+            raise AssertionError
 
         # Test unknown role returns normal
         unknown_font = helper.get_font_for_role("unknown")
-        assert unknown_font == normal_font
+        if unknown_font != normal_font:
+            raise AssertionError
 
     def test_zoom_level_signal_emission(self):
         """Test that zoom_changed signal is emitted when zoom level changes."""
@@ -280,13 +309,15 @@ class TestScalingHelper:
 
         # Should combine DPI scaling (2.0) with user zoom (1.5)
         scale_factor = helper.get_scale_factor()
-        assert scale_factor == 2.0  # 192/96
+        if scale_factor != 2.0:
+            raise AssertionError
 
         # Font size should be scaled by both
         base_font_size = 12
         scaled_font = helper.scaled_font_size(base_font_size)
         expected = int(base_font_size * scale_factor * 1.5)  # 12 * 2.0 * 1.5 = 36
-        assert scaled_font == expected
+        if scaled_font != expected:
+            raise AssertionError
 
 
 class TestGetScalingHelper:
@@ -297,14 +328,16 @@ class TestGetScalingHelper:
         helper1 = get_scaling_helper()
         helper2 = get_scaling_helper()
 
-        assert helper1 is helper2
+        if helper1 is not helper2:
+            raise AssertionError
         assert isinstance(helper1, ScalingHelper)
 
     def test_get_scaling_helper_initialization(self):
         """Test that get_scaling_helper returns properly initialized instance."""
         helper = get_scaling_helper()
 
-        assert helper._zoom_level == ScalingHelper.DEFAULT_ZOOM
+        if helper._zoom_level != ScalingHelper.DEFAULT_ZOOM:
+            raise AssertionError
         assert helper._scale_factor is None
         assert helper._font_metrics is None
 
@@ -321,7 +354,8 @@ class TestScalingHelperIntegration:
         helper = ScalingHelper()
 
         # Start with default zoom
-        assert helper.get_current_zoom_level() == 1.0
+        if helper.get_current_zoom_level() != 1.0:
+            raise AssertionError
 
         # Zoom in several times
         helper.zoom_in()
@@ -329,15 +363,18 @@ class TestScalingHelperIntegration:
         helper.zoom_in()
 
         expected_zoom = min(1.0 + 3 * ScalingHelper.ZOOM_STEP, ScalingHelper.MAX_ZOOM)
-        assert helper.get_current_zoom_level() == expected_zoom
+        if helper.get_current_zoom_level() != expected_zoom:
+            raise AssertionError
 
         # Reset zoom
         helper.reset_zoom()
-        assert helper.get_current_zoom_level() == 1.0
+        if helper.get_current_zoom_level() != 1.0:
+            raise AssertionError
 
         # Zoom out from default (should clamp to minimum)
         helper.zoom_out()
-        assert helper.get_current_zoom_level() >= ScalingHelper.MIN_ZOOM
+        if helper.get_current_zoom_level() < ScalingHelper.MIN_ZOOM:
+            raise AssertionError
 
     @pytest.mark.boundary
     @patch("utils.scaling.QApplication")
@@ -352,13 +389,15 @@ class TestScalingHelperIntegration:
 
         helper = ScalingHelper()
         scale_factor = helper.get_scale_factor()
-        assert scale_factor == 0.5  # 48/96
+        if scale_factor != 0.5:
+            raise AssertionError
 
         # Test very high DPI
         mock_screen.logicalDotsPerInch.return_value = 480  # Very high DPI
         helper.reset_cache()  # Clear cached value
         scale_factor = helper.get_scale_factor()
-        assert scale_factor == 5.0  # 480/96
+        if scale_factor != 5.0:
+            raise AssertionError
 
     @pytest.mark.boundary
     def test_zoom_boundary_conditions(self):
@@ -367,16 +406,20 @@ class TestScalingHelperIntegration:
 
         # Test setting zoom to exact boundaries
         helper.set_zoom_level(ScalingHelper.MIN_ZOOM)
-        assert helper.get_current_zoom_level() == ScalingHelper.MIN_ZOOM
+        if helper.get_current_zoom_level() != ScalingHelper.MIN_ZOOM:
+            raise AssertionError
 
         helper.set_zoom_level(ScalingHelper.MAX_ZOOM)
-        assert helper.get_current_zoom_level() == ScalingHelper.MAX_ZOOM
+        if helper.get_current_zoom_level() != ScalingHelper.MAX_ZOOM:
+            raise AssertionError
 
         # Test zooming beyond boundaries
         helper.set_zoom_level(ScalingHelper.MAX_ZOOM)
         helper.zoom_in()  # Should not exceed maximum
-        assert helper.get_current_zoom_level() == ScalingHelper.MAX_ZOOM
+        if helper.get_current_zoom_level() != ScalingHelper.MAX_ZOOM:
+            raise AssertionError
 
         helper.set_zoom_level(ScalingHelper.MIN_ZOOM)
         helper.zoom_out()  # Should not go below minimum
-        assert helper.get_current_zoom_level() == ScalingHelper.MIN_ZOOM
+        if helper.get_current_zoom_level() != ScalingHelper.MIN_ZOOM:
+            raise AssertionError

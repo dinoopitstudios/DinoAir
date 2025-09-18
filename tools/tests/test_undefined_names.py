@@ -22,9 +22,11 @@ def assert_contains_issue(messages: list[str], name: str, lineno: int | None = N
     Optionally assert that a line number appears in some message.
     """
     needle = f"Undefined variable '{name}'"
-    assert any(needle in m for m in messages), f"Expected {needle} in {messages}"
+    if not any(needle in m for m in messages):
+        raise AssertionError(f"Expected {needle} in {messages}")
     if lineno is not None:
-        assert any(f"line {lineno}" in m for m in messages), f"Expected line {lineno} in {messages}"
+        if not any(f"line {lineno}" in m for m in messages):
+            raise AssertionError(f"Expected line {lineno} in {messages}")
 
 
 def test_augassign_requires_prior_definition():
@@ -52,7 +54,8 @@ def test_lambda_parameter_scoping():
     src = """f = lambda x, y=1: x + y
 """
     msgs = parse_and_check(src)
-    assert msgs == []
+    if msgs != []:
+        raise AssertionError
 
 
 def test_global_statement_semantics():
@@ -63,7 +66,8 @@ def f():
     g = g + 1
 """
     msgs = parse_and_check(src)
-    assert msgs == []
+    if msgs != []:
+        raise AssertionError
 
 
 def test_nonlocal_semantics():
@@ -75,7 +79,8 @@ def test_nonlocal_semantics():
         x = x + 1
 """
     msgs = parse_and_check(src)
-    assert msgs == []
+    if msgs != []:
+        raise AssertionError
 
 
 def test_except_as_lifetime():
@@ -120,7 +125,8 @@ def test_star_import_suppression():
 print(sin(1))
 """
     msgs = parse_and_check(src)
-    assert msgs == ["Star import prevents reliable undefined-name checking"]
+    if msgs != ["Star import prevents reliable undefined-name checking"]:
+        raise AssertionError
 
 
 def test_async_function_parity():
@@ -130,7 +136,8 @@ async def main():
     return await foo(1)
 """
     msgs = parse_and_check(src)
-    assert msgs == []
+    if msgs != []:
+        raise AssertionError
 
 
 def test_namedexpr_in_if():
@@ -139,7 +146,8 @@ def test_namedexpr_in_if():
     x = n
 """
     msgs = parse_and_check(src)
-    assert msgs == []
+    if msgs != []:
+        raise AssertionError
 
 
 def test_namedexpr_inside_comprehension_no_leak():

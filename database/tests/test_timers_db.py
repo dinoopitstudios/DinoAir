@@ -16,7 +16,8 @@ class TestTimersDatabase:
     def test_init_with_db_manager(self, mock_db_manager):
         """Test initialization with database manager"""
         db = TimersDatabase(mock_db_manager)
-        assert db.db_manager == mock_db_manager
+        if db.db_manager != mock_db_manager:
+            raise AssertionError
 
     def test_create_log_success(self, mock_db_manager, mock_db_connection):
         """Test successful timer log creation"""
@@ -35,7 +36,8 @@ class TestTimersDatabase:
 
         result = db.create_log(**log_data)
 
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
         cursor.execute.assert_called_once()
         mock_db_connection.commit.assert_called_once()
 
@@ -57,7 +59,8 @@ class TestTimersDatabase:
 
         result = db.create_log(**log_data)
 
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
     def test_create_log_database_error(self, mock_db_manager, mock_db_connection):
         """Test timer log creation with database error"""
@@ -76,7 +79,8 @@ class TestTimersDatabase:
 
         result = db.create_log(**log_data)
 
-        assert result["success"] is False
+        if result["success"] is not False:
+            raise AssertionError
 
     def test_get_connection(self, mock_db_manager, mock_db_connection):
         """Test getting database connection"""
@@ -84,7 +88,8 @@ class TestTimersDatabase:
         mock_db_manager.get_timers_connection.return_value = mock_db_connection
 
         conn = db._get_connection()
-        assert conn == mock_db_connection
+        if conn != mock_db_connection:
+            raise AssertionError
         mock_db_manager.get_timers_connection.assert_called_once()
 
 
@@ -110,7 +115,8 @@ class TestTimersDatabaseIntegration:
             elapsed_seconds=300.0,
         )
 
-        assert result["success"] is True
+        if result["success"] is not True:
+            raise AssertionError
 
         # Verify the insert was called with correct parameters
         execute_calls = cursor.execute.call_args_list
@@ -118,8 +124,10 @@ class TestTimersDatabaseIntegration:
 
         # The SQL should contain INSERT INTO timer_logs
         sql_called = str(execute_calls[0][0][0]).upper()
-        assert "INSERT" in sql_called
-        assert "TIMER_LOGS" in sql_called
+        if "INSERT" not in sql_called:
+            raise AssertionError
+        if "TIMER_LOGS" not in sql_called:
+            raise AssertionError
 
 
 @pytest.mark.parametrize("elapsed_seconds", [0.0, 100.5, 3600.0, None])
@@ -142,7 +150,8 @@ def test_create_log_with_different_elapsed_times(
 
     result = db.create_log(**log_data)
 
-    assert result["success"] is True
+    if result["success"] is not True:
+        raise AssertionError
     # Should handle None values correctly
 
 
@@ -159,7 +168,8 @@ def test_timer_log_data_validation(mock_db_manager, mock_db_connection):
         task_name="Minimal Task", start_time=datetime.now(), end_time=None, elapsed_seconds=None
     )
 
-    assert result["success"] is True
+    if result["success"] is not True:
+        raise AssertionError
 
     # Test with full data
     result = db.create_log(
@@ -169,7 +179,8 @@ def test_timer_log_data_validation(mock_db_manager, mock_db_connection):
         elapsed_seconds=123.45,
     )
 
-    assert result["success"] is True
+    if result["success"] is not True:
+        raise AssertionError
 
 
 def test_timer_database_error_recovery(mock_db_manager, mock_db_connection):
@@ -189,4 +200,5 @@ def test_timer_database_error_recovery(mock_db_manager, mock_db_connection):
 
     result = db.create_log(**log_data)
 
-    assert result["success"] is False
+    if result["success"] is not False:
+        raise AssertionError

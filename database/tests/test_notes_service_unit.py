@@ -86,8 +86,10 @@ def test_create_note_security_validation_fails(svc: NotesService):
     svc.validator.validate_note_creation.return_value = Mock(is_valid=True, errors=[], warnings=[])
     svc.security.validate_note_data.return_value = {"valid": False, "errors": ["bad content"]}
     result = svc.create_note(make_note("X"))
-    assert result.success is False
-    assert "security" in result.error.lower()
+    if result.success is not False:
+        raise AssertionError
+    if "security" not in result.error.lower():
+        raise AssertionError
 
 
 def test_create_note_permission_denied(svc: NotesService):
@@ -95,15 +97,19 @@ def test_create_note_permission_denied(svc: NotesService):
     svc.security.validate_note_data.return_value = {"valid": True, "errors": []}
     svc.security.can_perform_write_operation.return_value = (False, "Denied")
     result = svc.create_note(make_note("Y"))
-    assert result.success is False
-    assert "denied" in result.error.lower()
+    if result.success is not False:
+        raise AssertionError
+    if "denied" not in result.error.lower():
+        raise AssertionError
 
 
 def test_create_note_repo_error_propagates(svc: NotesService):
     svc.repository.create_note.return_value = OperationResult(success=False, error="db error")
     result = svc.create_note(make_note("Z"))
-    assert result.success is False
-    assert "db error" in result.error.lower()
+    if result.success is not False:
+        raise AssertionError
+    if "db error" not in result.error.lower():
+        raise AssertionError
 
 
 def test_update_note_validation_errors_and_repo_not_found(svc: NotesService):
@@ -112,15 +118,19 @@ def test_update_note_validation_errors_and_repo_not_found(svc: NotesService):
         is_valid=False, errors=["bad title"], warnings=[]
     )
     result = svc.update_note("nope", {"title": ""})
-    assert result.success is False
-    assert "bad title" in result.error.lower()
+    if result.success is not False:
+        raise AssertionError
+    if "bad title" not in result.error.lower():
+        raise AssertionError
 
     # Repo says note not found
     svc.validator.validate_note_update.return_value = Mock(is_valid=True, errors=[], warnings=[])
     svc.repository.get_note_by_id.return_value = OperationResult(success=False, error="missing")
     result = svc.update_note("missing", {"title": "ok"})
-    assert result.success is False
-    assert "not found" in result.error.lower()
+    if result.success is not False:
+        raise AssertionError
+    if "not found" not in result.error.lower():
+        raise AssertionError
 
 
 def test_update_note_security_denied_and_no_rows_updated(svc: NotesService):
@@ -131,27 +141,34 @@ def test_update_note_security_denied_and_no_rows_updated(svc: NotesService):
     # Security validation fails
     svc.security.validate_note_data.return_value = {"valid": False, "errors": ["nope"]}
     res = svc.update_note("id1", {"title": "bad"})
-    assert res.success is False
-    assert "security" in res.error.lower()
+    if res.success is not False:
+        raise AssertionError
+    if "security" not in res.error.lower():
+        raise AssertionError
 
     # Security allowed but repo affects 0 rows
     svc.security.validate_note_data.return_value = {"valid": True, "errors": []}
     svc.security.can_perform_write_operation.return_value = (True, None)
     svc.repository.update_note.return_value = SimpleNamespace(success=True, affected_rows=0)
     res2 = svc.update_note("id1", {"title": "ok"})
-    assert res2.success is False
+    if res2.success is not False:
+        raise AssertionError
 
 
 def test_delete_and_restore_permission_denied(svc: NotesService):
     svc.security.can_perform_write_operation.return_value = (False, "no")
     res = svc.delete_note("id1")
-    assert res.success is False
-    assert "no" in res.error.lower()
+    if res.success is not False:
+        raise AssertionError
+    if "no" not in res.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (False, "stop")
     res2 = svc.restore_note("id1")
-    assert res2.success is False
-    assert "stop" in res2.error.lower()
+    if res2.success is not False:
+        raise AssertionError
+    if "stop" not in res2.error.lower():
+        raise AssertionError
 
 
 def test_search_validation_and_repo_failure(svc: NotesService):
@@ -159,40 +176,52 @@ def test_search_validation_and_repo_failure(svc: NotesService):
         is_valid=False, errors=["empty"], warnings=[]
     )
     res = svc.search_notes("", "All")
-    assert res.success is False
-    assert "empty" in res.error.lower()
+    if res.success is not False:
+        raise AssertionError
+    if "empty" not in res.error.lower():
+        raise AssertionError
 
     svc.validator.validate_search_query.return_value = Mock(
         is_valid=True, errors=[], warnings=["warn"]
     )
     svc.repository.search_notes.return_value = OperationResult(success=False, error="oops")
     res2 = svc.search_notes("q", "All")
-    assert res2.success is False
-    assert "oops" in res2.error.lower()
+    if res2.success is not False:
+        raise AssertionError
+    if "oops" not in res2.error.lower():
+        raise AssertionError
 
 
 def test_tag_operations_permission_denied_and_repo_failure(svc: NotesService):
     svc.security.can_perform_write_operation.return_value = (False, "deny")
     r1 = svc.rename_tag("a", "b")
-    assert r1.success is False
-    assert "deny" in r1.error.lower()
+    if r1.success is not False:
+        raise AssertionError
+    if "deny" not in r1.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (True, None)
     svc.repository.update_tag_in_notes.return_value = OperationResult(success=False, error="bad")
     r2 = svc.rename_tag("a", "b")
-    assert r2.success is False
-    assert "bad" in r2.error.lower()
+    if r2.success is not False:
+        raise AssertionError
+    if "bad" not in r2.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (False, "deny2")
     d1 = svc.delete_tag("x")
-    assert d1.success is False
-    assert "deny2" in d1.error.lower()
+    if d1.success is not False:
+        raise AssertionError
+    if "deny2" not in d1.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (True, None)
     svc.repository.remove_tag_from_notes.return_value = OperationResult(success=False, error="err")
     d2 = svc.delete_tag("x")
-    assert d2.success is False
-    assert "err" in d2.error.lower()
+    if d2.success is not False:
+        raise AssertionError
+    if "err" not in d2.error.lower():
+        raise AssertionError
 
 
 def test_project_bulk_ops_validation_permission_and_repo_failure(svc: NotesService):
@@ -200,37 +229,49 @@ def test_project_bulk_ops_validation_permission_and_repo_failure(svc: NotesServi
         is_valid=False, errors=["ids"], warnings=[]
     )
     a1 = svc.assign_notes_to_project([], "p")
-    assert a1.success is False
-    assert "ids" in a1.error.lower()
+    if a1.success is not False:
+        raise AssertionError
+    if "ids" not in a1.error.lower():
+        raise AssertionError
 
     svc.validator.validate_bulk_operation.return_value = Mock(is_valid=True, errors=[], warnings=[])
     svc.security.can_perform_write_operation.return_value = (False, "block")
     a2 = svc.assign_notes_to_project(["a"], "p")
-    assert a2.success is False
-    assert "block" in a2.error.lower()
+    if a2.success is not False:
+        raise AssertionError
+    if "block" not in a2.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (True, None)
     svc.repository.bulk_update_project.return_value = OperationResult(success=False, error="fail")
     a3 = svc.assign_notes_to_project(["a"], "p")
-    assert a3.success is False
-    assert "fail" in a3.error.lower()
+    if a3.success is not False:
+        raise AssertionError
+    if "fail" not in a3.error.lower():
+        raise AssertionError
 
     # remove_notes_from_project similar
     svc.validator.validate_bulk_operation.return_value = Mock(
         is_valid=False, errors=["ids2"], warnings=[]
     )
     r1 = svc.remove_notes_from_project([])
-    assert r1.success is False
-    assert "ids2" in r1.error.lower()
+    if r1.success is not False:
+        raise AssertionError
+    if "ids2" not in r1.error.lower():
+        raise AssertionError
 
     svc.validator.validate_bulk_operation.return_value = Mock(is_valid=True, errors=[], warnings=[])
     svc.security.can_perform_write_operation.return_value = (False, "block2")
     r2 = svc.remove_notes_from_project(["a"])
-    assert r2.success is False
-    assert "block2" in r2.error.lower()
+    if r2.success is not False:
+        raise AssertionError
+    if "block2" not in r2.error.lower():
+        raise AssertionError
 
     svc.security.can_perform_write_operation.return_value = (True, None)
     svc.repository.bulk_update_project.return_value = OperationResult(success=False, error="err2")
     r3 = svc.remove_notes_from_project(["a"])
-    assert r3.success is False
-    assert "err2" in r3.error.lower()
+    if r3.success is not False:
+        raise AssertionError
+    if "err2" not in r3.error.lower():
+        raise AssertionError

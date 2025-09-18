@@ -22,17 +22,25 @@ class TestDependencyEnums:
 
     def test_scope_enum_values(self) -> None:
         """Test Scope enum values."""
-        assert Scope.SINGLETON.value == "singleton"
-        assert Scope.TRANSIENT.value == "transient"
-        assert Scope.SCOPED.value == "scoped"
+        if Scope.SINGLETON.value != "singleton":
+            raise AssertionError
+        if Scope.TRANSIENT.value != "transient":
+            raise AssertionError
+        if Scope.SCOPED.value != "scoped":
+            raise AssertionError
 
     def test_lifecycle_state_enum_values(self) -> None:
         """Test LifecycleState enum values."""
-        assert LifecycleState.REGISTERED.value == "registered"
-        assert LifecycleState.CREATING.value == "creating"
-        assert LifecycleState.CREATED.value == "created"
-        assert LifecycleState.DISPOSING.value == "disposing"
-        assert LifecycleState.DISPOSED.value == "disposed"
+        if LifecycleState.REGISTERED.value != "registered":
+            raise AssertionError
+        if LifecycleState.CREATING.value != "creating":
+            raise AssertionError
+        if LifecycleState.CREATED.value != "created":
+            raise AssertionError
+        if LifecycleState.DISPOSING.value != "disposing":
+            raise AssertionError
+        if LifecycleState.DISPOSED.value != "disposed":
+            raise AssertionError
 
 
 class TestDependencyInfo:
@@ -50,23 +58,34 @@ class TestDependencyInfo:
             initialization_order=5,
         )
 
-        assert info.name == "test_service"
-        assert info.dependency_type is str
-        assert info.factory() == "test"  # type: ignore
-        assert info.scope == Scope.SINGLETON
-        assert info.dependencies == ["dep1", "dep2"]
-        assert info.state == LifecycleState.REGISTERED
-        assert info.initialization_order == 5
+        if info.name != "test_service":
+            raise AssertionError
+        if info.dependency_type is not str:
+            raise AssertionError
+        if info.factory() != "test":
+            raise AssertionError
+        if info.scope != Scope.SINGLETON:
+            raise AssertionError
+        if info.dependencies != ["dep1", "dep2"]:
+            raise AssertionError
+        if info.state != LifecycleState.REGISTERED:
+            raise AssertionError
+        if info.initialization_order != 5:
+            raise AssertionError
 
     def test_dependency_info_defaults(self) -> None:
         """Test DependencyInfo with default values."""
         info = DependencyInfo(name="test", dependency_type=int)
 
         assert info.factory is None
-        assert info.scope == Scope.SINGLETON
-        assert info.dependencies == []
-        assert info.state == LifecycleState.REGISTERED
-        assert info.initialization_order == 100
+        if info.scope != Scope.SINGLETON:
+            raise AssertionError
+        if info.dependencies != []:
+            raise AssertionError
+        if info.state != LifecycleState.REGISTERED:
+            raise AssertionError
+        if info.initialization_order != 100:
+            raise AssertionError
 
 
 class TestDependencyExceptions:
@@ -76,14 +95,16 @@ class TestDependencyExceptions:
         """Test DependencyResolutionError creation."""
         error = DependencyResolutionError("Dependency not found")
 
-        assert str(error) == "Dependency not found"
+        if str(error) != "Dependency not found":
+            raise AssertionError
         assert isinstance(error, Exception)
 
     def test_circular_dependency_error(self) -> None:
         """Test CircularDependencyError creation."""
         error = CircularDependencyError("Circular dependency detected")
 
-        assert str(error) == "Circular dependency detected"
+        if str(error) != "Circular dependency detected":
+            raise AssertionError
         assert isinstance(error, DependencyResolutionError)
         assert isinstance(error, Exception)
 
@@ -99,7 +120,8 @@ class TestDependencyContainer:
         assert len(container.list_dependencies()) == 0
         # We cannot directly access private members, so we test through public methods
         # The container should be properly initialized
-        assert container.get_current_scope() is None
+        if container.get_current_scope() is not None:
+            raise AssertionError
 
     def test_register_singleton(self) -> None:
         """Test registering a singleton dependency."""
@@ -113,8 +135,10 @@ class TestDependencyContainer:
         # Use public interface to verify registration
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.dependency_type == TestService
-        assert info.scope == Scope.SINGLETON
+        if info.dependency_type != TestService:
+            raise AssertionError
+        if info.scope != Scope.SINGLETON:
+            raise AssertionError
         assert info.factory is None
 
     def test_register_transient(self) -> None:
@@ -128,7 +152,8 @@ class TestDependencyContainer:
 
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.scope == Scope.TRANSIENT
+        if info.scope != Scope.TRANSIENT:
+            raise AssertionError
 
     def test_register_scoped(self) -> None:
         """Test registering a scoped dependency."""
@@ -141,7 +166,8 @@ class TestDependencyContainer:
 
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.scope == Scope.SCOPED
+        if info.scope != Scope.SCOPED:
+            raise AssertionError
 
     def test_register_with_factory(self) -> None:
         """Test registering dependency with factory function."""
@@ -154,7 +180,8 @@ class TestDependencyContainer:
 
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.factory is factory
+        if info.factory is not factory:
+            raise AssertionError
 
     def test_register_with_dependencies(self) -> None:
         """Test registering dependency with dependencies."""
@@ -167,7 +194,8 @@ class TestDependencyContainer:
 
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.dependencies == ["dep1", "dep2"]
+        if info.dependencies != ["dep1", "dep2"]:
+            raise AssertionError
 
     def test_register_duplicate_dependency(self) -> None:
         """Test registering duplicate dependency raises error."""
@@ -190,12 +218,15 @@ class TestDependencyContainer:
 
         # Verify instance is accessible through resolve
         resolved = container.resolve("test_service")
-        assert resolved == instance
+        if resolved != instance:
+            raise AssertionError
 
         info = container.get_dependency_info("test_service")
         assert info is not None
-        assert info.instance == instance
-        assert info.scope == Scope.SINGLETON
+        if info.instance != instance:
+            raise AssertionError
+        if info.scope != Scope.SINGLETON:
+            raise AssertionError
 
     def test_resolve_singleton(self) -> None:
         """Test resolving a singleton dependency."""
@@ -209,8 +240,10 @@ class TestDependencyContainer:
         instance1 = container.resolve("test_service")
         instance2 = container.resolve("test_service")
 
-        assert instance1.value == 42
-        assert instance1 is instance2  # Same instance
+        if instance1.value != 42:
+            raise AssertionError
+        if instance1 is not instance2:
+            raise AssertionError
 
     def test_resolve_transient(self) -> None:
         """Test resolving a transient dependency."""
@@ -224,7 +257,8 @@ class TestDependencyContainer:
         instance1 = container.resolve("test_service")
         instance2 = container.resolve("test_service")
 
-        assert instance1.id != instance2.id  # Different instances
+        if instance1.id == instance2.id:
+            raise AssertionError
 
     def test_resolve_scoped(self) -> None:
         """Test resolving a scoped dependency."""
@@ -244,7 +278,8 @@ class TestDependencyContainer:
             instance1 = container.resolve("test_service")
             instance2 = container.resolve("test_service")
 
-            assert instance1 is instance2  # Same instance in scope
+            if instance1 is not instance2:
+                raise AssertionError
 
         # After scope, should return None again
         instance = container.resolve("test_service")
@@ -260,7 +295,8 @@ class TestDependencyContainer:
         container.register_singleton("test_service", str, factory)
         result = container.resolve("test_service")
 
-        assert result == "factory_result"
+        if result != "factory_result":
+            raise AssertionError
 
     def test_resolve_unknown_dependency(self):
         """Test resolving unknown dependency raises error."""
@@ -325,8 +361,10 @@ class TestDependencyContainer:
 
         instance = container.resolve("dep_b")
 
-        assert instance.value == "B"
-        assert instance.dep_a.value == "A"
+        if instance.value != "B":
+            raise AssertionError
+        if instance.dep_a.value != "A":
+            raise AssertionError
 
     def test_create_scope(self):
         """Test creating a dependency scope."""
@@ -335,7 +373,8 @@ class TestDependencyContainer:
         scope = container.create_scope("test_scope")
 
         assert isinstance(scope, ScopeContext)
-        assert scope.scope_name == "test_scope"
+        if scope.scope_name != "test_scope":
+            raise AssertionError
 
     def test_create_scope_auto_name(self):
         """Test creating scope with auto-generated name."""
@@ -344,7 +383,8 @@ class TestDependencyContainer:
         scope = container.create_scope()
 
         assert scope.scope_name is not None
-        assert len(scope.scope_name) > 0
+        if len(scope.scope_name) <= 0:
+            raise AssertionError
 
     def test_scope_context_manager(self):
         """Test ScopeContext as context manager."""
@@ -353,7 +393,8 @@ class TestDependencyContainer:
         assert container._current_scope is None
 
         with container.create_scope("test_scope"):
-            assert container._current_scope == "test_scope"
+            if container._current_scope != "test_scope":
+                raise AssertionError
 
         assert container._current_scope is None
 
@@ -373,7 +414,8 @@ class TestDependencyContainer:
             instance = container.resolve("disposable")
 
         # After scope exits, instance should be disposed
-        assert instance.disposed is True
+        if instance.disposed is not True:
+            raise AssertionError
 
     def test_get_dependency_info(self):
         """Test getting dependency information."""
@@ -386,8 +428,10 @@ class TestDependencyContainer:
         info = container.get_dependency_info("test_service")
 
         assert info is not None
-        assert info.name == "test_service"
-        assert info.dependency_type == TestService
+        if info.name != "test_service":
+            raise AssertionError
+        if info.dependency_type != TestService:
+            raise AssertionError
 
     def test_get_dependency_info_unknown(self):
         """Test getting info for unknown dependency."""
@@ -414,8 +458,10 @@ class TestDependencyContainer:
 
         assert len(deps) == 2
         names = [d.name for d in deps]
-        assert "service_a" in names
-        assert "service_b" in names
+        if "service_a" not in names:
+            raise AssertionError
+        if "service_b" not in names:
+            raise AssertionError
 
     def test_validate_dependencies_valid(self):
         """Test validating valid dependencies."""
@@ -447,7 +493,8 @@ class TestDependencyContainer:
         errors = container.validate_dependencies()
 
         assert len(errors) == 1
-        assert "missing_dep" in errors[0]
+        if "missing_dep" not in errors[0]:
+            raise AssertionError
 
     def test_initialize_all(self):
         """Test initializing all singleton dependencies."""
@@ -470,9 +517,12 @@ class TestDependencyContainer:
 
         success = container.initialize_all()
 
-        assert success is True
-        assert ServiceA.initialized is True
-        assert ServiceB.initialized is True
+        if success is not True:
+            raise AssertionError
+        if ServiceA.initialized is not True:
+            raise AssertionError
+        if ServiceB.initialized is not True:
+            raise AssertionError
 
     def test_dispose_all(self):
         """Test disposing all managed instances."""
@@ -490,11 +540,13 @@ class TestDependencyContainer:
 
         container.dispose_all()
 
-        assert instance.disposed is True
+        if instance.disposed is not True:
+            raise AssertionError
         # Verify through public interface that instances were cleared
         # We cannot directly access _instances, so verify through other means
         deps = container.list_dependencies()
-        assert len(deps) >= 0  # Dependencies still registered but instances cleared
+        if len(deps) < 0:
+            raise AssertionError
 
 
 class TestScopeContext:
@@ -505,8 +557,10 @@ class TestScopeContext:
         container = DependencyContainer()
         scope = ScopeContext(container, "test_scope")
 
-        assert scope.container == container
-        assert scope.scope_name == "test_scope"
+        if scope.container != container:
+            raise AssertionError
+        if scope.scope_name != "test_scope":
+            raise AssertionError
         # We cannot test private members, just verify the scope was created
         assert isinstance(scope, ScopeContext)
 
@@ -521,15 +575,19 @@ class TestScopeContext:
 
         # Enter scope
         result = scope.__enter__()
-        assert result == scope
-        assert container.get_current_scope() == "new_scope"
+        if result != scope:
+            raise AssertionError
+        if container.get_current_scope() != "new_scope":
+            raise AssertionError
         # Verify scope functionality - previous scope is restored after exit
         # We test this behavior through the public interface
-        assert container.get_current_scope() == "new_scope"
+        if container.get_current_scope() != "new_scope":
+            raise AssertionError
 
         # Exit scope
         scope.__exit__(None, None, None)
-        assert container.get_current_scope() == "initial_scope"
+        if container.get_current_scope() != "initial_scope":
+            raise AssertionError
 
 
 class TestGlobalFunctions:
@@ -540,7 +598,8 @@ class TestGlobalFunctions:
         container = get_container()
 
         assert isinstance(container, DependencyContainer)
-        assert container is get_container()  # Same instance
+        if container is not get_container():
+            raise AssertionError
 
     def test_resolve_global(self):
         """Test global resolve function."""
@@ -602,8 +661,10 @@ class TestDependencyContainerIntegration:
         # Resolve top-level service
         auth_service = container.resolve("auth_service")
 
-        assert auth_service.database.connected is True
-        assert auth_service.user_service.user_repository.database is auth_service.database
+        if auth_service.database.connected is not True:
+            raise AssertionError
+        if auth_service.user_service.user_repository.database is not auth_service.database:
+            raise AssertionError
 
     def test_scoped_dependencies_integration(self):
         """Test scoped dependencies in integration scenario."""
@@ -627,8 +688,10 @@ class TestDependencyContainerIntegration:
             service1 = container.resolve("request_service")
             service2 = container.resolve("request_service")
 
-            assert service1 is service2  # Same instance in scope
-            assert service1.context.request_id == "req_123"
+            if service1 is not service2:
+                raise AssertionError
+            if service1.context.request_id != "req_123":
+                raise AssertionError
 
         # After scope, should get None
         service3 = container.resolve("request_service")

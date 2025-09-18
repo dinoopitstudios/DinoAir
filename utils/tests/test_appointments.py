@@ -27,10 +27,14 @@ class TestAppointment:
             description="Quarterly review meeting",
         )
 
-        assert appointment.title == "Meeting with Client"
-        assert appointment.start_time == start_time
-        assert appointment.end_time == end_time
-        assert appointment.description == "Quarterly review meeting"
+        if appointment.title != "Meeting with Client":
+            raise AssertionError
+        if appointment.start_time != start_time:
+            raise AssertionError
+        if appointment.end_time != end_time:
+            raise AssertionError
+        if appointment.description != "Quarterly review meeting":
+            raise AssertionError
 
     def test_appointment_default_description(self):
         """Test appointment with default empty description."""
@@ -39,7 +43,8 @@ class TestAppointment:
 
         appointment = Appointment(title="Quick Call", start_time=start_time, end_time=end_time)
 
-        assert appointment.description == ""
+        if appointment.description != "":
+            raise AssertionError
 
     def test_appointment_equality(self):
         """Test appointment equality comparison."""
@@ -50,8 +55,10 @@ class TestAppointment:
         appointment2 = Appointment("Meeting", start_time, end_time, "Description")
         appointment3 = Appointment("Different Meeting", start_time, end_time, "Description")
 
-        assert appointment1 == appointment2
-        assert appointment1 != appointment3
+        if appointment1 != appointment2:
+            raise AssertionError
+        if appointment1 == appointment3:
+            raise AssertionError
 
     def test_appointment_repr(self):
         """Test appointment string representation."""
@@ -61,8 +68,10 @@ class TestAppointment:
         appointment = Appointment("Test Meeting", start_time, end_time, "Test")
 
         repr_str = repr(appointment)
-        assert "Test Meeting" in repr_str
-        assert "2024-01-15" in repr_str
+        if "Test Meeting" not in repr_str:
+            raise AssertionError
+        if "2024-01-15" not in repr_str:
+            raise AssertionError
 
 
 class TestCreateAppointment:
@@ -77,10 +86,14 @@ class TestCreateAppointment:
             description="Daily team standup meeting",
         )
 
-        assert appointment.title == "Team Standup"  # Should be normalized
-        assert appointment.start_time == datetime(2024, 1, 15, 9, 0, 0)
-        assert appointment.end_time == datetime(2024, 1, 15, 9, 30, 0)
-        assert appointment.description == "Daily team standup meeting"
+        if appointment.title != "Team Standup":
+            raise AssertionError
+        if appointment.start_time != datetime(2024, 1, 15, 9, 0, 0):
+            raise AssertionError
+        if appointment.end_time != datetime(2024, 1, 15, 9, 30, 0):
+            raise AssertionError
+        if appointment.description != "Daily team standup meeting":
+            raise AssertionError
 
     def test_create_appointment_no_description(self):
         """Test appointment creation without description."""
@@ -88,8 +101,10 @@ class TestCreateAppointment:
             title="lunch break", start_time="2024-01-15T12:00:00", end_time="2024-01-15T13:00:00"
         )
 
-        assert appointment.title == "Lunch Break"
-        assert appointment.description == ""
+        if appointment.title != "Lunch Break":
+            raise AssertionError
+        if appointment.description != "":
+            raise AssertionError
 
     def test_create_appointment_with_timezone(self):
         """Test appointment creation with timezone-aware timestamps."""
@@ -100,10 +115,14 @@ class TestCreateAppointment:
             description="International team call",
         )
 
-        assert appointment.title == "Remote Meeting"
-        assert appointment.start_time.year == 2024
-        assert appointment.start_time.month == 1
-        assert appointment.start_time.day == 15
+        if appointment.title != "Remote Meeting":
+            raise AssertionError
+        if appointment.start_time.year != 2024:
+            raise AssertionError
+        if appointment.start_time.month != 1:
+            raise AssertionError
+        if appointment.start_time.day != 15:
+            raise AssertionError
 
     def test_create_appointment_invalid_datetime(self):
         """Test appointment creation with invalid datetime strings."""
@@ -132,8 +151,10 @@ class TestCreateAppointment:
             description="High precision timing",
         )
 
-        assert appointment.start_time.microsecond == 123456
-        assert appointment.end_time.microsecond == 654321
+        if appointment.start_time.microsecond != 123456:
+            raise AssertionError
+        if appointment.end_time.microsecond != 654321:
+            raise AssertionError
 
 
 class TestNormalizeEventTitle:
@@ -141,47 +162,67 @@ class TestNormalizeEventTitle:
 
     def test_normalize_basic_title(self):
         """Test basic title normalization."""
-        assert normalize_event_title("meeting with client") == "Meeting With Client"
-        assert normalize_event_title("TEAM STANDUP") == "Team Standup"
-        assert normalize_event_title("lunch break") == "Lunch Break"
+        if normalize_event_title("meeting with client") != "Meeting With Client":
+            raise AssertionError
+        if normalize_event_title("TEAM STANDUP") != "Team Standup":
+            raise AssertionError
+        if normalize_event_title("lunch break") != "Lunch Break":
+            raise AssertionError
 
     def test_normalize_extra_whitespace(self):
         """Test normalization with extra whitespace."""
-        assert normalize_event_title("  meeting   with    client  ") == "Meeting With Client"
-        assert normalize_event_title("\t\nteam\n\tstandup\t\n") == "Team Standup"
-        assert normalize_event_title("   ") == ""
+        if normalize_event_title("  meeting   with    client  ") != "Meeting With Client":
+            raise AssertionError
+        if normalize_event_title("\t\nteam\n\tstandup\t\n") != "Team Standup":
+            raise AssertionError
+        if normalize_event_title("   ") != "":
+            raise AssertionError
 
     def test_normalize_mixed_case(self):
         """Test normalization with mixed case."""
-        assert normalize_event_title("MeEtInG wItH cLiEnT") == "Meeting With Client"
-        assert normalize_event_title("tEaM sTaNdUp") == "Team Standup"
+        if normalize_event_title("MeEtInG wItH cLiEnT") != "Meeting With Client":
+            raise AssertionError
+        if normalize_event_title("tEaM sTaNdUp") != "Team Standup":
+            raise AssertionError
 
     def test_normalize_special_characters(self):
         """Test normalization preserves special characters."""
-        assert normalize_event_title("client meeting - q4 review") == "Client Meeting - Q4 Review"
-        assert normalize_event_title("team-building @ park") == "Team-Building @ Park"
-        assert normalize_event_title("meeting (urgent)") == "Meeting (Urgent)"
+        if normalize_event_title("client meeting - q4 review") != "Client Meeting - Q4 Review":
+            raise AssertionError
+        if normalize_event_title("team-building @ park") != "Team-Building @ Park":
+            raise AssertionError
+        if normalize_event_title("meeting (urgent)") != "Meeting (Urgent)":
+            raise AssertionError
 
     def test_normalize_numbers(self):
         """Test normalization with numbers."""
-        assert normalize_event_title("sprint 2024 planning") == "Sprint 2024 Planning"
-        assert normalize_event_title("q1 review meeting") == "Q1 Review Meeting"
+        if normalize_event_title("sprint 2024 planning") != "Sprint 2024 Planning":
+            raise AssertionError
+        if normalize_event_title("q1 review meeting") != "Q1 Review Meeting":
+            raise AssertionError
 
     def test_normalize_empty_and_none(self):
         """Test normalization with empty and None values."""
-        assert normalize_event_title("") == ""
-        assert normalize_event_title("   \t\n   ") == ""
+        if normalize_event_title("") != "":
+            raise AssertionError
+        if normalize_event_title("   \t\n   ") != "":
+            raise AssertionError
 
     def test_normalize_single_word(self):
         """Test normalization with single words."""
-        assert normalize_event_title("meeting") == "Meeting"
-        assert normalize_event_title("LUNCH") == "Lunch"
-        assert normalize_event_title("break") == "Break"
+        if normalize_event_title("meeting") != "Meeting":
+            raise AssertionError
+        if normalize_event_title("LUNCH") != "Lunch":
+            raise AssertionError
+        if normalize_event_title("break") != "Break":
+            raise AssertionError
 
     def test_normalize_apostrophes(self):
         """Test normalization with apostrophes."""
-        assert normalize_event_title("client's quarterly review") == "Client'S Quarterly Review"
-        assert normalize_event_title("team's standup meeting") == "Team'S Standup Meeting"
+        if normalize_event_title("client's quarterly review") != "Client'S Quarterly Review":
+            raise AssertionError
+        if normalize_event_title("team's standup meeting") != "Team'S Standup Meeting":
+            raise AssertionError
 
 
 class TestIsValidDateString:
@@ -199,7 +240,8 @@ class TestIsValidDateString:
         ]
 
         for date_str in valid_dates:
-            assert is_valid_date_string(date_str), f"Should be valid: {date_str}"
+            if not is_valid_date_string(date_str):
+                raise AssertionError(f"Should be valid: {date_str}")
 
     def test_invalid_date_strings(self):
         """Test invalid date string formats."""
@@ -222,22 +264,30 @@ class TestIsValidDateString:
         ]
 
         for date_str in invalid_dates:
-            assert not is_valid_date_string(date_str), f"Should be invalid: {date_str}"
+            if is_valid_date_string(date_str):
+                raise AssertionError(f"Should be invalid: {date_str}")
 
     def test_edge_case_dates(self):
         """Test edge case dates."""
         # Test year boundaries
-        assert is_valid_date_string("0001-01-01")  # Minimum year for datetime
-        assert is_valid_date_string("9999-12-31")  # Maximum year for datetime
+        if not is_valid_date_string("0001-01-01"):
+            raise AssertionError
+        if not is_valid_date_string("9999-12-31"):
+            raise AssertionError
 
         # Test month boundaries
-        assert is_valid_date_string("2024-01-01")  # January
-        assert is_valid_date_string("2024-12-31")  # December
+        if not is_valid_date_string("2024-01-01"):
+            raise AssertionError
+        if not is_valid_date_string("2024-12-31"):
+            raise AssertionError
 
         # Test day boundaries
-        assert is_valid_date_string("2024-01-01")  # First day of month
-        assert is_valid_date_string("2024-01-31")  # Last day of January
-        assert is_valid_date_string("2024-02-29")  # Leap day
+        if not is_valid_date_string("2024-01-01"):
+            raise AssertionError
+        if not is_valid_date_string("2024-01-31"):
+            raise AssertionError
+        if not is_valid_date_string("2024-02-29"):
+            raise AssertionError
 
     def test_non_string_inputs(self):
         """Test non-string inputs."""
@@ -250,31 +300,44 @@ class TestIsValidDateString:
         ]
 
         for input_val in non_string_inputs:
-            assert not is_valid_date_string(input_val), f"Should be invalid: {input_val}"
+            if is_valid_date_string(input_val):
+                raise AssertionError(f"Should be invalid: {input_val}")
 
     def test_leap_year_validation(self):
         """Test leap year date validation."""
         # Leap years
-        assert is_valid_date_string("2000-02-29")  # Divisible by 400
-        assert is_valid_date_string("2004-02-29")  # Divisible by 4
-        assert is_valid_date_string("2024-02-29")  # Recent leap year
+        if not is_valid_date_string("2000-02-29"):
+            raise AssertionError
+        if not is_valid_date_string("2004-02-29"):
+            raise AssertionError
+        if not is_valid_date_string("2024-02-29"):
+            raise AssertionError
 
         # Non-leap years
-        assert not is_valid_date_string("1900-02-29")  # Divisible by 100 but not 400
-        assert not is_valid_date_string("2001-02-29")  # Not divisible by 4
-        assert not is_valid_date_string("2023-02-29")  # Recent non-leap year
+        if is_valid_date_string("1900-02-29"):
+            raise AssertionError
+        if is_valid_date_string("2001-02-29"):
+            raise AssertionError
+        if is_valid_date_string("2023-02-29"):
+            raise AssertionError
 
     def test_month_day_validation(self):
         """Test month and day boundary validation."""
         # Valid days for different months
-        assert is_valid_date_string("2024-01-31")  # January has 31 days
-        assert is_valid_date_string("2024-02-28")  # February has 28 days (non-leap)
-        assert is_valid_date_string("2024-04-30")  # April has 30 days
+        if not is_valid_date_string("2024-01-31"):
+            raise AssertionError
+        if not is_valid_date_string("2024-02-28"):
+            raise AssertionError
+        if not is_valid_date_string("2024-04-30"):
+            raise AssertionError
 
         # Invalid days for different months
-        assert not is_valid_date_string("2024-02-30")  # February doesn't have 30 days
-        assert not is_valid_date_string("2024-04-31")  # April doesn't have 31 days
-        assert not is_valid_date_string("2024-06-31")  # June doesn't have 31 days
+        if is_valid_date_string("2024-02-30"):
+            raise AssertionError
+        if is_valid_date_string("2024-04-31"):
+            raise AssertionError
+        if is_valid_date_string("2024-06-31"):
+            raise AssertionError
 
 
 class TestAppointmentsIntegration:
@@ -292,14 +355,19 @@ class TestAppointmentsIntegration:
         appointment = create_appointment(raw_title, start_time, end_time, description)
 
         # Verify normalization and parsing
-        assert appointment.title == "Important Client Meeting"
-        assert appointment.start_time == datetime(2024, 1, 15, 14, 30, 0)
-        assert appointment.end_time == datetime(2024, 1, 15, 15, 30, 0)
-        assert appointment.description == description
+        if appointment.title != "Important Client Meeting":
+            raise AssertionError
+        if appointment.start_time != datetime(2024, 1, 15, 14, 30, 0):
+            raise AssertionError
+        if appointment.end_time != datetime(2024, 1, 15, 15, 30, 0):
+            raise AssertionError
+        if appointment.description != description:
+            raise AssertionError
 
         # Verify appointment duration
         duration = appointment.end_time - appointment.start_time
-        assert duration.total_seconds() == 3600  # 1 hour
+        if duration.total_seconds() != 3600:
+            raise AssertionError
 
     @pytest.mark.integration
     def test_appointment_list_operations(self):
@@ -312,14 +380,18 @@ class TestAppointmentsIntegration:
 
         # Test sorting by start time
         sorted_appointments = sorted(appointments, key=lambda a: a.start_time)
-        assert sorted_appointments[0].title == "Meeting 1"
-        assert sorted_appointments[1].title == "Meeting 2"
-        assert sorted_appointments[2].title == "Meeting 3"
+        if sorted_appointments[0].title != "Meeting 1":
+            raise AssertionError
+        if sorted_appointments[1].title != "Meeting 2":
+            raise AssertionError
+        if sorted_appointments[2].title != "Meeting 3":
+            raise AssertionError
 
         # Test filtering by time
         afternoon_appointments = [a for a in appointments if a.start_time.hour >= 12]
         assert len(afternoon_appointments) == 1
-        assert afternoon_appointments[0].title == "Meeting 3"
+        if afternoon_appointments[0].title != "Meeting 3":
+            raise AssertionError
 
     @pytest.mark.boundary
     def test_extreme_datetime_values(self):
@@ -328,20 +400,24 @@ class TestAppointmentsIntegration:
         early_appointment = create_appointment(
             "Early Meeting", "0001-01-01T00:00:00", "0001-01-01T01:00:00"
         )
-        assert early_appointment.start_time.year == 1
+        if early_appointment.start_time.year != 1:
+            raise AssertionError
 
         # Very late date
         late_appointment = create_appointment(
             "Future Meeting", "9999-12-31T23:00:00", "9999-12-31T23:59:59"
         )
-        assert late_appointment.start_time.year == 9999
+        if late_appointment.start_time.year != 9999:
+            raise AssertionError
 
         # Identical start and end times (zero-duration appointment)
         zero_duration_appointment = create_appointment(
             "Instant Meeting", "2024-06-01T12:00:00", "2024-06-01T12:00:00"
         )
-        assert zero_duration_appointment.start_time == zero_duration_appointment.end_time
-        assert zero_duration_appointment.title == "Instant Meeting"
+        if zero_duration_appointment.start_time != zero_duration_appointment.end_time:
+            raise AssertionError
+        if zero_duration_appointment.title != "Instant Meeting":
+            raise AssertionError
 
     @pytest.mark.boundary
     def test_date_validation_edge_cases(self):
@@ -349,14 +425,17 @@ class TestAppointmentsIntegration:
         # Test all months
         for month in range(1, 13):
             date_str = f"2024-{month:02d}-01"
-            assert is_valid_date_string(date_str)
+            if not is_valid_date_string(date_str):
+                raise AssertionError
 
         # Test various days
         for day in range(1, 29):  # Safe range for all months
             date_str = f"2024-01-{day:02d}"
-            assert is_valid_date_string(date_str)
+            if not is_valid_date_string(date_str):
+                raise AssertionError
 
         # Test year range
         for year in [1, 100, 1000, 2000, 9999]:
             date_str = f"{year:04d}-01-01"
-            assert is_valid_date_string(date_str)
+            if not is_valid_date_string(date_str):
+                raise AssertionError

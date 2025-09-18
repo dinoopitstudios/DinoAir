@@ -32,13 +32,17 @@ class C:
 """
     resolver = DependencyResolver()
     out = resolver.analyze_block(code)
-    assert "defined_names" in out
-    assert "required_imports" in out
+    if "defined_names" not in out:
+        raise AssertionError
+    if "required_imports" not in out:
+        raise AssertionError
     # Top-level function, class and simple assignment present
-    assert set(out["defined_names"]) >= {"f", "C", "x"}
+    if set(out["defined_names"]) < {"f", "C", "x"}:
+        raise AssertionError
     # Imports captured in normalized strings
     req = out["required_imports"]
-    assert any(s == "import os" for s in req) or any(s.startswith("from math ") for s in req)
+    if not (any(s == "import os" for s in req) or any(s.startswith("from math ") for s in req)):
+        raise AssertionError
 
 
 def test_fix_refiner_attempt_fixes_success_and_exception():
@@ -66,12 +70,14 @@ def test_fix_refiner_attempt_fixes_success_and_exception():
 
     # Success path
     refined, warns = attempt_fixes(ModelOk(), code, bad_validation)
-    assert refined.endswith("# refined")
+    if not refined.endswith("# refined"):
+        raise AssertionError
     assert isinstance(warns, list)
 
     # Exception path should fall back to original code with no raise
     refined2, warns2 = attempt_fixes(ModelFail(), code, bad_validation)
-    assert refined2 == code
+    if refined2 != code:
+        raise AssertionError
     assert isinstance(warns2, list)
 
 
@@ -113,18 +119,24 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
     )
 
     # Can offload both kinds
-    assert offload.can_offload("parse") is True
-    assert offload.can_offload("validate") is True
+    if offload.can_offload("parse") is not True:
+        raise AssertionError
+    if offload.can_offload("validate") is not True:
+        raise AssertionError
 
     ok_parse, result_parse = offload.submit("parse", "print('x')")
-    assert ok_parse is True
+    if ok_parse is not True:
+        raise AssertionError
     assert isinstance(result_parse, str)
-    assert result_parse.startswith("exec_pool_fallback:")
+    if not result_parse.startswith("exec_pool_fallback:"):
+        raise AssertionError
 
     ok_val, result_val = offload.submit("validate", "print('x')")
-    assert ok_val is True
+    if ok_val is not True:
+        raise AssertionError
     assert isinstance(result_val, str)
-    assert result_val.startswith("exec_pool_fallback:")
+    if not result_val.startswith("exec_pool_fallback:"):
+        raise AssertionError
 
     # When disabled, should not offload
     class ExecCfgDisabled(ExecCfg):
@@ -137,7 +149,8 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
         ensure_pool_cb=FakePool,
     )
     ok_disabled, result_disabled = offload2.submit("parse", "x")
-    assert ok_disabled is False
+    if ok_disabled is not False:
+        raise AssertionError
     assert result_disabled is None
 
 
@@ -170,18 +183,27 @@ def test_separate_mixed_block_segmentation(monkeypatch):
 
     # Expect alternating ENGLISH then PYTHON segments
     assert len(parts) == 4
-    assert parts[0].type == BlockType.ENGLISH
-    assert "Explain" in parts[0].content
-    assert parts[1].type == BlockType.PYTHON
-    assert "print('OK')" in parts[1].content
-    assert parts[2].type == BlockType.ENGLISH
-    assert "goodbye" in parts[2].content
-    assert parts[3].type == BlockType.PYTHON
-    assert "print('bye')" in parts[3].content
+    if parts[0].type != BlockType.ENGLISH:
+        raise AssertionError
+    if "Explain" not in parts[0].content:
+        raise AssertionError
+    if parts[1].type != BlockType.PYTHON:
+        raise AssertionError
+    if "print('OK')" not in parts[1].content:
+        raise AssertionError
+    if parts[2].type != BlockType.ENGLISH:
+        raise AssertionError
+    if "goodbye" not in parts[2].content:
+        raise AssertionError
+    if parts[3].type != BlockType.PYTHON:
+        raise AssertionError
+    if "print('bye')" not in parts[3].content:
+        raise AssertionError
 
     # Metadata inheritance flag present
     for p in parts:
-        assert p.metadata.get("is_sub_block") is True
+        if p.metadata.get("is_sub_block") is not True:
+            raise AssertionError
 
 
 @pytest.mark.parametrize(
@@ -287,9 +309,13 @@ def test_translate_pseudocode_orchestration_guard_clauses(
     res = manager.translate_pseudocode("do something")
 
     # Validate approach and basic shape
-    assert hasattr(res, "code")
-    assert "approach" in getattr(res, "metadata", {})
+    if not hasattr(res, "code"):
+        raise AssertionError
+    if "approach" not in getattr(res, "metadata", {}):
+        raise AssertionError
     if not llm_first_raises:
-        assert res.metadata["approach"] == "llm_first"
+        if res.metadata["approach"] != "llm_first":
+            raise AssertionError
     else:
-        assert res.metadata["approach"] == "structured_parsing"
+        if res.metadata["approach"] != "structured_parsing":
+            raise AssertionError

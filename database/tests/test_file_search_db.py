@@ -28,16 +28,21 @@ def test_create_tables_and_index_file_black_box():
         metadata={"k": "v"},
     )
     assert isinstance(res, dict)
-    assert res.get("success") is True
-    assert "file_id" in res
+    if res.get("success") is not True:
+        raise AssertionError
+    if "file_id" not in res:
+        raise AssertionError
     res["file_id"]
 
     # Retrieve by path
     got = db.get_file_by_path(fp)
     assert got is not None
-    assert got["file_path"] == fp
-    assert got["file_hash"] == "h1"
-    assert got["file_type"] == "text/plain"
+    if got["file_path"] != fp:
+        raise AssertionError
+    if got["file_hash"] != "h1":
+        raise AssertionError
+    if got["file_type"] != "text/plain":
+        raise AssertionError
 
 
 def test_chunk_and_embedding_roundtrip_black_box():
@@ -52,7 +57,8 @@ def test_chunk_and_embedding_roundtrip_black_box():
         modified_date=datetime.now(),
         file_type="text/plain",
     )
-    assert res["success"] is True
+    if res["success"] is not True:
+        raise AssertionError
     file_id = res["file_id"]
 
     # Add chunk
@@ -64,25 +70,30 @@ def test_chunk_and_embedding_roundtrip_black_box():
         end_pos=18,
         metadata={"part": 0},
     )
-    assert cres["success"] is True
+    if cres["success"] is not True:
+        raise AssertionError
     chunk_id = cres["chunk_id"]
 
     # Add embedding
     eres = db.add_embedding(
         chunk_id=chunk_id, embedding_vector=[0.1, 0.2, 0.3], model_name="model-x"
     )
-    assert eres["success"] is True
+    if eres["success"] is not True:
+        raise AssertionError
 
     # Query embeddings for file
     by_file = db.get_embeddings_by_file(fp)
     assert isinstance(by_file, list)
-    assert len(by_file) >= 1
+    if len(by_file) < 1:
+        raise AssertionError
     ids = {row["chunk_id"] for row in by_file}
-    assert chunk_id in ids
+    if chunk_id not in ids:
+        raise AssertionError
 
     # Query all embeddings (should include our record)
     all_emb = db.get_all_embeddings()
-    assert any(row["chunk_id"] == chunk_id for row in all_emb)
+    if not any(row["chunk_id"] == chunk_id for row in all_emb):
+        raise AssertionError
 
 
 def test_keyword_search_black_box():
@@ -97,21 +108,24 @@ def test_keyword_search_black_box():
         modified_date=datetime.now(),
         file_type="text/plain",
     )
-    assert res["success"]
+    if not res["success"]:
+        raise AssertionError
     file_id = res["file_id"]
 
-    assert db.add_chunk(
+    if not db.add_chunk(
         file_id=file_id,
         chunk_index=0,
         content="This contains keyword FooBar and more.",
         start_pos=0,
         end_pos=38,
-    )["success"]
+    )["success"]:
+        raise AssertionError
 
     # Search keyword (case-insensitive)
     results = db.search_by_keywords(["foobar"])
     assert isinstance(results, list)
-    assert any(r["file_path"] == fp for r in results)
+    if not any(r["file_path"] == fp for r in results):
+        raise AssertionError
 
 
 def test_batch_and_clear_embeddings_black_box():
@@ -126,29 +140,36 @@ def test_batch_and_clear_embeddings_black_box():
         modified_date=datetime.now(),
         file_type="text/plain",
     )
-    assert res["success"]
+    if not res["success"]:
+        raise AssertionError
     file_id = res["file_id"]
 
-    assert db.add_chunk(file_id=file_id, chunk_index=0, content="c0", start_pos=0, end_pos=2)[
+    if not db.add_chunk(file_id=file_id, chunk_index=0, content="c0", start_pos=0, end_pos=2)[
         "success"
-    ]
-    assert db.add_chunk(file_id=file_id, chunk_index=1, content="c1", start_pos=3, end_pos=5)[
+    ]:
+        raise AssertionError
+    if not db.add_chunk(file_id=file_id, chunk_index=1, content="c1", start_pos=3, end_pos=5)[
         "success"
-    ]
+    ]:
+        raise AssertionError
 
     emb_payload = [
         {"chunk_id": f"{file_id}_chunk_0", "embedding_vector": [0.1, 0.2], "model_name": "m"},
         {"chunk_id": f"{file_id}_chunk_1", "embedding_vector": [0.3, 0.4], "model_name": "m"},
     ]
     bres = db.batch_add_embeddings(emb_payload)
-    assert bres["success"] is True
-    assert bres["embeddings_added"] >= 1
+    if bres["success"] is not True:
+        raise AssertionError
+    if bres["embeddings_added"] < 1:
+        raise AssertionError
 
     # Clear and verify
     cres = db.clear_embeddings_for_file(fp)
-    assert cres["success"] is True
+    if cres["success"] is not True:
+        raise AssertionError
     after = db.get_embeddings_by_file(fp)
-    assert after == []
+    if after != []:
+        raise AssertionError
 
 
 def test_settings_management_black_box():
@@ -156,17 +177,23 @@ def test_settings_management_black_box():
 
     # Update setting and read back
     set_res = db.update_search_settings("allowed_directories", ["/a", "/b"])
-    assert set_res["success"] is True
+    if set_res["success"] is not True:
+        raise AssertionError
 
     one = db.get_search_settings("allowed_directories")
-    assert one["success"] is True
-    assert one["setting_name"] == "allowed_directories"
-    assert one["setting_value"] == ["/a", "/b"]
+    if one["success"] is not True:
+        raise AssertionError
+    if one["setting_name"] != "allowed_directories":
+        raise AssertionError
+    if one["setting_value"] != ["/a", "/b"]:
+        raise AssertionError
 
     # Get both lists via helper
     dirs = db.get_directory_settings()
-    assert dirs["success"] is True
-    assert "allowed_directories" in dirs
+    if dirs["success"] is not True:
+        raise AssertionError
+    if "allowed_directories" not in dirs:
+        raise AssertionError
     assert isinstance(dirs["allowed_directories"], list)
 
 
@@ -181,21 +208,27 @@ def test_stats_and_remove_file_black_box():
         modified_date=datetime.now(),
         file_type="text/plain",
     )
-    assert res["success"]
+    if not res["success"]:
+        raise AssertionError
 
     stats = db.get_indexed_files_stats()
     assert isinstance(stats, dict)
-    assert "total_files" in stats
+    if "total_files" not in stats:
+        raise AssertionError
 
     # Remove file and confirm gone
     rres = db.remove_file_from_index(fp)
-    assert rres["success"] is True
-    assert db.get_file_by_path(fp) is None
+    if rres["success"] is not True:
+        raise AssertionError
+    if db.get_file_by_path(fp) is not None:
+        raise AssertionError
 
 
 def test_optimize_database_black_box():
     db = _new_db()
     res = db.optimize_database()
-    assert res["success"] is True
-    assert "table_stats" in res
+    if res["success"] is not True:
+        raise AssertionError
+    if "table_stats" not in res:
+        raise AssertionError
     assert isinstance(res["table_stats"], dict)

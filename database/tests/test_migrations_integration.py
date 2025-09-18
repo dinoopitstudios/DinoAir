@@ -66,7 +66,8 @@ class TestDatabaseManagerMigrations:
             }
 
             # All expected columns should be present
-            assert expected_columns.issubset(columns)
+            if not expected_columns.issubset(columns):
+                raise AssertionError
 
             # Check that migrations were recorded
             cursor.execute("SELECT version, name FROM schema_migrations ORDER BY version")
@@ -85,7 +86,8 @@ class TestDatabaseManagerMigrations:
             if applied_migrations:
                 for expected in expected_migrations:
                     if expected in applied_migrations:
-                        assert expected in applied_migrations
+                        if expected not in applied_migrations:
+                            raise AssertionError
 
     def test_migration_system_fallback_on_error(self, temp_dir, mock_user_feedback):
         """Test that system falls back to old migration on error."""
@@ -109,14 +111,16 @@ class TestDatabaseManagerMigrations:
                     WHERE type='table' AND name='note_list'
                 """
                 )
-                assert cursor.fetchone() is not None
+                if cursor.fetchone() is None:
+                    raise AssertionError
 
             # Should have warned about migration error
             mock_user_feedback.assert_called()
             warning_calls = [
                 call for call in mock_user_feedback.call_args_list if "WARNING" in str(call)
             ]
-            assert len(warning_calls) > 0
+            if len(warning_calls) <= 0:
+                raise AssertionError
 
     def test_migration_already_applied_no_duplicate(self, temp_dir, mock_user_feedback):
         """Test that already applied migrations are not run again."""
@@ -202,7 +206,8 @@ class TestDatabaseManagerMigrations:
                 WHERE type='table' AND name='test_migration_table'
             """
             )
-            assert cursor.fetchone() is not None
+            if cursor.fetchone() is None:
+                raise AssertionError
 
             # Check that migration was recorded
             cursor.execute(
@@ -211,7 +216,8 @@ class TestDatabaseManagerMigrations:
                 WHERE version = '999' AND name = 'test_migration'
             """
             )
-            assert cursor.fetchone() is not None
+            if cursor.fetchone() is None:
+                raise AssertionError
 
         # Should have reported successful migration
         success_calls = [
@@ -219,4 +225,5 @@ class TestDatabaseManagerMigrations:
             for call in mock_user_feedback.call_args_list
             if "Applied" in str(call) and "migrations" in str(call)
         ]
-        assert len(success_calls) > 0
+        if len(success_calls) <= 0:
+            raise AssertionError

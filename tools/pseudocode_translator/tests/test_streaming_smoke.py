@@ -39,14 +39,18 @@ def test_streaming_smoke_minimal(monkeypatch):
 
     # Collect streaming chunk results
     results = list(pipeline.stream_translate(input_text))
-    assert len(results) >= 1
-    assert any(r.success for r in results)
-    assert any(r.translated_blocks for r in results)
+    if len(results) < 1:
+        raise AssertionError
+    if not any(r.success for r in results):
+        raise AssertionError
+    if not any(r.translated_blocks for r in results):
+        raise AssertionError
 
     # Assemble final code from streamed blocks and verify expected token
     final_code = pipeline.assemble_streamed_code()
     assert isinstance(final_code, str)
-    assert "def add(" in final_code
+    if "def add(" not in final_code:
+        raise AssertionError
 
     # Validate syntactic correctness without executing arbitrary behavior
     compile(final_code, "<test>", "exec")

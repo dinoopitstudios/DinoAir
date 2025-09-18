@@ -54,12 +54,18 @@ class TestLogContext:
             metadata={"key": "value", "number": 42},
         )
 
-        assert context.correlation_id == "corr-123"
-        assert context.user_id == "user-456"
-        assert context.session_id == "sess-789"
-        assert context.operation_id == "op-abc"
-        assert context.component == "test-component"
-        assert context.metadata == {"key": "value", "number": 42}
+        if context.correlation_id != "corr-123":
+            raise AssertionError
+        if context.user_id != "user-456":
+            raise AssertionError
+        if context.session_id != "sess-789":
+            raise AssertionError
+        if context.operation_id != "op-abc":
+            raise AssertionError
+        if context.component != "test-component":
+            raise AssertionError
+        if context.metadata != {"key": "value", "number": 42}:
+            raise AssertionError
 
     def test_log_context_defaults(self):
         """Test LogContext with default values."""
@@ -70,7 +76,8 @@ class TestLogContext:
         assert context.session_id is None
         assert context.operation_id is None
         assert context.component is None
-        assert context.metadata == {}
+        if context.metadata != {}:
+            raise AssertionError
 
     def test_log_context_to_dict(self):
         """Test LogContext to_dict conversion."""
@@ -88,13 +95,15 @@ class TestLogContext:
             "component": "test-component",
             "custom": "data",
         }
-        assert result == expected
+        if result != expected:
+            raise AssertionError
 
     def test_log_context_to_dict_empty(self):
         """Test LogContext to_dict with empty context."""
         context = LogContext()
         result = context.to_dict()
-        assert result == {}
+        if result != {}:
+            raise AssertionError
 
     def test_log_context_to_dict_partial(self):
         """Test LogContext to_dict with partial fields."""
@@ -102,7 +111,8 @@ class TestLogContext:
 
         result = context.to_dict()
         expected = {"correlation_id": "corr-123", "test": "value"}
-        assert result == expected
+        if result != expected:
+            raise AssertionError
 
 
 class TestLogContextManager:
@@ -111,7 +121,8 @@ class TestLogContextManager:
     def test_context_manager_initialization(self):
         """Test LogContextManager initialization."""
         manager = LogContextManager()
-        assert hasattr(manager, "_local")
+        if not hasattr(manager, "_local"):
+            raise AssertionError
 
     def test_get_context_creates_default(self):
         """Test that get_context creates default context if none exists."""
@@ -129,7 +140,8 @@ class TestLogContextManager:
         manager.set_context(test_context)
         retrieved_context = manager.get_context()
 
-        assert retrieved_context.correlation_id == "test-123"
+        if retrieved_context.correlation_id != "test-123":
+            raise AssertionError
 
     def test_update_context_existing_fields(self):
         """Test updating existing context fields."""
@@ -137,12 +149,15 @@ class TestLogContextManager:
         manager.update_context(correlation_id="initial")
 
         context = manager.get_context()
-        assert context.correlation_id == "initial"
+        if context.correlation_id != "initial":
+            raise AssertionError
 
         manager.update_context(correlation_id="updated", user_id="user-123")
         context = manager.get_context()
-        assert context.correlation_id == "updated"
-        assert context.user_id == "user-123"
+        if context.correlation_id != "updated":
+            raise AssertionError
+        if context.user_id != "user-123":
+            raise AssertionError
 
     def test_update_context_metadata(self):
         """Test updating context with metadata."""
@@ -150,7 +165,8 @@ class TestLogContextManager:
         manager.update_context(custom_field="custom_value")
 
         context = manager.get_context()
-        assert context.metadata["custom_field"] == "custom_value"
+        if context.metadata["custom_field"] != "custom_value":
+            raise AssertionError
 
     def test_clear_context(self):
         """Test clearing context."""
@@ -159,7 +175,8 @@ class TestLogContextManager:
 
         # Verify context exists
         context = manager.get_context()
-        assert context.correlation_id == "test"
+        if context.correlation_id != "test":
+            raise AssertionError
 
         # Clear and verify new default context is created
         manager.clear_context()
@@ -189,9 +206,12 @@ class TestLogContextManager:
             thread.join()
 
         # Verify each thread had its own context
-        assert results[0] == "thread-0"
-        assert results[1] == "thread-1"
-        assert results[2] == "thread-2"
+        if results[0] != "thread-0":
+            raise AssertionError
+        if results[1] != "thread-1":
+            raise AssertionError
+        if results[2] != "thread-2":
+            raise AssertionError
 
 
 class TestLogFilterConfig:
@@ -201,11 +221,16 @@ class TestLogFilterConfig:
         """Test LogFilterConfig default values."""
         config = LogFilterConfig()
 
-        assert config.enabled is True
-        assert config.level_filters == {}
-        assert config.sampling_rate == 1.0
-        assert config.exclude_patterns == []
-        assert config.include_patterns == []
+        if config.enabled is not True:
+            raise AssertionError
+        if config.level_filters != {}:
+            raise AssertionError
+        if config.sampling_rate != 1.0:
+            raise AssertionError
+        if config.exclude_patterns != []:
+            raise AssertionError
+        if config.include_patterns != []:
+            raise AssertionError
 
     def test_log_filter_config_custom_values(self):
         """Test LogFilterConfig with custom values."""
@@ -217,11 +242,16 @@ class TestLogFilterConfig:
             include_patterns=["error", "warning"],
         )
 
-        assert config.enabled is False
-        assert config.level_filters == {"module1": logging.ERROR}
-        assert config.sampling_rate == 0.5
-        assert config.exclude_patterns == ["debug", "test"]
-        assert config.include_patterns == ["error", "warning"]
+        if config.enabled is not False:
+            raise AssertionError
+        if config.level_filters != {"module1": logging.ERROR}:
+            raise AssertionError
+        if config.sampling_rate != 0.5:
+            raise AssertionError
+        if config.exclude_patterns != ["debug", "test"]:
+            raise AssertionError
+        if config.include_patterns != ["error", "warning"]:
+            raise AssertionError
 
 
 class TestEnhancedLogFilter:
@@ -244,7 +274,8 @@ class TestEnhancedLogFilter:
         )
 
         # Should always pass when disabled
-        assert filter_obj.filter(record) is True
+        if filter_obj.filter(record) is not True:
+            raise AssertionError
 
     def test_level_filters(self):
         """Test module-specific level filters."""
@@ -273,8 +304,10 @@ class TestEnhancedLogFilter:
         )
 
         # INFO should be filtered out, ERROR should pass
-        assert filter_obj.filter(info_record) is False
-        assert filter_obj.filter(error_record) is True
+        if filter_obj.filter(info_record) is not False:
+            raise AssertionError
+        if filter_obj.filter(error_record) is not True:
+            raise AssertionError
 
     def test_exclude_patterns(self):
         """Test exclude patterns filtering."""
@@ -303,8 +336,10 @@ class TestEnhancedLogFilter:
         )
 
         # Debug message should be excluded
-        assert filter_obj.filter(debug_record) is False
-        assert filter_obj.filter(normal_record) is True
+        if filter_obj.filter(debug_record) is not False:
+            raise AssertionError
+        if filter_obj.filter(normal_record) is not True:
+            raise AssertionError
 
     def test_include_patterns(self):
         """Test include patterns filtering."""
@@ -333,8 +368,10 @@ class TestEnhancedLogFilter:
         )
 
         # Only error message should pass
-        assert filter_obj.filter(error_record) is True
-        assert filter_obj.filter(info_record) is False
+        if filter_obj.filter(error_record) is not True:
+            raise AssertionError
+        if filter_obj.filter(info_record) is not False:
+            raise AssertionError
 
     def test_sampling_rate(self):
         """Test sampling rate filtering."""
@@ -359,7 +396,8 @@ class TestEnhancedLogFilter:
                 passed_count += 1
 
         # With 50% sampling, roughly half should pass (allow some variance)
-        assert 30 <= passed_count <= 70
+        if not 30 <= passed_count <= 70:
+            raise AssertionError
 
 
 class TestFormatterConfig:
@@ -369,15 +407,23 @@ class TestFormatterConfig:
         """Test FormatterConfig default values."""
         config = FormatterConfig()
 
-        assert config.format_type == "json"
-        assert config.include_timestamp is True
-        assert config.include_level is True
-        assert config.include_logger is True
-        assert config.include_module is True
-        assert config.include_function is True
-        assert config.include_context is True
+        if config.format_type != "json":
+            raise AssertionError
+        if config.include_timestamp is not True:
+            raise AssertionError
+        if config.include_level is not True:
+            raise AssertionError
+        if config.include_logger is not True:
+            raise AssertionError
+        if config.include_module is not True:
+            raise AssertionError
+        if config.include_function is not True:
+            raise AssertionError
+        if config.include_context is not True:
+            raise AssertionError
         assert config.custom_format is None
-        assert config.date_format == "%Y-%m-%dT%H:%M:%S.%fZ"
+        if config.date_format != "%Y-%m-%dT%H:%M:%S.%fZ":
+            raise AssertionError
 
 
 class TestEnhancedJsonFormatter:
@@ -403,12 +449,18 @@ class TestEnhancedJsonFormatter:
         result = formatter.format(record)
         data = json.loads(result)
 
-        assert data["level"] == "INFO"
-        assert data["logger"] == "test_logger"
-        assert data["module"] == "test_module"
-        assert data["function"] == "test_function"
-        assert data["message"] == "Test message"
-        assert "timestamp" in data
+        if data["level"] != "INFO":
+            raise AssertionError
+        if data["logger"] != "test_logger":
+            raise AssertionError
+        if data["module"] != "test_module":
+            raise AssertionError
+        if data["function"] != "test_function":
+            raise AssertionError
+        if data["message"] != "Test message":
+            raise AssertionError
+        if "timestamp" not in data:
+            raise AssertionError
 
     def test_format_with_context(self):
         """Test formatting with log context."""
@@ -435,9 +487,12 @@ class TestEnhancedJsonFormatter:
             result = formatter.format(record)
             data = json.loads(result)
 
-            assert "context" in data
-            assert data["context"]["correlation_id"] == "test-123"
-            assert data["context"]["user_id"] == "user-456"
+            if "context" not in data:
+                raise AssertionError
+            if data["context"]["correlation_id"] != "test-123":
+                raise AssertionError
+            if data["context"]["user_id"] != "user-456":
+                raise AssertionError
 
     def test_format_with_exception(self):
         """Test formatting with exception information."""
@@ -462,9 +517,12 @@ class TestEnhancedJsonFormatter:
             result = formatter.format(record)
             data = json.loads(result)
 
-            assert "exception" in data
-            assert "ValueError" in data["exception"]
-            assert "Test exception" in data["exception"]
+            if "exception" not in data:
+                raise AssertionError
+            if "ValueError" not in data["exception"]:
+                raise AssertionError
+            if "Test exception" not in data["exception"]:
+                raise AssertionError
 
     def test_format_with_extra_fields(self):
         """Test formatting with extra fields in record."""
@@ -488,8 +546,10 @@ class TestEnhancedJsonFormatter:
         result = formatter.format(record)
         data = json.loads(result)
 
-        assert data["custom_field"] == "custom_value"
-        assert data["request_id"] == "req-123"
+        if data["custom_field"] != "custom_value":
+            raise AssertionError
+        if data["request_id"] != "req-123":
+            raise AssertionError
 
     def test_format_without_optional_fields(self):
         """Test formatting without optional fields."""
@@ -513,11 +573,16 @@ class TestEnhancedJsonFormatter:
         result = formatter.format(record)
         data = json.loads(result)
 
-        assert "timestamp" not in data
-        assert "module" not in data
-        assert "context" not in data
-        assert data["level"] == "INFO"
-        assert data["message"] == "Test message"
+        if "timestamp" in data:
+            raise AssertionError
+        if "module" in data:
+            raise AssertionError
+        if "context" in data:
+            raise AssertionError
+        if data["level"] != "INFO":
+            raise AssertionError
+        if data["message"] != "Test message":
+            raise AssertionError
 
 
 class TestAsyncLogHandler:
@@ -528,9 +593,12 @@ class TestAsyncLogHandler:
         inner_handler = logging.StreamHandler()
         async_handler = AsyncLogHandler(inner_handler, queue_size=100)
 
-        assert async_handler.handler == inner_handler
-        assert async_handler.queue.maxsize == 100
-        assert async_handler._worker_thread.is_alive()
+        if async_handler.handler != inner_handler:
+            raise AssertionError
+        if async_handler.queue.maxsize != 100:
+            raise AssertionError
+        if not async_handler._worker_thread.is_alive():
+            raise AssertionError
 
     def test_async_handler_emit(self):
         """Test AsyncLogHandler emit functionality."""
@@ -584,7 +652,8 @@ class TestAsyncLogHandler:
         time.sleep(0.1)  # Allow processing
 
         # Both records should have been handled
-        assert inner_handler.emit.call_count >= 1
+        if inner_handler.emit.call_count < 1:
+            raise AssertionError
 
     def test_async_handler_close(self):
         """Test AsyncLogHandler close functionality."""
@@ -604,13 +673,20 @@ class TestLogConfig:
         """Test LogConfig default values."""
         config = LogConfig()
 
-        assert config.level == "INFO"
-        assert config.format_type == "json"
-        assert config.log_dir == "logs"
-        assert config.max_file_size == 10_000_000
-        assert config.backup_count == 5
-        assert config.async_logging is True
-        assert config.async_queue_size == 1000
+        if config.level != "INFO":
+            raise AssertionError
+        if config.format_type != "json":
+            raise AssertionError
+        if config.log_dir != "logs":
+            raise AssertionError
+        if config.max_file_size != 10_000_000:
+            raise AssertionError
+        if config.backup_count != 5:
+            raise AssertionError
+        if config.async_logging is not True:
+            raise AssertionError
+        if config.async_queue_size != 1000:
+            raise AssertionError
         assert isinstance(config.filter_config, LogFilterConfig)
         assert isinstance(config.formatter_config, FormatterConfig)
 
@@ -623,7 +699,8 @@ class TestEnhancedLogger:
         logger1 = EnhancedLogger()
         logger2 = EnhancedLogger()
 
-        assert logger1 is logger2
+        if logger1 is not logger2:
+            raise AssertionError
 
     def test_enhanced_logger_initialization_once(self):
         """Test that initialization only happens once."""
@@ -645,7 +722,8 @@ class TestEnhancedLogger:
         with patch.object(logger, "_setup_logging") as mock_setup:
             logger.configure(config)
 
-            assert logger.config == config
+            if logger.config != config:
+                raise AssertionError
             mock_setup.assert_called_once()
 
     def test_get_logger(self):
@@ -654,8 +732,10 @@ class TestEnhancedLogger:
         logger1 = enhanced_logger.get_logger("test_logger")
         logger2 = enhanced_logger.get_logger("test_logger")
 
-        assert logger1 is logger2
-        assert logger1.name == "test_logger"
+        if logger1 is not logger2:
+            raise AssertionError
+        if logger1.name != "test_logger":
+            raise AssertionError
 
     def test_set_level_root(self):
         """Test setting root logger level."""
@@ -688,8 +768,10 @@ class TestEnhancedLogger:
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
             enhanced_logger.update_filter_config(sampling_rate=0.5, enabled=False)
 
-            assert enhanced_logger.config.filter_config.sampling_rate == 0.5
-            assert enhanced_logger.config.filter_config.enabled is False
+            if enhanced_logger.config.filter_config.sampling_rate != 0.5:
+                raise AssertionError
+            if enhanced_logger.config.filter_config.enabled is not False:
+                raise AssertionError
             mock_setup.assert_called_once()
 
     def test_set_module_level(self):
@@ -699,9 +781,10 @@ class TestEnhancedLogger:
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
             enhanced_logger.set_module_level("test_module", "ERROR")
 
-            assert (
-                enhanced_logger.config.filter_config.level_filters["test_module"] == logging.ERROR
-            )
+            if (
+                enhanced_logger.config.filter_config.level_filters["test_module"] != logging.ERROR
+            ):
+                raise AssertionError
             mock_setup.assert_called_once()
 
     def test_remove_module_level(self):
@@ -712,7 +795,8 @@ class TestEnhancedLogger:
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
             enhanced_logger.remove_module_level("test_module")
 
-            assert "test_module" not in enhanced_logger.config.filter_config.level_filters
+            if "test_module" in enhanced_logger.config.filter_config.level_filters:
+                raise AssertionError
             mock_setup.assert_called_once()
 
     def test_get_module_levels(self):
@@ -725,8 +809,10 @@ class TestEnhancedLogger:
 
         levels = enhanced_logger.get_module_levels()
 
-        assert levels["module1"] == "DEBUG"
-        assert levels["module2"] == "ERROR"
+        if levels["module1"] != "DEBUG":
+            raise AssertionError
+        if levels["module2"] != "ERROR":
+            raise AssertionError
 
 
 class TestLogAggregationConfig:
@@ -736,11 +822,16 @@ class TestLogAggregationConfig:
         """Test LogAggregationConfig default values."""
         config = LogAggregationConfig()
 
-        assert config.time_window_seconds == 300
-        assert config.max_entries == 10000
-        assert config.aggregation_fields == ["level", "logger", "component"]
-        assert config.enable_pattern_analysis is True
-        assert config.enable_error_rate_tracking is True
+        if config.time_window_seconds != 300:
+            raise AssertionError
+        if config.max_entries != 10000:
+            raise AssertionError
+        if config.aggregation_fields != ["level", "logger", "component"]:
+            raise AssertionError
+        if config.enable_pattern_analysis is not True:
+            raise AssertionError
+        if config.enable_error_rate_tracking is not True:
+            raise AssertionError
 
 
 class TestLogAggregator:
@@ -769,8 +860,10 @@ class TestLogAggregator:
 
         assert len(aggregator._entries) == 1
         stored_entry = aggregator._entries[0]
-        assert stored_entry["level"] == "INFO"
-        assert stored_entry["component"] == "test_component"
+        if stored_entry["level"] != "INFO":
+            raise AssertionError
+        if stored_entry["component"] != "test_component":
+            raise AssertionError
 
     def test_get_summary(self):
         """Test getting aggregated summary."""
@@ -790,11 +883,16 @@ class TestLogAggregator:
 
         summary = aggregator.get_summary(time_window_seconds=10)
 
-        assert summary["total_entries"] == 5
-        assert "level_distribution" in summary
-        assert "component_distribution" in summary
-        assert summary["level_distribution"]["INFO"] >= 1
-        assert summary["level_distribution"]["ERROR"] >= 1
+        if summary["total_entries"] != 5:
+            raise AssertionError
+        if "level_distribution" not in summary:
+            raise AssertionError
+        if "component_distribution" not in summary:
+            raise AssertionError
+        if summary["level_distribution"]["INFO"] < 1:
+            raise AssertionError
+        if summary["level_distribution"]["ERROR"] < 1:
+            raise AssertionError
 
     def test_get_summary_with_error_tracking(self):
         """Test summary with error rate tracking."""
@@ -816,10 +914,14 @@ class TestLogAggregator:
 
         summary = aggregator.get_summary()
 
-        assert "error_rate" in summary
-        assert "error_count" in summary
-        assert summary["error_count"] == 3
-        assert summary["error_rate"] == 0.3  # 3/10
+        if "error_rate" not in summary:
+            raise AssertionError
+        if "error_count" not in summary:
+            raise AssertionError
+        if summary["error_count"] != 3:
+            raise AssertionError
+        if summary["error_rate"] != 0.3:
+            raise AssertionError
 
     def test_clear_entries(self):
         """Test clearing old entries."""
@@ -844,7 +946,8 @@ class TestLogAggregator:
 
         # Should keep entries that are less than 150 seconds old
         remaining = len(aggregator._entries)
-        assert remaining < 5
+        if remaining >= 5:
+            raise AssertionError
 
 
 class TestLogAnalyzer:
@@ -856,8 +959,10 @@ class TestLogAnalyzer:
 
         result = LogAnalyzer.detect_anomalies(entries)
 
-        assert result["anomalies_detected"] is False
-        assert result["reason"] == "Insufficient data"
+        if result["anomalies_detected"] is not False:
+            raise AssertionError
+        if result["reason"] != "Insufficient data":
+            raise AssertionError
 
     def test_detect_anomalies_no_baseline(self):
         """Test anomaly detection with no baseline data."""
@@ -870,8 +975,10 @@ class TestLogAnalyzer:
 
         result = LogAnalyzer.detect_anomalies(entries, baseline_window=3600)
 
-        assert result["anomalies_detected"] is False
-        assert result["reason"] == "No baseline data"
+        if result["anomalies_detected"] is not False:
+            raise AssertionError
+        if result["reason"] != "No baseline data":
+            raise AssertionError
 
     def test_detect_anomalies_normal_rate(self):
         """Test anomaly detection with normal error rate."""
@@ -890,8 +997,10 @@ class TestLogAnalyzer:
 
         result = LogAnalyzer.detect_anomalies(entries, baseline_window=150)
 
-        assert result["anomalies_detected"] is False
-        assert result["recent_error_rate"] <= result["threshold"]
+        if result["anomalies_detected"] is not False:
+            raise AssertionError
+        if result["recent_error_rate"] > result["threshold"]:
+            raise AssertionError
 
     def test_generate_report(self):
         """Test generating human-readable report."""
@@ -911,10 +1020,14 @@ class TestLogAnalyzer:
 
         report = LogAnalyzer.generate_report(aggregator)
 
-        assert "LOG ANALYSIS REPORT" in report
-        assert "Total Entries: 10" in report
-        assert "ERROR: 2" in report
-        assert "INFO: 8" in report
+        if "LOG ANALYSIS REPORT" not in report:
+            raise AssertionError
+        if "Total Entries: 10" not in report:
+            raise AssertionError
+        if "ERROR: 2" not in report:
+            raise AssertionError
+        if "INFO: 8" not in report:
+            raise AssertionError
 
 
 class TestContextManagement:
@@ -935,15 +1048,19 @@ class TestContextManagement:
         set_log_context(new_context)
 
         retrieved = get_log_context()
-        assert retrieved.correlation_id == "test-123"
+        if retrieved.correlation_id != "test-123":
+            raise AssertionError
 
         # Test updating context
         update_log_context(user_id="user-456", custom_field="custom_value")
 
         updated = get_log_context()
-        assert updated.correlation_id == "test-123"
-        assert updated.user_id == "user-456"
-        assert updated.metadata["custom_field"] == "custom_value"
+        if updated.correlation_id != "test-123":
+            raise AssertionError
+        if updated.user_id != "user-456":
+            raise AssertionError
+        if updated.metadata["custom_field"] != "custom_value":
+            raise AssertionError
 
     def test_log_context_context_manager(self):
         """Test log_context context manager."""
@@ -955,20 +1072,26 @@ class TestContextManagement:
 
         with log_context(correlation_id="temp-123", user_id="temp-user"):
             temp_context = get_log_context()
-            assert temp_context.correlation_id == "temp-123"
-            assert temp_context.user_id == "temp-user"
+            if temp_context.correlation_id != "temp-123":
+                raise AssertionError
+            if temp_context.user_id != "temp-user":
+                raise AssertionError
 
         # Context should be restored
         restored_context = get_log_context()
-        assert restored_context.correlation_id == original_correlation_id
+        if restored_context.correlation_id != original_correlation_id:
+            raise AssertionError
 
     def test_log_context_with_metadata(self):
         """Test log_context with metadata fields."""
         with log_context(correlation_id="test", custom_field="custom", another="value"):
             context = get_log_context()
-            assert context.correlation_id == "test"
-            assert context.metadata["custom_field"] == "custom"
-            assert context.metadata["another"] == "value"
+            if context.correlation_id != "test":
+                raise AssertionError
+            if context.metadata["custom_field"] != "custom":
+                raise AssertionError
+            if context.metadata["another"] != "value":
+                raise AssertionError
 
     def test_generate_correlation_id(self):
         """Test correlation ID generation."""
@@ -977,9 +1100,12 @@ class TestContextManagement:
 
         assert isinstance(id1, str)
         assert isinstance(id2, str)
-        assert id1 != id2
-        assert len(id1) > 0
-        assert len(id2) > 0
+        if id1 == id2:
+            raise AssertionError
+        if len(id1) <= 0:
+            raise AssertionError
+        if len(id2) <= 0:
+            raise AssertionError
 
 
 class TestConvenienceFunctions:
@@ -990,7 +1116,8 @@ class TestConvenienceFunctions:
         logger = get_logger("test_logger")
 
         assert isinstance(logger, logging.Logger)
-        assert logger.name == "test_logger"
+        if logger.name != "test_logger":
+            raise AssertionError
 
     def test_configure_logging_function(self):
         """Test configure_logging convenience function."""
@@ -1012,21 +1139,24 @@ class TestConvenienceFunctions:
 
         assert isinstance(aggregator, LogAggregator)
         # Should return same instance on subsequent calls
-        assert aggregator is get_log_aggregator()
+        if aggregator is not get_log_aggregator():
+            raise AssertionError
 
     def test_get_log_analysis_report_function(self):
         """Test get_log_analysis_report convenience function."""
         report = get_log_analysis_report()
 
         assert isinstance(report, str)
-        assert "LOG ANALYSIS REPORT" in report
+        if "LOG ANALYSIS REPORT" not in report:
+            raise AssertionError
 
     def test_detect_log_anomalies_function(self):
         """Test detect_log_anomalies convenience function."""
         result = detect_log_anomalies()
 
         assert isinstance(result, dict)
-        assert "anomalies_detected" in result
+        if "anomalies_detected" not in result:
+            raise AssertionError
         assert isinstance(result["anomalies_detected"], bool)
 
 
@@ -1035,27 +1165,35 @@ class TestCustomLogLevels:
 
     def test_trace_level_constant(self):
         """Test TRACE level constant."""
-        assert TRACE_LEVEL == 5
-        assert logging.getLevelName(TRACE_LEVEL) == "TRACE"
+        if TRACE_LEVEL != 5:
+            raise AssertionError
+        if logging.getLevelName(TRACE_LEVEL) != "TRACE":
+            raise AssertionError
 
     def test_verbose_level_constant(self):
         """Test VERBOSE level constant."""
-        assert VERBOSE_LEVEL == 15
-        assert logging.getLevelName(VERBOSE_LEVEL) == "VERBOSE"
+        if VERBOSE_LEVEL != 15:
+            raise AssertionError
+        if logging.getLevelName(VERBOSE_LEVEL) != "VERBOSE":
+            raise AssertionError
 
     def test_trace_method_added_to_logger(self):
         """Test that trace method is added to Logger class."""
         logger = logging.getLogger("test")
 
-        assert hasattr(logger, "trace")
-        assert callable(logger.trace)
+        if not hasattr(logger, "trace"):
+            raise AssertionError
+        if not callable(logger.trace):
+            raise AssertionError
 
     def test_verbose_method_added_to_logger(self):
         """Test that verbose method is added to Logger class."""
         logger = logging.getLogger("test")
 
-        assert hasattr(logger, "verbose")
-        assert callable(logger.verbose)
+        if not hasattr(logger, "verbose"):
+            raise AssertionError
+        if not callable(logger.verbose):
+            raise AssertionError
 
     def test_trace_logging_functionality(self):
         """Test trace logging functionality."""
@@ -1155,7 +1293,8 @@ class TestIntegrationScenarios:
 
         # Each thread should have maintained its own context
         for i in range(5):
-            assert results[i] == f"thread-{i}"
+            if results[i] != f"thread-{i}":
+                raise AssertionError
 
     def test_performance_under_load(self):
         """Test performance characteristics under load."""
@@ -1177,7 +1316,8 @@ class TestIntegrationScenarios:
         duration = end_time - start_time
 
         # Should complete reasonably quickly (adjust threshold as needed)
-        assert duration < 1.0  # Less than 1 second for 1000 entries
+        if duration >= 1.0:
+            raise AssertionError
         assert len(aggregator._entries) == 1000
 
         # Summary generation should also be fast
@@ -1185,5 +1325,7 @@ class TestIntegrationScenarios:
         summary = aggregator.get_summary()
         summary_duration = time.time() - summary_start
 
-        assert summary_duration < 0.5  # Less than 500ms for summary
-        assert summary["total_entries"] == 1000
+        if summary_duration >= 0.5:
+            raise AssertionError
+        if summary["total_entries"] != 1000:
+            raise AssertionError

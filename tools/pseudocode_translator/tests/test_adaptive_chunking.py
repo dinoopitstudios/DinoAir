@@ -22,7 +22,8 @@ def test_adaptive_increases_when_fast():
     )
     # Initial decision initializes and returns current
     cur = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert cur == 500
+    if cur != 500:
+        raise AssertionError
 
     # Fast observed latency below lower band => should increase by 20% (100)
     sizer.update_feedback(
@@ -32,7 +33,8 @@ def test_adaptive_increases_when_fast():
         model_tps=None,
     )
     nxt = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert nxt == 600, f"Expected increase to 600, got {nxt}"
+    if nxt != 600:
+        raise AssertionError(f"Expected increase to 600, got {nxt}")
 
 
 def test_adaptive_decreases_when_slow():
@@ -47,7 +49,8 @@ def test_adaptive_decreases_when_slow():
         initial_size=500,
     )
     cur = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert cur == 500
+    if cur != 500:
+        raise AssertionError
 
     # Slow observed latency above upper band => should decrease by 20% (100)
     sizer.update_feedback(
@@ -57,7 +60,8 @@ def test_adaptive_decreases_when_slow():
         model_tps=None,
     )
     nxt = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert nxt == 400, f"Expected decrease to 400, got {nxt}"
+    if nxt != 400:
+        raise AssertionError(f"Expected decrease to 400, got {nxt}")
 
 
 def test_hysteresis_prevents_oscillation():
@@ -72,7 +76,8 @@ def test_hysteresis_prevents_oscillation():
         initial_size=500,
     )
     cur = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert cur == 500
+    if cur != 500:
+        raise AssertionError
 
     # Within band => no change
     sizer.update_feedback(
@@ -82,7 +87,8 @@ def test_hysteresis_prevents_oscillation():
         model_tps=None,
     )
     nxt = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert nxt == 500, f"Expected no change within hysteresis band, got {nxt}"
+    if nxt != 500:
+        raise AssertionError(f"Expected no change within hysteresis band, got {nxt}")
 
 
 def test_respects_min_max_bounds():
@@ -98,7 +104,8 @@ def test_respects_min_max_bounds():
         initial_size=950,
     )
     cur = sizer_inc.get_next_chunk_size(default_chunk_size=950)
-    assert cur == 950
+    if cur != 950:
+        raise AssertionError
     # Very fast => tries to increase to 1425 but should clamp to 1000
     sizer_inc.update_feedback(
         last_chunk_chars=cur,
@@ -107,7 +114,8 @@ def test_respects_min_max_bounds():
         model_tps=None,
     )
     nxt = sizer_inc.get_next_chunk_size(default_chunk_size=950)
-    assert nxt == 1000
+    if nxt != 1000:
+        raise AssertionError
 
     # Lower bound clamp on decrease
     sizer_dec = AdaptiveChunkSizer(
@@ -121,7 +129,8 @@ def test_respects_min_max_bounds():
         initial_size=120,
     )
     cur2 = sizer_dec.get_next_chunk_size(default_chunk_size=120)
-    assert cur2 == 120
+    if cur2 != 120:
+        raise AssertionError
     # Very slow => tries to decrease to 60 but should clamp to 100
     sizer_dec.update_feedback(
         last_chunk_chars=cur2,
@@ -130,7 +139,8 @@ def test_respects_min_max_bounds():
         model_tps=None,
     )
     nxt2 = sizer_dec.get_next_chunk_size(default_chunk_size=120)
-    assert nxt2 == 100
+    if nxt2 != 100:
+        raise AssertionError
 
 
 def test_backpressure_blocks_increase():
@@ -145,7 +155,8 @@ def test_backpressure_blocks_increase():
         initial_size=500,
     )
     cur = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert cur == 500
+    if cur != 500:
+        raise AssertionError
 
     # Fast but queue utilization high => no increase
     sizer.update_feedback(
@@ -155,7 +166,8 @@ def test_backpressure_blocks_increase():
         model_tps=None,
     )
     nxt = sizer.get_next_chunk_size(default_chunk_size=500)
-    assert nxt == 500, f"Expected no increase due to backpressure, got {nxt}"
+    if nxt != 500:
+        raise AssertionError(f"Expected no increase due to backpressure, got {nxt}")
 
 
 def test_disabled_feature_no_change(monkeypatch):
@@ -201,7 +213,8 @@ def test_disabled_feature_no_change(monkeypatch):
         _ = list(pipeline.stream_translate(input_text))
 
         # No adaptation decision events should be present when disabled
-        assert all(e.type != EventType.STREAM_ADAPTATION_DECISION for e in events)
+        if not all(e.type != EventType.STREAM_ADAPTATION_DECISION for e in events):
+            raise AssertionError
     finally:
         manager.shutdown()
 
@@ -255,11 +268,13 @@ def test_events_emitted_on_adjustment(monkeypatch):
 
         # Execute streaming
         results = list(pipeline.stream_translate(input_text))
-        assert len(results) >= 2
+        if len(results) < 2:
+            raise AssertionError
 
         # There should be at least one adaptation decision event (increase expected)
         adapt_events = [e for e in events if e.type == EventType.STREAM_ADAPTATION_DECISION]
-        assert len(adapt_events) >= 1
+        if len(adapt_events) < 1:
+            raise AssertionError
         # Validate payload keys presence on the last event
         payload = adapt_events[-1].data
         for key in (
@@ -271,6 +286,7 @@ def test_events_emitted_on_adjustment(monkeypatch):
             "backpressure_util",
             "cooldown_remaining",
         ):
-            assert key in payload
+            if key not in payload:
+                raise AssertionError
     finally:
         manager.shutdown()
