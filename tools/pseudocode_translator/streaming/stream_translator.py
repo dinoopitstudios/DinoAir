@@ -6,10 +6,10 @@ via consolidated parse+translate helpers.
 """
 
 import asyncio
-from collections.abc import AsyncIterator, Callable, Iterator
 import logging
-from queue import Queue
 import threading
+from collections.abc import AsyncIterator, Callable, Iterator
+from queue import Queue
 from typing import Any
 
 from ..config import TranslatorConfig
@@ -42,7 +42,6 @@ from .translator_core import (
     translate_block,
     translate_chunk_blocks,
 )
-
 
 logger = logging.getLogger(__name__)
 

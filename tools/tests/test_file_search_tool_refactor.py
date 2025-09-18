@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -46,7 +45,8 @@ def test_search_files_by_keywords_success(fsdb_stub: FSDBStub) -> None:
 
 
 def test_get_file_info_not_found(fsdb_stub: FSDBStub) -> None:
-    fsdb_stub.get_file_by_path = fsdb_stub._files.get  # type: ignore[assignment]
+    # type: ignore[assignment]
+    fsdb_stub.get_file_by_path = fsdb_stub._files.get
     resp = fst.get_file_info("/no/such/file.txt")
     assert resp["success"] is False
     assert resp["error"] == "File not found in index: /no/such/file.txt"
@@ -162,7 +162,8 @@ def test_get_file_embeddings_success(fsdb_stub: FSDBStub, tmp_path: Path) -> Non
             ]
         return []
 
-    fsdb_stub.get_embeddings_by_file_func = _fake_embeddings_by_file  # type: ignore[attr-defined]
+    # type: ignore[attr-defined]
+    fsdb_stub.get_embeddings_by_file_func = _fake_embeddings_by_file
 
     resp = fst.get_file_embeddings(str(p))
     assert resp["success"] is True

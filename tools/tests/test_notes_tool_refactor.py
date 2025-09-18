@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-
 if TYPE_CHECKING:
     from tools.tests.helpers.db_stubs import NotesDBStub
 
@@ -34,7 +33,8 @@ def test_create_note_success(notesdb_stub: NotesDBStub) -> None:
             "message": "Note created successfully",
         }
 
-    notesdb_stub._create_note_override = _fake_create  # type: ignore[attr-defined]
+    # type: ignore[attr-defined]
+    notesdb_stub._create_note_override = _fake_create
 
     resp = nt.create_note("Title", "Body", tags=["a", "b"], project_id="P1")
     assert resp["success"] is True

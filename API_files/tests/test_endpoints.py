@@ -3,19 +3,18 @@ from __future__ import annotations
 import os
 from typing import Any
 
+import pytest
+from fastapi.testclient import TestClient
+
 from api.app import app, create_app  # noqa: E402
 from api.metrics_state import snapshot as metrics_snapshot  # noqa: E402
-from fastapi.testclient import TestClient
-import pytest
-
 from api.services import router_client  # noqa: E402
 from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,  # noqa: E402
 )
-
+from core_router.errors import ValidationError as CoreValidationError  # noqa: E402
 
 # Ensure dev/docs and auth are consistently set for this test module
 os.environ.setdefault("DINOAIR_ENV", "dev")
