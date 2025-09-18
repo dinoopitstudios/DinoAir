@@ -3,10 +3,10 @@ Unit tests for process.py module.
 Tests secure subprocess execution with safety validations and error handling.
 """
 
-from pathlib import Path
 import subprocess
 import tempfile
 import time
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest

@@ -2,9 +2,9 @@
 Integration tests for migration system with DatabaseManager.
 """
 
-from pathlib import Path
 import sqlite3
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -40,12 +40,10 @@ class TestDatabaseManagerMigrations:
             cursor = conn.cursor()
 
             # Check that the migrations table exists
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='schema_migrations'
-            """
-            )
+            """)
             migrations_table = cursor.fetchone()
             assert migrations_table is not None
 
@@ -105,12 +103,10 @@ class TestDatabaseManagerMigrations:
                 cursor = conn.cursor()
 
                 # Table should still be created by schema DDLs
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT name FROM sqlite_master
                     WHERE type='table' AND name='note_list'
-                """
-                )
+                """)
                 if cursor.fetchone() is None:
                     raise AssertionError
 
@@ -132,8 +128,7 @@ class TestDatabaseManagerMigrations:
         with db_manager1.get_notes_connection() as conn:
             # Record a migration manually
             cursor = conn.cursor()
-            cursor.execute(
-                """
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS schema_migrations (
                     version TEXT NOT NULL,
                     name TEXT NOT NULL,
@@ -142,15 +137,12 @@ class TestDatabaseManagerMigrations:
                     checksum TEXT DEFAULT NULL,
                     PRIMARY KEY (version, name)
                 )
-            """
-            )
-            cursor.execute(
-                """
+            """)
+            cursor.execute("""
                 INSERT OR IGNORE INTO schema_migrations
                 (version, name, applied_at, description)
                 VALUES ('001', 'add_notes_project_id', '2024-01-01T00:00:00', 'Test')
-            """
-            )
+            """)
             conn.commit()
 
         # Reset mock to count new calls
@@ -200,22 +192,18 @@ class TestDatabaseManagerMigrations:
             cursor = conn.cursor()
 
             # Check that test table was created
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='test_migration_table'
-            """
-            )
+            """)
             if cursor.fetchone() is None:
                 raise AssertionError
 
             # Check that migration was recorded
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT version, name FROM schema_migrations
                 WHERE version = '999' AND name = 'test_migration'
-            """
-            )
+            """)
             if cursor.fetchone() is None:
                 raise AssertionError
 

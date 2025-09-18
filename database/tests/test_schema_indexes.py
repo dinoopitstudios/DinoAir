@@ -153,9 +153,7 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
     }
     missing_collections = expected_collections - collections_idx
     if missing_collections:
-        raise AssertionError(
-            f"Missing artifact_collections indexes: {sorted(missing_collections)}"
-        )
+        raise AssertionError(f"Missing artifact_collections indexes: {sorted(missing_collections)}")
 
     permissions_idx = _index_names_for_table(conn, "artifact_permissions")
     expected_permissions = {
@@ -164,9 +162,7 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
     }
     missing_permissions = expected_permissions - permissions_idx
     if missing_permissions:
-        raise AssertionError(
-            f"Missing artifact_permissions indexes: {sorted(missing_permissions)}"
-        )
+        raise AssertionError(f"Missing artifact_permissions indexes: {sorted(missing_permissions)}")
 
 
 @pytest.mark.integration

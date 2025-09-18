@@ -12,7 +12,6 @@ import pytest
 from database.notes_service import NotesService, OperationResult
 from models.note import Note
 
-
 pytestmark = pytest.mark.skip(
     reason="Deprecated mock-heavy unit tests; superseded by real integration tests hitting SQLite."
 )
