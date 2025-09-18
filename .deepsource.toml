@@ -1,5 +1,10 @@
 version = 1
 
+test_patterns = [
+  "tests",
+  "test_results"
+]
+
 [[analyzers]]
 name = "test-coverage"
 
@@ -10,7 +15,8 @@ name = "javascript"
   plugins = ["react"]
   environment = [
     "nodejs",
-    "browser"
+    "browser",
+    "jest"
   ]
 
 [[analyzers]]
@@ -39,3 +45,6 @@ name = "autopep8"
 
 [[transformers]]
 name = "standardjs"
+
+[[transformers]]
+name = "yapf"
