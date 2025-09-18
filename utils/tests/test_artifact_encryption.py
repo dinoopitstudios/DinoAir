@@ -16,7 +16,8 @@ class TestArtifactEncryption:
         password = "test_password"
         encryptor = ArtifactEncryption(password)
 
-        assert encryptor.password == password
+        if encryptor.password != password:
+            raise AssertionError
 
     def test_initialization_without_password(self):
         """Test initialization without password."""
@@ -61,13 +62,17 @@ class TestArtifactEncryption:
         # Encrypt
         encrypted = encryptor.encrypt_data(data)
         assert isinstance(encrypted, dict)
-        assert "data" in encrypted
-        assert "salt" in encrypted
-        assert "iv" in encrypted
+        if "data" not in encrypted:
+            raise AssertionError
+        if "salt" not in encrypted:
+            raise AssertionError
+        if "iv" not in encrypted:
+            raise AssertionError
 
         # Decrypt
         decrypted = encryptor.decrypt_data(encrypted)
-        assert decrypted.decode("utf-8") == data
+        if decrypted.decode("utf-8") != data:
+            raise AssertionError
 
     def test_encrypt_decrypt_data_bytes(self):
         """Test encrypting and decrypting bytes data."""
@@ -81,7 +86,8 @@ class TestArtifactEncryption:
 
         # Decrypt
         decrypted = encryptor.decrypt_data(encrypted)
-        assert decrypted == data
+        if decrypted != data:
+            raise AssertionError
 
     def test_encrypt_data_invalid_type(self):
         """Test encrypting invalid data type."""
@@ -126,7 +132,8 @@ class TestArtifactEncryption:
 
         # Decrypt with key
         decrypted = encryptor.decrypt_data(encrypted, key)
-        assert decrypted.decode("utf-8") == data
+        if decrypted.decode("utf-8") != data:
+            raise AssertionError
 
     def test_encrypt_fields(self):
         """Test encrypting specific fields in a dictionary."""
@@ -143,15 +150,22 @@ class TestArtifactEncryption:
         encrypted_data = encryptor.encrypt_fields(data, fields_to_encrypt)
 
         # Check that specified fields are encrypted
-        assert encrypted_data["name"] != "John Doe"
-        assert encrypted_data["email"] != "john@example.com"
-        assert encrypted_data["id"] == "123"  # Not encrypted
-        assert encrypted_data["public_info"] == "This is public"  # Not encrypted
+        if encrypted_data["name"] == "John Doe":
+            raise AssertionError
+        if encrypted_data["email"] == "john@example.com":
+            raise AssertionError
+        if encrypted_data["id"] != "123":
+            raise AssertionError
+        if encrypted_data["public_info"] != "This is public":
+            raise AssertionError
 
         # Check encryption metadata
-        assert "_encryption_info" in encrypted_data
-        assert "name" in encrypted_data["_encryption_info"]
-        assert "email" in encrypted_data["_encryption_info"]
+        if "_encryption_info" not in encrypted_data:
+            raise AssertionError
+        if "name" not in encrypted_data["_encryption_info"]:
+            raise AssertionError
+        if "email" not in encrypted_data["_encryption_info"]:
+            raise AssertionError
 
     def test_decrypt_fields(self):
         """Test decrypting specific fields in a dictionary."""
@@ -164,10 +178,14 @@ class TestArtifactEncryption:
         # Decrypt
         decrypted_data = encryptor.decrypt_fields(encrypted_data, ["name", "email"])
 
-        assert decrypted_data["name"] == "John Doe"
-        assert decrypted_data["email"] == "john@example.com"
-        assert decrypted_data["id"] == "123"
-        assert "_encryption_info" not in decrypted_data
+        if decrypted_data["name"] != "John Doe":
+            raise AssertionError
+        if decrypted_data["email"] != "john@example.com":
+            raise AssertionError
+        if decrypted_data["id"] != "123":
+            raise AssertionError
+        if "_encryption_info" in decrypted_data:
+            raise AssertionError
 
     def test_encrypt_artifact_fields(self):
         """Test encrypting artifact fields."""
@@ -183,10 +201,14 @@ class TestArtifactEncryption:
         encryptor = ArtifactEncryption(password)
         encrypted = encryptor.encrypt_artifact_fields(artifact, ["content", "author"])
 
-        assert encrypted["content"] != "This is confidential content"
-        assert encrypted["author"] != "John Doe"
-        assert encrypted["title"] == "Secret Document"  # Not encrypted
-        assert encrypted["encrypted_fields"] == "content,author"
+        if encrypted["content"] == "This is confidential content":
+            raise AssertionError
+        if encrypted["author"] == "John Doe":
+            raise AssertionError
+        if encrypted["title"] != "Secret Document":
+            raise AssertionError
+        if encrypted["encrypted_fields"] != "content,author":
+            raise AssertionError
 
     def test_decrypt_artifact_fields(self):
         """Test decrypting artifact fields."""
@@ -203,10 +225,14 @@ class TestArtifactEncryption:
         encrypted = encryptor.encrypt_artifact_fields(artifact, ["content", "author"])
         decrypted = encryptor.decrypt_artifact_fields(encrypted)
 
-        assert decrypted["content"] == "This is confidential content"
-        assert decrypted["author"] == "John Doe"
-        assert decrypted["title"] == "Secret Document"
-        assert "encrypted_fields" not in decrypted
+        if decrypted["content"] != "This is confidential content":
+            raise AssertionError
+        if decrypted["author"] != "John Doe":
+            raise AssertionError
+        if decrypted["title"] != "Secret Document":
+            raise AssertionError
+        if "encrypted_fields" in decrypted:
+            raise AssertionError
 
     def test_decrypt_artifact_no_encrypted_fields(self):
         """Test decrypting artifact with no encrypted fields."""
@@ -215,7 +241,8 @@ class TestArtifactEncryption:
         encryptor = ArtifactEncryption("password")
         result = encryptor.decrypt_artifact_fields(artifact)
 
-        assert result == artifact
+        if result != artifact:
+            raise AssertionError
 
     def test_generate_encryption_key_id(self):
         """Test generating encryption key ID."""
@@ -225,8 +252,10 @@ class TestArtifactEncryption:
         key_id2 = encryptor.generate_encryption_key_id()
 
         assert isinstance(key_id1, str)
-        assert len(key_id1) > 0
-        assert key_id1 != key_id2  # Should be unique
+        if len(key_id1) <= 0:
+            raise AssertionError
+        if key_id1 == key_id2:
+            raise AssertionError
 
     def test_rotate_encryption(self):
         """Test rotating encryption with new password."""
@@ -245,8 +274,10 @@ class TestArtifactEncryption:
         new_encryptor = ArtifactEncryption(new_password)
         decrypted = new_encryptor.decrypt_fields(rotated, ["secret"])
 
-        assert decrypted["secret"] == "This is secret data"
-        assert decrypted["id"] == "123"
+        if decrypted["secret"] != "This is secret data":
+            raise AssertionError
+        if decrypted["id"] != "123":
+            raise AssertionError
 
     def test_encrypt_complex_data_types(self):
         """Test encrypting complex data types (dict, list)."""
@@ -261,7 +292,8 @@ class TestArtifactEncryption:
 
         # Should be able to decrypt back
         decrypted = encryptor.decrypt_fields(encrypted, ["metadata"])
-        assert decrypted["metadata"] == data["metadata"]
+        if decrypted["metadata"] != data["metadata"]:
+            raise AssertionError
 
 
 class TestConvenienceFunctions:
@@ -286,7 +318,8 @@ class TestConvenienceFunctions:
         encrypted = encrypt_text(original_text, password)
         decrypted = decrypt_text(encrypted, password)
 
-        assert decrypted == original_text
+        if decrypted != original_text:
+            raise AssertionError
 
     def test_encrypt_decrypt_text_roundtrip(self):
         """Test full roundtrip of encrypt/decrypt text."""
@@ -301,7 +334,8 @@ class TestConvenienceFunctions:
         for text in test_cases:
             encrypted = encrypt_text(text, password)
             decrypted = decrypt_text(encrypted, password)
-            assert decrypted == text
+            if decrypted != text:
+                raise AssertionError
 
 
 class TestArtifactEncryptionIntegration:
@@ -330,21 +364,31 @@ class TestArtifactEncryptionIntegration:
         encrypted_artifact = encryptor.encrypt_artifact_fields(artifact, sensitive_fields)
 
         # Verify encryption
-        assert encrypted_artifact["content"] != artifact["content"]
-        assert encrypted_artifact["author"] != artifact["author"]
-        assert encrypted_artifact["summary"] == artifact["summary"]  # Not encrypted
-        assert encrypted_artifact["attachments"] == artifact["attachments"]  # Not encrypted
+        if encrypted_artifact["content"] == artifact["content"]:
+            raise AssertionError
+        if encrypted_artifact["author"] == artifact["author"]:
+            raise AssertionError
+        if encrypted_artifact["summary"] != artifact["summary"]:
+            raise AssertionError
+        if encrypted_artifact["attachments"] != artifact["attachments"]:
+            raise AssertionError
 
         # Decrypt
         decrypted_artifact = encryptor.decrypt_artifact_fields(encrypted_artifact)
 
         # Verify decryption
-        assert decrypted_artifact["content"] == artifact["content"]
-        assert decrypted_artifact["author"] == artifact["author"]
-        assert decrypted_artifact["reviewer"] == artifact["reviewer"]
-        assert decrypted_artifact["metadata"] == artifact["metadata"]
-        assert decrypted_artifact["summary"] == artifact["summary"]
-        assert decrypted_artifact["attachments"] == artifact["attachments"]
+        if decrypted_artifact["content"] != artifact["content"]:
+            raise AssertionError
+        if decrypted_artifact["author"] != artifact["author"]:
+            raise AssertionError
+        if decrypted_artifact["reviewer"] != artifact["reviewer"]:
+            raise AssertionError
+        if decrypted_artifact["metadata"] != artifact["metadata"]:
+            raise AssertionError
+        if decrypted_artifact["summary"] != artifact["summary"]:
+            raise AssertionError
+        if decrypted_artifact["attachments"] != artifact["attachments"]:
+            raise AssertionError
 
     def test_multiple_encryptors_same_password(self):
         """Test that different encryptor instances with same password work together."""
@@ -360,7 +404,8 @@ class TestArtifactEncryptionIntegration:
         # Decrypt with second encryptor
         decrypted = encryptor2.decrypt_data(encrypted)
 
-        assert decrypted.decode("utf-8") == data
+        if decrypted.decode("utf-8") != data:
+            raise AssertionError
 
     def test_different_passwords_isolation(self):
         """Test that different passwords produce different results."""
@@ -375,8 +420,10 @@ class TestArtifactEncryptionIntegration:
         encrypted2 = encryptor2.encrypt_data(data)
 
         # Should be different
-        assert encrypted1["data"] != encrypted2["data"]
-        assert encrypted1["salt"] != encrypted2["salt"]
+        if encrypted1["data"] == encrypted2["data"]:
+            raise AssertionError
+        if encrypted1["salt"] == encrypted2["salt"]:
+            raise AssertionError
 
         # Should not be decryptable with wrong password
         with pytest.raises(Exception):  # Cryptography will raise an exception
@@ -397,12 +444,14 @@ class TestArtifactEncryptionIntegration:
         # Should handle empty string
         encrypted = encryptor.encrypt_fields(data, ["empty_string"])
         decrypted = encryptor.decrypt_fields(encrypted, ["empty_string"])
-        assert decrypted["empty_string"] == ""
+        if decrypted["empty_string"] != "":
+            raise AssertionError
 
         # Should handle None value
         encrypted = encryptor.encrypt_fields(data, ["none_value"])
         decrypted = encryptor.decrypt_fields(encrypted, ["none_value"])
-        assert decrypted["none_value"] is None
+        if decrypted["none_value"] is not None:
+            raise AssertionError
 
 
 class TestErrorHandling:

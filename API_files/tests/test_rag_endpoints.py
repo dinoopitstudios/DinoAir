@@ -159,12 +159,14 @@ def real_router(monkeypatch: pytest.MonkeyPatch) -> Any:
 
 def _assert_envelope_ok(body: dict[str, Any]) -> None:
     assert isinstance(body, dict)
-    assert "success" in body
+    if "success" not in body:
+        raise AssertionError
     if "code" in body and body["code"] == 501:
         # Feature gracefully unavailable is acceptable
         return
     # Otherwise success must be True to pass
-    assert body.get("success") in (True, False)
+    if body.get("success") not in (True, False):
+        raise AssertionError
     # Either success True or 501 code acceptable; if success is False without 501, still counted as handled envelope
     # but endpoints should not raise non-2xx in our tests.
 
@@ -185,11 +187,13 @@ def test_rag_post_endpoints_envelope_200(
     client: TestClient, real_router: Any, endpoint: str, payload: dict[str, Any]
 ):
     r = client.post(endpoint, json=payload, headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     assert isinstance(body, dict)
     # All /rag endpoints should return an envelope dict with at least "success"
-    assert "success" in body
+    if "success" not in body:
+        raise AssertionError
     # Accept success True, or success False with code 501 (feature unavailable), or general handled failure shape
     if "code" in body and body["code"] == 501:
         return
@@ -204,14 +208,16 @@ def test_rag_post_endpoints_envelope_200(
 def test_rag_monitor_stop_200(client: TestClient, real_router: Any):
     # Provide an empty JSON body to satisfy ContentTypeJSONMiddleware (requires application/json on POST)
     r = client.post("/rag/monitor/stop", json={}, headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     _assert_envelope_ok(body)
 
 
 def test_rag_monitor_status_200(client: TestClient, real_router: Any):
     r = client.get("/rag/monitor/status", headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     _assert_envelope_ok(body)
 
@@ -219,21 +225,26 @@ def test_rag_monitor_status_200(client: TestClient, real_router: Any):
 def test_openapi_contains_rag_routes(client: TestClient):
     r = client.get("/openapi.json")
     # dev flag is enabled; accept 200 or 404 for robustness
-    assert r.status_code in (200, 404)
+    if r.status_code not in (200, 404):
+        raise AssertionError
     if r.status_code == 200:
         body = r.json()
         assert isinstance(body, dict)
         paths = body.get("paths", {}) or {}
         # Ensure at least one rag path present
-        assert any(k.startswith("/rag/") for k in paths)
-        assert "/rag/context" in paths
+        if not any(k.startswith("/rag/") for k in paths):
+            raise AssertionError
+        if "/rag/context" not in paths:
+            raise AssertionError
 
 
 def test_file_search_keyword_smoke(client: TestClient):
     # Backward-compatible /file-search/* smoke: minimal request, do not assert domain data.
     r = client.post("/file-search/keyword", json={"query": "foo", "top_k": 1}, headers=GOOD_AUTH)
-    assert r.status_code == 200
+    if r.status_code != 200:
+        raise AssertionError
     body = r.json()
     assert isinstance(body, dict)
     # Shape check only
-    assert "hits" in body or "success" in body
+    if not ("hits" in body or "success" in body):
+        raise AssertionError

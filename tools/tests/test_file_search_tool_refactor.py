@@ -19,9 +19,12 @@ except Exception:
 
 def test_search_files_by_keywords_error_empty() -> None:
     resp = fst.search_files_by_keywords([])
-    assert resp["success"] is False
-    assert resp["error"] == "keywords list is required and cannot be empty"
-    assert resp["message"] == "Failed to search: no keywords provided"
+    if resp["success"] is not False:
+        raise AssertionError
+    if resp["error"] != "keywords list is required and cannot be empty":
+        raise AssertionError
+    if resp["message"] != "Failed to search: no keywords provided":
+        raise AssertionError
 
 
 def test_search_files_by_keywords_success(fsdb_stub: FSDBStub) -> None:
@@ -35,21 +38,28 @@ def test_search_files_by_keywords_success(fsdb_stub: FSDBStub) -> None:
     fsdb_stub.search_by_keywords = _fake_search  # type: ignore[assignment]
 
     resp = fst.search_files_by_keywords(["alpha", "beta"], limit=2)
-    assert resp["success"] is True
-    assert resp["count"] == 2
+    if resp["success"] is not True:
+        raise AssertionError
+    if resp["count"] != 2:
+        raise AssertionError
     assert isinstance(resp["results"], list)
     assert len(resp["results"]) == 2
-    assert resp["keywords"] == ["alpha", "beta"]
-    assert resp["message"] == "Found 2 matching chunks"
+    if resp["keywords"] != ["alpha", "beta"]:
+        raise AssertionError
+    if resp["message"] != "Found 2 matching chunks":
+        raise AssertionError
 
 
 def test_get_file_info_not_found(fsdb_stub: FSDBStub) -> None:
     # type: ignore[assignment]
     fsdb_stub.get_file_by_path = fsdb_stub._files.get
     resp = fst.get_file_info("/no/such/file.txt")
-    assert resp["success"] is False
-    assert resp["error"] == "File not found in index: /no/such/file.txt"
-    assert resp["message"] == "File '/no/such/file.txt' is not in the search index"
+    if resp["success"] is not False:
+        raise AssertionError
+    if resp["error"] != "File not found in index: /no/such/file.txt":
+        raise AssertionError
+    if resp["message"] != "File '/no/such/file.txt' is not in the search index":
+        raise AssertionError
 
 
 def test_get_file_info_found(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
@@ -59,25 +69,34 @@ def test_get_file_info_found(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
     # Simulate indexing through the API to populate stub
     _ = fst.add_file_to_index(str(p), file_type="txt")
     resp = fst.get_file_info(str(p))
-    assert resp["success"] is True
-    assert "file_info" in resp
+    if resp["success"] is not True:
+        raise AssertionError
+    if "file_info" not in resp:
+        raise AssertionError
     assert isinstance(resp["file_info"], dict)
-    assert resp["message"] == "File information retrieved successfully"
+    if resp["message"] != "File information retrieved successfully":
+        raise AssertionError
 
 
 def test_add_file_to_index_nonexistent_path(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
     missing = tmp_path / "missing.txt"
     resp = fst.add_file_to_index(str(missing))
-    assert resp["success"] is False
-    assert resp["error"] == f"File does not exist: {missing}"
-    assert resp["message"] == f"Cannot index non-existent file: {missing}"
+    if resp["success"] is not False:
+        raise AssertionError
+    if resp["error"] != f"File does not exist: {missing}":
+        raise AssertionError
+    if resp["message"] != f"Cannot index non-existent file: {missing}":
+        raise AssertionError
 
 
 def test_add_file_to_index_directory_instead_of_file(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
     resp = fst.add_file_to_index(str(tmp_path))
-    assert resp["success"] is False
-    assert resp["error"] == f"Path is not a file: {tmp_path}"
-    assert resp["message"] == f"Cannot index directory: {tmp_path}"
+    if resp["success"] is not False:
+        raise AssertionError
+    if resp["error"] != f"Path is not a file: {tmp_path}":
+        raise AssertionError
+    if resp["message"] != f"Cannot index directory: {tmp_path}":
+        raise AssertionError
 
 
 def test_remove_file_from_index_success_and_failure(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
@@ -88,38 +107,50 @@ def test_remove_file_from_index_success_and_failure(fsdb_stub: FSDBStub, tmp_pat
 
     # Success removal
     ok = fst.remove_file_from_index(str(p))
-    assert ok["success"] is True
-    assert ok["message"] == "File removed from index successfully"
+    if ok["success"] is not True:
+        raise AssertionError
+    if ok["message"] != "File removed from index successfully":
+        raise AssertionError
 
     # Failure removal
     bad = fst.remove_file_from_index(str(p))
-    assert bad["success"] is False
-    assert bad["error"] == "File not found in index"
-    assert bad["message"] == "Failed to remove file: File not found in index"
+    if bad["success"] is not False:
+        raise AssertionError
+    if bad["error"] != "File not found in index":
+        raise AssertionError
+    if bad["message"] != "Failed to remove file: File not found in index":
+        raise AssertionError
 
 
 def test_get_search_statistics_success(fsdb_stub: FSDBStub) -> None:
     resp = fst.get_search_statistics()
-    assert resp["success"] is True
-    assert "stats" in resp
+    if resp["success"] is not True:
+        raise AssertionError
+    if "stats" not in resp:
+        raise AssertionError
     assert isinstance(resp["stats"], dict)
-    assert resp["message"] == "Statistics retrieved successfully"
+    if resp["message"] != "Statistics retrieved successfully":
+        raise AssertionError
 
 
 def test_manage_search_directories_invalid_action(fsdb_stub: FSDBStub) -> None:
     resp = fst.manage_search_directories("bogus", "/tmp/dir")
-    assert resp["success"] is False
-    assert (
-        resp["error"]
-        == "Invalid action. Must be one of: ['add_allowed', 'remove_allowed', 'add_excluded', 'remove_excluded', 'get_settings']"
-    )
-    assert resp["message"] == "Invalid action 'bogus' specified"
+    if resp["success"] is not False:
+        raise AssertionError
+    if (
+        resp["error"] != "Invalid action. Must be one of: ['add_allowed', 'remove_allowed', 'add_excluded', 'remove_excluded', 'get_settings']"
+    ):
+        raise AssertionError
+    if resp["message"] != "Invalid action 'bogus' specified":
+        raise AssertionError
 
 
 def test_manage_search_directories_get_settings(fsdb_stub: FSDBStub) -> None:
     resp = fst.manage_search_directories("get_settings", "")
-    assert resp["success"] is True
-    assert "settings" in resp
+    if resp["success"] is not True:
+        raise AssertionError
+    if "settings" not in resp:
+        raise AssertionError
     assert isinstance(resp["settings"], dict)
     s = resp["settings"]
     for key in (
@@ -128,23 +159,31 @@ def test_manage_search_directories_get_settings(fsdb_stub: FSDBStub) -> None:
         "total_allowed",
         "total_excluded",
     ):
-        assert key in s
-    assert resp["message"] == "Directory settings retrieved successfully"
+        if key not in s:
+            raise AssertionError
+    if resp["message"] != "Directory settings retrieved successfully":
+        raise AssertionError
 
 
 def test_optimize_search_database_success(fsdb_stub: FSDBStub) -> None:
     resp = fst.optimize_search_database()
-    assert resp["success"] is True
-    assert "stats" in resp
+    if resp["success"] is not True:
+        raise AssertionError
+    if "stats" not in resp:
+        raise AssertionError
     assert isinstance(resp["stats"], dict)
-    assert resp["message"] == "Database optimized successfully"
+    if resp["message"] != "Database optimized successfully":
+        raise AssertionError
 
 
 def test_get_file_embeddings_error_missing_path(fsdb_stub: FSDBStub) -> None:
     resp = fst.get_file_embeddings("")
-    assert resp["success"] is False
-    assert resp["error"] == "file_path is required"
-    assert resp["message"] == "Failed to get embeddings: file_path is required"
+    if resp["success"] is not False:
+        raise AssertionError
+    if resp["error"] != "file_path is required":
+        raise AssertionError
+    if resp["message"] != "Failed to get embeddings: file_path is required":
+        raise AssertionError
 
 
 def test_get_file_embeddings_success(fsdb_stub: FSDBStub, tmp_path: Path) -> None:
@@ -165,8 +204,11 @@ def test_get_file_embeddings_success(fsdb_stub: FSDBStub, tmp_path: Path) -> Non
     fsdb_stub.get_embeddings_by_file_func = _fake_embeddings_by_file
 
     resp = fst.get_file_embeddings(str(p))
-    assert resp["success"] is True
-    assert resp["count"] == 2
+    if resp["success"] is not True:
+        raise AssertionError
+    if resp["count"] != 2:
+        raise AssertionError
     assert isinstance(resp["embeddings"], list)
     assert len(resp["embeddings"]) == 2
-    assert resp["message"] == "Found 2 embeddings for file"
+    if resp["message"] != "Found 2 embeddings for file":
+        raise AssertionError

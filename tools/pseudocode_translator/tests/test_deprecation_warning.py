@@ -19,6 +19,7 @@ def test_import_llm_interface_emits_deprecation_warning():
         messages = [
             str(w.message).lower() for w in caught if isinstance(w.message, DeprecationWarning)
         ]
-        assert any("deprecated" in msg for msg in messages), (
-            f"No deprecation warning found. Captured: {messages}"
-        )
+        if not any("deprecated" in msg for msg in messages):
+            raise AssertionError(
+                f"No deprecation warning found. Captured: {messages}"
+            )

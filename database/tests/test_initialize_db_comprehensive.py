@@ -34,7 +34,8 @@ class TestDatabaseMigrations:
                 WHERE type='table' AND name='schema_migrations'
             """
             )
-            assert cursor.fetchone() is not None
+            if cursor.fetchone() is None:
+                raise AssertionError
 
             # Verify some expected migrations were applied
             cursor.execute("SELECT name FROM schema_migrations")
@@ -50,7 +51,8 @@ class TestDatabaseMigrations:
             ]
 
             for migration in expected_migrations:
-                assert migration in migrations, f"Migration {migration} not found"
+                if migration not in migrations:
+                    raise AssertionError(f"Migration {migration} not found")
 
     @pytest.mark.slow
     def test_migration_rollback_on_error(self, clean_db_manager):
@@ -71,7 +73,8 @@ class TestDatabaseMigrations:
             # Verify data exists
             cursor.execute("SELECT COUNT(*) FROM note_list")
             count_before = cursor.fetchone()[0]
-            assert count_before > 0
+            if count_before <= 0:
+                raise AssertionError
 
     def test_migration_idempotency(self, clean_db_manager):
         """Test that running migrations multiple times is safe"""
@@ -85,7 +88,8 @@ class TestDatabaseMigrations:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
             table_count = cursor.fetchone()[0]
-            assert table_count > 0
+            if table_count <= 0:
+                raise AssertionError
 
     @pytest.mark.external
     def test_migration_with_permissions_error(self, tmp_path):
@@ -169,11 +173,14 @@ class TestDatabaseBackups:
         backup_time = time.time() - start_time
 
         # Verify backup
-        assert backup_path.exists()
-        assert backup_path.stat().st_size > 0
+        if not backup_path.exists():
+            raise AssertionError
+        if backup_path.stat().st_size <= 0:
+            raise AssertionError
 
         # Backup should complete reasonably quickly
-        assert backup_time < 30.0  # 30 seconds max for test data
+        if backup_time >= 30.0:
+            raise AssertionError
 
     def test_corrupted_database_recovery(self, tmp_path):
         """Test recovery from corrupted database files"""
@@ -194,7 +201,8 @@ class TestDatabaseBackups:
             cursor = conn.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = cursor.fetchall()
-            assert len(tables) > 0
+            if len(tables) <= 0:
+                raise AssertionError
 
 
 @pytest.mark.integration
@@ -210,11 +218,13 @@ class TestDatabaseManagerEdgeCases:
         for invalid_name in invalid_names:
             # Should sanitize or handle gracefully
             manager = DatabaseManager(user_name=invalid_name)
-            assert manager.user_name  # Should have some valid name
+            if not manager.user_name:
+                raise AssertionError
 
             # Should be able to create directory structure
             manager._create_directory_structure()
-            assert manager.user_db_dir.exists()
+            if not manager.user_db_dir.exists():
+                raise AssertionError
 
     @pytest.mark.slow
     def test_concurrent_database_access(self, clean_db_manager):
@@ -268,7 +278,8 @@ class TestDatabaseManagerEdgeCases:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM notes WHERE id LIKE 'thread-%'")
             count = cursor.fetchone()[0]
-            assert count == 5
+            if count != 5:
+                raise AssertionError
 
     def test_database_connection_cleanup(self, clean_db_manager):
         """Test that database connections are properly cleaned up"""
@@ -281,7 +292,8 @@ class TestDatabaseManagerEdgeCases:
             connections.append(conn)
 
         # Verify connections are tracked
-        assert len(manager._active_connections) >= 3
+        if len(manager._active_connections) < 3:
+            raise AssertionError
 
         # Close connections manually
         for conn in connections:
@@ -301,8 +313,10 @@ class TestDatabaseManagerEdgeCases:
 
         # Verify paths are resolved correctly
         expected_db_dir = custom_base / "user_data" / "path_test" / "databases"
-        assert manager.user_db_dir == expected_db_dir
-        assert manager.user_db_dir.exists()
+        if manager.user_db_dir != expected_db_dir:
+            raise AssertionError
+        if not manager.user_db_dir.exists():
+            raise AssertionError
 
         # Verify all database paths are under the correct directory
         db_paths = [
@@ -313,5 +327,7 @@ class TestDatabaseManagerEdgeCases:
         ]
 
         for db_path in db_paths:
-            assert db_path.parent == expected_db_dir
-            assert str(db_path).startswith(str(custom_base))
+            if db_path.parent != expected_db_dir:
+                raise AssertionError
+            if not str(db_path).startswith(str(custom_base)):
+                raise AssertionError

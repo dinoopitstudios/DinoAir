@@ -14,29 +14,44 @@ class TestDinoPitColors:
     def test_color_constants(self):
         """Test that all color constants are defined correctly."""
         # Primary Brand Colors
-        assert DinoPitColors.DINOPIT_ORANGE == "#FF6B35"
-        assert DinoPitColors.DINOPIT_FIRE == "#FF4500"
-        assert DinoPitColors.STUDIOS_CYAN == "#00BFFF"
+        if DinoPitColors.DINOPIT_ORANGE != "#FF6B35":
+            raise AssertionError
+        if DinoPitColors.DINOPIT_FIRE != "#FF4500":
+            raise AssertionError
+        if DinoPitColors.STUDIOS_CYAN != "#00BFFF":
+            raise AssertionError
 
         # Background Colors
-        assert DinoPitColors.MAIN_BACKGROUND == "#2B3A52"
-        assert DinoPitColors.PANEL_BACKGROUND == "#34435A"
-        assert DinoPitColors.SIDEBAR_BACKGROUND == "#344359"
+        if DinoPitColors.MAIN_BACKGROUND != "#2B3A52":
+            raise AssertionError
+        if DinoPitColors.PANEL_BACKGROUND != "#34435A":
+            raise AssertionError
+        if DinoPitColors.SIDEBAR_BACKGROUND != "#344359":
+            raise AssertionError
 
         # UI Element Colors
-        assert DinoPitColors.SOFT_ORANGE == "#CC8B66"
-        assert DinoPitColors.SOFT_ORANGE_HOVER == "#E6A085"
+        if DinoPitColors.SOFT_ORANGE != "#CC8B66":
+            raise AssertionError
+        if DinoPitColors.SOFT_ORANGE_HOVER != "#E6A085":
+            raise AssertionError
 
         # Text Colors
-        assert DinoPitColors.PRIMARY_TEXT == "#FFFFFF"
-        assert DinoPitColors.SECONDARY_TEXT == "#CCCCCC"
-        assert DinoPitColors.ACCENT_TEXT == DinoPitColors.STUDIOS_CYAN
-        assert DinoPitColors.BRAND_TEXT == DinoPitColors.DINOPIT_ORANGE
+        if DinoPitColors.PRIMARY_TEXT != "#FFFFFF":
+            raise AssertionError
+        if DinoPitColors.SECONDARY_TEXT != "#CCCCCC":
+            raise AssertionError
+        if DinoPitColors.ACCENT_TEXT != DinoPitColors.STUDIOS_CYAN:
+            raise AssertionError
+        if DinoPitColors.BRAND_TEXT != DinoPitColors.DINOPIT_ORANGE:
+            raise AssertionError
 
         # Border and Accent Colors
-        assert DinoPitColors.BORDER_COLOR == DinoPitColors.SOFT_ORANGE
-        assert DinoPitColors.BORDER_HOVER == DinoPitColors.SOFT_ORANGE_HOVER
-        assert DinoPitColors.ACCENT_BORDER == DinoPitColors.DINOPIT_ORANGE
+        if DinoPitColors.BORDER_COLOR != DinoPitColors.SOFT_ORANGE:
+            raise AssertionError
+        if DinoPitColors.BORDER_HOVER != DinoPitColors.SOFT_ORANGE_HOVER:
+            raise AssertionError
+        if DinoPitColors.ACCENT_BORDER != DinoPitColors.DINOPIT_ORANGE:
+            raise AssertionError
 
     def test_color_hex_format(self):
         """Test that all colors are in proper hex format."""
@@ -56,18 +71,24 @@ class TestDinoPitColors:
         for attr_name in color_attributes:
             color_value = getattr(DinoPitColors, attr_name)
             assert isinstance(color_value, str)
-            assert color_value.startswith("#")
+            if not color_value.startswith("#"):
+                raise AssertionError
             assert len(color_value) == 7  # #RRGGBB format
             # Check that it's valid hex
             int(color_value[1:], 16)  # Should not raise ValueError
 
     def test_color_references(self):
         """Test that color references point to correct values."""
-        assert DinoPitColors.ACCENT_TEXT == "#00BFFF"  # Should be STUDIOS_CYAN
-        assert DinoPitColors.BRAND_TEXT == "#FF6B35"  # Should be DINOPIT_ORANGE
-        assert DinoPitColors.BORDER_COLOR == "#CC8B66"  # Should be SOFT_ORANGE
-        assert DinoPitColors.BORDER_HOVER == "#E6A085"  # Should be SOFT_ORANGE_HOVER
-        assert DinoPitColors.ACCENT_BORDER == "#FF6B35"  # Should be DINOPIT_ORANGE
+        if DinoPitColors.ACCENT_TEXT != "#00BFFF":
+            raise AssertionError
+        if DinoPitColors.BRAND_TEXT != "#FF6B35":
+            raise AssertionError
+        if DinoPitColors.BORDER_COLOR != "#CC8B66":
+            raise AssertionError
+        if DinoPitColors.BORDER_HOVER != "#E6A085":
+            raise AssertionError
+        if DinoPitColors.ACCENT_BORDER != "#FF6B35":
+            raise AssertionError
 
 
 class TestGetStylesheet:
@@ -88,16 +109,20 @@ class TestGetStylesheet:
 
             # Should contain expected elements
             assert isinstance(stylesheet, str)
-            assert DinoPitColors.DINOPIT_ORANGE in stylesheet
-            assert "font-weight: bold" in stylesheet
+            if DinoPitColors.DINOPIT_ORANGE not in stylesheet:
+                raise AssertionError
+            if "font-weight: bold" not in stylesheet:
+                raise AssertionError
 
     def test_get_stylesheet_main_background(self):
         """Test main_background stylesheet."""
         with patch("utils.colors.get_scaling_helper"):
             stylesheet = DinoPitColors.get_stylesheet("main_background")
 
-            assert f"background-color: {DinoPitColors.MAIN_BACKGROUND}" in stylesheet
-            assert stylesheet.strip().endswith(";")
+            if f"background-color: {DinoPitColors.MAIN_BACKGROUND}" not in stylesheet:
+                raise AssertionError
+            if not stylesheet.strip().endswith(";"):
+                raise AssertionError
 
     def test_get_stylesheet_header(self):
         """Test header stylesheet."""
@@ -108,18 +133,24 @@ class TestGetStylesheet:
         with patch("utils.colors.get_scaling_helper", return_value=mock_scaling):
             stylesheet = DinoPitColors.get_stylesheet("header")
 
-            assert f"background-color: {DinoPitColors.DINOPIT_ORANGE}" in stylesheet
-            assert f"border-bottom: 2px solid {DinoPitColors.DINOPIT_FIRE}" in stylesheet
-            assert f"color: {DinoPitColors.PRIMARY_TEXT}" in stylesheet
-            assert "font-weight: bold" in stylesheet
-            assert "font-size: 14px" in stylesheet
+            if f"background-color: {DinoPitColors.DINOPIT_ORANGE}" not in stylesheet:
+                raise AssertionError
+            if f"border-bottom: 2px solid {DinoPitColors.DINOPIT_FIRE}" not in stylesheet:
+                raise AssertionError
+            if f"color: {DinoPitColors.PRIMARY_TEXT}" not in stylesheet:
+                raise AssertionError
+            if "font-weight: bold" not in stylesheet:
+                raise AssertionError
+            if "font-size: 14px" not in stylesheet:
+                raise AssertionError
 
     def test_get_stylesheet_panel(self):
         """Test panel stylesheet."""
         with patch("utils.colors.get_scaling_helper"):
             stylesheet = DinoPitColors.get_stylesheet("panel")
 
-            assert f"background-color: {DinoPitColors.PANEL_BACKGROUND}" in stylesheet
+            if f"background-color: {DinoPitColors.PANEL_BACKGROUND}" not in stylesheet:
+                raise AssertionError
 
     def test_get_stylesheet_input_field(self):
         """Test input_field stylesheet."""
@@ -136,16 +167,24 @@ class TestGetStylesheet:
             stylesheet = DinoPitColors.get_stylesheet("input_field")
 
             # Should contain QLineEdit styles
-            assert "QLineEdit {" in stylesheet
-            assert f"border: 1px solid {DinoPitColors.BORDER_COLOR}" in stylesheet
-            assert "border-radius: 20px" in stylesheet
-            assert "padding: 8px 15px" in stylesheet
-            assert f"background-color: {DinoPitColors.MAIN_BACKGROUND}" in stylesheet
-            assert f"color: {DinoPitColors.ACCENT_TEXT}" in stylesheet
+            if "QLineEdit {" not in stylesheet:
+                raise AssertionError
+            if f"border: 1px solid {DinoPitColors.BORDER_COLOR}" not in stylesheet:
+                raise AssertionError
+            if "border-radius: 20px" not in stylesheet:
+                raise AssertionError
+            if "padding: 8px 15px" not in stylesheet:
+                raise AssertionError
+            if f"background-color: {DinoPitColors.MAIN_BACKGROUND}" not in stylesheet:
+                raise AssertionError
+            if f"color: {DinoPitColors.ACCENT_TEXT}" not in stylesheet:
+                raise AssertionError
 
             # Should contain focus styles
-            assert "QLineEdit:focus {" in stylesheet
-            assert f"border-color: {DinoPitColors.BORDER_HOVER}" in stylesheet
+            if "QLineEdit:focus {" not in stylesheet:
+                raise AssertionError
+            if f"border-color: {DinoPitColors.BORDER_HOVER}" not in stylesheet:
+                raise AssertionError
 
     def test_get_stylesheet_button(self):
         """Test button stylesheet."""
@@ -157,26 +196,40 @@ class TestGetStylesheet:
             stylesheet = DinoPitColors.get_stylesheet("button")
 
             # Basic button styles
-            assert "QPushButton {" in stylesheet
-            assert f"background-color: {DinoPitColors.DINOPIT_ORANGE}" in stylesheet
-            assert f"color: {DinoPitColors.PRIMARY_TEXT}" in stylesheet
-            assert "border: none" in stylesheet
-            assert "border-radius: 20px" in stylesheet
-            assert "font-size: 16px" in stylesheet
-            assert "font-weight: bold" in stylesheet
+            if "QPushButton {" not in stylesheet:
+                raise AssertionError
+            if f"background-color: {DinoPitColors.DINOPIT_ORANGE}" not in stylesheet:
+                raise AssertionError
+            if f"color: {DinoPitColors.PRIMARY_TEXT}" not in stylesheet:
+                raise AssertionError
+            if "border: none" not in stylesheet:
+                raise AssertionError
+            if "border-radius: 20px" not in stylesheet:
+                raise AssertionError
+            if "font-size: 16px" not in stylesheet:
+                raise AssertionError
+            if "font-weight: bold" not in stylesheet:
+                raise AssertionError
 
             # Hover state
-            assert "QPushButton:hover {" in stylesheet
-            assert f"background-color: {DinoPitColors.DINOPIT_FIRE}" in stylesheet
+            if "QPushButton:hover {" not in stylesheet:
+                raise AssertionError
+            if f"background-color: {DinoPitColors.DINOPIT_FIRE}" not in stylesheet:
+                raise AssertionError
 
             # Pressed state
-            assert "QPushButton:pressed {" in stylesheet
-            assert "background-color: #E55A2B" in stylesheet
+            if "QPushButton:pressed {" not in stylesheet:
+                raise AssertionError
+            if "background-color: #E55A2B" not in stylesheet:
+                raise AssertionError
 
             # Disabled state
-            assert "QPushButton:disabled {" in stylesheet
-            assert "background-color: #666666" in stylesheet
-            assert "color: #999999" in stylesheet
+            if "QPushButton:disabled {" not in stylesheet:
+                raise AssertionError
+            if "background-color: #666666" not in stylesheet:
+                raise AssertionError
+            if "color: #999999" not in stylesheet:
+                raise AssertionError
 
     def test_get_stylesheet_unknown_element(self):
         """Test get_stylesheet with unknown element type."""
@@ -184,7 +237,8 @@ class TestGetStylesheet:
             stylesheet = DinoPitColors.get_stylesheet("unknown_element")
 
             # Should return empty string for unknown elements
-            assert stylesheet == ""
+            if stylesheet != "":
+                raise AssertionError
 
     def test_get_stylesheet_default_element(self):
         """Test get_stylesheet with default element type."""
@@ -192,7 +246,8 @@ class TestGetStylesheet:
             stylesheet = DinoPitColors.get_stylesheet("default")
 
             # Should return empty string for default
-            assert stylesheet == ""
+            if stylesheet != "":
+                raise AssertionError
 
     def test_get_stylesheet_case_sensitivity(self):
         """Test get_stylesheet case sensitivity."""
@@ -201,8 +256,10 @@ class TestGetStylesheet:
             header_stylesheet = DinoPitColors.get_stylesheet("header")
             header_caps_stylesheet = DinoPitColors.get_stylesheet("HEADER")
 
-            assert header_stylesheet != ""
-            assert header_caps_stylesheet == ""  # Unknown element
+            if header_stylesheet == "":
+                raise AssertionError
+            if header_caps_stylesheet != "":
+                raise AssertionError
 
     def test_get_stylesheet_scale_factor_parameter(self):
         """Test get_stylesheet scale_factor parameter."""
@@ -226,8 +283,10 @@ class TestGetStylesheet:
             DinoPitColors.get_stylesheet("input_field")
 
             # Should have called both scaling methods
-            assert mock_scaling.scaled_size.called
-            assert mock_scaling.scaled_font_size.called
+            if not mock_scaling.scaled_size.called:
+                raise AssertionError
+            if not mock_scaling.scaled_font_size.called:
+                raise AssertionError
 
     def test_get_stylesheet_multiple_calls_consistency(self):
         """Test that multiple calls return consistent results."""
@@ -239,7 +298,8 @@ class TestGetStylesheet:
             stylesheet1 = DinoPitColors.get_stylesheet("button")
             stylesheet2 = DinoPitColors.get_stylesheet("button")
 
-            assert stylesheet1 == stylesheet2
+            if stylesheet1 != stylesheet2:
+                raise AssertionError
 
     def test_get_stylesheet_all_element_types(self):
         """Test get_stylesheet with all supported element types."""
@@ -254,18 +314,23 @@ class TestGetStylesheet:
                 stylesheet = DinoPitColors.get_stylesheet(element_type)
 
                 assert isinstance(stylesheet, str)
-                assert len(stylesheet) > 0  # Should have content
+                if len(stylesheet) <= 0:
+                    raise AssertionError
 
                 # Each stylesheet should contain its primary color
                 if element_type == "main_background":
-                    assert DinoPitColors.MAIN_BACKGROUND in stylesheet
+                    if DinoPitColors.MAIN_BACKGROUND not in stylesheet:
+                        raise AssertionError
                 elif element_type == "header":
-                    assert DinoPitColors.DINOPIT_ORANGE in stylesheet
+                    if DinoPitColors.DINOPIT_ORANGE not in stylesheet:
+                        raise AssertionError
                 elif element_type == "panel":
-                    assert DinoPitColors.PANEL_BACKGROUND in stylesheet
+                    if DinoPitColors.PANEL_BACKGROUND not in stylesheet:
+                        raise AssertionError
                 elif element_type in ["input_field", "button"]:
                     # These have more complex stylesheets but should contain colors
-                    assert len(stylesheet) > 50  # Non-trivial content
+                    if len(stylesheet) <= 50:
+                        raise AssertionError
 
 
 class TestStylesheetContent:
@@ -285,17 +350,24 @@ class TestStylesheetContent:
                 stylesheet = DinoPitColors.get_stylesheet(element_type)
 
                 # Basic CSS syntax checks
-                assert stylesheet.count("{") == stylesheet.count("}")  # Balanced braces
+                if stylesheet.count("{") != stylesheet.count("}"):
+                    raise AssertionError
 
                 # Should contain proper CSS selectors
                 if element_type == "input_field":
-                    assert "QLineEdit {" in stylesheet
-                    assert "QLineEdit:focus {" in stylesheet
+                    if "QLineEdit {" not in stylesheet:
+                        raise AssertionError
+                    if "QLineEdit:focus {" not in stylesheet:
+                        raise AssertionError
                 elif element_type == "button":
-                    assert "QPushButton {" in stylesheet
-                    assert "QPushButton:hover {" in stylesheet
-                    assert "QPushButton:pressed {" in stylesheet
-                    assert "QPushButton:disabled {" in stylesheet
+                    if "QPushButton {" not in stylesheet:
+                        raise AssertionError
+                    if "QPushButton:hover {" not in stylesheet:
+                        raise AssertionError
+                    if "QPushButton:pressed {" not in stylesheet:
+                        raise AssertionError
+                    if "QPushButton:disabled {" not in stylesheet:
+                        raise AssertionError
 
     def test_stylesheet_color_consistency(self):
         """Test that stylesheets use consistent color references."""
@@ -308,12 +380,16 @@ class TestStylesheetContent:
             header_stylesheet = DinoPitColors.get_stylesheet("header")
 
             # Both should use DINOPIT_ORANGE as primary color
-            assert DinoPitColors.DINOPIT_ORANGE in button_stylesheet
-            assert DinoPitColors.DINOPIT_ORANGE in header_stylesheet
+            if DinoPitColors.DINOPIT_ORANGE not in button_stylesheet:
+                raise AssertionError
+            if DinoPitColors.DINOPIT_ORANGE not in header_stylesheet:
+                raise AssertionError
 
             # Both should use DINOPIT_FIRE for hover/accent
-            assert DinoPitColors.DINOPIT_FIRE in button_stylesheet
-            assert DinoPitColors.DINOPIT_FIRE in header_stylesheet
+            if DinoPitColors.DINOPIT_FIRE not in button_stylesheet:
+                raise AssertionError
+            if DinoPitColors.DINOPIT_FIRE not in header_stylesheet:
+                raise AssertionError
 
     def test_stylesheet_scaling_integration(self):
         """Test proper integration with scaling system."""
@@ -327,10 +403,14 @@ class TestStylesheetContent:
             stylesheet = DinoPitColors.get_stylesheet("input_field")
 
             # Should have used scaled values
-            assert "2px" in stylesheet  # scaled border
-            assert "20px" in stylesheet  # scaled border-radius
-            assert "8px 15px" in stylesheet  # scaled padding
-            assert "16px" in stylesheet  # scaled font-size
+            if "2px" not in stylesheet:
+                raise AssertionError
+            if "20px" not in stylesheet:
+                raise AssertionError
+            if "8px 15px" not in stylesheet:
+                raise AssertionError
+            if "16px" not in stylesheet:
+                raise AssertionError
 
     def test_stylesheet_qt_selector_format(self):
         """Test that stylesheets use proper Qt selector format."""
@@ -343,12 +423,18 @@ class TestStylesheetContent:
             button_stylesheet = DinoPitColors.get_stylesheet("button")
 
             # Should use Qt-specific selectors
-            assert "QLineEdit" in input_stylesheet
-            assert "QLineEdit:focus" in input_stylesheet
-            assert "QPushButton" in button_stylesheet
-            assert "QPushButton:hover" in button_stylesheet
-            assert "QPushButton:pressed" in button_stylesheet
-            assert "QPushButton:disabled" in button_stylesheet
+            if "QLineEdit" not in input_stylesheet:
+                raise AssertionError
+            if "QLineEdit:focus" not in input_stylesheet:
+                raise AssertionError
+            if "QPushButton" not in button_stylesheet:
+                raise AssertionError
+            if "QPushButton:hover" not in button_stylesheet:
+                raise AssertionError
+            if "QPushButton:pressed" not in button_stylesheet:
+                raise AssertionError
+            if "QPushButton:disabled" not in button_stylesheet:
+                raise AssertionError
 
     def test_stylesheet_property_format(self):
         """Test that CSS properties are properly formatted."""
@@ -370,7 +456,8 @@ class TestStylesheetContent:
             ]
 
             for prop in properties_to_check:
-                assert prop in stylesheet
+                if prop not in stylesheet:
+                    raise AssertionError
 
     def test_stylesheet_multiline_format(self):
         """Test that complex stylesheets are properly formatted across multiple lines."""
@@ -383,11 +470,13 @@ class TestStylesheetContent:
 
             # Should be multi-line for readability
             lines = stylesheet.strip().split("\n")
-            assert len(lines) > 5  # Should have multiple lines
+            if len(lines) <= 5:
+                raise AssertionError
 
             # Should have proper indentation structure
             non_empty_lines = [line for line in lines if line.strip()]
-            assert len(non_empty_lines) > 0
+            if len(non_empty_lines) <= 0:
+                raise AssertionError
 
 
 class TestStylesheetEdgeCases:
@@ -399,7 +488,8 @@ class TestStylesheetEdgeCases:
             # This might raise an error or return empty string
             try:
                 stylesheet = DinoPitColors.get_stylesheet(None)
-                assert stylesheet == ""
+                if stylesheet != "":
+                    raise AssertionError
             except (TypeError, AttributeError):
                 # Acceptable to raise error for None input
                 pass
@@ -409,7 +499,8 @@ class TestStylesheetEdgeCases:
         with patch("utils.colors.get_scaling_helper"):
             stylesheet = DinoPitColors.get_stylesheet("")
 
-            assert stylesheet == ""  # Empty string should return empty stylesheet
+            if stylesheet != "":
+                raise AssertionError
 
     def test_get_stylesheet_with_numeric_element_type(self):
         """Test get_stylesheet with numeric element type."""
@@ -417,7 +508,8 @@ class TestStylesheetEdgeCases:
             # Should handle gracefully
             try:
                 stylesheet = DinoPitColors.get_stylesheet(123)
-                assert stylesheet == ""
+                if stylesheet != "":
+                    raise AssertionError
             except (TypeError, AttributeError):
                 # Acceptable to raise error for non-string input
                 pass
@@ -454,7 +546,8 @@ class TestStylesheetEdgeCases:
             with patch("utils.colors.get_scaling_helper", return_value=mock_scaling):
                 stylesheet = DinoPitColors.get_stylesheet("header")
 
-                assert "#FF6B35" in stylesheet
+                if "#FF6B35" not in stylesheet:
+                    raise AssertionError
 
         finally:
             # Restore original value
@@ -475,8 +568,10 @@ class TestColorUsagePatterns:
             button_stylesheet = DinoPitColors.get_stylesheet("button")
 
             # Both should use DINOPIT_ORANGE as primary background
-            assert DinoPitColors.DINOPIT_ORANGE in header_stylesheet
-            assert DinoPitColors.DINOPIT_ORANGE in button_stylesheet
+            if DinoPitColors.DINOPIT_ORANGE not in header_stylesheet:
+                raise AssertionError
+            if DinoPitColors.DINOPIT_ORANGE not in button_stylesheet:
+                raise AssertionError
 
     def test_accent_color_consistency(self):
         """Test consistent usage of accent colors."""
@@ -488,8 +583,10 @@ class TestColorUsagePatterns:
             input_stylesheet = DinoPitColors.get_stylesheet("input_field")
 
             # Should use ACCENT_TEXT (STUDIOS_CYAN) for input text
-            assert DinoPitColors.STUDIOS_CYAN in input_stylesheet
-            assert DinoPitColors.ACCENT_TEXT in input_stylesheet
+            if DinoPitColors.STUDIOS_CYAN not in input_stylesheet:
+                raise AssertionError
+            if DinoPitColors.ACCENT_TEXT not in input_stylesheet:
+                raise AssertionError
 
     def test_border_color_consistency(self):
         """Test consistent usage of border colors."""
@@ -501,8 +598,10 @@ class TestColorUsagePatterns:
             input_stylesheet = DinoPitColors.get_stylesheet("input_field")
 
             # Should use BORDER_COLOR and BORDER_HOVER consistently
-            assert DinoPitColors.BORDER_COLOR in input_stylesheet
-            assert DinoPitColors.BORDER_HOVER in input_stylesheet
+            if DinoPitColors.BORDER_COLOR not in input_stylesheet:
+                raise AssertionError
+            if DinoPitColors.BORDER_HOVER not in input_stylesheet:
+                raise AssertionError
 
     def test_background_color_hierarchy(self):
         """Test background color hierarchy usage."""
@@ -511,9 +610,12 @@ class TestColorUsagePatterns:
             panel_stylesheet = DinoPitColors.get_stylesheet("panel")
 
             # Should use different background colors for hierarchy
-            assert DinoPitColors.MAIN_BACKGROUND in main_bg_stylesheet
-            assert DinoPitColors.PANEL_BACKGROUND in panel_stylesheet
-            assert DinoPitColors.MAIN_BACKGROUND != DinoPitColors.PANEL_BACKGROUND
+            if DinoPitColors.MAIN_BACKGROUND not in main_bg_stylesheet:
+                raise AssertionError
+            if DinoPitColors.PANEL_BACKGROUND not in panel_stylesheet:
+                raise AssertionError
+            if DinoPitColors.MAIN_BACKGROUND == DinoPitColors.PANEL_BACKGROUND:
+                raise AssertionError
 
 
 class TestClassStructure:
@@ -544,12 +646,14 @@ class TestClassStructure:
         ]
 
         for attr in color_attrs:
-            assert hasattr(DinoPitColors, attr)
+            if not hasattr(DinoPitColors, attr):
+                raise AssertionError
             assert isinstance(getattr(DinoPitColors, attr), str)
 
     def test_get_stylesheet_is_classmethod(self):
         """Test that get_stylesheet is a class method."""
-        assert hasattr(DinoPitColors, "get_stylesheet")
+        if not hasattr(DinoPitColors, "get_stylesheet"):
+            raise AssertionError
         # Should be callable from class
         with patch("utils.colors.get_scaling_helper"):
             result = DinoPitColors.get_stylesheet("main_background")
@@ -559,7 +663,8 @@ class TestClassStructure:
         """Test that DinoPitColors can be used without instantiation."""
         # Should be able to access colors without creating instance
         orange = DinoPitColors.DINOPIT_ORANGE
-        assert orange == "#FF6B35"
+        if orange != "#FF6B35":
+            raise AssertionError
 
         # Should be able to get stylesheet without creating instance
         with patch("utils.colors.get_scaling_helper"):

@@ -42,47 +42,53 @@ class TestToolSetup(unittest.TestCase):
         )
         proj_keys = _first_dict_assignment_keys(TOOLS_ROOT / "projects_tool.py", "PROJECTS_TOOLS")
 
-        assert set(core_keys) == {
+        if set(core_keys) != {
             "add_two_numbers",
             "get_current_time",
             "list_directory_contents",
             "read_text_file",
             "execute_system_command",
             "create_json_data",
-        }, f"Unexpected core tool keys: {core_keys}"
+        }:
+            raise AssertionError(f"Unexpected core tool keys: {core_keys}")
 
         assert len(notes_keys) == 8, f"Expected 8 notes tools, found {len(notes_keys)}"
         assert len(fs_keys) == 8, f"Expected 8 file search tools, found {len(fs_keys)}"
         assert len(proj_keys) == 9, f"Expected 9 project tools, found {len(proj_keys)}"
-        assert len(core_keys) + len(notes_keys) + len(fs_keys) + len(proj_keys) == 31
+        if len(core_keys) + len(notes_keys) + len(fs_keys) + len(proj_keys) != 31:
+            raise AssertionError
 
     def test_registry_names_match_functions(self):
         """Each registry key should map to a function defined in its module."""
         # notes
         notes_file = TOOLS_ROOT / "notes_tool.py"
         notes_keys = set(_first_dict_assignment_keys(notes_file, "NOTES_TOOLS"))
-        assert not notes_keys - _top_level_functions(notes_file), (
-            "notes_tool has keys without functions"
-        )
+        if notes_keys - _top_level_functions(notes_file):
+            raise AssertionError(
+                "notes_tool has keys without functions"
+            )
 
         # file search
         fs_file = TOOLS_ROOT / "file_search_tool.py"
         fs_keys = set(_first_dict_assignment_keys(fs_file, "FILE_SEARCH_TOOLS"))
-        assert not fs_keys - _top_level_functions(fs_file), (
-            "file_search_tool has keys without functions"
-        )
+        if fs_keys - _top_level_functions(fs_file):
+            raise AssertionError(
+                "file_search_tool has keys without functions"
+            )
 
         # projects
         proj_file = TOOLS_ROOT / "projects_tool.py"
         proj_keys = set(_first_dict_assignment_keys(proj_file, "PROJECTS_TOOLS"))
-        assert not proj_keys - _top_level_functions(proj_file), (
-            "projects_tool has keys without functions"
-        )
+        if proj_keys - _top_level_functions(proj_file):
+            raise AssertionError(
+                "projects_tool has keys without functions"
+            )
 
     def test_inventory_consistency(self):
         """Ensure inventory mentions all tool names and shows 31 total badge."""
         inv = _read_inventory_text()
-        assert "Total%20Tools-31" in inv or "Total Tools-31" in inv, "Inventory badge missing"
+        if not ("Total%20Tools-31" in inv or "Total Tools-31" in inv):
+            raise AssertionError("Inventory badge missing")
 
         core_keys = set(
             _first_dict_assignment_keys(TOOLS_ROOT / "basic_tools.py", "AVAILABLE_TOOLS")
@@ -96,7 +102,8 @@ class TestToolSetup(unittest.TestCase):
         )
 
         for key in sorted(core_keys | notes_keys | fs_keys | proj_keys):
-            assert key in inv, f"Tool name missing in TOOL_INVENTORY.md: {key}"
+            if key not in inv:
+                raise AssertionError(f"Tool name missing in TOOL_INVENTORY.md: {key}")
 
 
 if __name__ == "__main__":

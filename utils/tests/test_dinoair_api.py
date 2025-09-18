@@ -41,7 +41,8 @@ class TestPerformanceMonitorAPI(unittest.TestCase):
         """Test basic operation start/end monitoring."""
         operation_id = self.monitor.start_operation("test_operation")
         assert isinstance(operation_id, str)
-        assert "test_operation" in operation_id
+        if "test_operation" not in operation_id:
+            raise AssertionError
 
         # Wait briefly to ensure measurable duration
         time.sleep(0.01)
@@ -49,8 +50,10 @@ class TestPerformanceMonitorAPI(unittest.TestCase):
         metrics = self.monitor.end_operation(operation_id)
         # Metrics may be None if monitoring disabled, that's OK
         if metrics:
-            assert metrics.operation == "test_operation"
-            assert metrics.duration > 0
+            if metrics.operation != "test_operation":
+                raise AssertionError
+            if metrics.duration <= 0:
+                raise AssertionError
 
     def test_context_manager_monitoring(self):
         """Test performance monitoring via context manager."""
@@ -70,7 +73,8 @@ class TestPerformanceMonitorAPI(unittest.TestCase):
 
         if metrics and hasattr(metrics, "metadata"):
             for key, value in metadata.items():
-                assert getattr(metrics.metadata, key, None) == value
+                if getattr(metrics.metadata, key, None) != value:
+                    raise AssertionError
 
     def test_metrics_summary(self):
         """Test getting metrics summary."""
@@ -212,7 +216,8 @@ class TestGlobalFunctions(unittest.TestCase):
             return x + y
 
         result = test_function(2, 3)
-        assert result == 5
+        if result != 5:
+            raise AssertionError
 
     def test_performance_decorator_auto_name(self):
         """Test performance decorator with auto-naming."""
@@ -222,7 +227,8 @@ class TestGlobalFunctions(unittest.TestCase):
             return "test"
 
         result = another_test_function()
-        assert result == "test"
+        if result != "test":
+            raise AssertionError
 
     def test_configure_functions(self):
         """Test global configuration functions."""
@@ -276,7 +282,8 @@ class TestAPIStability(unittest.TestCase):
         }
 
         for export in expected_exports:
-            assert export in __all__, f"Missing export: {export}"
+            if export not in __all__:
+                raise AssertionError(f"Missing export: {export}")
 
     def test_no_internal_exports(self):
         """Test that internal functions are not exported."""
@@ -284,7 +291,8 @@ class TestAPIStability(unittest.TestCase):
 
         # Check that no exports start with underscore
         for export in __all__:
-            assert not export.startswith("_"), f"Internal function exported: {export}"
+            if export.startswith("_"):
+                raise AssertionError(f"Internal function exported: {export}")
 
     def test_graceful_degradation(self):
         """Test that API works even if internal modules fail."""
@@ -342,7 +350,8 @@ class TestIntegration(unittest.TestCase):
         enable_telemetry(export_format="json", export_destination="console")
 
         result = self._test_decorated_function()
-        assert result == "success"
+        if result != "success":
+            raise AssertionError
 
 
 if __name__ == "__main__":

@@ -68,8 +68,10 @@ def test_watchdog_status_command_returns_message():
     # Send a command that should be handled by the watchdog handler
     text, intent = pipeline.run("watchdog status")
 
-    assert intent == IntentType.COMMAND
-    assert "Watchdog" in text or "metrics" in text or "Status" in text
+    if intent != IntentType.COMMAND:
+        raise AssertionError
+    if not ("Watchdog" in text or "metrics" in text or "Status" in text):
+        raise AssertionError
     # Command handling returns early (no final "Intent:" GUI feedback is guaranteed)
     assert isinstance(messages, list)
 
@@ -95,8 +97,10 @@ def test_enhanced_security_rejection_increments_counter(
 
     # Verify the rejection counter incremented and GUI got a security message
     counters = pipeline.get_security_counters()
-    assert counters.get("rejections", 0) >= 1
-    assert any("Security:" in m or "Security" in m for m in messages)
+    if counters.get("rejections", 0) < 1:
+        raise AssertionError
+    if not any("Security:" in m or "Security" in m for m in messages):
+        raise AssertionError
 
 
 def test_attacks_blocked_counter_and_feedback(monkeypatch: pytest.MonkeyPatch):
@@ -125,6 +129,8 @@ def test_attacks_blocked_counter_and_feedback(monkeypatch: pytest.MonkeyPatch):
     assert isinstance(intent, IntentType)
 
     # Verify we reported attacks and incremented counter
-    assert any("Blocked" in m or "Security" in m for m in messages)
+    if not any("Blocked" in m or "Security" in m for m in messages):
+        raise AssertionError
     counters = pipeline.get_security_counters()
-    assert counters.get("attacks_blocked", 0) >= 3
+    if counters.get("attacks_blocked", 0) < 3:
+        raise AssertionError

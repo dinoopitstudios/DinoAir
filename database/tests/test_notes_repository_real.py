@@ -61,55 +61,73 @@ def test_crud_soft_delete_restore(repo, db_manager):
 
         # Create
         result = repo.create_note(note, content_html="<p>Alpha</p>")
-        assert result.success is True
+        if result.success is not True:
+            raise AssertionError
 
         # Read single
         got = repo.get_note_by_id(note.id)
-        assert got.success is True
+        if got.success is not True:
+            raise AssertionError
         n = got.data
         assert isinstance(n, Note)
-        assert n.title == "Alpha Title"
-        assert "alpha" in n.tags
+        if n.title != "Alpha Title":
+            raise AssertionError
+        if "alpha" not in n.tags:
+            raise AssertionError
 
         # Update
         upd = repo.update_note(note.id, {"title": "Alpha Updated", "tags": ["alpha", "gamma"]})
-        assert upd.success is True
+        if upd.success is not True:
+            raise AssertionError
 
         # Read all
         all_notes = repo.get_all_notes()
-        assert all_notes.success is True
-        assert any(nn.id == note.id for nn in all_notes.data)
+        if all_notes.success is not True:
+            raise AssertionError
+        if not any(nn.id == note.id for nn in all_notes.data):
+            raise AssertionError
 
         # Search
         srch = repo.search_notes("Alpha", "All", None)
-        assert srch.success is True
-        assert any(nn.id == note.id for nn in srch.data)
+        if srch.success is not True:
+            raise AssertionError
+        if not any(nn.id == note.id for nn in srch.data):
+            raise AssertionError
 
         # Soft delete
         sd = repo.soft_delete_note(note.id)
-        assert sd.success is True
+        if sd.success is not True:
+            raise AssertionError
         # Should disappear from active
         all_after = repo.get_all_notes()
-        assert all_after.success is True
-        assert all(nn.id != note.id for nn in all_after.data)
+        if all_after.success is not True:
+            raise AssertionError
+        if not all(nn.id != note.id for nn in all_after.data):
+            raise AssertionError
         # Appears in deleted
         deleted = repo.get_deleted_notes()
-        assert deleted.success is True
-        assert any(nn.id == note.id for nn in deleted.data)
+        if deleted.success is not True:
+            raise AssertionError
+        if not any(nn.id == note.id for nn in deleted.data):
+            raise AssertionError
 
         # Restore
         rs = repo.restore_note(note.id)
-        assert rs.success is True
+        if rs.success is not True:
+            raise AssertionError
         all_after_restore = repo.get_all_notes()
-        assert any(nn.id == note.id for nn in all_after_restore.data)
+        if not any(nn.id == note.id for nn in all_after_restore.data):
+            raise AssertionError
 
         # Hard delete
         hd = repo.hard_delete_note(note.id)
-        assert hd.success is True
+        if hd.success is not True:
+            raise AssertionError
         created_ids.remove(note.id)
         # Verify gone
         missing = repo.get_note_by_id(note.id)
-        assert missing.success is False
+        if missing.success is not False:
+            raise AssertionError
     finally:
         _cleanup_notes(db_manager, created_ids)
 
@@ -123,42 +141,53 @@ def test_tags_aggregate_and_mutations(repo, db_manager):
         n3 = _new_note(title="Tags C", tags=["beta", "delta"])
         for n in (n1, n2, n3):
             ids.append(n.id)
-            assert repo.create_note(n).success
+            if not repo.create_note(n).success:
+                raise AssertionError
 
         # Aggregate
         tags = repo.get_all_tags()
-        assert tags.success is True
+        if tags.success is not True:
+            raise AssertionError
         # Case preserved in result keys (original case), counts aggregated case-insensitively
         # We inserted 'alpha' twice
-        assert tags.data.get("alpha", 0) == 2
+        if tags.data.get("alpha", 0) != 2:
+            raise AssertionError
         # 'beta' twice too
-        assert tags.data.get("beta", 0) == 2
+        if tags.data.get("beta", 0) != 2:
+            raise AssertionError
 
         # Rename tag alpha -> omega
         ren = repo.update_tag_in_notes("alpha", "omega")
-        assert ren.success is True
+        if ren.success is not True:
+            raise AssertionError
         assert isinstance(ren.data, dict)
-        assert ren.data["affected_notes"] >= 2
+        if ren.data["affected_notes"] < 2:
+            raise AssertionError
 
         # Verify rename took effect
         with db_manager.get_notes_connection() as conn:
             cur = conn.cursor()
             cur.execute("SELECT tags FROM note_list WHERE is_deleted = 0")
             rows = [r[0] for r in cur.fetchall()]
-        assert any('"omega"' in (r or "") for r in rows)
-        assert all('"alpha"' not in (r or "") for r in rows)
+        if not any('"omega"' in (r or "") for r in rows):
+            raise AssertionError
+        if not all('"alpha"' not in (r or "") for r in rows):
+            raise AssertionError
 
         # Remove tag beta
         rm = repo.remove_tag_from_notes("beta")
-        assert rm.success is True
-        assert rm.data["affected_notes"] >= 1
+        if rm.success is not True:
+            raise AssertionError
+        if rm.data["affected_notes"] < 1:
+            raise AssertionError
 
         # Verify removal
         with db_manager.get_notes_connection() as conn:
             cur = conn.cursor()
             cur.execute("SELECT tags FROM note_list WHERE is_deleted = 0")
             rows = [r[0] for r in cur.fetchall()]
-        assert all('"beta"' not in (r or "") for r in rows)
+        if not all('"beta"' not in (r or "") for r in rows):
+            raise AssertionError
     finally:
         _cleanup_notes(db_manager, ids)
 
@@ -171,30 +200,39 @@ def test_project_association_and_counts(repo, db_manager):
         n2 = _new_note(title="Proj 2", tags=["p"], project_id=None)
         for n in (n1, n2):
             ids.append(n.id)
-            assert repo.create_note(n).success
+            if not repo.create_note(n).success:
+                raise AssertionError
 
         # Assign to project X
         bulk = repo.bulk_update_project([n1.id, n2.id], "proj-X")
-        assert bulk.success is True
+        if bulk.success is not True:
+            raise AssertionError
 
         # Count
         cnt = repo.get_project_notes_count("proj-X")
-        assert cnt.success is True
-        assert cnt.data >= 2
+        if cnt.success is not True:
+            raise AssertionError
+        if cnt.data < 2:
+            raise AssertionError
 
         # Filter by project
         by_proj = repo.get_notes_by_project("proj-X")
-        assert by_proj.success
-        assert all(nn.project_id == "proj-X" for nn in by_proj.data)
+        if not by_proj.success:
+            raise AssertionError
+        if not all(nn.project_id == "proj-X" for nn in by_proj.data):
+            raise AssertionError
 
         # Remove project (set None)
         bulk_rm = repo.bulk_update_project([n1.id, n2.id], None)
-        assert bulk_rm.success is True
+        if bulk_rm.success is not True:
+            raise AssertionError
 
         # Without project
         no_proj = repo.get_notes_without_project()
-        assert no_proj.success is True
-        assert any(nn.id in (n1.id, n2.id) for nn in no_proj.data)
+        if no_proj.success is not True:
+            raise AssertionError
+        if not any(nn.id in (n1.id, n2.id) for nn in no_proj.data):
+            raise AssertionError
     finally:
         _cleanup_notes(db_manager, ids)
 
@@ -207,27 +245,36 @@ def test_search_filters_and_sql_wildcards(repo, db_manager):
         n2 = _new_note(title="Other", content="Nothing to see", tags=["y"])
         for n in (n1, n2):
             ids.append(n.id)
-            assert repo.create_note(n).success
+            if not repo.create_note(n).success:
+                raise AssertionError
 
         # Title only
         t_only = repo.search_notes("100%", "Title Only", None)
-        assert t_only.success is True
-        assert any(nn.id == n1.id for nn in t_only.data)
+        if t_only.success is not True:
+            raise AssertionError
+        if not any(nn.id == n1.id for nn in t_only.data):
+            raise AssertionError
 
         # Content only
         c_only = repo.search_notes("Body_", "Content Only", None)
-        assert c_only.success is True
-        assert any(nn.id == n1.id for nn in c_only.data)
+        if c_only.success is not True:
+            raise AssertionError
+        if not any(nn.id == n1.id for nn in c_only.data):
+            raise AssertionError
 
         # Tags only (search JSON text)
         tags_only = repo.search_notes("x", "Tags Only", None)
-        assert tags_only.success is True
-        assert any(nn.id == n1.id for nn in tags_only.data)
+        if tags_only.success is not True:
+            raise AssertionError
+        if not any(nn.id == n1.id for nn in tags_only.data):
+            raise AssertionError
 
         # All
         allf = repo.search_notes("Other", "All", None)
-        assert allf.success is True
-        assert any(nn.id == n2.id for nn in allf.data)
+        if allf.success is not True:
+            raise AssertionError
+        if not any(nn.id == n2.id for nn in allf.data):
+            raise AssertionError
     finally:
         _cleanup_notes(db_manager, ids)
 
@@ -236,9 +283,12 @@ def test_update_note_validation_error(repo, db_manager):
     """Repository should reject updates with no valid fields."""
     n = _new_note(title="Update Invalid")
     try:
-        assert repo.create_note(n).success
+        if not repo.create_note(n).success:
+            raise AssertionError
         bad = repo.update_note(n.id, {"not_a_field": "value"})
-        assert bad.success is False
-        assert "No valid fields" in bad.error
+        if bad.success is not False:
+            raise AssertionError
+        if "No valid fields" not in bad.error:
+            raise AssertionError
     finally:
         _cleanup_notes(db_manager, [n.id])

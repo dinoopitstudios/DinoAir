@@ -26,31 +26,39 @@ class TestDatabaseManager:
         """Test initialization with default user"""
         with patch.dict(os.environ, {}, clear=True):
             manager = DatabaseManager()
-            assert manager.user_name in ["default_user", "test_user"]
+            if manager.user_name not in ["default_user", "test_user"]:
+                raise AssertionError
             assert isinstance(manager.base_dir, Path)
             assert isinstance(manager.user_db_dir, Path)
 
     def test_init_with_user_name(self, temp_db_dir):
         """Test initialization with specific user name"""
         manager = DatabaseManager(user_name="test_user")
-        assert manager.user_name == "test_user"
+        if manager.user_name != "test_user":
+            raise AssertionError
 
     def test_init_pytest_environment(self, temp_db_dir):
         """Test initialization detects pytest environment"""
         with patch.dict(os.environ, {"PYTEST_CURRENT_TEST": "test_function"}):
             manager = DatabaseManager()
-            assert "test_user" in str(manager.user_db_dir)
+            if "test_user" not in str(manager.user_db_dir):
+                raise AssertionError
 
     def test_directory_structure_creation(self, temp_db_dir):
         """Test that directory structure is created correctly"""
         manager = DatabaseManager(user_name="test_user")
 
         # Check main directories exist
-        assert manager.user_db_dir.exists()
-        assert (manager.user_db_dir.parent / "exports").exists()
-        assert (manager.user_db_dir.parent / "backups").exists()
-        assert (manager.user_db_dir.parent / "temp").exists()
-        assert (manager.user_db_dir.parent / "artifacts").exists()
+        if not manager.user_db_dir.exists():
+            raise AssertionError
+        if not (manager.user_db_dir.parent / "exports").exists():
+            raise AssertionError
+        if not (manager.user_db_dir.parent / "backups").exists():
+            raise AssertionError
+        if not (manager.user_db_dir.parent / "temp").exists():
+            raise AssertionError
+        if not (manager.user_db_dir.parent / "artifacts").exists():
+            raise AssertionError
 
     @patch("database.initialize_db._ensure_dir")
     def test_directory_creation_failure(self, mock_ensure_dir, temp_db_dir):
@@ -77,10 +85,13 @@ class TestDatabaseManager:
         }
 
         for attr, filename in expected_paths.items():
-            assert hasattr(manager, attr)
+            if not hasattr(manager, attr):
+                raise AssertionError
             path = getattr(manager, attr)
-            assert path.name == filename
-            assert path.parent == manager.user_db_dir
+            if path.name != filename:
+                raise AssertionError
+            if path.parent != manager.user_db_dir:
+                raise AssertionError
 
     @patch("database.initialize_db.ResilientDB")
     def test_get_connection_success(self, mock_resilient_db, temp_db_dir):
@@ -93,7 +104,8 @@ class TestDatabaseManager:
         manager = DatabaseManager(user_name="test_user")
         conn = manager.get_notes_connection()
 
-        assert conn == mock_conn
+        if conn != mock_conn:
+            raise AssertionError
         mock_resilient_db.assert_called_once()
         mock_db_instance.connect_with_retry.assert_called_once()
 
@@ -108,7 +120,8 @@ class TestDatabaseManager:
         manager = DatabaseManager(user_name="test_user")
         conn = manager.get_notes_connection()
 
-        assert conn in manager._active_connections
+        if conn not in manager._active_connections:
+            raise AssertionError
 
     def test_all_connection_methods_exist(self, temp_db_dir):
         """Test that all expected connection methods exist"""
@@ -127,9 +140,11 @@ class TestDatabaseManager:
         ]
 
         for method_name in expected_methods:
-            assert hasattr(manager, method_name)
+            if not hasattr(manager, method_name):
+                raise AssertionError
             method = getattr(manager, method_name)
-            assert callable(method)
+            if not callable(method):
+                raise AssertionError
 
     @patch("database.initialize_db.ResilientDB")
     def test_initialize_all_databases_success(self, mock_resilient_db, temp_db_dir):
@@ -235,7 +250,8 @@ class TestDatabaseManager:
         manager.clean_memory_database(watchdog_retention_days=7)
 
         # Verify cleanup operations were called
-        assert mock_cursor.execute.call_count >= 4  # Multiple cleanup queries
+        if mock_cursor.execute.call_count < 4:
+            raise AssertionError
         mock_conn.commit.assert_called_once()
 
     @patch("database.initialize_db.ResilientDB")
@@ -301,7 +317,8 @@ class TestDatabaseManager:
         manager._apply_notes_project_id_migration(mock_conn)
 
         # Should check table existence and columns
-        assert mock_cursor.execute.call_count >= 2
+        if mock_cursor.execute.call_count < 2:
+            raise AssertionError
         mock_conn.commit.assert_called_once()
 
     def test_notes_migration_skips_when_column_exists(self, temp_db_dir):
@@ -373,7 +390,8 @@ class TestInitializeUserDatabases:
 
         result = initialize_user_databases("test_user", print)
 
-        assert result == mock_manager
+        if result != mock_manager:
+            raise AssertionError
         # Function now consistently passes all 3 parameters to DatabaseManager
         mock_db_manager_class.assert_called_once_with("test_user", print, None)
         mock_manager.initialize_all_databases.assert_called_once()
@@ -386,7 +404,8 @@ class TestInitializeUserDatabases:
 
         result = initialize_user_databases("test_user")
 
-        assert result == mock_manager
+        if result != mock_manager:
+            raise AssertionError
         # Function now consistently passes all 3 parameters to DatabaseManager
         mock_db_manager_class.assert_called_once_with("test_user", print, None)
 
@@ -407,19 +426,23 @@ class TestConstants:
             "projects",
             "timers",
         }
-        assert set(DB_FILES.keys()) == expected_dbs
+        if set(DB_FILES.keys()) != expected_dbs:
+            raise AssertionError
 
     def test_schema_ddls_contains_all_databases(self):
         """Test that SCHEMA_DDLS contains schemas for all databases"""
         expected_dbs = set(DB_FILES.keys())
-        assert set(SCHEMA_DDLS.keys()) == expected_dbs
+        if set(SCHEMA_DDLS.keys()) != expected_dbs:
+            raise AssertionError
 
     def test_schema_ddls_are_lists_of_strings(self):
         """Test that all SCHEMA_DDLS values are lists of strings"""
         for _db_key, ddls in SCHEMA_DDLS.items():
             assert isinstance(ddls, list)
-            assert all(isinstance(ddl, str) for ddl in ddls)
-            assert len(ddls) > 0  # Each database should have at least one DDL
+            if not all(isinstance(ddl, str) for ddl in ddls):
+                raise AssertionError
+            if len(ddls) <= 0:
+                raise AssertionError
 
 
 @pytest.mark.integration
@@ -436,7 +459,8 @@ class TestDatabaseManagerIntegration:
         # Check that all database files were created
         for filename in DB_FILES.values():
             db_path = manager.user_db_dir / filename
-            assert db_path.exists(), f"Database file {filename} was not created"
+            if not db_path.exists():
+                raise AssertionError(f"Database file {filename} was not created")
 
     def test_connection_workflow(self, temp_db_dir):
         """Test full connection workflow"""
@@ -459,7 +483,8 @@ class TestDatabaseManagerIntegration:
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
                 result = cursor.fetchone()
-                assert result == (1,)
+                if result != (1,):
+                    raise AssertionError
 
         finally:
             # Cleanup
@@ -493,7 +518,8 @@ class TestDatabaseManagerPerformance:
         creation_time = time.time() - start_time
 
         # Should complete within reasonable time
-        assert creation_time < 2.0, f"Connection creation took {creation_time:.2f}s"
+        if creation_time >= 2.0:
+            raise AssertionError(f"Connection creation took {creation_time:.2f}s")
 
         # Cleanup
         manager._cleanup_connections()

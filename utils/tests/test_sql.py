@@ -7,15 +7,20 @@ from ..sql import enforce_limit, normalize_like_pattern, parameterize_delete_old
 
 def test_enforce_limit_basic_clamping():
     # valid within bounds
-    assert enforce_limit(5, 10) == 5
+    if enforce_limit(5, 10) != 5:
+        raise AssertionError
     # negative -> clamps to 1
-    assert enforce_limit(-3, 10) == 1
+    if enforce_limit(-3, 10) != 1:
+        raise AssertionError
     # zero -> clamps to 1
-    assert enforce_limit(0, 10) == 1
+    if enforce_limit(0, 10) != 1:
+        raise AssertionError
     # above max -> clamps to max
-    assert enforce_limit(999, 10) == 10
+    if enforce_limit(999, 10) != 10:
+        raise AssertionError
     # non-int -> defaults to max
-    assert enforce_limit("not-an-int", 7) == 7
+    if enforce_limit("not-an-int", 7) != 7:
+        raise AssertionError
 
     with pytest.raises(ValueError):
         enforce_limit(5, 0)
@@ -33,20 +38,24 @@ def test_enforce_limit_basic_clamping():
 )
 def test_normalize_like_pattern_escapes_and_wraps(raw, expected_param):
     placeholder, params = normalize_like_pattern(raw)
-    assert placeholder == "?"
+    if placeholder != "?":
+        raise AssertionError
     assert isinstance(params, tuple)
     assert len(params) == 1
-    assert params[0] == expected_param
+    if params[0] != expected_param:
+        raise AssertionError
 
 
 def test_parameterize_delete_older_than_builds_sql_and_param():
     sql, params = parameterize_delete_older_than("watchdog_metrics", "timestamp", days=3)
-    assert sql == "DELETE FROM watchdog_metrics WHERE timestamp < ?"
+    if sql != "DELETE FROM watchdog_metrics WHERE timestamp < ?":
+        raise AssertionError
     assert isinstance(params, tuple)
     assert len(params) == 1
     # param must be ISO-parseable and represent a past time
     cutoff = datetime.fromisoformat(params[0])
-    assert cutoff <= datetime.now()
+    if cutoff > datetime.now():
+        raise AssertionError
 
     # identifiers must be validated (reject dangerous)
     with pytest.raises(ValueError):

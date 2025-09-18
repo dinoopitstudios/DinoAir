@@ -21,9 +21,11 @@ def test_can_perform_write_operation_blocked_by_default():
     with patch.dict(os.environ, {}, clear=True):
         sec = NotesSecurity()
         allowed, msg = sec.can_perform_write_operation("create")
-        assert allowed is False
+        if allowed is not False:
+            raise AssertionError
         assert isinstance(msg, str)
-        assert "blocked" in msg.lower() or "unavailable" in msg.lower()
+        if not ("blocked" in msg.lower() or "unavailable" in msg.lower()):
+            raise AssertionError
 
 
 def test_can_perform_write_operation_allowed_when_env_enabled():
@@ -31,7 +33,8 @@ def test_can_perform_write_operation_allowed_when_env_enabled():
     with patch.dict(os.environ, {"ALLOW_NOTES_FALLBACK_WRITES": "1"}, clear=True):
         sec = NotesSecurity()
         allowed, msg = sec.can_perform_write_operation("update")
-        assert allowed is True
+        if allowed is not True:
+            raise AssertionError
         assert msg is None
 
 
@@ -41,7 +44,8 @@ def test_escape_sql_wildcards_via_policy():
     # Input contains %, _, and a backslash
     escaped = policy.escape_sql_wildcards(r"a%_b\c")
     # Expect backslash escaped first, then % and _
-    assert escaped == r"a\%\_b\\c"
+    if escaped != r"a\%\_b\\c":
+        raise AssertionError
 
 
 def test_validate_note_data_errors_and_success():
@@ -50,43 +54,58 @@ def test_validate_note_data_errors_and_success():
 
     # Empty title
     res = policy.validate_note_data("", "x", ["t"])
-    assert res["valid"] is False
-    assert any("title" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("title" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Title too long
     res = policy.validate_note_data("a" * 301, "x", ["t"])
-    assert res["valid"] is False
-    assert any("exceeds 300" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("exceeds 300" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Non-string content
     res = policy.validate_note_data("ok", 123, ["t"])
-    assert res["valid"] is False
-    assert any("content must be a string" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("content must be a string" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Content too long
     res = policy.validate_note_data("ok", "x" * 20001, [])
-    assert res["valid"] is False
-    assert any("exceeds 20000" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("exceeds 20000" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Tags not a list
     res = policy.validate_note_data("ok", "x", "not-a-list")  # type: ignore[arg-type]
-    assert res["valid"] is False
-    assert any("tags must be a list" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("tags must be a list" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Tag too long and non-string
     res = policy.validate_note_data("ok", "x", ["a" * 51, 123])  # type: ignore[list-item]
-    assert res["valid"] is False
+    if res["valid"] is not False:
+        raise AssertionError
     errs = " ".join(res["errors"]).lower()
-    assert "strings" in errs or "tag length exceeds" in errs
+    if not ("strings" in errs or "tag length exceeds" in errs):
+        raise AssertionError
 
     # Too many tags
     res = policy.validate_note_data("ok", "x", [f"t{i}" for i in range(101)])
-    assert res["valid"] is False
-    assert any("too many tags" in e.lower() for e in res["errors"])
+    if res["valid"] is not False:
+        raise AssertionError
+    if not any("too many tags" in e.lower() for e in res["errors"]):
+        raise AssertionError
 
     # Valid minimal case
     res = policy.validate_note_data("Title", "", [])
-    assert res["valid"] is True
+    if res["valid"] is not True:
+        raise AssertionError
 
 
 def test_notes_security_escape_sql_wildcards_delegates_to_policy():
@@ -94,4 +113,5 @@ def test_notes_security_escape_sql_wildcards_delegates_to_policy():
     with patch.dict(os.environ, {}, clear=True):
         sec = NotesSecurity()
         s = r"100%_pattern\end"
-        assert sec.escape_sql_wildcards(s) == FallbackSecurity().escape_sql_wildcards(s)
+        if sec.escape_sql_wildcards(s) != FallbackSecurity().escape_sql_wildcards(s):
+            raise AssertionError

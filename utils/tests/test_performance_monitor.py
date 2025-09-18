@@ -47,23 +47,33 @@ class TestPerformanceMetrics:
             thread_id=123,
         )
 
-        assert metrics.operation == "test_operation"
-        assert metrics.duration == 1.5
-        assert metrics.memory_usage == 1024
-        assert metrics.cpu_usage == 25.5
-        assert metrics.custom_metrics == {"requests": 10, "errors": 2}
-        assert metrics.timestamp == 1234567890.0
-        assert metrics.thread_id == 123
+        if metrics.operation != "test_operation":
+            raise AssertionError
+        if metrics.duration != 1.5:
+            raise AssertionError
+        if metrics.memory_usage != 1024:
+            raise AssertionError
+        if metrics.cpu_usage != 25.5:
+            raise AssertionError
+        if metrics.custom_metrics != {"requests": 10, "errors": 2}:
+            raise AssertionError
+        if metrics.timestamp != 1234567890.0:
+            raise AssertionError
+        if metrics.thread_id != 123:
+            raise AssertionError
 
     def test_performance_metrics_defaults(self):
         """Test PerformanceMetrics with default values."""
         metrics = PerformanceMetrics(operation="test", duration=2.0)
 
-        assert metrics.operation == "test"
-        assert metrics.duration == 2.0
+        if metrics.operation != "test":
+            raise AssertionError
+        if metrics.duration != 2.0:
+            raise AssertionError
         assert metrics.memory_usage is None
         assert metrics.cpu_usage is None
-        assert metrics.custom_metrics == {}
+        if metrics.custom_metrics != {}:
+            raise AssertionError
         assert isinstance(metrics.timestamp, float)
         assert isinstance(metrics.thread_id, int)
 
@@ -83,14 +93,19 @@ class TestPerformanceConfig:
         """Test PerformanceConfig with default values."""
         config = PerformanceConfig()
 
-        assert config.enabled is True
-        assert config.sampling_rate == 1.0
+        if config.enabled is not True:
+            raise AssertionError
+        if config.sampling_rate != 1.0:
+            raise AssertionError
         assert config.memory_threshold_mb is None
         assert config.cpu_threshold_percent is None
         assert config.duration_threshold_seconds is None
-        assert config.max_metrics_retained == 1000
-        assert config.alert_on_thresholds is True
-        assert config.log_level == "INFO"
+        if config.max_metrics_retained != 1000:
+            raise AssertionError
+        if config.alert_on_thresholds is not True:
+            raise AssertionError
+        if config.log_level != "INFO":
+            raise AssertionError
 
     def test_performance_config_custom_values(self):
         """Test PerformanceConfig with custom values."""
@@ -105,14 +120,22 @@ class TestPerformanceConfig:
             log_level="WARNING",
         )
 
-        assert config.enabled is False
-        assert config.sampling_rate == 0.5
-        assert config.memory_threshold_mb == 512.0
-        assert config.cpu_threshold_percent == 80.0
-        assert config.duration_threshold_seconds == 5.0
-        assert config.max_metrics_retained == 500
-        assert config.alert_on_thresholds is False
-        assert config.log_level == "WARNING"
+        if config.enabled is not False:
+            raise AssertionError
+        if config.sampling_rate != 0.5:
+            raise AssertionError
+        if config.memory_threshold_mb != 512.0:
+            raise AssertionError
+        if config.cpu_threshold_percent != 80.0:
+            raise AssertionError
+        if config.duration_threshold_seconds != 5.0:
+            raise AssertionError
+        if config.max_metrics_retained != 500:
+            raise AssertionError
+        if config.alert_on_thresholds is not False:
+            raise AssertionError
+        if config.log_level != "WARNING":
+            raise AssertionError
 
 
 class TestPerformanceMonitor:
@@ -123,7 +146,8 @@ class TestPerformanceMonitor:
         config = PerformanceConfig(max_metrics_retained=100)
         monitor = PerformanceMonitor(config)
 
-        assert monitor.config == config
+        if monitor.config != config:
+            raise AssertionError
         assert len(monitor._metrics) == 0
         assert len(monitor._active_timers) == 0
 
@@ -131,20 +155,24 @@ class TestPerformanceMonitor:
         """Test PerformanceMonitor with default config."""
         monitor = PerformanceMonitor()
 
-        assert monitor.config.enabled is True
-        assert monitor.config.max_metrics_retained == 1000
+        if monitor.config.enabled is not True:
+            raise AssertionError
+        if monitor.config.max_metrics_retained != 1000:
+            raise AssertionError
 
     def test_should_sample_enabled_full_rate(self):
         """Test sampling when enabled with full rate."""
         monitor = PerformanceMonitor(PerformanceConfig(enabled=True, sampling_rate=1.0))
 
-        assert monitor._should_sample() is True
+        if monitor._should_sample() is not True:
+            raise AssertionError
 
     def test_should_sample_disabled(self):
         """Test sampling when disabled."""
         monitor = PerformanceMonitor(PerformanceConfig(enabled=False))
 
-        assert monitor._should_sample() is False
+        if monitor._should_sample() is not False:
+            raise AssertionError
 
     def test_should_sample_partial_rate(self):
         """Test sampling with partial rate."""
@@ -155,7 +183,8 @@ class TestPerformanceMonitor:
         true_count = sum(samples)
 
         # Should be roughly 50, but allow some variance
-        assert 30 <= true_count <= 70
+        if not 30 <= true_count <= 70:
+            raise AssertionError
 
     @patch("utils.performance_monitor.HAS_PSUTIL", True)
     @patch("utils.performance_monitor.psutil")
@@ -169,8 +198,10 @@ class TestPerformanceMonitor:
         monitor = PerformanceMonitor()
         metrics = monitor._collect_system_metrics()
 
-        assert metrics["memory_mb"] == 1.0  # 1048576 / 1024 / 1024
-        assert metrics["cpu_percent"] == 15.5
+        if metrics["memory_mb"] != 1.0:
+            raise AssertionError
+        if metrics["cpu_percent"] != 15.5:
+            raise AssertionError
 
     @patch("utils.performance_monitor.HAS_PSUTIL", False)
     def test_collect_system_metrics_without_psutil(self):
@@ -178,8 +209,10 @@ class TestPerformanceMonitor:
         monitor = PerformanceMonitor()
         metrics = monitor._collect_system_metrics()
 
-        assert "memory_mb" not in metrics
-        assert "cpu_percent" not in metrics
+        if "memory_mb" in metrics:
+            raise AssertionError
+        if "cpu_percent" in metrics:
+            raise AssertionError
 
     def test_add_custom_collector(self):
         """Test adding custom metrics collector."""
@@ -191,7 +224,8 @@ class TestPerformanceMonitor:
         monitor.add_custom_collector("test_metric", custom_collector)
         metrics = monitor._collect_system_metrics()
 
-        assert metrics["test_metric"] == 42
+        if metrics["test_metric"] != 42:
+            raise AssertionError
 
     def test_remove_custom_collector(self):
         """Test removing custom metrics collector."""
@@ -204,7 +238,8 @@ class TestPerformanceMonitor:
         monitor.remove_custom_collector("test_metric")
 
         metrics = monitor._collect_system_metrics()
-        assert "test_metric" not in metrics
+        if "test_metric" in metrics:
+            raise AssertionError
 
     def test_start_operation(self):
         """Test starting an operation."""
@@ -213,9 +248,12 @@ class TestPerformanceMonitor:
         operation_id = monitor.start_operation("test_operation", user_id=123)
 
         assert operation_id is not None
-        assert operation_id in monitor._active_timers
-        assert monitor._active_timers[operation_id]["operation"] == "test_operation"
-        assert "user_id" in monitor._active_timers[operation_id]["context"]
+        if operation_id not in monitor._active_timers:
+            raise AssertionError
+        if monitor._active_timers[operation_id]["operation"] != "test_operation":
+            raise AssertionError
+        if "user_id" not in monitor._active_timers[operation_id]["context"]:
+            raise AssertionError
 
     def test_start_operation_disabled(self):
         """Test starting operation when monitoring is disabled."""
@@ -223,7 +261,8 @@ class TestPerformanceMonitor:
 
         operation_id = monitor.start_operation("test_operation")
 
-        assert operation_id == ""  # Empty string when disabled
+        if operation_id != "":
+            raise AssertionError
 
     def test_end_operation(self):
         """Test ending an operation."""
@@ -236,9 +275,11 @@ class TestPerformanceMonitor:
         metrics = monitor.end_operation(operation_id)
 
         assert metrics is not None
-        assert metrics.operation == "test_operation"
+        if metrics.operation != "test_operation":
+            raise AssertionError
         assert isinstance(metrics.duration, float)
-        assert operation_id not in monitor._active_timers
+        if operation_id in monitor._active_timers:
+            raise AssertionError
 
     def test_end_operation_not_found(self):
         """Test ending non-existent operation."""
@@ -269,12 +310,18 @@ class TestPerformanceMonitor:
 
         result = monitor.get_metrics("test_op")
 
-        assert result["count"] == 2
-        assert result["avg_duration"] == 1.5
-        assert result["min_duration"] == 1.0
-        assert result["max_duration"] == 2.0
-        assert result["total_duration"] == 3.0
-        assert result["latest"] == metrics2
+        if result["count"] != 2:
+            raise AssertionError
+        if result["avg_duration"] != 1.5:
+            raise AssertionError
+        if result["min_duration"] != 1.0:
+            raise AssertionError
+        if result["max_duration"] != 2.0:
+            raise AssertionError
+        if result["total_duration"] != 3.0:
+            raise AssertionError
+        if result["latest"] != metrics2:
+            raise AssertionError
 
     def test_get_metrics_all_operations(self):
         """Test getting metrics for all operations."""
@@ -286,10 +333,14 @@ class TestPerformanceMonitor:
 
         result = monitor.get_metrics()
 
-        assert "op1" in result
-        assert "op2" in result
-        assert result["op1"]["count"] == 1
-        assert result["op2"]["count"] == 1
+        if "op1" not in result:
+            raise AssertionError
+        if "op2" not in result:
+            raise AssertionError
+        if result["op1"]["count"] != 1:
+            raise AssertionError
+        if result["op2"]["count"] != 1:
+            raise AssertionError
 
     def test_get_metrics_empty_operation(self):
         """Test getting metrics for operation with no data."""
@@ -297,7 +348,8 @@ class TestPerformanceMonitor:
 
         result = monitor.get_metrics("nonexistent")
 
-        assert result == {}
+        if result != {}:
+            raise AssertionError
 
     def test_clear_metrics_single_operation(self):
         """Test clearing metrics for single operation."""
@@ -327,8 +379,10 @@ class TestPerformanceMonitor:
         id2 = monitor.start_operation("op2")
 
         active = monitor.get_active_operations()
-        assert id1 in active
-        assert id2 in active
+        if id1 not in active:
+            raise AssertionError
+        if id2 not in active:
+            raise AssertionError
 
     def test_update_config(self):
         """Test updating monitor configuration."""
@@ -336,8 +390,10 @@ class TestPerformanceMonitor:
 
         monitor.update_config(enabled=False, sampling_rate=0.5)
 
-        assert monitor.config.enabled is False
-        assert monitor.config.sampling_rate == 0.5
+        if monitor.config.enabled is not False:
+            raise AssertionError
+        if monitor.config.sampling_rate != 0.5:
+            raise AssertionError
 
     def test_check_thresholds_duration_exceeded(self):
         """Test threshold checking for duration."""
@@ -352,7 +408,8 @@ class TestPerformanceMonitor:
 
             mock_logger.log.assert_called_once()
             call_args = mock_logger.log.call_args
-            assert "Duration 2.000s exceeds threshold 1.0s" in call_args[0][1]
+            if "Duration 2.000s exceeds threshold 1.0s" not in call_args[0][1]:
+                raise AssertionError
 
     def test_check_thresholds_memory_exceeded(self):
         """Test threshold checking for memory."""
@@ -368,7 +425,8 @@ class TestPerformanceMonitor:
 
             mock_logger.log.assert_called_once()
             call_args = mock_logger.log.call_args
-            assert "Memory 2.0MB exceeds threshold 1.0MB" in call_args[0][1]
+            if "Memory 2.0MB exceeds threshold 1.0MB" not in call_args[0][1]:
+                raise AssertionError
 
     def test_check_thresholds_cpu_exceeded(self):
         """Test threshold checking for CPU."""
@@ -383,7 +441,8 @@ class TestPerformanceMonitor:
 
             mock_logger.log.assert_called_once()
             call_args = mock_logger.log.call_args
-            assert "CPU 75.0% exceeds threshold 50.0%" in call_args[0][1]
+            if "CPU 75.0% exceeds threshold 50.0%" not in call_args[0][1]:
+                raise AssertionError
 
     def test_check_thresholds_no_alerts(self):
         """Test threshold checking when alerts are disabled."""
@@ -413,8 +472,10 @@ class TestPerformanceMonitorDecorator:
 
         result = test_function()
 
-        assert result == "result"
-        assert len(monitor._metrics) > 0
+        if result != "result":
+            raise AssertionError
+        if len(monitor._metrics) <= 0:
+            raise AssertionError
 
     def test_decorator_with_operation_name(self):
         """Test decorator with custom operation name."""
@@ -426,7 +487,8 @@ class TestPerformanceMonitorDecorator:
 
         test_function()
 
-        assert "custom_operation" in monitor._metrics
+        if "custom_operation" not in monitor._metrics:
+            raise AssertionError
 
     def test_decorator_with_context(self):
         """Test decorator with context parameters."""
@@ -441,7 +503,8 @@ class TestPerformanceMonitorDecorator:
         # Check that context was stored
         metrics_list = list(monitor._metrics["test_op"])
         assert len(metrics_list) == 1
-        assert metrics_list[0].custom_metrics.get("user") == "test_user"
+        if metrics_list[0].custom_metrics.get("user") != "test_user":
+            raise AssertionError
 
 
 class TestPerformanceContext:
@@ -454,10 +517,12 @@ class TestPerformanceContext:
         with PerformanceContext("test_operation", monitor=monitor):
             time.sleep(0.01)
 
-        assert "test_operation" in monitor._metrics
+        if "test_operation" not in monitor._metrics:
+            raise AssertionError
         metrics_list = list(monitor._metrics["test_operation"])
         assert len(metrics_list) == 1
-        assert metrics_list[0].duration > 0
+        if metrics_list[0].duration <= 0:
+            raise AssertionError
 
     def test_context_manager_with_context(self):
         """Test context manager with context parameters."""
@@ -467,7 +532,8 @@ class TestPerformanceContext:
             pass
 
         metrics_list = list(monitor._metrics["test_op"])
-        assert metrics_list[0].custom_metrics.get("request_id") == "123"
+        if metrics_list[0].custom_metrics.get("request_id") != "123":
+            raise AssertionError
 
     def test_context_manager_exception_handling(self):
         """Test context manager handles exceptions properly."""
@@ -478,7 +544,8 @@ class TestPerformanceContext:
                 raise ValueError("Test error")
 
         # Should still record metrics despite exception
-        assert "failing_operation" in monitor._metrics
+        if "failing_operation" not in monitor._metrics:
+            raise AssertionError
 
 
 class TestGlobalFunctions:
@@ -489,29 +556,34 @@ class TestGlobalFunctions:
         monitor = get_performance_monitor()
 
         assert isinstance(monitor, PerformanceMonitor)
-        assert monitor is get_performance_monitor()  # Same instance
+        if monitor is not get_performance_monitor():
+            raise AssertionError
 
     def test_enable_performance_monitoring(self):
         """Test enabling global performance monitoring."""
         enable_performance_monitoring()
 
         monitor = get_performance_monitor()
-        assert monitor.config.enabled is True
+        if monitor.config.enabled is not True:
+            raise AssertionError
 
     def test_disable_performance_monitoring(self):
         """Test disabling global performance monitoring."""
         disable_performance_monitoring()
 
         monitor = get_performance_monitor()
-        assert monitor.config.enabled is False
+        if monitor.config.enabled is not False:
+            raise AssertionError
 
     def test_configure_performance_monitoring(self):
         """Test configuring global performance monitoring."""
         configure_performance_monitoring(sampling_rate=0.5, max_metrics_retained=500)
 
         monitor = get_performance_monitor()
-        assert monitor.config.sampling_rate == 0.5
-        assert monitor.config.max_metrics_retained == 500
+        if monitor.config.sampling_rate != 0.5:
+            raise AssertionError
+        if monitor.config.max_metrics_retained != 500:
+            raise AssertionError
 
 
 class TestBackwardsCompatibility:
@@ -532,7 +604,8 @@ class TestBackwardsCompatibility:
         time.sleep(0.01)
         end_timer("legacy_operation")
 
-        assert "legacy_operation" in monitor._metrics
+        if "legacy_operation" not in monitor._metrics:
+            raise AssertionError
 
     def test_performance_timer_context_manager(self):
         """Test backwards compatible context manager."""
@@ -541,7 +614,8 @@ class TestBackwardsCompatibility:
         with performance_timer("legacy_timer"):
             time.sleep(0.01)
 
-        assert "legacy_timer" in monitor._metrics
+        if "legacy_timer" not in monitor._metrics:
+            raise AssertionError
 
 
 class TestPerformanceMonitorIntegration:
@@ -565,12 +639,18 @@ class TestPerformanceMonitorIntegration:
         # Check metrics
         metrics = monitor.get_metrics()
 
-        assert "operation1" in metrics
-        assert "operation2" in metrics
-        assert metrics["operation1"]["count"] == 1
-        assert metrics["operation2"]["count"] == 1
-        assert metrics["operation1"]["avg_duration"] > 0
-        assert metrics["operation2"]["avg_duration"] > metrics["operation1"]["avg_duration"]
+        if "operation1" not in metrics:
+            raise AssertionError
+        if "operation2" not in metrics:
+            raise AssertionError
+        if metrics["operation1"]["count"] != 1:
+            raise AssertionError
+        if metrics["operation2"]["count"] != 1:
+            raise AssertionError
+        if metrics["operation1"]["avg_duration"] <= 0:
+            raise AssertionError
+        if metrics["operation2"]["avg_duration"] <= metrics["operation1"]["avg_duration"]:
+            raise AssertionError
 
     def test_decorator_and_context_combination(self):
         """Test combining decorator and context manager."""
@@ -584,6 +664,9 @@ class TestPerformanceMonitorIntegration:
 
         result = decorated_function()
 
-        assert result == "done"
-        assert "decorated_func" in monitor._metrics
-        assert "inner_operation" in monitor._metrics
+        if result != "done":
+            raise AssertionError
+        if "decorated_func" not in monitor._metrics:
+            raise AssertionError
+        if "inner_operation" not in monitor._metrics:
+            raise AssertionError

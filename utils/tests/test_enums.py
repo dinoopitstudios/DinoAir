@@ -25,28 +25,38 @@ class TestAppState:
 
     def test_app_state_values(self):
         """Test AppState enum has correct values."""
-        assert AppState.STARTING.name == "STARTING"
-        assert AppState.RUNNING.name == "RUNNING"
-        assert AppState.PAUSED.name == "PAUSED"
-        assert AppState.SHUTTING_DOWN.name == "SHUTTING_DOWN"
-        assert AppState.ERROR.name == "ERROR"
+        if AppState.STARTING.name != "STARTING":
+            raise AssertionError
+        if AppState.RUNNING.name != "RUNNING":
+            raise AssertionError
+        if AppState.PAUSED.name != "PAUSED":
+            raise AssertionError
+        if AppState.SHUTTING_DOWN.name != "SHUTTING_DOWN":
+            raise AssertionError
+        if AppState.ERROR.name != "ERROR":
+            raise AssertionError
 
     def test_app_state_auto_values(self):
         """Test AppState enum uses auto() for values."""
         # auto() generates sequential integer values
         states = list(AppState)
         assert len(states) == 5
-        assert all(isinstance(state.value, int) for state in states)
+        if not all(isinstance(state.value, int) for state in states):
+            raise AssertionError
 
     def test_app_state_membership(self):
         """Test AppState membership operations."""
-        assert AppState.RUNNING in AppState
+        if AppState.RUNNING not in AppState:
+            raise AssertionError
 
         # Test iteration
         state_names = [state.name for state in AppState]
-        assert "STARTING" in state_names
-        assert "RUNNING" in state_names
-        assert "ERROR" in state_names
+        if "STARTING" not in state_names:
+            raise AssertionError
+        if "RUNNING" not in state_names:
+            raise AssertionError
+        if "ERROR" not in state_names:
+            raise AssertionError
 
 
 class TestDatabaseState:
@@ -54,11 +64,16 @@ class TestDatabaseState:
 
     def test_database_state_values(self):
         """Test DatabaseState enum values."""
-        assert DatabaseState.CONNECTED.name == "CONNECTED"
-        assert DatabaseState.DISCONNECTED.name == "DISCONNECTED"
-        assert DatabaseState.INITIALIZING.name == "INITIALIZING"
-        assert DatabaseState.ERROR.name == "ERROR"
-        assert DatabaseState.BACKUP_IN_PROGRESS.name == "BACKUP_IN_PROGRESS"
+        if DatabaseState.CONNECTED.name != "CONNECTED":
+            raise AssertionError
+        if DatabaseState.DISCONNECTED.name != "DISCONNECTED":
+            raise AssertionError
+        if DatabaseState.INITIALIZING.name != "INITIALIZING":
+            raise AssertionError
+        if DatabaseState.ERROR.name != "ERROR":
+            raise AssertionError
+        if DatabaseState.BACKUP_IN_PROGRESS.name != "BACKUP_IN_PROGRESS":
+            raise AssertionError
 
     def test_database_state_count(self):
         """Test DatabaseState has expected number of states."""
@@ -71,16 +86,21 @@ class TestNoteStatus:
 
     def test_note_status_values(self):
         """Test NoteStatus enum values."""
-        assert NoteStatus.DRAFT.name == "DRAFT"
-        assert NoteStatus.ACTIVE.name == "ACTIVE"
-        assert NoteStatus.ARCHIVED.name == "ARCHIVED"
-        assert NoteStatus.DELETED.name == "DELETED"
+        if NoteStatus.DRAFT.name != "DRAFT":
+            raise AssertionError
+        if NoteStatus.ACTIVE.name != "ACTIVE":
+            raise AssertionError
+        if NoteStatus.ARCHIVED.name != "ARCHIVED":
+            raise AssertionError
+        if NoteStatus.DELETED.name != "DELETED":
+            raise AssertionError
 
     def test_note_status_workflow(self):
         """Test note status represents typical workflow."""
         # Typical note workflow: DRAFT -> ACTIVE -> ARCHIVED or DELETED
         workflow_states = [NoteStatus.DRAFT, NoteStatus.ACTIVE, NoteStatus.ARCHIVED]
-        assert all(state in NoteStatus for state in workflow_states)
+        if not all(state in NoteStatus for state in workflow_states):
+            raise AssertionError
 
 
 class TestInputType:
@@ -88,10 +108,14 @@ class TestInputType:
 
     def test_input_type_values(self):
         """Test InputType enum values."""
-        assert InputType.TEXT.name == "TEXT"
-        assert InputType.VOICE.name == "VOICE"
-        assert InputType.FILE.name == "FILE"
-        assert InputType.CLIPBOARD.name == "CLIPBOARD"
+        if InputType.TEXT.name != "TEXT":
+            raise AssertionError
+        if InputType.VOICE.name != "VOICE":
+            raise AssertionError
+        if InputType.FILE.name != "FILE":
+            raise AssertionError
+        if InputType.CLIPBOARD.name != "CLIPBOARD":
+            raise AssertionError
 
     def test_input_type_coverage(self):
         """Test InputType covers expected input methods."""
@@ -100,9 +124,12 @@ class TestInputType:
 
         # Should cover main input modalities
         type_names = [t.name for t in input_types]
-        assert "TEXT" in type_names
-        assert "VOICE" in type_names
-        assert "FILE" in type_names
+        if "TEXT" not in type_names:
+            raise AssertionError
+        if "VOICE" not in type_names:
+            raise AssertionError
+        if "FILE" not in type_names:
+            raise AssertionError
 
 
 class TestProcessingStage:
@@ -110,13 +137,20 @@ class TestProcessingStage:
 
     def test_processing_stage_values(self):
         """Test ProcessingStage enum values."""
-        assert ProcessingStage.VALIDATION.name == "VALIDATION"
-        assert ProcessingStage.ESCAPING.name == "ESCAPING"
-        assert ProcessingStage.PATTERN_NOTIFY.name == "PATTERN_NOTIFY"
-        assert ProcessingStage.PROFANITY_FILTER.name == "PROFANITY_FILTER"
-        assert ProcessingStage.INTENT_CLASSIFIER.name == "INTENT_CLASSIFIER"
-        assert ProcessingStage.TRANSLATION.name == "TRANSLATION"
-        assert ProcessingStage.COMPLETE.name == "COMPLETE"
+        if ProcessingStage.VALIDATION.name != "VALIDATION":
+            raise AssertionError
+        if ProcessingStage.ESCAPING.name != "ESCAPING":
+            raise AssertionError
+        if ProcessingStage.PATTERN_NOTIFY.name != "PATTERN_NOTIFY":
+            raise AssertionError
+        if ProcessingStage.PROFANITY_FILTER.name != "PROFANITY_FILTER":
+            raise AssertionError
+        if ProcessingStage.INTENT_CLASSIFIER.name != "INTENT_CLASSIFIER":
+            raise AssertionError
+        if ProcessingStage.TRANSLATION.name != "TRANSLATION":
+            raise AssertionError
+        if ProcessingStage.COMPLETE.name != "COMPLETE":
+            raise AssertionError
 
     def test_processing_stage_pipeline(self):
         """Test ProcessingStage represents processing pipeline."""
@@ -125,15 +159,19 @@ class TestProcessingStage:
 
         # Should start with validation and end with complete
         stage_names = [s.name for s in stages]
-        assert "VALIDATION" in stage_names
-        assert "COMPLETE" in stage_names
+        if "VALIDATION" not in stage_names:
+            raise AssertionError
+        if "COMPLETE" not in stage_names:
+            raise AssertionError
 
     def test_processing_stage_order(self):
         """Test processing stages can be used for pipeline ordering."""
         # Should be able to iterate through stages in order
         stages = list(ProcessingStage)
-        assert stages[0] == ProcessingStage.VALIDATION
-        assert stages[-1] == ProcessingStage.COMPLETE
+        if stages[0] != ProcessingStage.VALIDATION:
+            raise AssertionError
+        if stages[-1] != ProcessingStage.COMPLETE:
+            raise AssertionError
 
 
 class TestAgentType:
@@ -141,10 +179,14 @@ class TestAgentType:
 
     def test_agent_type_values(self):
         """Test AgentType enum values."""
-        assert AgentType.LLM_WRAPPER.name == "LLM_WRAPPER"
-        assert AgentType.ORCHESTRATOR.name == "ORCHESTRATOR"
-        assert AgentType.TRANSLATOR.name == "TRANSLATOR"
-        assert AgentType.CLASSIFIER.name == "CLASSIFIER"
+        if AgentType.LLM_WRAPPER.name != "LLM_WRAPPER":
+            raise AssertionError
+        if AgentType.ORCHESTRATOR.name != "ORCHESTRATOR":
+            raise AssertionError
+        if AgentType.TRANSLATOR.name != "TRANSLATOR":
+            raise AssertionError
+        if AgentType.CLASSIFIER.name != "CLASSIFIER":
+            raise AssertionError
 
     def test_agent_type_ai_components(self):
         """Test AgentType covers AI system components."""
@@ -157,10 +199,14 @@ class TestToolType:
 
     def test_tool_type_values(self):
         """Test ToolType enum values."""
-        assert ToolType.MEMORY_TOOL.name == "MEMORY_TOOL"
-        assert ToolType.TIMER_TOOL.name == "TIMER_TOOL"
-        assert ToolType.CODE_AGENT.name == "CODE_AGENT"
-        assert ToolType.FILE_TOOL.name == "FILE_TOOL"
+        if ToolType.MEMORY_TOOL.name != "MEMORY_TOOL":
+            raise AssertionError
+        if ToolType.TIMER_TOOL.name != "TIMER_TOOL":
+            raise AssertionError
+        if ToolType.CODE_AGENT.name != "CODE_AGENT":
+            raise AssertionError
+        if ToolType.FILE_TOOL.name != "FILE_TOOL":
+            raise AssertionError
 
     def test_tool_type_coverage(self):
         """Test ToolType covers different tool categories."""
@@ -173,9 +219,12 @@ class TestUITheme:
 
     def test_ui_theme_values(self):
         """Test UITheme enum string values."""
-        assert UITheme.LIGHT.value == "light"
-        assert UITheme.DARK.value == "dark"
-        assert UITheme.AUTO.value == "auto"
+        if UITheme.LIGHT.value != "light":
+            raise AssertionError
+        if UITheme.DARK.value != "dark":
+            raise AssertionError
+        if UITheme.AUTO.value != "auto":
+            raise AssertionError
 
     def test_ui_theme_string_inheritance(self):
         """Test UITheme values are strings."""
@@ -185,9 +234,12 @@ class TestUITheme:
     def test_ui_theme_common_options(self):
         """Test UITheme includes common theme options."""
         themes = [theme.value for theme in UITheme]
-        assert "light" in themes
-        assert "dark" in themes
-        assert "auto" in themes
+        if "light" not in themes:
+            raise AssertionError
+        if "dark" not in themes:
+            raise AssertionError
+        if "auto" not in themes:
+            raise AssertionError
 
 
 class TestLogLevel:
@@ -195,21 +247,31 @@ class TestLogLevel:
 
     def test_log_level_values(self):
         """Test LogLevel enum string values."""
-        assert LogLevel.DEBUG.value == "DEBUG"
-        assert LogLevel.INFO.value == "INFO"
-        assert LogLevel.WARNING.value == "WARNING"
-        assert LogLevel.ERROR.value == "ERROR"
-        assert LogLevel.CRITICAL.value == "CRITICAL"
+        if LogLevel.DEBUG.value != "DEBUG":
+            raise AssertionError
+        if LogLevel.INFO.value != "INFO":
+            raise AssertionError
+        if LogLevel.WARNING.value != "WARNING":
+            raise AssertionError
+        if LogLevel.ERROR.value != "ERROR":
+            raise AssertionError
+        if LogLevel.CRITICAL.value != "CRITICAL":
+            raise AssertionError
 
     def test_log_level_standard_levels(self):
         """Test LogLevel matches standard logging levels."""
 
         # Should match standard Python logging levels
-        assert LogLevel.DEBUG.value == "DEBUG"
-        assert LogLevel.INFO.value == "INFO"
-        assert LogLevel.WARNING.value == "WARNING"
-        assert LogLevel.ERROR.value == "ERROR"
-        assert LogLevel.CRITICAL.value == "CRITICAL"
+        if LogLevel.DEBUG.value != "DEBUG":
+            raise AssertionError
+        if LogLevel.INFO.value != "INFO":
+            raise AssertionError
+        if LogLevel.WARNING.value != "WARNING":
+            raise AssertionError
+        if LogLevel.ERROR.value != "ERROR":
+            raise AssertionError
+        if LogLevel.CRITICAL.value != "CRITICAL":
+            raise AssertionError
 
     def test_log_level_order(self):
         """Test LogLevel enum order matches severity."""
@@ -218,7 +280,8 @@ class TestLogLevel:
 
         # Should be in order of increasing severity
         expected_order = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-        assert level_names == expected_order
+        if level_names != expected_order:
+            raise AssertionError
 
 
 class TestEnumsContainer:
@@ -226,15 +289,24 @@ class TestEnumsContainer:
 
     def test_enums_container_attributes(self):
         """Test Enums container has all enum references."""
-        assert Enums.AppState == AppState
-        assert Enums.DatabaseState == DatabaseState
-        assert Enums.NoteStatus == NoteStatus
-        assert Enums.InputType == InputType
-        assert Enums.ProcessingStage == ProcessingStage
-        assert Enums.AgentType == AgentType
-        assert Enums.ToolType == ToolType
-        assert Enums.UITheme == UITheme
-        assert Enums.LogLevel == LogLevel
+        if Enums.AppState != AppState:
+            raise AssertionError
+        if Enums.DatabaseState != DatabaseState:
+            raise AssertionError
+        if Enums.NoteStatus != NoteStatus:
+            raise AssertionError
+        if Enums.InputType != InputType:
+            raise AssertionError
+        if Enums.ProcessingStage != ProcessingStage:
+            raise AssertionError
+        if Enums.AgentType != AgentType:
+            raise AssertionError
+        if Enums.ToolType != ToolType:
+            raise AssertionError
+        if Enums.UITheme != UITheme:
+            raise AssertionError
+        if Enums.LogLevel != LogLevel:
+            raise AssertionError
 
     def test_list_enum_names(self):
         """Test list_enum_names class method."""
@@ -253,7 +325,8 @@ class TestEnumsContainer:
         ]
 
         for name in expected_names:
-            assert name in enum_names
+            if name not in enum_names:
+                raise AssertionError
 
         # Should only include enum classes
         assert len(enum_names) == len(expected_names)
@@ -263,44 +336,56 @@ class TestEnumsContainer:
         enum_names = Enums.list_enum_names()
 
         assert isinstance(enum_names, list)
-        assert all(isinstance(name, str) for name in enum_names)
+        if not all(isinstance(name, str) for name in enum_names):
+            raise AssertionError
 
     def test_is_valid_value_instance_method(self):
         """Test is_valid_value instance method."""
         enums_instance = Enums()
 
         # Test valid values
-        assert enums_instance.is_valid_value("AppState", AppState.RUNNING) is True
-        assert enums_instance.is_valid_value("UITheme", UITheme.DARK) is True
-        assert enums_instance.is_valid_value("LogLevel", LogLevel.INFO) is True
+        if enums_instance.is_valid_value("AppState", AppState.RUNNING) is not True:
+            raise AssertionError
+        if enums_instance.is_valid_value("UITheme", UITheme.DARK) is not True:
+            raise AssertionError
+        if enums_instance.is_valid_value("LogLevel", LogLevel.INFO) is not True:
+            raise AssertionError
 
         # Test invalid values
-        assert enums_instance.is_valid_value("AppState", "invalid_state") is False
-        assert enums_instance.is_valid_value("UITheme", "invalid_theme") is False
+        if enums_instance.is_valid_value("AppState", "invalid_state") is not False:
+            raise AssertionError
+        if enums_instance.is_valid_value("UITheme", "invalid_theme") is not False:
+            raise AssertionError
 
         # Test non-existent enum
-        assert enums_instance.is_valid_value("NonExistentEnum", "value") is False
+        if enums_instance.is_valid_value("NonExistentEnum", "value") is not False:
+            raise AssertionError
 
     def test_is_valid_value_with_string_values(self):
         """Test is_valid_value with string-based enums."""
         enums_instance = Enums()
 
         # UITheme and LogLevel use string values
-        assert enums_instance.is_valid_value("UITheme", UITheme.LIGHT) is True
-        assert enums_instance.is_valid_value("LogLevel", LogLevel.ERROR) is True
+        if enums_instance.is_valid_value("UITheme", UITheme.LIGHT) is not True:
+            raise AssertionError
+        if enums_instance.is_valid_value("LogLevel", LogLevel.ERROR) is not True:
+            raise AssertionError
 
     def test_is_valid_value_with_auto_values(self):
         """Test is_valid_value with auto()-based enums."""
         enums_instance = Enums()
 
         # AppState uses auto() values (integers)
-        assert enums_instance.is_valid_value("AppState", AppState.STARTING) is True
-        assert enums_instance.is_valid_value("NoteStatus", NoteStatus.ACTIVE) is True
+        if enums_instance.is_valid_value("AppState", AppState.STARTING) is not True:
+            raise AssertionError
+        if enums_instance.is_valid_value("NoteStatus", NoteStatus.ACTIVE) is not True:
+            raise AssertionError
 
     def test_enums_container_inheritance(self):
         """Test Enums container class structure."""
         # Should be a regular class, not an enum
-        assert not issubclass(Enums, Enum)
+        if issubclass(Enums, Enum):
+            raise AssertionError
 
         # Should be instantiable
         instance = Enums()
@@ -309,9 +394,12 @@ class TestEnumsContainer:
     def test_enum_access_through_container(self):
         """Test accessing enums through container."""
         # Should be able to access enum values through container
-        assert Enums.AppState.RUNNING == AppState.RUNNING
-        assert Enums.UITheme.DARK == UITheme.DARK
-        assert Enums.LogLevel.INFO == LogLevel.INFO
+        if Enums.AppState.RUNNING != AppState.RUNNING:
+            raise AssertionError
+        if Enums.UITheme.DARK != UITheme.DARK:
+            raise AssertionError
+        if Enums.LogLevel.INFO != LogLevel.INFO:
+            raise AssertionError
 
 
 class TestDefaultConfig:
@@ -336,51 +424,71 @@ class TestDefaultConfig:
         ]
 
         for key in expected_keys:
-            assert key in DEFAULT_CONFIG
+            if key not in DEFAULT_CONFIG:
+                raise AssertionError
 
     def test_default_config_app_info(self):
         """Test application information in DEFAULT_CONFIG."""
-        assert DEFAULT_CONFIG["APP_NAME"] == "DinoAir 2.0"
-        assert DEFAULT_CONFIG["VERSION"] == "2.0.0"
+        if DEFAULT_CONFIG["APP_NAME"] != "DinoAir 2.0":
+            raise AssertionError
+        if DEFAULT_CONFIG["VERSION"] != "2.0.0":
+            raise AssertionError
         assert isinstance(DEFAULT_CONFIG["APP_NAME"], str)
         assert isinstance(DEFAULT_CONFIG["VERSION"], str)
 
     def test_default_config_timeouts(self):
         """Test timeout configurations."""
-        assert DEFAULT_CONFIG["DATABASE_TIMEOUT"] == 30
-        assert DEFAULT_CONFIG["SESSION_TIMEOUT"] == 3600
+        if DEFAULT_CONFIG["DATABASE_TIMEOUT"] != 30:
+            raise AssertionError
+        if DEFAULT_CONFIG["SESSION_TIMEOUT"] != 3600:
+            raise AssertionError
         assert isinstance(DEFAULT_CONFIG["DATABASE_TIMEOUT"], int)
         assert isinstance(DEFAULT_CONFIG["SESSION_TIMEOUT"], int)
 
     def test_default_config_limits(self):
         """Test limit configurations."""
-        assert DEFAULT_CONFIG["MAX_RETRIES"] == 3
-        assert DEFAULT_CONFIG["BACKUP_RETENTION_DAYS"] == 30
-        assert DEFAULT_CONFIG["MAX_NOTE_SIZE"] == 1048576  # 1MB
-        assert DEFAULT_CONFIG["AI_MAX_TOKENS"] == 2000
-        assert DEFAULT_CONFIG["UI_UPDATE_INTERVAL"] == 100
+        if DEFAULT_CONFIG["MAX_RETRIES"] != 3:
+            raise AssertionError
+        if DEFAULT_CONFIG["BACKUP_RETENTION_DAYS"] != 30:
+            raise AssertionError
+        if DEFAULT_CONFIG["MAX_NOTE_SIZE"] != 1048576:
+            raise AssertionError
+        if DEFAULT_CONFIG["AI_MAX_TOKENS"] != 2000:
+            raise AssertionError
+        if DEFAULT_CONFIG["UI_UPDATE_INTERVAL"] != 100:
+            raise AssertionError
 
         # Should be reasonable values
-        assert DEFAULT_CONFIG["MAX_RETRIES"] > 0
-        assert DEFAULT_CONFIG["MAX_NOTE_SIZE"] > 0
-        assert DEFAULT_CONFIG["AI_MAX_TOKENS"] > 0
+        if DEFAULT_CONFIG["MAX_RETRIES"] <= 0:
+            raise AssertionError
+        if DEFAULT_CONFIG["MAX_NOTE_SIZE"] <= 0:
+            raise AssertionError
+        if DEFAULT_CONFIG["AI_MAX_TOKENS"] <= 0:
+            raise AssertionError
 
     def test_default_config_file_types(self):
         """Test supported file types configuration."""
         file_types = DEFAULT_CONFIG["SUPPORTED_FILE_TYPES"]
 
         assert isinstance(file_types, list)
-        assert len(file_types) > 0
+        if len(file_types) <= 0:
+            raise AssertionError
 
         # Should include common file types
-        assert ".txt" in file_types
-        assert ".md" in file_types
-        assert ".json" in file_types
-        assert ".py" in file_types
+        if ".txt" not in file_types:
+            raise AssertionError
+        if ".md" not in file_types:
+            raise AssertionError
+        if ".json" not in file_types:
+            raise AssertionError
+        if ".py" not in file_types:
+            raise AssertionError
 
         # All should be strings starting with dot
-        assert all(isinstance(ft, str) for ft in file_types)
-        assert all(ft.startswith(".") for ft in file_types)
+        if not all(isinstance(ft, str) for ft in file_types):
+            raise AssertionError
+        if not all(ft.startswith(".") for ft in file_types):
+            raise AssertionError
 
     def test_default_config_immutability(self):
         """Test that DEFAULT_CONFIG values are appropriate types."""
@@ -388,7 +496,8 @@ class TestDefaultConfig:
         original_app_name = DEFAULT_CONFIG["APP_NAME"]
 
         # Should be able to read values
-        assert original_app_name == "DinoAir 2.0"
+        if original_app_name != "DinoAir 2.0":
+            raise AssertionError
 
         # In practice, this should be treated as read-only
 
@@ -411,7 +520,8 @@ class TestEnumValidation:
         ]
 
         for enum_class in enum_classes:
-            assert issubclass(enum_class, Enum)
+            if not issubclass(enum_class, Enum):
+                raise AssertionError
 
     def test_enum_uniqueness(self):
         """Test that enum values are unique within each enum."""
@@ -448,7 +558,8 @@ class TestEnumValidation:
 
         for enum_class in enum_classes:
             members = list(enum_class)
-            assert len(members) >= 2, f"{enum_class.__name__} should have at least 2 members"
+            if len(members) < 2:
+                raise AssertionError(f"{enum_class.__name__} should have at least 2 members")
 
     def test_string_enums_have_string_values(self):
         """Test that string enums have string values."""
@@ -473,7 +584,8 @@ class TestEnumValidation:
         for enum_class in auto_enums:
             for member in enum_class:
                 assert isinstance(member.value, int)
-                assert member.value > 0
+                if member.value <= 0:
+                    raise AssertionError
 
 
 class TestEnumUsagePatterns:
@@ -482,33 +594,44 @@ class TestEnumUsagePatterns:
     def test_enum_comparison(self):
         """Test enum comparison operations."""
         # Identity comparison
-        assert AppState.RUNNING == AppState.RUNNING
-        assert AppState.RUNNING != AppState.PAUSED
+        if AppState.RUNNING != AppState.RUNNING:
+            raise AssertionError
+        if AppState.RUNNING == AppState.PAUSED:
+            raise AssertionError
 
         # String enum comparison
-        assert UITheme.DARK == UITheme.DARK
-        assert UITheme.DARK != UITheme.LIGHT
+        if UITheme.DARK != UITheme.DARK:
+            raise AssertionError
+        if UITheme.DARK == UITheme.LIGHT:
+            raise AssertionError
 
     def test_enum_in_collections(self):
         """Test using enums in collections."""
         # Should work in sets
         app_states = {AppState.RUNNING, AppState.PAUSED}
-        assert AppState.RUNNING in app_states
-        assert AppState.ERROR not in app_states
+        if AppState.RUNNING not in app_states:
+            raise AssertionError
+        if AppState.ERROR in app_states:
+            raise AssertionError
 
         # Should work in lists
         themes = [UITheme.LIGHT, UITheme.DARK]
-        assert UITheme.DARK in themes
+        if UITheme.DARK not in themes:
+            raise AssertionError
 
     def test_enum_string_representation(self):
         """Test enum string representation."""
         # Should have meaningful string representations
-        assert str(AppState.RUNNING) == "AppState.RUNNING"
-        assert repr(AppState.RUNNING) == "<AppState.RUNNING: 2>"  # auto() value
+        if str(AppState.RUNNING) != "AppState.RUNNING":
+            raise AssertionError
+        if repr(AppState.RUNNING) != "<AppState.RUNNING: 2>":
+            raise AssertionError
 
         # String enums
-        assert str(UITheme.DARK) == "UITheme.DARK"
-        assert UITheme.DARK.value == "dark"
+        if str(UITheme.DARK) != "UITheme.DARK":
+            raise AssertionError
+        if UITheme.DARK.value != "dark":
+            raise AssertionError
 
     def test_enum_hashing(self):
         """Test that enums are hashable."""
@@ -519,8 +642,10 @@ class TestEnumUsagePatterns:
             UITheme.DARK: "Dark theme enabled",
         }
 
-        assert state_descriptions[AppState.RUNNING] == "Application is running normally"
-        assert state_descriptions[UITheme.DARK] == "Dark theme enabled"
+        if state_descriptions[AppState.RUNNING] != "Application is running normally":
+            raise AssertionError
+        if state_descriptions[UITheme.DARK] != "Dark theme enabled":
+            raise AssertionError
 
     def test_enum_iteration(self):
         """Test enum iteration patterns."""
@@ -530,16 +655,19 @@ class TestEnumUsagePatterns:
 
         # Should be able to filter
         running_states = [state for state in AppState if "RUNNING" in state.name]
-        assert AppState.RUNNING in running_states
+        if AppState.RUNNING not in running_states:
+            raise AssertionError
 
     def test_enum_membership_testing(self):
         """Test enum membership testing patterns."""
         # Should work with 'in' operator
-        assert AppState.RUNNING in AppState
+        if AppState.RUNNING not in AppState:
+            raise AssertionError
 
         # Should work with value checking
         running_value = AppState.RUNNING.value
-        assert any(state.value == running_value for state in AppState)
+        if not any(state.value == running_value for state in AppState):
+            raise AssertionError
 
 
 class TestEnumValidationMethods:
@@ -564,7 +692,8 @@ class TestEnumValidationMethods:
 
         for enum_name, value, expected in test_cases:
             result = enums_instance.is_valid_value(enum_name, value)
-            assert result == expected, f"Failed for {enum_name}.{value}"
+            if result != expected:
+                raise AssertionError(f"Failed for {enum_name}.{value}")
 
     def test_is_valid_value_invalid_cases(self):
         """Test is_valid_value with invalid cases."""
@@ -581,16 +710,20 @@ class TestEnumValidationMethods:
 
         for enum_name, value in invalid_cases:
             result = enums_instance.is_valid_value(enum_name, value)
-            assert result is False, f"Should be invalid: {enum_name}.{value}"
+            if result is not False:
+                raise AssertionError(f"Should be invalid: {enum_name}.{value}")
 
     def test_is_valid_value_edge_cases(self):
         """Test is_valid_value edge cases."""
         enums_instance = Enums()
 
         # Test with wrong type for enum name
-        assert enums_instance.is_valid_value(None, AppState.RUNNING) is False
-        assert enums_instance.is_valid_value(123, AppState.RUNNING) is False
-        assert enums_instance.is_valid_value("", AppState.RUNNING) is False
+        if enums_instance.is_valid_value(None, AppState.RUNNING) is not False:
+            raise AssertionError
+        if enums_instance.is_valid_value(123, AppState.RUNNING) is not False:
+            raise AssertionError
+        if enums_instance.is_valid_value("", AppState.RUNNING) is not False:
+            raise AssertionError
 
     def test_list_enum_names_accuracy(self):
         """Test that list_enum_names returns accurate results."""
@@ -600,11 +733,14 @@ class TestEnumValidationMethods:
         for name in enum_names:
             attr = getattr(Enums, name)
             assert isinstance(attr, type)
-            assert issubclass(attr, Enum)
+            if not issubclass(attr, Enum):
+                raise AssertionError
 
         # Should not include non-enum attributes
-        assert "list_enum_names" not in enum_names  # Method name
-        assert "is_valid_value" not in enum_names  # Method name
+        if "list_enum_names" in enum_names:
+            raise AssertionError
+        if "is_valid_value" in enum_names:
+            raise AssertionError
 
 
 class TestEnumIntegration:
@@ -618,11 +754,13 @@ class TestEnumIntegration:
         theme_data = {"theme": UITheme.DARK.value}
         json_str = json.dumps(theme_data)
         parsed = json.loads(json_str)
-        assert parsed["theme"] == "dark"
+        if parsed["theme"] != "dark":
+            raise AssertionError
 
         # Can reconstruct enum from value
         reconstructed_theme = UITheme(parsed["theme"])
-        assert reconstructed_theme == UITheme.DARK
+        if reconstructed_theme != UITheme.DARK:
+            raise AssertionError
 
     def test_enum_config_integration(self):
         """Test enum integration with config system."""
@@ -635,8 +773,10 @@ class TestEnumIntegration:
 
         # Should be able to validate config values
         enums_instance = Enums()
-        assert enums_instance.is_valid_value("UITheme", UITheme(config["ui_theme"])) is True
-        assert enums_instance.is_valid_value("LogLevel", LogLevel(config["log_level"])) is True
+        if enums_instance.is_valid_value("UITheme", UITheme(config["ui_theme"])) is not True:
+            raise AssertionError
+        if enums_instance.is_valid_value("LogLevel", LogLevel(config["log_level"])) is not True:
+            raise AssertionError
 
     def test_enum_state_machine_integration(self):
         """Test enum integration with state machine patterns."""
@@ -646,7 +786,8 @@ class TestEnumIntegration:
 
         # Should work in conditional logic
         if current_state == AppState.STARTING:
-            assert next_state == AppState.RUNNING
+            if next_state != AppState.RUNNING:
+                raise AssertionError
 
         # Should work in state mapping
         state_transitions = {
@@ -654,7 +795,8 @@ class TestEnumIntegration:
             AppState.RUNNING: [AppState.PAUSED, AppState.SHUTTING_DOWN],
         }
 
-        assert AppState.RUNNING in state_transitions[AppState.STARTING]
+        if AppState.RUNNING not in state_transitions[AppState.STARTING]:
+            raise AssertionError
 
     def test_enum_logging_integration(self):
         """Test enum integration with logging system."""
@@ -671,7 +813,8 @@ class TestEnumIntegration:
         }
 
         for enum_level, std_level in level_mapping.items():
-            assert enum_level.value == logging.getLevelName(std_level)
+            if enum_level.value != logging.getLevelName(std_level):
+                raise AssertionError
 
     def test_enum_ui_integration(self):
         """Test enum integration with UI systems."""
@@ -682,7 +825,8 @@ class TestEnumIntegration:
         }
 
         current_theme = UITheme.DARK
-        assert theme_styles[current_theme]["background"] == "#000000"
+        if theme_styles[current_theme]["background"] != "#000000":
+            raise AssertionError
 
     def test_enum_validation_workflow(self):
         """Test enum usage in validation workflows."""
@@ -707,7 +851,8 @@ class TestEnumIntegration:
             validations.append(False)
 
         # Should validate successfully
-        assert all(validations)
+        if not all(validations):
+            raise AssertionError
 
 
 class TestDefaultConfigValidation:
@@ -737,31 +882,41 @@ class TestDefaultConfigValidation:
     def test_config_reasonable_values(self):
         """Test that config values are reasonable."""
         # Timeouts should be positive
-        assert DEFAULT_CONFIG["DATABASE_TIMEOUT"] > 0
-        assert DEFAULT_CONFIG["SESSION_TIMEOUT"] > 0
-        assert DEFAULT_CONFIG["UI_UPDATE_INTERVAL"] > 0
+        if DEFAULT_CONFIG["DATABASE_TIMEOUT"] <= 0:
+            raise AssertionError
+        if DEFAULT_CONFIG["SESSION_TIMEOUT"] <= 0:
+            raise AssertionError
+        if DEFAULT_CONFIG["UI_UPDATE_INTERVAL"] <= 0:
+            raise AssertionError
 
         # Retry count should be reasonable
-        assert 1 <= DEFAULT_CONFIG["MAX_RETRIES"] <= 10
+        if not 1 <= DEFAULT_CONFIG["MAX_RETRIES"] <= 10:
+            raise AssertionError
 
         # File size should be reasonable (1MB = 1048576 bytes)
-        assert DEFAULT_CONFIG["MAX_NOTE_SIZE"] == 1024 * 1024
+        if DEFAULT_CONFIG["MAX_NOTE_SIZE"] != 1024 * 1024:
+            raise AssertionError
 
         # Backup retention should be reasonable
-        assert 1 <= DEFAULT_CONFIG["BACKUP_RETENTION_DAYS"] <= 365
+        if not 1 <= DEFAULT_CONFIG["BACKUP_RETENTION_DAYS"] <= 365:
+            raise AssertionError
 
     def test_config_file_types_validity(self):
         """Test that supported file types are valid."""
         file_types = DEFAULT_CONFIG["SUPPORTED_FILE_TYPES"]
 
         # Should have reasonable number of types
-        assert 3 <= len(file_types) <= 20
+        if not 3 <= len(file_types) <= 20:
+            raise AssertionError
 
         # Each should be valid file extension format
         for file_type in file_types:
-            assert file_type.startswith(".")
-            assert len(file_type) >= 2  # At least ".x"
-            assert file_type.islower() or file_type in [".HTML", ".CSS", ".JS"]  # Common exceptions
+            if not file_type.startswith("."):
+                raise AssertionError
+            if len(file_type) < 2:
+                raise AssertionError
+            if not (file_type.islower() or file_type in [".HTML", ".CSS", ".JS"]):
+                raise AssertionError
 
     def test_config_version_format(self):
         """Test that version follows semantic versioning."""
@@ -773,17 +928,21 @@ class TestDefaultConfigValidation:
 
         # Each part should be numeric
         for part in parts:
-            assert part.isdigit()
-            assert int(part) >= 0
+            if not part.isdigit():
+                raise AssertionError
+            if int(part) < 0:
+                raise AssertionError
 
     def test_config_app_name_format(self):
         """Test application name format."""
         app_name = DEFAULT_CONFIG["APP_NAME"]
 
-        assert len(app_name) > 0
+        if len(app_name) <= 0:
+            raise AssertionError
         assert isinstance(app_name, str)
         # Should be a reasonable application name
-        assert "DinoAir" in app_name
+        if "DinoAir" not in app_name:
+            raise AssertionError
 
 
 class TestEnumDocumentationAndUsability:
@@ -795,44 +954,57 @@ class TestEnumDocumentationAndUsability:
         app_state_names = [state.name for state in AppState]
         descriptive_names = ["STARTING", "RUNNING", "PAUSED", "SHUTTING_DOWN", "ERROR"]
         for name in descriptive_names:
-            assert name in app_state_names
+            if name not in app_state_names:
+                raise AssertionError
 
         # UI themes should be standard
         theme_names = [theme.name for theme in UITheme]
-        assert "LIGHT" in theme_names
-        assert "DARK" in theme_names
+        if "LIGHT" not in theme_names:
+            raise AssertionError
+        if "DARK" not in theme_names:
+            raise AssertionError
 
     def test_enum_values_are_consistent(self):
         """Test that enum values follow consistent patterns."""
         # String enums should use lowercase values
         for theme in UITheme:
-            assert theme.value.islower()
+            if not theme.value.islower():
+                raise AssertionError
 
         for level in LogLevel:
-            assert level.value.isupper()
+            if not level.value.isupper():
+                raise AssertionError
 
     def test_container_class_utility(self):
         """Test that Enums container class provides utility."""
         # Should provide centralized access
-        assert hasattr(Enums, "AppState")
-        assert hasattr(Enums, "list_enum_names")
-        assert hasattr(Enums, "is_valid_value")
+        if not hasattr(Enums, "AppState"):
+            raise AssertionError
+        if not hasattr(Enums, "list_enum_names"):
+            raise AssertionError
+        if not hasattr(Enums, "is_valid_value"):
+            raise AssertionError
 
         # Should be useful for validation
         enums_instance = Enums()
-        assert callable(enums_instance.is_valid_value)
+        if not callable(enums_instance.is_valid_value):
+            raise AssertionError
 
         # Should be useful for introspection
-        assert callable(Enums.list_enum_names)
+        if not callable(Enums.list_enum_names):
+            raise AssertionError
 
     def test_enum_error_states(self):
         """Test that enums include appropriate error states."""
         # App and database states should have error states
-        assert AppState.ERROR in AppState
-        assert DatabaseState.ERROR in DatabaseState
+        if AppState.ERROR not in AppState:
+            raise AssertionError
+        if DatabaseState.ERROR not in DatabaseState:
+            raise AssertionError
 
         # Error states should be distinguishable
-        assert AppState.ERROR != DatabaseState.ERROR  # Different enums
+        if AppState.ERROR == DatabaseState.ERROR:
+            raise AssertionError
 
     def test_enum_terminal_states(self):
         """Test identification of terminal states."""
@@ -846,4 +1018,5 @@ class TestEnumDocumentationAndUsability:
 
         # These should exist and be distinct
         for state in terminal_candidates:
-            assert state in type(state)  # Should be member of its enum
+            if state not in type(state):
+                raise AssertionError

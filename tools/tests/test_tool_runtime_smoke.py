@@ -265,8 +265,10 @@ def _import_under_src_tools(module_name: str, file_path: Path):
     """Import a module from file as if it were under 'src.tools.*' to satisfy relative imports."""
     full_name = f"src.tools.{module_name}"
     spec = importlib.util.spec_from_file_location(full_name, str(file_path))
-    assert spec
-    assert spec.loader
+    if not spec:
+        raise AssertionError
+    if not spec.loader:
+        raise AssertionError
     module = importlib.util.module_from_spec(spec)
     # Ensure parent packages exist
     if "src" not in sys.modules:
@@ -336,7 +338,8 @@ class TestToolRuntimeSmoke(unittest.TestCase):
 
             # Ensure all expected tools are present
             missing = [name for name in calls if name not in self.AVAILABLE_TOOLS]
-            assert not missing, f"Tools missing from AVAILABLE_TOOLS: {missing}"
+            if missing:
+                raise AssertionError(f"Tools missing from AVAILABLE_TOOLS: {missing}")
 
             # Execute each tool and assert success
             failures = {}
@@ -350,7 +353,8 @@ class TestToolRuntimeSmoke(unittest.TestCase):
                 except Exception as e:  # noqa: BLE001  # nosec B110 - broad on purpose for smoke test aggregation
                     failures[name] = f"Exception: {e}"
 
-            assert not failures, f"Smoke failures: {failures}"
+            if failures:
+                raise AssertionError(f"Smoke failures: {failures}")
 
             # Extended negative-path smoke checks: verify graceful failures on bad inputs
             bad_calls = {
@@ -404,7 +408,8 @@ class TestToolRuntimeSmoke(unittest.TestCase):
                     # Even on exceptions, we consider this a test failure: functions should catch and return error structure
                     failures_bad[case_name] = f"Exception: {e}"
 
-            assert not failures_bad, f"Negative-path smoke failures: {failures_bad}"
+            if failures_bad:
+                raise AssertionError(f"Negative-path smoke failures: {failures_bad}")
 
 
 if __name__ == "__main__":

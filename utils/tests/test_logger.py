@@ -19,8 +19,10 @@ class TestLogger:
         logger1 = Logger()
         logger2 = Logger()
 
-        assert logger1 is logger2
-        assert logger1._instance is logger2._instance
+        if logger1 is not logger2:
+            raise AssertionError
+        if logger1._instance is not logger2._instance:
+            raise AssertionError
 
     def test_initialization_once(self):
         """Test that initialization only happens once."""
@@ -52,7 +54,8 @@ class TestLogger:
 
             # Should call basicConfig
             mock_basic_config.assert_called_once()
-            assert logger.logger.name == "DinoAir"
+            if logger.logger.name != "DinoAir":
+                raise AssertionError
 
     def test_setup_logging_structured_already_configured(self):
         """Test that setup respects existing structured logging configuration."""
@@ -67,7 +70,8 @@ class TestLogger:
             logger.setup_logging()
 
             # Should not call basicConfig, just get namespaced logger
-            assert logger.logger.name == "DinoAir"
+            if logger.logger.name != "DinoAir":
+                raise AssertionError
 
     def test_logging_methods(self):
         """Test all logging level methods."""
@@ -204,8 +208,10 @@ class TestLoggerIntegration:
 
         # Check output
         output = string_handler.stream.getvalue()
-        assert "INFO:" in output
-        assert test_message in output
+        if "INFO:" not in output:
+            raise AssertionError
+        if test_message not in output:
+            raise AssertionError
 
     def test_multiple_logger_instances_same_object(self):
         """Test that multiple Logger() calls return same instance."""
@@ -213,5 +219,7 @@ class TestLoggerIntegration:
         logger2 = Logger()
         logger3 = Logger()
 
-        assert logger1 is logger2 is logger3
-        assert id(logger1) == id(logger2) == id(logger3)
+        if not logger1 is logger2 is logger3:
+            raise AssertionError
+        if not id(logger1) == id(logger2) == id(logger3):
+            raise AssertionError

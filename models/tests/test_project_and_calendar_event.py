@@ -22,22 +22,30 @@ def test_project_from_dict_and_to_dict_tags_and_status():
     p = Project.from_dict(data)
     # tags should be joined into comma-separated string by from_dict
     assert isinstance(p.tags, str)
-    assert p.tags == "a,b"
+    if p.tags != "a,b":
+        raise AssertionError
     # status enum conversion
-    assert p.status == ProjectStatus.COMPLETED
+    if p.status != ProjectStatus.COMPLETED:
+        raise AssertionError
     # to_dict should serialize status to value and preserve tags as string
     out = p.to_dict()
-    assert out["status"] == "completed"
-    assert out["tags"] == "a,b"
-    assert out["metadata"] == {"k": "v"}
+    if out["status"] != "completed":
+        raise AssertionError
+    if out["tags"] != "a,b":
+        raise AssertionError
+    if out["metadata"] != {"k": "v"}:
+        raise AssertionError
 
 
 def test_project_summary_from_project():
     p = Project(id="p2", name="Name")
     s = ProjectSummary.from_project(p)
-    assert s.project_id == "p2"
-    assert s.project_name == "Name"
-    assert s.total_item_count == 0
+    if s.project_id != "p2":
+        raise AssertionError
+    if s.project_name != "Name":
+        raise AssertionError
+    if s.total_item_count != 0:
+        raise AssertionError
 
 
 def test_project_statistics_calculations_and_robustness():
@@ -53,7 +61,8 @@ def test_project_statistics_calculations_and_robustness():
     ps.calculate_days_since_activity()
     assert ps.days_since_activity is not None
     ps.calculate_completion_percentage()
-    assert ps.completion_percentage == pytest.approx(40.0)
+    if ps.completion_percentage != pytest.approx(40.0):
+        raise AssertionError
 
     # Robustness: invalid last_activity_date string should not raise and set None
     ps2 = ProjectStatistics(project_id="p4", project_name="N", last_activity_date="not-a-date")  # type: ignore[assignment]
@@ -63,7 +72,8 @@ def test_project_statistics_calculations_and_robustness():
     # Robustness: divide by zero guarded
     ps3 = ProjectStatistics(project_id="p5", project_name="N", total_items=0, completed_items=1)
     ps3.calculate_completion_percentage()
-    assert ps3.completion_percentage == 0.0
+    if ps3.completion_percentage != 0.0:
+        raise AssertionError
 
 
 def test_calendar_event_from_dict_participants_and_to_dict_flatten():
@@ -77,13 +87,17 @@ def test_calendar_event_from_dict_participants_and_to_dict_flatten():
         "event_date": "2024-02-01",
     }
     ev = CalendarEvent.from_dict(raw)
-    assert ev.participants == ["a@x", "b@y"]
+    if ev.participants != ["a@x", "b@y"]:
+        raise AssertionError
     # to_dict should join participants into CSV string
     out = ev.to_dict()
-    assert out["participants"] == "a@x,b@y"
+    if out["participants"] != "a@x,b@y":
+        raise AssertionError
     # preserve tags list and other fields
-    assert ev.tags == ["t1", "t2"]
-    assert out["event_date"] == "2024-02-01"
+    if ev.tags != ["t1", "t2"]:
+        raise AssertionError
+    if out["event_date"] != "2024-02-01":
+        raise AssertionError
 
 
 @pytest.mark.parametrize(
@@ -102,14 +116,18 @@ def test_calendar_event_get_datetime(event_date, all_day, start_time, expected_t
     )
     dt = ev.get_datetime()
     assert dt is not None
-    assert dt.date() == date.fromisoformat(event_date)
-    assert dt.time() == expected_time
+    if dt.date() != date.fromisoformat(event_date):
+        raise AssertionError
+    if dt.time() != expected_time:
+        raise AssertionError
 
 
 def test_calendar_event_get_datetime_invalid_safe():
     # Missing date -> None
     ev = CalendarEvent(id="e3", title="T", event_date=None)
-    assert ev.get_datetime() is None
+    if ev.get_datetime() is not None:
+        raise AssertionError
     # Malformed time -> None (guarded by exception handling)
     ev2 = CalendarEvent(id="e4", title="T", event_date="2024-01-01", start_time="99:99:99")
-    assert ev2.get_datetime() is None
+    if ev2.get_datetime() is not None:
+        raise AssertionError

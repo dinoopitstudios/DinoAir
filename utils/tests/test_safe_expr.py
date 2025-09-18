@@ -17,7 +17,8 @@ class TestValidationError:
         """Test that ValidationError inherits from ValueError."""
         error = ValidationError("Test error")
         assert isinstance(error, ValueError)
-        assert str(error) == "Test error"
+        if str(error) != "Test error":
+            raise AssertionError
 
 
 class TestBasicExpressionEvaluation:
@@ -25,36 +26,54 @@ class TestBasicExpressionEvaluation:
 
     def test_evaluate_boolean_literals(self):
         """Test evaluation of boolean literals."""
-        assert evaluate_bool_expr("True", {}) is True
-        assert evaluate_bool_expr("False", {}) is False
+        if evaluate_bool_expr("True", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("False", {}) is not False:
+            raise AssertionError
 
     def test_evaluate_numeric_literals(self):
         """Test evaluation of numeric literals as boolean."""
-        assert evaluate_bool_expr("1", {}) is True
-        assert evaluate_bool_expr("0", {}) is False
-        assert evaluate_bool_expr("42", {}) is True
-        assert evaluate_bool_expr("3.14", {}) is True
-        assert evaluate_bool_expr("0.0", {}) is False
+        if evaluate_bool_expr("1", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("0", {}) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("42", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("3.14", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("0.0", {}) is not False:
+            raise AssertionError
 
     def test_evaluate_string_literals(self):
         """Test evaluation of string literals as boolean."""
-        assert evaluate_bool_expr("'hello'", {}) is True
-        assert evaluate_bool_expr("''", {}) is False
-        assert evaluate_bool_expr('"world"', {}) is True
-        assert evaluate_bool_expr('""', {}) is False
+        if evaluate_bool_expr("'hello'", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("''", {}) is not False:
+            raise AssertionError
+        if evaluate_bool_expr('"world"', {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr('""', {}) is not False:
+            raise AssertionError
 
     def test_evaluate_none_literal(self):
         """Test evaluation of None literal."""
-        assert evaluate_bool_expr("None", {}) is False
+        if evaluate_bool_expr("None", {}) is not False:
+            raise AssertionError
 
     def test_evaluate_container_literals(self):
         """Test evaluation of container literals as boolean."""
-        assert evaluate_bool_expr("[1, 2, 3]", {}) is True
-        assert evaluate_bool_expr("[]", {}) is False
-        assert evaluate_bool_expr("{'a': 1}", {}) is True
-        assert evaluate_bool_expr("{}", {}) is False
-        assert evaluate_bool_expr("(1, 2)", {}) is True
-        assert evaluate_bool_expr("()", {}) is False
+        if evaluate_bool_expr("[1, 2, 3]", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("[]", {}) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("{'a': 1}", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("{}", {}) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("(1, 2)", {}) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("()", {}) is not False:
+            raise AssertionError
 
 
 class TestVariableAccess:
@@ -69,10 +88,14 @@ class TestVariableAccess:
             "empty": None,
         }
 
-        assert evaluate_bool_expr("is_valid", variables) is True
-        assert evaluate_bool_expr("count", variables) is True
-        assert evaluate_bool_expr("name", variables) is True
-        assert evaluate_bool_expr("empty", variables) is False
+        if evaluate_bool_expr("is_valid", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("count", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("name", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("empty", variables) is not False:
+            raise AssertionError
 
     def test_unknown_variable_error(self):
         """Test that unknown variables raise ValidationError."""
@@ -92,34 +115,47 @@ class TestBooleanOperations:
         """Test 'and' boolean operation."""
         variables = {"a": True, "b": False, "c": True}
 
-        assert evaluate_bool_expr("a and c", variables) is True
-        assert evaluate_bool_expr("a and b", variables) is False
-        assert evaluate_bool_expr("b and c", variables) is False
-        assert evaluate_bool_expr("a and b and c", variables) is False
+        if evaluate_bool_expr("a and c", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a and b", variables) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("b and c", variables) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("a and b and c", variables) is not False:
+            raise AssertionError
 
     def test_or_operation(self):
         """Test 'or' boolean operation."""
         variables = {"a": True, "b": False, "c": False}
 
-        assert evaluate_bool_expr("a or b", variables) is True
-        assert evaluate_bool_expr("b or c", variables) is False
-        assert evaluate_bool_expr("a or b or c", variables) is True
+        if evaluate_bool_expr("a or b", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("b or c", variables) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("a or b or c", variables) is not True:
+            raise AssertionError
 
     def test_not_operation(self):
         """Test 'not' unary operation."""
         variables = {"a": True, "b": False}
 
-        assert evaluate_bool_expr("not a", variables) is False
-        assert evaluate_bool_expr("not b", variables) is True
-        assert evaluate_bool_expr("not not a", variables) is True
+        if evaluate_bool_expr("not a", variables) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("not b", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("not not a", variables) is not True:
+            raise AssertionError
 
     def test_complex_boolean_expressions(self):
         """Test complex boolean expressions with parentheses."""
         variables = {"a": True, "b": False, "c": True, "d": False}
 
-        assert evaluate_bool_expr("(a and b) or (c and not d)", variables) is True
-        assert evaluate_bool_expr("not (a and b) and (c or d)", variables) is True
-        assert evaluate_bool_expr("(a or b) and (c or d)", variables) is True
+        if evaluate_bool_expr("(a and b) or (c and not d)", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("not (a and b) and (c or d)", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("(a or b) and (c or d)", variables) is not True:
+            raise AssertionError
 
 
 class TestComparisonOperations:
@@ -129,22 +165,33 @@ class TestComparisonOperations:
         """Test equality and inequality comparisons."""
         variables = {"x": 5, "y": 5, "z": 10, "name": "test"}
 
-        assert evaluate_bool_expr("x == y", variables) is True
-        assert evaluate_bool_expr("x == z", variables) is False
-        assert evaluate_bool_expr("x != z", variables) is True
-        assert evaluate_bool_expr("name == 'test'", variables) is True
-        assert evaluate_bool_expr("name != 'other'", variables) is True
+        if evaluate_bool_expr("x == y", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x == z", variables) is not False:
+            raise AssertionError
+        if evaluate_bool_expr("x != z", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("name == 'test'", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("name != 'other'", variables) is not True:
+            raise AssertionError
 
     def test_numeric_comparisons(self):
         """Test numeric comparison operations."""
         variables = {"a": 10, "b": 20, "c": 10.5}
 
-        assert evaluate_bool_expr("a < b", variables) is True
-        assert evaluate_bool_expr("b > a", variables) is True
-        assert evaluate_bool_expr("a <= b", variables) is True
-        assert evaluate_bool_expr("a <= a", variables) is True
-        assert evaluate_bool_expr("b >= a", variables) is True
-        assert evaluate_bool_expr("c > a", variables) is True
+        if evaluate_bool_expr("a < b", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("b > a", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a <= b", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a <= a", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("b >= a", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("c > a", variables) is not True:
+            raise AssertionError
 
     def test_membership_operations(self):
         """Test 'in' and 'not in' operations."""
@@ -154,20 +201,29 @@ class TestComparisonOperations:
             "keys": {"a", "b", "c"},
         }
 
-        assert evaluate_bool_expr("2 in items", variables) is True
-        assert evaluate_bool_expr("5 not in items", variables) is True
-        assert evaluate_bool_expr("'hello' in text", variables) is True
-        assert evaluate_bool_expr("'xyz' not in text", variables) is True
-        assert evaluate_bool_expr("'a' in keys", variables) is True
+        if evaluate_bool_expr("2 in items", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("5 not in items", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("'hello' in text", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("'xyz' not in text", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("'a' in keys", variables) is not True:
+            raise AssertionError
 
     def test_chained_comparisons(self):
         """Test chained comparison operations."""
         variables = {"a": 5, "b": 10, "c": 15}
 
-        assert evaluate_bool_expr("a < b < c", variables) is True
-        assert evaluate_bool_expr("a < b > a", variables) is True
-        assert evaluate_bool_expr("c > b > a", variables) is True
-        assert evaluate_bool_expr("a < c < b", variables) is False
+        if evaluate_bool_expr("a < b < c", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a < b > a", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("c > b > a", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a < c < b", variables) is not False:
+            raise AssertionError
 
 
 class TestArithmeticOperations:
@@ -177,20 +233,29 @@ class TestArithmeticOperations:
         """Test basic arithmetic operations."""
         variables = {"x": 10, "y": 5}
 
-        assert evaluate_bool_expr("x + y == 15", variables) is True
-        assert evaluate_bool_expr("x - y == 5", variables) is True
-        assert evaluate_bool_expr("x * y == 50", variables) is True
-        assert evaluate_bool_expr("x / y == 2", variables) is True
-        assert evaluate_bool_expr("x % 3 == 1", variables) is True
-        assert evaluate_bool_expr("x // 3 == 3", variables) is True
+        if evaluate_bool_expr("x + y == 15", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x - y == 5", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x * y == 50", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x / y == 2", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x % 3 == 1", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("x // 3 == 3", variables) is not True:
+            raise AssertionError
 
     def test_arithmetic_precedence(self):
         """Test arithmetic operator precedence."""
         variables = {"a": 2, "b": 3, "c": 4}
 
-        assert evaluate_bool_expr("a + b * c == 14", variables) is True  # 2 + (3 * 4)
-        assert evaluate_bool_expr("(a + b) * c == 20", variables) is True
-        assert evaluate_bool_expr("a * b + c == 10", variables) is True  # (2 * 3) + 4
+        if evaluate_bool_expr("a + b * c == 14", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("(a + b) * c == 20", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("a * b + c == 10", variables) is not True:
+            raise AssertionError
 
     def test_division_by_zero(self):
         """Test division by zero handling."""
@@ -282,7 +347,8 @@ class TestInputValidation:
 
         # Should pass with high limit
         result = evaluate_bool_expr(expr, {}, max_length=100)
-        assert result is False
+        if result is not False:
+            raise AssertionError
 
         # Should fail with low limit
         with pytest.raises(ValueError, match="Expression exceeds maximum length"):
@@ -304,12 +370,16 @@ class TestInputValidation:
         variables = {"count": 5, "items": [1, 2, 3], "empty_list": []}
 
         # Numeric values
-        assert evaluate_bool_expr("count", variables) is True
-        assert evaluate_bool_expr("count - 5", variables) is False
+        if evaluate_bool_expr("count", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("count - 5", variables) is not False:
+            raise AssertionError
 
         # Containers
-        assert evaluate_bool_expr("items", variables) is True
-        assert evaluate_bool_expr("empty_list", variables) is False
+        if evaluate_bool_expr("items", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("empty_list", variables) is not False:
+            raise AssertionError
 
     def test_invalid_result_type_rejection(self):
         """Test that invalid result types are rejected."""
@@ -333,10 +403,12 @@ class TestComplexScenarios:
         }
 
         expr = "error_rate > max_error_rate and environment == 'production'"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         expr = "not is_healthy or error_rate >= 0.1"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_system_health_checks(self):
         """Test system health check expressions."""
@@ -350,11 +422,13 @@ class TestComplexScenarios:
 
         # High resource usage
         expr = "cpu_usage > 80 or memory_usage > 75 or disk_usage > 90"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Critical service failures
         expr = "'database' in failed_checks and 'database' in critical_services"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_feature_flags(self):
         """Test feature flag expressions."""
@@ -366,7 +440,8 @@ class TestComplexScenarios:
         }
 
         expr = "feature_enabled and (user_type == 'premium' or current_user in beta_users)"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_threshold_comparisons(self):
         """Test threshold-based comparisons."""
@@ -380,7 +455,8 @@ class TestComplexScenarios:
         }
 
         expr = "response_time < max_response_time and error_count < max_errors and uptime_percent >= min_uptime"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
 
 class TestEdgeCases:
@@ -391,15 +467,18 @@ class TestEdgeCases:
         variables = {"a": True, "b": False, "c": True, "d": False}
 
         expr = "((a and not b) or (c and not d)) and not (b and d)"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_mixed_type_comparisons(self):
         """Test comparisons between different types."""
         variables = {"num": 42, "str_num": "42", "float_num": 42.0}
 
         # Different types should not be equal
-        assert evaluate_bool_expr("num != str_num", variables) is True
-        assert evaluate_bool_expr("num == float_num", variables) is True
+        if evaluate_bool_expr("num != str_num", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("num == float_num", variables) is not True:
+            raise AssertionError
 
     def test_unicode_strings(self):
         """Test expressions with unicode strings."""
@@ -408,8 +487,10 @@ class TestEdgeCases:
             "search_term": "世界",
         }
 
-        assert evaluate_bool_expr("search_term in unicode_text", variables) is True
-        assert evaluate_bool_expr("unicode_text != ''", variables) is True
+        if evaluate_bool_expr("search_term in unicode_text", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("unicode_text != ''", variables) is not True:
+            raise AssertionError
 
     def test_large_numbers(self):
         """Test expressions with large numbers."""
@@ -419,8 +500,10 @@ class TestEdgeCases:
             "threshold": 10**17,
         }
 
-        assert evaluate_bool_expr("big_num > threshold", variables) is True
-        assert evaluate_bool_expr("small_num < threshold", variables) is True
+        if evaluate_bool_expr("big_num > threshold", variables) is not True:
+            raise AssertionError
+        if evaluate_bool_expr("small_num < threshold", variables) is not True:
+            raise AssertionError
 
     def test_floating_point_precision(self):
         """Test floating point precision in comparisons."""
@@ -452,7 +535,8 @@ class TestPerformanceAndLimits:
         }
 
         # This should work but might be slow
-        assert evaluate_bool_expr("target in large_list", variables) is True
+        if evaluate_bool_expr("target in large_list", variables) is not True:
+            raise AssertionError
 
     def test_string_operations(self):
         """Test string containment operations."""
@@ -461,7 +545,8 @@ class TestPerformanceAndLimits:
             "search": "word",
         }
 
-        assert evaluate_bool_expr("search in large_text", variables) is True
+        if evaluate_bool_expr("search in large_text", variables) is not True:
+            raise AssertionError
 
 
 class TestSafeExprValidator:
@@ -526,7 +611,8 @@ class TestSafeExprEvaluator:
 
         tree = ast.parse("x < y", mode="eval")
         result = evaluator.visit(tree)
-        assert result is True
+        if result is not True:
+            raise AssertionError
 
     def test_evaluator_container_creation(self):
         """Test evaluator container creation."""
@@ -536,22 +622,26 @@ class TestSafeExprEvaluator:
         # Test tuple creation
         tree = ast.parse("(a, b)", mode="eval")
         result = evaluator.visit(tree)
-        assert result == (1, 2)
+        if result != (1, 2):
+            raise AssertionError
 
         # Test list creation
         tree = ast.parse("[a, b]", mode="eval")
         result = evaluator.visit(tree)
-        assert result == [1, 2]
+        if result != [1, 2]:
+            raise AssertionError
 
         # Test set creation
         tree = ast.parse("{a, b}", mode="eval")
         result = evaluator.visit(tree)
-        assert result == {1, 2}
+        if result != {1, 2}:
+            raise AssertionError
 
         # Test dict creation
         tree = ast.parse("{'first': a, 'second': b}", mode="eval")
         result = evaluator.visit(tree)
-        assert result == {"first": 1, "second": 2}
+        if result != {"first": 1, "second": 2}:
+            raise AssertionError
 
     def test_evaluator_dict_with_none_key(self):
         """Test evaluator dict creation with None key."""
@@ -601,15 +691,18 @@ class TestRealWorldScenarios:
 
         # High CPU alert
         expr = "cpu_percent > 85 and is_production and not maintenance_mode"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Memory alert with error rate
         expr = "memory_percent > 90 and error_rate > 0.05"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Complex alert condition
         expr = "('cpu' in critical_alerts and cpu_percent > 85) or ('memory' in critical_alerts and memory_percent > 90)"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_business_rule_evaluation(self):
         """Test business rule evaluation."""
@@ -626,15 +719,18 @@ class TestRealWorldScenarios:
 
         # Access control rule
         expr = "subscription_active and account_type == 'premium' and user_country in allowed_countries"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Login attempt validation
         expr = "login_attempts < max_attempts and user_age >= 18"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Feature access rule
         expr = "'advanced_search' in feature_flags and account_type == 'premium'"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
     def test_configuration_validation(self):
         """Test configuration validation scenarios."""
@@ -650,11 +746,13 @@ class TestRealWorldScenarios:
 
         # Configuration validity check
         expr = "log_level in allowed_levels and max_connections > 0 and current_connections <= max_connections"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
         # Production environment checks
         expr = "environment == 'production' and ssl_enabled and not debug_mode"
-        assert evaluate_bool_expr(expr, variables) is True
+        if evaluate_bool_expr(expr, variables) is not True:
+            raise AssertionError
 
 
 class TestErrorScenarios:
@@ -689,7 +787,8 @@ class TestErrorScenarios:
         """Test modulo operations and edge cases."""
         variables = {"x": 10, "y": 3, "zero": 0}
 
-        assert evaluate_bool_expr("x % y == 1", variables) is True
+        if evaluate_bool_expr("x % y == 1", variables) is not True:
+            raise AssertionError
 
         with pytest.raises(ZeroDivisionError):
             evaluate_bool_expr("x % zero", variables)
@@ -698,7 +797,8 @@ class TestErrorScenarios:
         """Test floor division operations."""
         variables = {"x": 17, "y": 5, "zero": 0}
 
-        assert evaluate_bool_expr("x // y == 3", variables) is True
+        if evaluate_bool_expr("x // y == 3", variables) is not True:
+            raise AssertionError
 
         with pytest.raises(ZeroDivisionError):
             evaluate_bool_expr("x // zero", variables)

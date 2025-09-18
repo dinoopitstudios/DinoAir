@@ -20,9 +20,12 @@ class TestResilientDB:
 
         db = ResilientDB(db_path, schema_callback)
 
-        assert db.db_path == db_path
-        assert db.schema_callback == schema_callback
-        assert hasattr(db, "user_feedback")
+        if db.db_path != db_path:
+            raise AssertionError
+        if db.schema_callback != schema_callback:
+            raise AssertionError
+        if not hasattr(db, "user_feedback"):
+            raise AssertionError
 
     def test_connect_success_first_attempt(self, temp_db_dir):
         """Test successful connection on first attempt"""
@@ -37,7 +40,8 @@ class TestResilientDB:
 
             result = db.connect()
 
-            assert result == mock_connection
+            if result != mock_connection:
+                raise AssertionError
             mock_connect.assert_called_once_with(str(db_path))
             schema_callback.assert_called_once_with(mock_connection)
 
@@ -62,9 +66,11 @@ class TestResilientDB:
                 result = db.connect_with_retry()
 
                 assert result is not None
-                assert mock_backup.called
+                if not mock_backup.called:
+                    raise AssertionError
                 # Should have attempted connection twice
-                assert mock_connect.call_count == 2
+                if mock_connect.call_count != 2:
+                    raise AssertionError
 
     def test_attempt_connection_success(self, temp_db_dir):
         """Test successful connection attempt"""
@@ -79,7 +85,8 @@ class TestResilientDB:
 
             result = db._attempt_connection()
 
-            assert result == mock_connection
+            if result != mock_connection:
+                raise AssertionError
             schema_callback.assert_called_once_with(mock_connection)
 
     def test_attempt_connection_failure(self, temp_db_dir):
@@ -128,7 +135,8 @@ class TestResilientDB:
 
             result = db.connect_with_retry()
 
-            assert result == mock_connection
+            if result != mock_connection:
+                raise AssertionError
             mock_attempt.assert_called_once()
 
     def test_connect_with_retry_with_failures(self, temp_db_dir):
@@ -152,9 +160,12 @@ class TestResilientDB:
 
             result = db.connect_with_retry()
 
-            assert result == mock_connection
-            assert mock_attempt.call_count == 3
-            assert mock_backup.call_count == 2  # Called for each failure
+            if result != mock_connection:
+                raise AssertionError
+            if mock_attempt.call_count != 3:
+                raise AssertionError
+            if mock_backup.call_count != 2:
+                raise AssertionError
 
     def test_connect_with_retry_max_attempts_exceeded(self, temp_db_dir):
         """Test connection retry when max attempts exceeded"""
@@ -171,7 +182,8 @@ class TestResilientDB:
                 db.connect_with_retry()
 
             # Should attempt multiple times (default retry logic)
-            assert mock_attempt.call_count >= 3
+            if mock_attempt.call_count < 3:
+                raise AssertionError
 
     def test_user_feedback_integration(self, temp_db_dir):
         """Test user feedback integration"""
@@ -193,7 +205,8 @@ class TestResilientDB:
             db.connect_with_retry()
 
             # Should have provided feedback about recovery
-            assert len(feedback_messages) > 0
+            if len(feedback_messages) <= 0:
+                raise AssertionError
 
     def test_schema_callback_execution(self, temp_db_dir):
         """Test that schema callback is executed during connection"""
@@ -212,7 +225,8 @@ class TestResilientDB:
 
             db.connect()
 
-            assert callback_executed
+            if not callback_executed:
+                raise AssertionError
 
 
 class TestResilientDBErrorScenarios:
@@ -264,7 +278,8 @@ class TestResilientDBErrorScenarios:
 
             db.connect_with_retry()
 
-            assert len(feedback_calls) >= 0  # May or may not have feedback
+            if len(feedback_calls) < 0:
+                raise AssertionError
 
 
 @pytest.mark.integration
@@ -297,9 +312,11 @@ class TestResilientDBIntegration:
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = cursor.fetchall()
 
-        assert len(tables) >= 1
+        if len(tables) < 1:
+            raise AssertionError
         table_names = [table[0] for table in tables]
-        assert "test_table" in table_names
+        if "test_table" not in table_names:
+            raise AssertionError
 
         conn.close()
 
@@ -342,7 +359,8 @@ class TestResilientDBIntegration:
         tables = cursor.fetchall()
 
         table_names = [table[0] for table in tables]
-        assert "recovery_test" in table_names
+        if "recovery_test" not in table_names:
+            raise AssertionError
 
         conn2.close()
 
@@ -426,12 +444,15 @@ def test_schema_callback_with_complex_setup(temp_db_dir):
     # Check tables
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [row[0] for row in cursor.fetchall()]
-    assert "users" in tables
-    assert "posts" in tables
+    if "users" not in tables:
+        raise AssertionError
+    if "posts" not in tables:
+        raise AssertionError
 
     # Check indexes
     cursor.execute("SELECT name FROM sqlite_master WHERE type='index'")
     indexes = [row[0] for row in cursor.fetchall()]
-    assert "idx_posts_user" in indexes
+    if "idx_posts_user" not in indexes:
+        raise AssertionError
 
     conn.close()

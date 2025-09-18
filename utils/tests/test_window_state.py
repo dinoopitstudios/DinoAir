@@ -17,8 +17,10 @@ class TestWindowStateManager:
         with patch("utils.window_state.Logger") as mock_logger:
             manager = WindowStateManager()
 
-            assert manager.config_dir == "config"
-            assert manager.state_file == os.path.join("config", "window_state.json")
+            if manager.config_dir != "config":
+                raise AssertionError
+            if manager.state_file != os.path.join("config", "window_state.json"):
+                raise AssertionError
             assert isinstance(manager.state_data, dict)
             mock_logger.assert_called_once()
 
@@ -57,10 +59,14 @@ class TestWindowStateManager:
             manager = WindowStateManager()
 
             # Should return default state
-            assert "window" in manager.state_data
-            assert "splitters" in manager.state_data
-            assert manager.state_data["window"]["geometry"] == [100, 100, 1200, 800]
-            assert manager.state_data["window"]["maximized"] is False
+            if "window" not in manager.state_data:
+                raise AssertionError
+            if "splitters" not in manager.state_data:
+                raise AssertionError
+            if manager.state_data["window"]["geometry"] != [100, 100, 1200, 800]:
+                raise AssertionError
+            if manager.state_data["window"]["maximized"] is not False:
+                raise AssertionError
 
     @patch("os.path.exists")
     @patch("builtins.open", new_callable=mock_open)
@@ -83,9 +89,12 @@ class TestWindowStateManager:
         with patch("utils.window_state.Logger"), patch("json.load", return_value=test_state):
             manager = WindowStateManager()
 
-            assert manager.state_data["window"]["geometry"] == [200, 200, 1400, 900]
-            assert manager.state_data["window"]["maximized"] is True
-            assert manager.state_data["window"]["zoom_level"] == 1.2
+            if manager.state_data["window"]["geometry"] != [200, 200, 1400, 900]:
+                raise AssertionError
+            if manager.state_data["window"]["maximized"] is not True:
+                raise AssertionError
+            if manager.state_data["window"]["zoom_level"] != 1.2:
+                raise AssertionError
 
     @patch("os.path.exists")
     @patch("builtins.open", new_callable=mock_open)
@@ -104,9 +113,12 @@ class TestWindowStateManager:
             manager = WindowStateManager()
 
             # Should merge with defaults
-            assert manager.state_data["window"]["geometry"] == [300, 300, 1000, 600]
-            assert manager.state_data["window"]["maximized"] is False  # Default
-            assert "splitters" in manager.state_data  # Default section
+            if manager.state_data["window"]["geometry"] != [300, 300, 1000, 600]:
+                raise AssertionError
+            if manager.state_data["window"]["maximized"] is not False:
+                raise AssertionError
+            if "splitters" not in manager.state_data:
+                raise AssertionError
 
     def test_save_window_state(self):
         """Test saving window state from widget."""
@@ -127,8 +139,10 @@ class TestWindowStateManager:
             manager.save_window_state(mock_window)
 
             # Verify state was updated
-            assert manager.state_data["window"]["geometry"] == [150, 150, 1300, 850]
-            assert manager.state_data["window"]["maximized"] is True
+            if manager.state_data["window"]["geometry"] != [150, 150, 1300, 850]:
+                raise AssertionError
+            if manager.state_data["window"]["maximized"] is not True:
+                raise AssertionError
             mock_save.assert_called_once()
 
     def test_restore_window_state(self):
@@ -167,7 +181,8 @@ class TestWindowStateManager:
             manager = WindowStateManager()
             manager.save_zoom_level(1.5)
 
-            assert manager.state_data["window"]["zoom_level"] == 1.5
+            if manager.state_data["window"]["zoom_level"] != 1.5:
+                raise AssertionError
             mock_save.assert_called_once()
 
     def test_get_zoom_level(self):
@@ -177,7 +192,8 @@ class TestWindowStateManager:
             manager.state_data["window"]["zoom_level"] = 1.3
 
             zoom_level = manager.get_zoom_level()
-            assert zoom_level == 1.3
+            if zoom_level != 1.3:
+                raise AssertionError
 
     def test_get_zoom_level_default(self):
         """Test getting zoom level with default value."""
@@ -186,7 +202,8 @@ class TestWindowStateManager:
             del manager.state_data["window"]["zoom_level"]  # Remove zoom level
 
             zoom_level = manager.get_zoom_level()
-            assert zoom_level == 1.0  # Default
+            if zoom_level != 1.0:
+                raise AssertionError
 
     def test_save_splitter_state(self):
         """Test saving splitter state."""
@@ -197,7 +214,8 @@ class TestWindowStateManager:
             manager = WindowStateManager()
             manager.save_splitter_state("test_splitter", [400, 600])
 
-            assert manager.state_data["splitters"]["test_splitter"] == [400, 600]
+            if manager.state_data["splitters"]["test_splitter"] != [400, 600]:
+                raise AssertionError
             mock_save.assert_called_once()
 
     def test_get_splitter_state(self):
@@ -207,7 +225,8 @@ class TestWindowStateManager:
             manager.state_data["splitters"]["test_splitter"] = [300, 700]
 
             sizes = manager.get_splitter_state("test_splitter")
-            assert sizes == [300, 700]
+            if sizes != [300, 700]:
+                raise AssertionError
 
     def test_get_splitter_state_not_found(self):
         """Test getting splitter state that doesn't exist."""
@@ -229,7 +248,8 @@ class TestWindowStateManager:
             manager = WindowStateManager()
             manager.save_splitter_from_widget("widget_splitter", mock_splitter)
 
-            assert manager.state_data["splitters"]["widget_splitter"] == [350, 650]
+            if manager.state_data["splitters"]["widget_splitter"] != [350, 650]:
+                raise AssertionError
             mock_save.assert_called_once()
 
     @patch("utils.window_state.get_scaling_helper")
@@ -251,8 +271,10 @@ class TestWindowStateManager:
             # Should calculate sizes from percentages
             mock_splitter.setSizes.assert_called_once()
             args = mock_splitter.setSizes.call_args[0][0]
-            assert args[0] == 700  # 70% of 1000
-            assert args[1] == 300  # 30% of 1000
+            if args[0] != 700:
+                raise AssertionError
+            if args[1] != 300:
+                raise AssertionError
 
     @patch("utils.window_state.get_scaling_helper")
     def test_restore_splitter_to_widget_width_based(self, mock_scaling_helper):
@@ -351,7 +373,8 @@ class TestGlobalInstance:
         """Test that global instance behaves consistently."""
         # The global instance should maintain state
         window_state_manager.save_zoom_level(1.8)
-        assert window_state_manager.get_zoom_level() == 1.8
+        if window_state_manager.get_zoom_level() != 1.8:
+            raise AssertionError
 
 
 class TestSafeOperation:
@@ -408,16 +431,20 @@ class TestWindowStateIntegration:
             manager.save_zoom_level(1.25)
 
             # Verify state was saved
-            assert manager.state_data["window"]["geometry"] == [200, 300, 1400, 900]
-            assert manager.state_data["window"]["zoom_level"] == 1.25
-            assert mock_save.call_count == 2  # Called for both saves
+            if manager.state_data["window"]["geometry"] != [200, 300, 1400, 900]:
+                raise AssertionError
+            if manager.state_data["window"]["zoom_level"] != 1.25:
+                raise AssertionError
+            if mock_save.call_count != 2:
+                raise AssertionError
 
             # Restore state to new window
             new_window = Mock()
             manager.restore_window_state(new_window)
 
             new_window.setGeometry.assert_called_once_with(200, 300, 1400, 900)
-            assert manager.get_zoom_level() == 1.25
+            if manager.get_zoom_level() != 1.25:
+                raise AssertionError
 
     @pytest.mark.integration
     def test_splitter_state_workflow(self):
@@ -439,7 +466,8 @@ class TestWindowStateIntegration:
             manager.save_splitter_from_widget("main_splitter", mock_splitter)
 
             # Verify state was saved
-            assert manager.state_data["splitters"]["main_splitter"] == [600, 400]
+            if manager.state_data["splitters"]["main_splitter"] != [600, 400]:
+                raise AssertionError
             mock_save.assert_called_once()
 
             # Restore state to new splitter
@@ -459,10 +487,12 @@ class TestWindowStateIntegration:
 
             # Test extreme zoom levels
             manager.save_zoom_level(0.1)  # Very small
-            assert manager.get_zoom_level() == 0.1
+            if manager.get_zoom_level() != 0.1:
+                raise AssertionError
 
             manager.save_zoom_level(10.0)  # Very large
-            assert manager.get_zoom_level() == 10.0
+            if manager.get_zoom_level() != 10.0:
+                raise AssertionError
 
             # Test extreme window geometry
             extreme_geometry = [-1000, -1000, 5000, 5000]
@@ -484,7 +514,8 @@ class TestWindowStateIntegration:
 
             # Should handle gracefully
             zoom_level = manager.get_zoom_level()
-            assert zoom_level == 1.0  # Default fallback
+            if zoom_level != 1.0:
+                raise AssertionError
 
             splitter_state = manager.get_splitter_state("any_splitter")
             assert splitter_state is None

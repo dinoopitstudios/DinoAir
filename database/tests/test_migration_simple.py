@@ -50,13 +50,15 @@ def test_migration_system():
         cursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'"
         )
-        assert cursor.fetchone() is not None
+        if cursor.fetchone() is None:
+            raise AssertionError
 
         # Test 2: Test migration recording
         migration = TestMigration()
         record_migration(conn, migration)
 
-        assert is_migration_applied(conn, migration)
+        if not is_migration_applied(conn, migration):
+            raise AssertionError
 
         # Test 3: Test migration runner
         runner = MigrationRunner("test_db")
@@ -82,14 +84,19 @@ def test_migration_system():
 
         executed = runner.run_migrations(conn)
         assert len(executed) == 1
-        assert executed[0] == new_migration
+        if executed[0] != new_migration:
+            raise AssertionError
 
         # Test 5: Test migration status
         status = runner.get_migration_status(conn)
-        assert status["total_migrations"] == 2
-        assert status["applied_count"] == 2
-        assert status["pending_count"] == 0
-        assert status["is_up_to_date"]
+        if status["total_migrations"] != 2:
+            raise AssertionError
+        if status["applied_count"] != 2:
+            raise AssertionError
+        if status["pending_count"] != 0:
+            raise AssertionError
+        if not status["is_up_to_date"]:
+            raise AssertionError
 
         conn.close()
 

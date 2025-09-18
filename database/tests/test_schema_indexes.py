@@ -53,7 +53,8 @@ def test_notes_indexes_present(db_manager: DatabaseManager):
     }
 
     missing = expected - idx
-    assert not missing, f"Missing note_list indexes: {sorted(missing)}"
+    if missing:
+        raise AssertionError(f"Missing note_list indexes: {sorted(missing)}")
 
 
 @pytest.mark.integration
@@ -92,9 +93,10 @@ def test_notes_index_coverage_query_patterns(db_manager: DatabaseManager):
         plan_text = " ".join([str(row) for row in plan])
 
         # Check if the expected index is mentioned in the query plan
-        assert expected_index in plan_text, (
-            f"Query '{query[:50]}...' should use index {expected_index}, but plan was: {plan_text}"
-        )
+        if expected_index not in plan_text:
+            raise AssertionError(
+                f"Query '{query[:50]}...' should use index {expected_index}, but plan was: {plan_text}"
+            )
 
 
 @pytest.mark.integration
@@ -112,7 +114,8 @@ def test_projects_indexes_present(db_manager: DatabaseManager):
     }
 
     missing = expected - idx
-    assert not missing, f"Missing projects indexes: {sorted(missing)}"
+    if missing:
+        raise AssertionError(f"Missing projects indexes: {sorted(missing)}")
 
 
 @pytest.mark.integration
@@ -131,7 +134,8 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
         "idx_artifacts_tags",
     }
     missing_artifacts = expected_artifacts - artifacts_idx
-    assert not missing_artifacts, f"Missing artifacts indexes: {sorted(missing_artifacts)}"
+    if missing_artifacts:
+        raise AssertionError(f"Missing artifacts indexes: {sorted(missing_artifacts)}")
 
     versions_idx = _index_names_for_table(conn, "artifact_versions")
     expected_versions = {
@@ -139,7 +143,8 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
         "idx_versions_number",
     }
     missing_versions = expected_versions - versions_idx
-    assert not missing_versions, f"Missing artifact_versions indexes: {sorted(missing_versions)}"
+    if missing_versions:
+        raise AssertionError(f"Missing artifact_versions indexes: {sorted(missing_versions)}")
 
     collections_idx = _index_names_for_table(conn, "artifact_collections")
     expected_collections = {
@@ -147,9 +152,10 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
         "idx_collections_parent",
     }
     missing_collections = expected_collections - collections_idx
-    assert not missing_collections, (
-        f"Missing artifact_collections indexes: {sorted(missing_collections)}"
-    )
+    if missing_collections:
+        raise AssertionError(
+            f"Missing artifact_collections indexes: {sorted(missing_collections)}"
+        )
 
     permissions_idx = _index_names_for_table(conn, "artifact_permissions")
     expected_permissions = {
@@ -157,9 +163,10 @@ def test_artifacts_indexes_present(db_manager: DatabaseManager):
         "idx_permissions_user",
     }
     missing_permissions = expected_permissions - permissions_idx
-    assert not missing_permissions, (
-        f"Missing artifact_permissions indexes: {sorted(missing_permissions)}"
-    )
+    if missing_permissions:
+        raise AssertionError(
+            f"Missing artifact_permissions indexes: {sorted(missing_permissions)}"
+        )
 
 
 @pytest.mark.integration
@@ -174,7 +181,8 @@ def test_file_search_indexes_present(db_manager: DatabaseManager):
         "idx_indexed_files_type",
     }
     missing_files = expected_files - files_idx
-    assert not missing_files, f"Missing indexed_files indexes: {sorted(missing_files)}"
+    if missing_files:
+        raise AssertionError(f"Missing indexed_files indexes: {sorted(missing_files)}")
 
     chunks_idx = _index_names_for_table(conn, "file_chunks")
     expected_chunks = {
@@ -182,18 +190,21 @@ def test_file_search_indexes_present(db_manager: DatabaseManager):
         "idx_file_chunks_content",
     }
     missing_chunks = expected_chunks - chunks_idx
-    assert not missing_chunks, f"Missing file_chunks indexes: {sorted(missing_chunks)}"
+    if missing_chunks:
+        raise AssertionError(f"Missing file_chunks indexes: {sorted(missing_chunks)}")
 
     embeddings_idx = _index_names_for_table(conn, "file_embeddings")
     expected_embeddings = {
         "idx_file_embeddings_chunk_id",
     }
     missing_embeddings = expected_embeddings - embeddings_idx
-    assert not missing_embeddings, f"Missing file_embeddings indexes: {sorted(missing_embeddings)}"
+    if missing_embeddings:
+        raise AssertionError(f"Missing file_embeddings indexes: {sorted(missing_embeddings)}")
 
     settings_idx = _index_names_for_table(conn, "search_settings")
     expected_settings = {
         "idx_search_settings_name",
     }
     missing_settings = expected_settings - settings_idx
-    assert not missing_settings, f"Missing search_settings indexes: {sorted(missing_settings)}"
+    if missing_settings:
+        raise AssertionError(f"Missing search_settings indexes: {sorted(missing_settings)}")

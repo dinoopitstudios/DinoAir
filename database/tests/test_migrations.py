@@ -73,17 +73,23 @@ class TestMigrationBase:
         """Test creating a migration instance."""
         migration = TestMigration("001", "test_migration")
 
-        assert migration.version == "001"
-        assert migration.name == "test_migration"
-        assert migration.full_name == "001_test_migration"
-        assert migration.description == "Test migration for unit tests"
+        if migration.version != "001":
+            raise AssertionError
+        if migration.name != "test_migration":
+            raise AssertionError
+        if migration.full_name != "001_test_migration":
+            raise AssertionError
+        if migration.description != "Test migration for unit tests":
+            raise AssertionError
 
     def test_migration_string_representation(self):
         """Test migration string representations."""
         migration = TestMigration("001", "test_migration")
 
-        assert str(migration) == "Migration(001_test_migration)"
-        assert repr(migration) == "Migration(version='001', name='test_migration')"
+        if str(migration) != "Migration(001_test_migration)":
+            raise AssertionError
+        if repr(migration) != "Migration(version='001', name='test_migration')":
+            raise AssertionError
 
 
 class TestMigrationTable:
@@ -101,7 +107,8 @@ class TestMigrationTable:
         """
         )
 
-        assert cursor.fetchone() is not None
+        if cursor.fetchone() is None:
+            raise AssertionError
 
     def test_record_migration(self, temp_db):
         """Test recording a migration as applied."""
@@ -122,9 +129,12 @@ class TestMigrationTable:
 
         row = cursor.fetchone()
         assert row is not None
-        assert row[0] == "001"
-        assert row[1] == "test_migration"
-        assert row[2] == "Test migration for unit tests"
+        if row[0] != "001":
+            raise AssertionError
+        if row[1] != "test_migration":
+            raise AssertionError
+        if row[2] != "Test migration for unit tests":
+            raise AssertionError
 
     def test_is_migration_applied(self, temp_db):
         """Test checking if a migration has been applied."""
@@ -132,13 +142,15 @@ class TestMigrationTable:
         migration = TestMigration("001", "test_migration")
 
         # Should not be applied initially
-        assert not is_migration_applied(temp_db, migration)
+        if is_migration_applied(temp_db, migration):
+            raise AssertionError
 
         # Record it as applied
         record_migration(temp_db, migration)
 
         # Should now be applied
-        assert is_migration_applied(temp_db, migration)
+        if not is_migration_applied(temp_db, migration):
+            raise AssertionError
 
     def test_get_applied_migrations(self, temp_db):
         """Test getting all applied migrations."""
@@ -153,10 +165,14 @@ class TestMigrationTable:
         applied = get_applied_migrations(temp_db)
 
         assert len(applied) == 2
-        assert applied[0].version == "001"
-        assert applied[0].name == "first_migration"
-        assert applied[1].version == "002"
-        assert applied[1].name == "second_migration"
+        if applied[0].version != "001":
+            raise AssertionError
+        if applied[0].name != "first_migration":
+            raise AssertionError
+        if applied[1].version != "002":
+            raise AssertionError
+        if applied[1].name != "second_migration":
+            raise AssertionError
 
 
 class TestMigrationRunner:
@@ -166,7 +182,8 @@ class TestMigrationRunner:
         """Test creating a migration runner."""
         runner = MigrationRunner("test_db")
 
-        assert runner.db_key == "test_db"
+        if runner.db_key != "test_db":
+            raise AssertionError
         assert len(runner.migrations) == 0
 
     def test_register_migration(self):
@@ -177,7 +194,8 @@ class TestMigrationRunner:
         runner.register_migration(migration)
 
         assert len(runner.migrations) == 1
-        assert runner.migrations[0] == migration
+        if runner.migrations[0] != migration:
+            raise AssertionError
 
     def test_register_migrations_sorted(self):
         """Test that migrations are sorted by version."""
@@ -190,9 +208,12 @@ class TestMigrationRunner:
         runner.register_migrations([migration3, migration1, migration2])
 
         assert len(runner.migrations) == 3
-        assert runner.migrations[0].version == "001"
-        assert runner.migrations[1].version == "002"
-        assert runner.migrations[2].version == "003"
+        if runner.migrations[0].version != "001":
+            raise AssertionError
+        if runner.migrations[1].version != "002":
+            raise AssertionError
+        if runner.migrations[2].version != "003":
+            raise AssertionError
 
     def test_get_pending_migrations(self, temp_db):
         """Test getting pending migrations."""
@@ -212,7 +233,8 @@ class TestMigrationRunner:
         # Only one should be pending now
         pending = runner.get_pending_migrations(temp_db)
         assert len(pending) == 1
-        assert pending[0].version == "002"
+        if pending[0].version != "002":
+            raise AssertionError
 
     def test_run_migrations_success(self, temp_db):
         """Test successful migration execution."""
@@ -224,7 +246,8 @@ class TestMigrationRunner:
         executed = runner.run_migrations(temp_db)
 
         assert len(executed) == 1
-        assert executed[0] == migration
+        if executed[0] != migration:
+            raise AssertionError
 
         # Check that table was created
         cursor = temp_db.cursor()
@@ -234,10 +257,12 @@ class TestMigrationRunner:
             WHERE type='table' AND name='test_table'
         """
         )
-        assert cursor.fetchone() is not None
+        if cursor.fetchone() is None:
+            raise AssertionError
 
         # Check that migration was recorded
-        assert is_migration_applied(temp_db, migration)
+        if not is_migration_applied(temp_db, migration):
+            raise AssertionError
 
     def test_run_migrations_already_applied(self, temp_db):
         """Test running migrations when all are already applied."""
@@ -263,7 +288,8 @@ class TestMigrationRunner:
 
         # Should return migrations that would be executed
         assert len(executed) == 1
-        assert executed[0] == migration
+        if executed[0] != migration:
+            raise AssertionError
 
         # But should not actually execute them
         cursor = temp_db.cursor()
@@ -273,10 +299,12 @@ class TestMigrationRunner:
             WHERE type='table' AND name='test_table'
         """
         )
-        assert cursor.fetchone() is None
+        if cursor.fetchone() is not None:
+            raise AssertionError
 
         # Should not record migration
-        assert not is_migration_applied(temp_db, migration)
+        if is_migration_applied(temp_db, migration):
+            raise AssertionError
 
     def test_run_migrations_target_version(self, temp_db):
         """Test running migrations up to a target version."""
@@ -292,13 +320,16 @@ class TestMigrationRunner:
 
         # Should only execute first two migrations
         assert len(executed) == 2
-        assert executed[0].version == "001"
-        assert executed[1].version == "002"
+        if executed[0].version != "001":
+            raise AssertionError
+        if executed[1].version != "002":
+            raise AssertionError
 
         # Third should still be pending
         pending = runner.get_pending_migrations(temp_db)
         assert len(pending) == 1
-        assert pending[0].version == "003"
+        if pending[0].version != "003":
+            raise AssertionError
 
     def test_run_migrations_failure(self, temp_db):
         """Test migration failure handling."""
@@ -312,13 +343,16 @@ class TestMigrationRunner:
         with pytest.raises(MigrationError) as exc_info:
             runner.run_migrations(temp_db)
 
-        assert "Failed to execute migration 999_failing_migration" in str(exc_info.value)
+        if "Failed to execute migration 999_failing_migration" not in str(exc_info.value):
+            raise AssertionError
 
         # Good migration should have been applied
-        assert is_migration_applied(temp_db, good_migration)
+        if not is_migration_applied(temp_db, good_migration):
+            raise AssertionError
 
         # Bad migration should not be recorded as applied
-        assert not is_migration_applied(temp_db, bad_migration)
+        if is_migration_applied(temp_db, bad_migration):
+            raise AssertionError
 
     def test_get_migration_status(self, temp_db):
         """Test getting migration status."""
@@ -331,28 +365,40 @@ class TestMigrationRunner:
 
         # Initially all pending
         status = runner.get_migration_status(temp_db)
-        assert status["total_migrations"] == 2
-        assert status["applied_count"] == 0
-        assert status["pending_count"] == 2
-        assert not status["is_up_to_date"]
+        if status["total_migrations"] != 2:
+            raise AssertionError
+        if status["applied_count"] != 0:
+            raise AssertionError
+        if status["pending_count"] != 2:
+            raise AssertionError
+        if status["is_up_to_date"]:
+            raise AssertionError
 
         # Apply one migration
         record_migration(temp_db, migration1)
 
         status = runner.get_migration_status(temp_db)
-        assert status["total_migrations"] == 2
-        assert status["applied_count"] == 1
-        assert status["pending_count"] == 1
-        assert not status["is_up_to_date"]
+        if status["total_migrations"] != 2:
+            raise AssertionError
+        if status["applied_count"] != 1:
+            raise AssertionError
+        if status["pending_count"] != 1:
+            raise AssertionError
+        if status["is_up_to_date"]:
+            raise AssertionError
 
         # Apply second migration
         record_migration(temp_db, migration2)
 
         status = runner.get_migration_status(temp_db)
-        assert status["total_migrations"] == 2
-        assert status["applied_count"] == 2
-        assert status["pending_count"] == 0
-        assert status["is_up_to_date"]
+        if status["total_migrations"] != 2:
+            raise AssertionError
+        if status["applied_count"] != 2:
+            raise AssertionError
+        if status["pending_count"] != 0:
+            raise AssertionError
+        if not status["is_up_to_date"]:
+            raise AssertionError
 
     def test_rollback_migration(self, temp_db):
         """Test rolling back a migration."""
@@ -367,13 +413,15 @@ class TestMigrationRunner:
         record_migration(temp_db, migration)
 
         # Verify it's applied
-        assert is_migration_applied(temp_db, migration)
+        if not is_migration_applied(temp_db, migration):
+            raise AssertionError
 
         # Rollback the migration
         runner.rollback_migration(temp_db, "001", "test_migration")
 
         # Should no longer be recorded as applied
-        assert not is_migration_applied(temp_db, migration)
+        if is_migration_applied(temp_db, migration):
+            raise AssertionError
 
         # Table should be gone
         cursor = temp_db.cursor()
@@ -383,7 +431,8 @@ class TestMigrationRunner:
             WHERE type='table' AND name='test_table'
         """
         )
-        assert cursor.fetchone() is None
+        if cursor.fetchone() is not None:
+            raise AssertionError
 
     def test_rollback_migration_not_found(self, temp_db):
         """Test rolling back a migration that doesn't exist."""
@@ -392,7 +441,8 @@ class TestMigrationRunner:
         with pytest.raises(MigrationError) as exc_info:
             runner.rollback_migration(temp_db, "999", "nonexistent")
 
-        assert "Migration 999_nonexistent not found" in str(exc_info.value)
+        if "Migration 999_nonexistent not found" not in str(exc_info.value):
+            raise AssertionError
 
     def test_rollback_migration_not_applied(self, temp_db):
         """Test rolling back a migration that hasn't been applied."""
@@ -404,7 +454,8 @@ class TestMigrationRunner:
         with pytest.raises(MigrationError) as exc_info:
             runner.rollback_migration(temp_db, "001", "test_migration")
 
-        assert "Migration 001_test_migration is not applied" in str(exc_info.value)
+        if "Migration 001_test_migration is not applied" not in str(exc_info.value):
+            raise AssertionError
 
 
 class TestMigrationRecord:
@@ -417,11 +468,16 @@ class TestMigrationRecord:
         applied_at = datetime.now()
         record = MigrationRecord("001", "test_migration", applied_at, "Test migration")
 
-        assert record.version == "001"
-        assert record.name == "test_migration"
-        assert record.applied_at == applied_at
-        assert record.description == "Test migration"
-        assert record.full_name == "001_test_migration"
+        if record.version != "001":
+            raise AssertionError
+        if record.name != "test_migration":
+            raise AssertionError
+        if record.applied_at != applied_at:
+            raise AssertionError
+        if record.description != "Test migration":
+            raise AssertionError
+        if record.full_name != "001_test_migration":
+            raise AssertionError
 
     def test_migration_record_from_row(self):
         """Test creating a migration record from a database row."""
@@ -432,7 +488,11 @@ class TestMigrationRecord:
 
         record = MigrationRecord.from_row(row)
 
-        assert record.version == "001"
-        assert record.name == "test_migration"
-        assert record.applied_at.replace(microsecond=0) == applied_at.replace(microsecond=0)
-        assert record.description == "Test migration"
+        if record.version != "001":
+            raise AssertionError
+        if record.name != "test_migration":
+            raise AssertionError
+        if record.applied_at.replace(microsecond=0) != applied_at.replace(microsecond=0):
+            raise AssertionError
+        if record.description != "Test migration":
+            raise AssertionError

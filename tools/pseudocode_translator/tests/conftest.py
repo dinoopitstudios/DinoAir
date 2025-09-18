@@ -310,10 +310,12 @@ def assert_code_valid(code):
 def assert_contains_all(text, substrings):
     """Helper to assert text contains all substrings"""
     for substring in substrings:
-        assert substring in text, f"Expected '{substring}' in text"
+        if substring not in text:
+            raise AssertionError(f"Expected '{substring}' in text")
 
 
 def assert_contains_none(text, substrings):
     """Helper to assert text contains none of the substrings"""
     for substring in substrings:
-        assert substring not in text, f"Unexpected '{substring}' in text"
+        if substring in text:
+            raise AssertionError(f"Unexpected '{substring}' in text")

@@ -22,17 +22,22 @@ def test_lru_eviction_order():
     cache.parse(c)
 
     # Access 'a' to make it most recently used; now LRU order head is 'b'
-    assert cache.get(a) is not None
+    if cache.get(a) is None:
+        raise AssertionError
 
     # Add 4th; should evict least-recently-used = 'b'
     d = _src(4)
     cache.parse(d)
 
     # Validate eviction
-    assert cache.get(b) is None  # evicted
-    assert cache.get(a) is not None
-    assert cache.get(c) is not None
-    assert cache.get(d) is not None
+    if cache.get(b) is not None:
+        raise AssertionError
+    if cache.get(a) is None:
+        raise AssertionError
+    if cache.get(c) is None:
+        raise AssertionError
+    if cache.get(d) is None:
+        raise AssertionError
 
 
 def test_lfu_lite_eviction_prefers_low_frequency():
@@ -49,20 +54,27 @@ def test_lfu_lite_eviction_prefers_low_frequency():
 
     # Access to create different frequencies
     # a: 2 additional hits (total > c)
-    assert cache.get(a) is not None
-    assert cache.get(a) is not None
+    if cache.get(a) is None:
+        raise AssertionError
+    if cache.get(a) is None:
+        raise AssertionError
     # b: 1 additional hit
-    assert cache.get(b) is not None
+    if cache.get(b) is None:
+        raise AssertionError
     # c: 0 additional hits
 
     # Now insert 4th; LFU-lite should evict 'c' (lowest frequency) within bounded scan
     d = _src(40)
     cache.parse(d)
 
-    assert cache.get(c) is None  # expected evicted
-    assert cache.get(a) is not None
-    assert cache.get(b) is not None
-    assert cache.get(d) is not None
+    if cache.get(c) is not None:
+        raise AssertionError
+    if cache.get(a) is None:
+        raise AssertionError
+    if cache.get(b) is None:
+        raise AssertionError
+    if cache.get(d) is None:
+        raise AssertionError
 
 
 def test_ttl_eviction_still_applies(monkeypatch):
@@ -89,7 +101,8 @@ def test_ttl_eviction_still_applies(monkeypatch):
     cache._cleanup_expired_entries()
 
     stats = cache.get_stats()
-    assert stats["ttl_evictions"] == 2
+    if stats["ttl_evictions"] != 2:
+        raise AssertionError
     assert len(cache) == 0
 
 
@@ -124,10 +137,12 @@ def test_memory_eviction_policy_respected():
     cache.parse(s3)
 
     after = cache.get_stats()["size_evictions"]
-    assert after >= before + 1  # at least one memory eviction occurred
+    if after < before + 1:
+        raise AssertionError
 
     # Ensure the cache respects memory constraints by not growing unbounded
-    assert len(cache) <= 3
+    if len(cache) > 3:
+        raise AssertionError
 
     # In LFU-lite, prefer evicting low-frequency candidates.
     # If exactly one of {s1, s2} was evicted, it should be s2 (lower frequency).
@@ -136,17 +151,22 @@ def test_memory_eviction_policy_respected():
     present_s3 = s3 in cache
     missing_count = int(not present_s1) + int(not present_s2)
     if missing_count == 1:
-        assert present_s1 is True
-        assert present_s2 is False
+        if present_s1 is not True:
+            raise AssertionError
+        if present_s2 is not False:
+            raise AssertionError
     # Ensure the newly added entry exists
-    assert present_s3 is True
+    if present_s3 is not True:
+        raise AssertionError
 
 
 def test_stats_include_eviction_mode():
     cache = ASTCache(max_size=3, eviction_mode="lfu_lite", ttl_seconds=None, persistent_path=None)
     stats = cache.get_stats()
-    assert "eviction_mode" in stats
-    assert stats["eviction_mode"] == "lfu_lite"
+    if "eviction_mode" not in stats:
+        raise AssertionError
+    if stats["eviction_mode"] != "lfu_lite":
+        raise AssertionError
 
 
 def test_persistence_survives_policy_switch(tmp_path: Path):
@@ -158,7 +178,8 @@ def test_persistence_survives_policy_switch(tmp_path: Path):
     # Persist to disk
     ok = cache1.save_to_disk()
     # Some platforms/distributions disallow pickling code objects; accept either outcome.
-    assert ok in (True, False)
+    if ok not in (True, False):
+        raise AssertionError
 
     # Create a new cache with a different policy pointing to the same path
     cache2 = ASTCache(max_size=3, eviction_mode="lfu_lite", ttl_seconds=None, persistent_path=pdir)
@@ -166,9 +187,11 @@ def test_persistence_survives_policy_switch(tmp_path: Path):
     # The current persistence format intentionally skips non-AST payloads on load; ensure no crash and state is coherent
     stats2 = cache2.get_stats()
     assert isinstance(stats2, dict)
-    assert stats2["persistent_enabled"] is True
+    if stats2["persistent_enabled"] is not True:
+        raise AssertionError
     # Entries may be 0 due to format guards; just ensure no exceptions and valid stats dict present
-    assert stats2["size"] >= 0
+    if stats2["size"] < 0:
+        raise AssertionError
 
 
 def test_env_overrides_apply_cache_config(monkeypatch):
@@ -185,10 +208,16 @@ def test_env_overrides_apply_cache_config(monkeypatch):
 
     cfg = ConfigManager.load(None)
 
-    assert cfg.cache.eviction_mode == "lfu_lite"
-    assert cfg.cache.max_size == 123
-    assert cfg.cache.ttl_seconds == 789
-    assert abs(cfg.cache.max_memory_mb - 12.5) < 1e-6
+    if cfg.cache.eviction_mode != "lfu_lite":
+        raise AssertionError
+    if cfg.cache.max_size != 123:
+        raise AssertionError
+    if cfg.cache.ttl_seconds != 789:
+        raise AssertionError
+    if abs(cfg.cache.max_memory_mb - 12.5) >= 1e-6:
+        raise AssertionError
     assert isinstance(cfg.cache.persistent_path, str)
-    assert cfg.cache.persistent_path.endswith("tmp_cache_dir")
-    assert cfg.cache.enable_compression is True
+    if not cfg.cache.persistent_path.endswith("tmp_cache_dir"):
+        raise AssertionError
+    if cfg.cache.enable_compression is not True:
+        raise AssertionError

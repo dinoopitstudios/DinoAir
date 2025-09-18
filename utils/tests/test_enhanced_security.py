@@ -36,21 +36,31 @@ class TestSecurityConfig:
 
         # Test default allowlist
         allowlist = config.get_allowed_binaries()
-        assert "python" in allowlist
-        assert "git" in allowlist
-        assert "node" in allowlist
+        if "python" not in allowlist:
+            raise AssertionError
+        if "git" not in allowlist:
+            raise AssertionError
+        if "node" not in allowlist:
+            raise AssertionError
 
         # Test default flags
-        assert config.get_no_window_windows() is True
-        assert config.get_close_fds_unix() is True
-        assert config.get_disallow_tty() is True
-        assert config.get_stdin_default_devnull() is True
+        if config.get_no_window_windows() is not True:
+            raise AssertionError
+        if config.get_close_fds_unix() is not True:
+            raise AssertionError
+        if config.get_disallow_tty() is not True:
+            raise AssertionError
+        if config.get_stdin_default_devnull() is not True:
+            raise AssertionError
 
         # Test default logging
-        assert config.get_log_command_execution() is True
+        if config.get_log_command_execution() is not True:
+            raise AssertionError
         redact_keys = config.get_redact_env_keys()
-        assert "secret" in redact_keys
-        assert "password" in redact_keys
+        if "secret" not in redact_keys:
+            raise AssertionError
+        if "password" not in redact_keys:
+            raise AssertionError
 
     @patch("utils.process.config")
     def test_security_config_with_mock_config(self, mock_config):
@@ -65,10 +75,14 @@ class TestSecurityConfig:
 
         config = SecurityConfig()
 
-        assert config.get_allowed_binaries() == {"python", "git"}
-        assert config.get_merge_enabled() is True
-        assert config.get_no_window_windows() is False
-        assert config.get_log_command_execution() is False
+        if config.get_allowed_binaries() != {"python", "git"}:
+            raise AssertionError
+        if config.get_merge_enabled() is not True:
+            raise AssertionError
+        if config.get_no_window_windows() is not False:
+            raise AssertionError
+        if config.get_log_command_execution() is not False:
+            raise AssertionError
 
     @patch("utils.process.config")
     def test_security_config_exception_handling(self, mock_config):
@@ -81,7 +95,8 @@ class TestSecurityConfig:
         # Should fall back to defaults without raising
         allowlist = config.get_allowed_binaries()
         assert isinstance(allowlist, set)
-        assert len(allowlist) > 0
+        if len(allowlist) <= 0:
+            raise AssertionError
 
 
 class TestAllowlistMerging:
@@ -94,7 +109,8 @@ class TestAllowlistMerging:
 
         result = _merge_allowlists(per_call, config_list, enable_merge=True)
 
-        assert result == {"python", "node", "git", "curl"}
+        if result != {"python", "node", "git", "curl"}:
+            raise AssertionError
 
     def test_merge_allowlists_intersection_mode(self):
         """Test allowlist merging in intersection mode (enable_merge=False)."""
@@ -103,7 +119,8 @@ class TestAllowlistMerging:
 
         result = _merge_allowlists(per_call, config_list, enable_merge=False)
 
-        assert result == {"git"}
+        if result != {"git"}:
+            raise AssertionError
 
     def test_merge_allowlists_empty_per_call(self):
         """Test allowlist merging with empty per-call allowlist."""
@@ -114,8 +131,10 @@ class TestAllowlistMerging:
         result_union = _merge_allowlists(per_call, config_list, enable_merge=True)
         result_intersection = _merge_allowlists(per_call, config_list, enable_merge=False)
 
-        assert result_union == {"git", "curl"}
-        assert result_intersection == {"git", "curl"}
+        if result_union != {"git", "curl"}:
+            raise AssertionError
+        if result_intersection != {"git", "curl"}:
+            raise AssertionError
 
 
 class TestArgumentValidation:
@@ -169,10 +188,14 @@ class TestSecurityLogging:
 
         redacted = _redact_environment(env)
 
-        assert redacted["PATH"] == "/usr/bin"
-        assert redacted["API_SECRET"] == "[REDACTED]"
-        assert redacted["PASSWORD"] == "[REDACTED]"
-        assert redacted["NORMAL_VAR"] == "safe"
+        if redacted["PATH"] != "/usr/bin":
+            raise AssertionError
+        if redacted["API_SECRET"] != "[REDACTED]":
+            raise AssertionError
+        if redacted["PASSWORD"] != "[REDACTED]":
+            raise AssertionError
+        if redacted["NORMAL_VAR"] != "safe":
+            raise AssertionError
 
     @patch("utils.process._security_config")
     def test_redact_arguments(self, mock_config):
@@ -183,19 +206,26 @@ class TestSecurityLogging:
 
         redacted = _redact_arguments(command)
 
-        assert redacted[0] == "curl"
-        assert redacted[1] == "--url"
-        assert redacted[2] == "https://api.com"
-        assert redacted[3] == "[REDACTED]"
-        assert redacted[4] == "[REDACTED]"
+        if redacted[0] != "curl":
+            raise AssertionError
+        if redacted[1] != "--url":
+            raise AssertionError
+        if redacted[2] != "https://api.com":
+            raise AssertionError
+        if redacted[3] != "[REDACTED]":
+            raise AssertionError
+        if redacted[4] != "[REDACTED]":
+            raise AssertionError
 
     def test_redact_environment_empty(self):
         """Test environment redaction with empty environment."""
         result = _redact_environment(None)
-        assert result == {}
+        if result != {}:
+            raise AssertionError
 
         result = _redact_environment({})
-        assert result == {}
+        if result != {}:
+            raise AssertionError
 
 
 class TestPlatformSpecificSecurity:
@@ -210,10 +240,13 @@ class TestPlatformSpecificSecurity:
 
         kwargs = _get_platform_kwargs()
 
-        assert kwargs["shell"] is False
-        assert "creationflags" in kwargs
+        if kwargs["shell"] is not False:
+            raise AssertionError
+        if "creationflags" not in kwargs:
+            raise AssertionError
         # Should include CREATE_NO_WINDOW flag
-        assert kwargs["creationflags"] & 0x08000000 != 0
+        if kwargs["creationflags"] & 0x08000000 == 0:
+            raise AssertionError
 
     @patch("utils.process.platform.system")
     @patch("utils.process._security_config")
@@ -224,8 +257,10 @@ class TestPlatformSpecificSecurity:
 
         kwargs = _get_platform_kwargs()
 
-        assert kwargs["shell"] is False
-        assert "creationflags" not in kwargs
+        if kwargs["shell"] is not False:
+            raise AssertionError
+        if "creationflags" in kwargs:
+            raise AssertionError
 
     @patch("utils.process.platform.system")
     @patch("utils.process._security_config")
@@ -236,8 +271,10 @@ class TestPlatformSpecificSecurity:
 
         kwargs = _get_platform_kwargs()
 
-        assert kwargs["shell"] is False
-        assert kwargs["close_fds"] is True
+        if kwargs["shell"] is not False:
+            raise AssertionError
+        if kwargs["close_fds"] is not True:
+            raise AssertionError
 
     @patch("utils.process.platform.system")
     @patch("utils.process._security_config")
@@ -248,9 +285,11 @@ class TestPlatformSpecificSecurity:
 
         kwargs = _get_platform_kwargs()
 
-        assert kwargs["shell"] is False
+        if kwargs["shell"] is not False:
+            raise AssertionError
         if "close_fds" in kwargs:
-            assert kwargs["close_fds"] is False
+            if kwargs["close_fds"] is not False:
+                raise AssertionError
 
     @patch("utils.process._security_config")
     def test_get_secure_stdin_default_devnull(self, mock_config):
@@ -258,7 +297,8 @@ class TestPlatformSpecificSecurity:
         mock_config.get_stdin_default_devnull.return_value = True
 
         result = _get_secure_stdin(None)
-        assert result == subprocess.DEVNULL
+        if result != subprocess.DEVNULL:
+            raise AssertionError
 
     @patch("utils.process._security_config")
     def test_get_secure_stdin_disabled(self, mock_config):
@@ -272,7 +312,8 @@ class TestPlatformSpecificSecurity:
         """Test secure stdin with explicitly provided value."""
         custom_stdin = subprocess.PIPE
         result = _get_secure_stdin(custom_stdin)
-        assert result == custom_stdin
+        if result != custom_stdin:
+            raise AssertionError
 
 
 class TestEnhancedSafeRun:
@@ -294,7 +335,8 @@ class TestEnhancedSafeRun:
         # Should work with empty per-call allowlist due to config fallback
         result = safe_run(["python", "--version"])
 
-        assert result == mock_result
+        if result != mock_result:
+            raise AssertionError
         mock_run.assert_called_once()
 
     @patch("utils.process.subprocess.run")
@@ -313,7 +355,8 @@ class TestEnhancedSafeRun:
         # Should work with union of per-call and config allowlists
         result = safe_run(["python", "--version"], allowed_binaries={"python"})
 
-        assert result == mock_result
+        if result != mock_result:
+            raise AssertionError
 
     @patch("utils.process._security_config")
     def test_safe_run_effective_allowlist_validation(self, mock_config):
@@ -344,12 +387,14 @@ class TestEnhancedSafePopen:
 
         result = safe_popen(["python", "-c", "print('test')"])
 
-        assert result == mock_process
+        if result != mock_process:
+            raise AssertionError
         mock_popen.assert_called_once()
 
         # Check that stdin was set to DEVNULL
         call_kwargs = mock_popen.call_args[1]
-        assert call_kwargs["stdin"] == subprocess.DEVNULL
+        if call_kwargs["stdin"] != subprocess.DEVNULL:
+            raise AssertionError
 
 
 class TestSecurityIntegration:
@@ -365,12 +410,15 @@ class TestSecurityIntegration:
         # Should work with default configuration
         result = safe_run(["python", "--version"])
 
-        assert result == mock_result
+        if result != mock_result:
+            raise AssertionError
 
         # Verify security flags were applied
         call_kwargs = mock_run.call_args[1]
-        assert call_kwargs["shell"] is False
-        assert call_kwargs["check"] is False
+        if call_kwargs["shell"] is not False:
+            raise AssertionError
+        if call_kwargs["check"] is not False:
+            raise AssertionError
 
     def test_backward_compatibility(self):
         """Test that enhanced security maintains backward compatibility."""
@@ -383,7 +431,8 @@ class TestSecurityIntegration:
             # Original style call should still work
             result = safe_run(["python", "--version"], allowed_binaries={"python"})
 
-            assert result == mock_result
+            if result != mock_result:
+                raise AssertionError
 
 
 class TestConfigurationOverrides:
@@ -409,9 +458,12 @@ class TestConfigurationOverrides:
 
         config = SecurityConfig()
 
-        assert config.get_allowed_binaries() == {"python", "custom_binary"}
-        assert config.get_no_window_windows() is False
-        assert config.get_log_command_execution() is False
+        if config.get_allowed_binaries() != {"python", "custom_binary"}:
+            raise AssertionError
+        if config.get_no_window_windows() is not False:
+            raise AssertionError
+        if config.get_log_command_execution() is not False:
+            raise AssertionError
 
 
 class TestErrorHandling:

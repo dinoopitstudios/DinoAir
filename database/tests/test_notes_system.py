@@ -25,7 +25,8 @@ class TestNotesService:
         """Test initialization with user name"""
         with patch("database.notes_service.DatabaseManager", return_value=mock_db_manager):
             service = NotesService(user_name="test_user")
-            assert service.user_name == "test_user"
+            if service.user_name != "test_user":
+                raise AssertionError
 
     def test_create_note_success(self, mock_db_manager, sample_note):
         """Test successful note creation"""
@@ -54,8 +55,10 @@ class TestNotesService:
 
             result = service.create_note(title="Test Note", content="Test Content", tags=["test"])
 
-            assert result.success is True
-            assert result.data["id"] == "test-note-1"
+            if result.success is not True:
+                raise AssertionError
+            if result.data["id"] != "test-note-1":
+                raise AssertionError
 
     def test_create_note_validation_failure(self, mock_db_manager):
         """Test note creation with validation failure"""
@@ -75,8 +78,10 @@ class TestNotesService:
 
             result = service.create_note(title="", content="Content")
 
-            assert result.success is False
-            assert "Title is required" in result.errors
+            if result.success is not False:
+                raise AssertionError
+            if "Title is required" not in result.errors:
+                raise AssertionError
 
     def test_create_note_security_denied(self, mock_db_manager):
         """Test note creation when security check fails"""
@@ -99,8 +104,10 @@ class TestNotesService:
 
             result = service.create_note(title="Test", content="Content")
 
-            assert result.success is False
-            assert "Permission denied" in result.message
+            if result.success is not False:
+                raise AssertionError
+            if "Permission denied" not in result.message:
+                raise AssertionError
 
     def test_update_note_success(self, mock_db_manager):
         """Test successful note update"""
@@ -127,7 +134,8 @@ class TestNotesService:
 
             result = service.update_note(note_id="test-note-1", updates={"title": "Updated Title"})
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_delete_note_success(self, mock_db_manager):
         """Test successful note deletion"""
@@ -150,7 +158,8 @@ class TestNotesService:
 
             result = service.delete_note("test-note-1")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_search_notes_success(self, mock_db_manager):
         """Test successful note search"""
@@ -173,7 +182,8 @@ class TestNotesService:
 
             result = service.search_notes(query="test query")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
             assert len(result.data) == 1
 
     def test_get_notes_by_tag_success(self, mock_db_manager):
@@ -193,7 +203,8 @@ class TestNotesService:
 
             result = service.get_notes_by_tag("test-tag")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_rename_tag_success(self, mock_db_manager):
         """Test successful tag renaming"""
@@ -215,7 +226,8 @@ class TestNotesService:
 
             result = service.rename_tag("old-tag", "new-tag")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_assign_notes_to_project_success(self, mock_db_manager):
         """Test successful note assignment to project"""
@@ -241,7 +253,8 @@ class TestNotesService:
 
             result = service.assign_notes_to_project(["note-1", "note-2"], "project-1")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
 
 class TestNotesRepository:
@@ -251,7 +264,8 @@ class TestNotesRepository:
         """Test initialization with user name"""
         with patch("database.notes_repository.DatabaseManager", return_value=mock_db_manager):
             repo = NotesRepository(user_name="test_user")
-            assert repo.user_name == "test_user"
+            if repo.user_name != "test_user":
+                raise AssertionError
 
     def test_create_note_success(self, mock_db_manager, mock_db_connection):
         """Test successful note creation in repository"""
@@ -265,8 +279,10 @@ class TestNotesRepository:
 
             result = repo.create_note(sample_note(), "HTML content")
 
-            assert result.success is True
-            assert result.data["id"] == "test-note-1"
+            if result.success is not True:
+                raise AssertionError
+            if result.data["id"] != "test-note-1":
+                raise AssertionError
 
     def test_get_note_by_id_success(self, mock_db_manager, mock_db_connection):
         """Test successful note retrieval by ID"""
@@ -289,7 +305,8 @@ class TestNotesRepository:
 
             result = repo.get_note_by_id("test-note-1")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_update_note_success(self, mock_db_manager, mock_db_connection):
         """Test successful note update"""
@@ -304,7 +321,8 @@ class TestNotesRepository:
             updates = {"title": "Updated Title"}
             result = repo.update_note("test-note-1", updates)
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_search_notes_with_filters(self, mock_db_manager, mock_db_connection):
         """Test note search with various filters"""
@@ -331,7 +349,8 @@ class TestNotesRepository:
                 query="search", tags=["tag1"], project_id="project-1", limit=10
             )
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
             assert len(result.data) == 1
 
     def test_get_all_tags_success(self, mock_db_manager, mock_db_connection):
@@ -347,8 +366,10 @@ class TestNotesRepository:
 
             result = repo.get_all_tags()
 
-            assert result.success is True
-            assert result.data["tag1"] == 5
+            if result.success is not True:
+                raise AssertionError
+            if result.data["tag1"] != 5:
+                raise AssertionError
 
     def test_bulk_update_project_success(self, mock_db_manager, mock_db_connection):
         """Test successful bulk project update"""
@@ -362,7 +383,8 @@ class TestNotesRepository:
 
             result = repo.bulk_update_project(["note-1", "note-2"], "project-1")
 
-            assert result.success is True
+            if result.success is not True:
+                raise AssertionError
 
     def test_bulk_update_project_empty_note_ids(self, mock_db_manager, mock_db_connection):
         """Test bulk_update_project with empty note_ids list returns error and does not update DB"""
@@ -373,8 +395,10 @@ class TestNotesRepository:
 
             result = repo.bulk_update_project([], "project-1")
 
-            assert result.success is False
-            assert "note_ids list cannot be empty" in result.error.lower()
+            if result.success is not False:
+                raise AssertionError
+            if "note_ids list cannot be empty" not in result.error.lower():
+                raise AssertionError
             mock_db_connection.cursor.return_value.execute.assert_not_called()
 
     def test_row_to_note_conversion(self, mock_db_manager):
@@ -398,7 +422,8 @@ class TestNotesRepository:
 
                 result = repo._row_to_note(row)
 
-                assert result == mock_note
+                if result != mock_note:
+                    raise AssertionError
 
 
 class TestNotesSecurity:
@@ -410,7 +435,8 @@ class TestNotesSecurity:
             security = NotesSecurity(user_name="test_user")
 
             # Should have loaded a policy
-            assert hasattr(security, "_policy")
+            if not hasattr(security, "_policy"):
+                raise AssertionError
             assert isinstance(security._policy, SecurityPolicy | FallbackSecurity)
 
     def test_can_perform_write_operation_allowed(self, mock_db_manager):
@@ -427,7 +453,8 @@ class TestNotesSecurity:
 
             result, message = security.can_perform_write_operation("create")
 
-            assert result is True
+            if result is not True:
+                raise AssertionError
             assert message is None
 
     def test_can_perform_write_operation_denied(self, mock_db_manager):
@@ -447,8 +474,10 @@ class TestNotesSecurity:
 
             result, message = security.can_perform_write_operation("create")
 
-            assert result is False
-            assert message == "Security violation"
+            if result is not False:
+                raise AssertionError
+            if message != "Security violation":
+                raise AssertionError
 
 
 class TestFallbackSecurity:
@@ -462,8 +491,10 @@ class TestFallbackSecurity:
             title="Valid Title", content="Valid content", tags=["tag1", "tag2"]
         )
 
-        assert result["valid"] is True
-        assert result["sanitized_title"] == "Valid Title"
+        if result["valid"] is not True:
+            raise AssertionError
+        if result["sanitized_title"] != "Valid Title":
+            raise AssertionError
 
     def test_validate_note_data_invalid_title(self):
         """Test validation with invalid title"""
@@ -475,8 +506,10 @@ class TestFallbackSecurity:
             tags=["tag1"],  # Invalid
         )
 
-        assert result["valid"] is False
-        assert "title" in result["error"].lower()
+        if result["valid"] is not False:
+            raise AssertionError
+        if "title" not in result["error"].lower():
+            raise AssertionError
 
     def test_validate_note_data_xss_attempt(self):
         """Test validation with XSS attempt"""
@@ -488,15 +521,18 @@ class TestFallbackSecurity:
             tags=["safe"],
         )
 
-        assert result["valid"] is False
-        assert "sanitized_content" in result
+        if result["valid"] is not False:
+            raise AssertionError
+        if "sanitized_content" not in result:
+            raise AssertionError
 
     def test_escape_sql_wildcards(self):
         """Test SQL wildcard escaping"""
         policy = FallbackSecurity()
 
         escaped = policy.escape_sql_wildcards("test%query_")
-        assert escaped == "test\\%query\\_"
+        if escaped != "test\\%query\\_":
+            raise AssertionError
 
 
 class TestNotesValidator:
@@ -510,8 +546,10 @@ class TestNotesValidator:
             title="Valid Title", content="Valid content", tags=["tag1", "tag2"]
         )
 
-        assert result.valid is True
-        assert result.sanitized_title == "Valid Title"
+        if result.valid is not True:
+            raise AssertionError
+        if result.sanitized_title != "Valid Title":
+            raise AssertionError
 
     def test_validate_note_creation_missing_title(self):
         """Test note creation validation with missing title"""
@@ -519,8 +557,10 @@ class TestNotesValidator:
 
         result = validator.validate_note_creation(title="", content="Valid content", tags=["tag1"])
 
-        assert result.valid is False
-        assert "title" in str(result.errors).lower()
+        if result.valid is not False:
+            raise AssertionError
+        if "title" not in str(result.errors).lower():
+            raise AssertionError
 
     def test_validate_note_creation_too_long_title(self):
         """Test note creation validation with overly long title"""
@@ -531,8 +571,10 @@ class TestNotesValidator:
             title=long_title, content="Valid content", tags=["tag1"]
         )
 
-        assert result.valid is False
-        assert "title" in str(result.errors).lower()
+        if result.valid is not False:
+            raise AssertionError
+        if "title" not in str(result.errors).lower():
+            raise AssertionError
 
     def test_validate_note_update_success(self):
         """Test successful note update validation"""
@@ -542,7 +584,8 @@ class TestNotesValidator:
 
         result = validator.validate_note_update(updates)
 
-        assert result.valid is True
+        if result.valid is not True:
+            raise AssertionError
 
     def test_validate_note_update_invalid_field(self):
         """Test note update validation with invalid field"""
@@ -552,8 +595,10 @@ class TestNotesValidator:
 
         result = validator.validate_note_update(updates)
 
-        assert result.valid is False
-        assert "invalid_field" in str(result.errors).lower()
+        if result.valid is not False:
+            raise AssertionError
+        if "invalid_field" not in str(result.errors).lower():
+            raise AssertionError
 
     def test_validate_search_query_success(self):
         """Test successful search query validation"""
@@ -561,7 +606,8 @@ class TestNotesValidator:
 
         result = validator.validate_search_query("valid query", "content")
 
-        assert result.valid is True
+        if result.valid is not True:
+            raise AssertionError
 
     def test_validate_search_query_too_long(self):
         """Test search query validation with overly long query"""
@@ -570,8 +616,10 @@ class TestNotesValidator:
         long_query = "A" * 501  # Exceeds max length
         result = validator.validate_search_query(long_query, "content")
 
-        assert result.valid is False
-        assert "query" in str(result.errors).lower()
+        if result.valid is not False:
+            raise AssertionError
+        if "query" not in str(result.errors).lower():
+            raise AssertionError
 
     def test_validate_bulk_operation_success(self):
         """Test successful bulk operation validation"""
@@ -581,7 +629,8 @@ class TestNotesValidator:
             note_ids=["note-1", "note-2", "note-3"], operation="assign_project"
         )
 
-        assert result.valid is True
+        if result.valid is not True:
+            raise AssertionError
 
     def test_validate_bulk_operation_empty_ids(self):
         """Test bulk operation validation with empty note IDs"""
@@ -589,8 +638,10 @@ class TestNotesValidator:
 
         result = validator.validate_bulk_operation(note_ids=[], operation="assign_project")
 
-        assert result.valid is False
-        assert "note_ids" in str(result.errors).lower()
+        if result.valid is not False:
+            raise AssertionError
+        if "note_ids" not in str(result.errors).lower():
+            raise AssertionError
 
 
 class TestOperationResult:
@@ -602,10 +653,14 @@ class TestOperationResult:
             success=True, data={"id": "test-note-1"}, message="Operation completed"
         )
 
-        assert result.success is True
-        assert result.data["id"] == "test-note-1"
-        assert result.message == "Operation completed"
-        assert result.errors == []
+        if result.success is not True:
+            raise AssertionError
+        if result.data["id"] != "test-note-1":
+            raise AssertionError
+        if result.message != "Operation completed":
+            raise AssertionError
+        if result.errors != []:
+            raise AssertionError
 
     def test_operation_result_failure(self):
         """Test failed operation result"""
@@ -613,9 +668,11 @@ class TestOperationResult:
             success=False, errors=["Validation error", "Security error"], message="Operation failed"
         )
 
-        assert result.success is False
+        if result.success is not False:
+            raise AssertionError
         assert len(result.errors) == 2
-        assert result.message == "Operation failed"
+        if result.message != "Operation failed":
+            raise AssertionError
 
 
 class TestQueryResult:
@@ -627,15 +684,18 @@ class TestQueryResult:
             success=True, data=[{"id": "note-1"}, {"id": "note-2"}], message="Query successful"
         )
 
-        assert result.success is True
+        if result.success is not True:
+            raise AssertionError
         assert len(result.data) == 2
 
     def test_query_result_with_count(self):
         """Test query result with count"""
         result = QueryResult(success=True, data=[{"id": "note-1"}], count=1, total=10)
 
-        assert result.count == 1
-        assert result.total == 10
+        if result.count != 1:
+            raise AssertionError
+        if result.total != 10:
+            raise AssertionError
 
 
 class TestValidationResult:
@@ -647,9 +707,12 @@ class TestValidationResult:
             valid=True, sanitized_title="Clean Title", sanitized_content="Clean content"
         )
 
-        assert result.valid is True
-        assert result.sanitized_title == "Clean Title"
-        assert result.errors == []
+        if result.valid is not True:
+            raise AssertionError
+        if result.sanitized_title != "Clean Title":
+            raise AssertionError
+        if result.errors != []:
+            raise AssertionError
 
     def test_validation_result_failure(self):
         """Test failed validation result"""
@@ -657,7 +720,8 @@ class TestValidationResult:
             valid=False, errors=["Title required", "Content too long"], sanitized_title=""
         )
 
-        assert result.valid is False
+        if result.valid is not False:
+            raise AssertionError
         assert len(result.errors) == 2
 
 
@@ -694,19 +758,23 @@ class TestNotesSystemIntegration:
 
             # Create
             create_result = service.create_note("Test Note", "Content", ["tag"])
-            assert create_result.success is True
+            if create_result.success is not True:
+                raise AssertionError
 
             # Read
             get_result = service.get_note("note-1")
-            assert get_result.success is True
+            if get_result.success is not True:
+                raise AssertionError
 
             # Update
             update_result = service.update_note("note-1", {"title": "Updated"})
-            assert update_result.success is True
+            if update_result.success is not True:
+                raise AssertionError
 
             # Delete
             delete_result = service.delete_note("note-1")
-            assert delete_result.success is True
+            if delete_result.success is not True:
+                raise AssertionError
 
     def test_notes_service_error_handling(self, mock_db_manager):
         """Test error handling in notes service"""
@@ -724,8 +792,10 @@ class TestNotesSystemIntegration:
 
             result = service.create_note("Test", "Content")
 
-            assert result.success is False
-            assert "Database error" in result.message
+            if result.success is not False:
+                raise AssertionError
+            if "Database error" not in result.message:
+                raise AssertionError
 
 
 # Parametrized tests for various scenarios
@@ -751,7 +821,8 @@ def test_security_operations_parametrized(mock_db_manager, operation, expected_r
 
         result, _ = security.can_perform_write_operation(operation)
 
-        assert result == expected_result
+        if result != expected_result:
+            raise AssertionError
 
 
 def test_validation_edge_cases():
@@ -760,16 +831,20 @@ def test_validation_edge_cases():
 
     # Test with None values
     result = validator.validate_note_creation(None, None, None)
-    assert result.valid is False
+    if result.valid is not False:
+        raise AssertionError
 
     # Test with empty content
     result = validator.validate_note_creation("Title", "", [])
-    assert result.valid is True  # Empty content should be allowed
+    if result.valid is not True:
+        raise AssertionError
 
     # Test with special characters in title
     result = validator.validate_note_creation("Title@#$%", "Content", [])
-    assert result.valid is True  # Special chars should be allowed
+    if result.valid is not True:
+        raise AssertionError
 
     # Test bulk operation with duplicates
     result = validator.validate_bulk_operation(["id1", "id1", "id2"], "test")
-    assert result.valid is True  # Duplicates should be allowed
+    if result.valid is not True:
+        raise AssertionError

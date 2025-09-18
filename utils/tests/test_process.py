@@ -35,18 +35,25 @@ class TestSafeProcessError:
             stderr="Error message",
         )
 
-        assert str(error) == "Command failed"
-        assert error.command == command
-        assert error.returncode == 1
-        assert error.stdout == "Python 3.9.0"
-        assert error.stderr == "Error message"
+        if str(error) != "Command failed":
+            raise AssertionError
+        if error.command != command:
+            raise AssertionError
+        if error.returncode != 1:
+            raise AssertionError
+        if error.stdout != "Python 3.9.0":
+            raise AssertionError
+        if error.stderr != "Error message":
+            raise AssertionError
 
     def test_safe_process_error_defaults(self):
         """Test SafeProcessError with default values."""
         error = SafeProcessError(message="Test error", command=["test"], returncode=2)
 
-        assert error.stdout == ""
-        assert error.stderr == ""
+        if error.stdout != "":
+            raise AssertionError
+        if error.stderr != "":
+            raise AssertionError
 
     def test_safe_process_error_inheritance(self):
         """Test SafeProcessError inherits from RuntimeError."""
@@ -85,7 +92,8 @@ class TestCommandValidation:
         allowed = {"python", "python.exe"}
 
         result = _validate_allowed_binary(command, allowed)
-        assert result == "python"
+        if result != "python":
+            raise AssertionError
 
     def test_validate_allowed_binary_with_path(self):
         """Test _validate_allowed_binary with full path."""
@@ -93,7 +101,8 @@ class TestCommandValidation:
         allowed = {"python3", "python3.exe"}
 
         result = _validate_allowed_binary(command, allowed)
-        assert result == "python3"
+        if result != "python3":
+            raise AssertionError
 
     def test_validate_allowed_binary_case_insensitive(self):
         """Test _validate_allowed_binary is case insensitive."""
@@ -101,7 +110,8 @@ class TestCommandValidation:
         allowed = {"python", "python.exe"}
 
         result = _validate_allowed_binary(command, allowed)
-        assert result == "python.exe"
+        if result != "python.exe":
+            raise AssertionError
 
     def test_validate_allowed_binary_not_allowed(self):
         """Test _validate_allowed_binary with disallowed binary."""
@@ -126,9 +136,12 @@ class TestCommandValidation:
 
             mock_logger.debug.assert_called_once()
             call_args = mock_logger.debug.call_args[0]
-            assert "python" in call_args[0]
-            assert "2 args" in call_args[0]
-            assert "cwd=/tmp" in call_args[0]
+            if "python" not in call_args[0]:
+                raise AssertionError
+            if "2 args" not in call_args[0]:
+                raise AssertionError
+            if "cwd=/tmp" not in call_args[0]:
+                raise AssertionError
 
     def test_log_invocation_no_cwd(self):
         """Test _log_invocation without working directory."""
@@ -137,8 +150,10 @@ class TestCommandValidation:
 
             mock_logger.debug.assert_called_once()
             call_args = mock_logger.debug.call_args[0]
-            assert "git" in call_args[0]
-            assert "cwd=" not in call_args[0]
+            if "git" not in call_args[0]:
+                raise AssertionError
+            if "cwd=" in call_args[0]:
+                raise AssertionError
 
     def test_log_invocation_exception_handling(self):
         """Test _log_invocation handles logging exceptions."""
@@ -163,14 +178,18 @@ class TestSafeRun:
 
             result = safe_run(["python", "--version"], allowed_binaries={"python"})
 
-            assert result == mock_result
+            if result != mock_result:
+                raise AssertionError
             mock_run.assert_called_once()
 
             # Verify subprocess.run was called with correct parameters
             call_kwargs = mock_run.call_args[1]
-            assert call_kwargs["shell"] is False
-            assert call_kwargs["capture_output"] is True
-            assert call_kwargs["text"] is True
+            if call_kwargs["shell"] is not False:
+                raise AssertionError
+            if call_kwargs["capture_output"] is not True:
+                raise AssertionError
+            if call_kwargs["text"] is not True:
+                raise AssertionError
 
     def test_safe_run_with_options(self):
         """Test safe_run with various options."""
@@ -189,12 +208,17 @@ class TestSafeRun:
                     text=False,
                 )
 
-                assert result == mock_result
+                if result != mock_result:
+                    raise AssertionError
                 call_kwargs = mock_run.call_args[1]
-                assert call_kwargs["cwd"] == str(temp_dir)
-                assert call_kwargs["timeout"] == 30
-                assert call_kwargs["env"] == {"PYTHONPATH": "/test"}
-                assert call_kwargs["text"] is False
+                if call_kwargs["cwd"] != str(temp_dir):
+                    raise AssertionError
+                if call_kwargs["timeout"] != 30:
+                    raise AssertionError
+                if call_kwargs["env"] != {"PYTHONPATH": "/test"}:
+                    raise AssertionError
+                if call_kwargs["text"] is not False:
+                    raise AssertionError
 
     def test_safe_run_command_validation(self):
         """Test safe_run command validation."""
@@ -219,7 +243,8 @@ class TestSafeRun:
 
             result = safe_run(["python", "--version"], allowed_binaries={"python"}, check=True)
 
-            assert result == mock_result
+            if result != mock_result:
+                raise AssertionError
 
     def test_safe_run_check_true_failure(self):
         """Test safe_run with check=True and failed command."""
@@ -234,10 +259,14 @@ class TestSafeRun:
                 safe_run(["python", "-c", "exit(1)"], allowed_binaries={"python"}, check=True)
 
             error = exc_info.value
-            assert error.returncode == 1
-            assert error.stdout == "Some output"
-            assert error.stderr == "Error occurred"
-            assert "python" in str(error)
+            if error.returncode != 1:
+                raise AssertionError
+            if error.stdout != "Some output":
+                raise AssertionError
+            if error.stderr != "Error occurred":
+                raise AssertionError
+            if "python" not in str(error):
+                raise AssertionError
 
     def test_safe_run_check_false_failure(self):
         """Test safe_run with check=False and failed command."""
@@ -249,8 +278,10 @@ class TestSafeRun:
             # Should not raise exception when check=False
             result = safe_run(["python", "-c", "exit(1)"], allowed_binaries={"python"}, check=False)
 
-            assert result == mock_result
-            assert result.returncode == 1
+            if result != mock_result:
+                raise AssertionError
+            if result.returncode != 1:
+                raise AssertionError
 
     def test_safe_run_subprocess_exception(self):
         """Test safe_run when subprocess.run raises exception."""
@@ -289,12 +320,14 @@ class TestSafePopen:
 
             result = safe_popen(["python", "-c", "print('hello')"], allowed_binaries={"python"})
 
-            assert result == mock_process
+            if result != mock_process:
+                raise AssertionError
             mock_popen.assert_called_once()
 
             # Verify security parameters
             call_kwargs = mock_popen.call_args[1]
-            assert call_kwargs["shell"] is False
+            if call_kwargs["shell"] is not False:
+                raise AssertionError
 
     def test_safe_popen_with_options(self):
         """Test safe_popen with various options."""
@@ -313,13 +346,19 @@ class TestSafePopen:
                     stdin=subprocess.PIPE,
                 )
 
-                assert result == mock_process
+                if result != mock_process:
+                    raise AssertionError
                 call_kwargs = mock_popen.call_args[1]
-                assert call_kwargs["cwd"] == str(temp_dir)
-                assert call_kwargs["env"] == {"TEST": "value"}
-                assert call_kwargs["stdout"] == subprocess.PIPE
-                assert call_kwargs["stderr"] == subprocess.STDOUT
-                assert call_kwargs["stdin"] == subprocess.PIPE
+                if call_kwargs["cwd"] != str(temp_dir):
+                    raise AssertionError
+                if call_kwargs["env"] != {"TEST": "value"}:
+                    raise AssertionError
+                if call_kwargs["stdout"] != subprocess.PIPE:
+                    raise AssertionError
+                if call_kwargs["stderr"] != subprocess.STDOUT:
+                    raise AssertionError
+                if call_kwargs["stdin"] != subprocess.PIPE:
+                    raise AssertionError
 
     def test_safe_popen_windows_no_window(self):
         """Test safe_popen Windows-specific CREATE_NO_WINDOW flag."""
@@ -332,8 +371,10 @@ class TestSafePopen:
 
                 call_kwargs = mock_popen.call_args[1]
                 # Should include CREATE_NO_WINDOW flag on Windows
-                assert "creationflags" in call_kwargs
-                assert call_kwargs["creationflags"] & 0x08000000  # CREATE_NO_WINDOW
+                if "creationflags" not in call_kwargs:
+                    raise AssertionError
+                if not call_kwargs["creationflags"] & 0x08000000:
+                    raise AssertionError
 
     def test_safe_popen_unix_close_fds(self):
         """Test safe_popen Unix-specific close_fds setting."""
@@ -345,7 +386,8 @@ class TestSafePopen:
                 safe_popen(["echo", "test"], allowed_binaries={"echo"})
 
                 call_kwargs = mock_popen.call_args[1]
-                assert call_kwargs["close_fds"] is True
+                if call_kwargs["close_fds"] is not True:
+                    raise AssertionError
 
     def test_safe_popen_command_validation(self):
         """Test safe_popen command validation."""
@@ -372,7 +414,8 @@ class TestSafePopen:
                 call_kwargs = mock_popen.call_args[1]
                 # Should combine custom flags with CREATE_NO_WINDOW
                 expected_flags = custom_flags | 0x08000000
-                assert call_kwargs["creationflags"] == expected_flags
+                if call_kwargs["creationflags"] != expected_flags:
+                    raise AssertionError
 
     def test_safe_popen_performance_monitoring(self):
         """Test that safe_popen includes performance monitoring."""
@@ -410,7 +453,8 @@ class TestSecurityFeatures:
 
                 # Verify shell=False was used
                 call_kwargs = mock_run.call_args[1]
-                assert call_kwargs["shell"] is False
+                if call_kwargs["shell"] is not False:
+                    raise AssertionError
 
     def test_path_traversal_prevention(self):
         """Test prevention of path traversal in binary paths."""
@@ -437,7 +481,8 @@ class TestSecurityFeatures:
             safe_run(["python", "--version"], allowed_binaries={"python"}, env=custom_env)
 
             call_kwargs = mock_run.call_args[1]
-            assert call_kwargs["env"] == custom_env
+            if call_kwargs["env"] != custom_env:
+                raise AssertionError
 
     def test_argument_sanitization(self):
         """Test that arguments are passed safely."""
@@ -460,7 +505,8 @@ class TestSecurityFeatures:
 
             # Arguments should be passed as-is in list form (no shell interpretation)
             call_args = mock_run.call_args[0][0]
-            assert call_args == special_args
+            if call_args != special_args:
+                raise AssertionError
 
     def test_binary_allowlist_bypass_attempts(self):
         """Test attempts to bypass binary allowlist."""
@@ -498,13 +544,15 @@ class TestSecurityFeatures:
                 safe_run(["python", "--version"], allowed_binaries={"python"}, cwd=Path(temp_dir))
 
                 call_kwargs = mock_run.call_args[1]
-                assert call_kwargs["cwd"] == str(temp_dir)
+                if call_kwargs["cwd"] != str(temp_dir):
+                    raise AssertionError
 
             # Test with string path
             safe_run(["python", "--version"], allowed_binaries={"python"}, cwd="/tmp")
 
             call_kwargs = mock_run.call_args[1]
-            assert call_kwargs["cwd"] == "/tmp"
+            if call_kwargs["cwd"] != "/tmp":
+                raise AssertionError
 
 
 class TestErrorHandling:
@@ -551,9 +599,12 @@ class TestErrorHandling:
                 safe_run(["python", "-c", "exit(1)"], allowed_binaries={"python"}, check=True)
 
             error = exc_info.value
-            assert error.stdout == "Standard output"
-            assert error.stderr == "Error output"
-            assert error.command == ["python", "-c", "exit(1)"]
+            if error.stdout != "Standard output":
+                raise AssertionError
+            if error.stderr != "Error output":
+                raise AssertionError
+            if error.command != ["python", "-c", "exit(1)"]:
+                raise AssertionError
 
     def test_logging_during_error_conditions(self):
         """Test that logging works during error conditions."""
@@ -578,7 +629,8 @@ class TestIntegrationScenarios:
 
             result = safe_run(["git", "status", "--porcelain"], allowed_binaries={"git", "git.exe"})
 
-            assert result.stdout == "On branch main"
+            if result.stdout != "On branch main":
+                raise AssertionError
 
     def test_python_script_execution(self):
         """Test executing Python scripts safely."""
@@ -596,7 +648,8 @@ class TestIntegrationScenarios:
                     timeout=300,
                 )
 
-                assert result.returncode == 0
+                if result.returncode != 0:
+                    raise AssertionError
 
     def test_multiple_command_execution(self):
         """Test executing multiple commands in sequence."""
@@ -623,8 +676,10 @@ class TestIntegrationScenarios:
                     results.append(("error", str(e)))
 
             assert len(results) == 3
-            assert results[0][0] == "success"
-            assert results[1][0] == "success"
+            if results[0][0] != "success":
+                raise AssertionError
+            if results[1][0] != "success":
+                raise AssertionError
             # Third command fails but should be handled gracefully
 
     def test_long_running_background_process(self):
@@ -644,10 +699,12 @@ class TestIntegrationScenarios:
                 stderr=subprocess.PIPE,
             )
 
-            assert process == mock_process
+            if process != mock_process:
+                raise AssertionError
 
             # Simulate process management
-            assert process.poll() is None  # Still running
+            if process.poll() is not None:
+                raise AssertionError
             process.terminate()
             process.wait()
 
@@ -675,9 +732,12 @@ class TestIntegrationScenarios:
 
                 result = safe_run(["echo", "test"], allowed_binaries={"echo"})
 
-                assert result.stdout == stdout
-                assert result.stderr == stderr
-                assert result.returncode == 0
+                if result.stdout != stdout:
+                    raise AssertionError
+                if result.stderr != stderr:
+                    raise AssertionError
+                if result.returncode != 0:
+                    raise AssertionError
 
     def test_environment_variable_handling(self):
         """Test various environment variable scenarios."""
@@ -698,7 +758,8 @@ class TestIntegrationScenarios:
                 safe_run(["python", "--version"], allowed_binaries={"python"}, env=env)
 
                 call_kwargs = mock_run.call_args[1]
-                assert call_kwargs["env"] == env
+                if call_kwargs["env"] != env:
+                    raise AssertionError
 
 
 class TestPerformanceAndResourceManagement:
@@ -736,7 +797,8 @@ class TestPerformanceAndResourceManagement:
             # All workers should succeed
             assert len(results) == 5
             for returncode in results.values():
-                assert returncode == 0
+                if returncode != 0:
+                    raise AssertionError
 
     def test_resource_cleanup_after_errors(self):
         """Test that resources are cleaned up after errors."""
@@ -757,7 +819,8 @@ class TestPerformanceAndResourceManagement:
                     pass  # Expected to fail
 
                 # Should have attempted to run subprocess exactly once
-                assert mock_run.call_count == 1
+                if mock_run.call_count != 1:
+                    raise AssertionError
 
     def test_memory_usage_with_large_output(self):
         """Test memory usage with large command output."""
@@ -776,7 +839,8 @@ class TestPerformanceAndResourceManagement:
 
             # Should handle large output without issues
             assert len(result.stdout) == len(large_output)
-            assert result.returncode == 0
+            if result.returncode != 0:
+                raise AssertionError
 
     def test_timeout_accuracy(self):
         """Test timeout accuracy and handling."""
@@ -801,7 +865,8 @@ class TestPerformanceAndResourceManagement:
             end_time = time.time()
 
             # Should have timed out quickly
-            assert (end_time - start_time) < 1.0
+            if (end_time - start_time) >= 1.0:
+                raise AssertionError
 
 
 class TestEdgeCasesAndBoundaryConditions:
@@ -841,7 +906,8 @@ class TestEdgeCasesAndBoundaryConditions:
 
             # Should handle unicode arguments correctly
             call_args = mock_run.call_args[0][0]
-            assert call_args == unicode_args
+            if call_args != unicode_args:
+                raise AssertionError
 
     def test_none_values_in_options(self):
         """Test handling of None values in optional parameters."""
@@ -860,9 +926,12 @@ class TestEdgeCasesAndBoundaryConditions:
             )
 
             call_kwargs = mock_run.call_args[1]
-            assert call_kwargs["cwd"] is None
-            assert call_kwargs["timeout"] is None
-            assert call_kwargs["env"] is None
+            if call_kwargs["cwd"] is not None:
+                raise AssertionError
+            if call_kwargs["timeout"] is not None:
+                raise AssertionError
+            if call_kwargs["env"] is not None:
+                raise AssertionError
 
     def test_binary_name_normalization(self):
         """Test binary name normalization edge cases."""
@@ -885,7 +954,8 @@ class TestEdgeCasesAndBoundaryConditions:
 
                 if should_succeed:
                     result = safe_run(command, allowed_binaries=allowlist)
-                    assert result.returncode == 0
+                    if result.returncode != 0:
+                        raise AssertionError
                 else:
                     with pytest.raises(PermissionError):
                         safe_run(command, allowed_binaries=allowlist)
@@ -903,7 +973,8 @@ class TestEdgeCasesAndBoundaryConditions:
             safe_run(original_command, allowed_binaries={"python"})
 
             # Original command should not be modified
-            assert original_command == command_copy
+            if original_command != command_copy:
+                raise AssertionError
 
     def test_allowlist_mutation_protection(self):
         """Test that allowlist is not mutated during execution."""
@@ -918,4 +989,5 @@ class TestEdgeCasesAndBoundaryConditions:
             safe_run(["python", "--version"], allowed_binaries=original_allowlist)
 
             # Original allowlist should not be modified
-            assert original_allowlist == allowlist_copy
+            if original_allowlist != allowlist_copy:
+                raise AssertionError

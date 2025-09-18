@@ -44,7 +44,8 @@ class TestOptimizedPatterns:
 
         match = OptimizedPatterns.match_function(code_with_function)
         assert match is not None
-        assert "def my_function" in match.group()
+        if "def my_function" not in match.group():
+            raise AssertionError
 
         match = OptimizedPatterns.match_function(code_without_function)
         assert match is None
@@ -64,10 +65,12 @@ class TestOptimizedPatterns:
         ]
 
         for email in valid_emails:
-            assert OptimizedPatterns.match_email(email), f"Should validate {email}"
+            if not OptimizedPatterns.match_email(email):
+                raise AssertionError(f"Should validate {email}")
 
         for email in invalid_emails:
-            assert not OptimizedPatterns.match_email(email), f"Should not validate {email}"
+            if OptimizedPatterns.match_email(email):
+                raise AssertionError(f"Should not validate {email}")
 
     def test_url_validation(self):
         """Test URL validation pattern."""
@@ -84,10 +87,12 @@ class TestOptimizedPatterns:
         ]
 
         for url in valid_urls:
-            assert OptimizedPatterns.match_url(url), f"Should validate {url}"
+            if not OptimizedPatterns.match_url(url):
+                raise AssertionError(f"Should validate {url}")
 
         for url in invalid_urls:
-            assert not OptimizedPatterns.match_url(url), f"Should not validate {url}"
+            if OptimizedPatterns.match_url(url):
+                raise AssertionError(f"Should not validate {url}")
 
     def test_file_extension_extraction(self):
         """Test file extension extraction."""
@@ -102,7 +107,8 @@ class TestOptimizedPatterns:
 
         for filename, expected in test_cases:
             result = OptimizedPatterns.extract_file_extension(filename)
-            assert result == expected, f"Expected {expected} for {filename}, got {result}"
+            if result != expected:
+                raise AssertionError(f"Expected {expected} for {filename}, got {result}")
 
 
 class TestStringBuilder:
@@ -112,7 +118,8 @@ class TestStringBuilder:
         """Test StringBuilder initialization."""
         builder = StringBuilder()
         assert len(builder) == 0
-        assert builder.build() == ""
+        if builder.build() != "":
+            raise AssertionError
 
     def test_string_builder_append(self):
         """Test basic string appending."""
@@ -122,7 +129,8 @@ class TestStringBuilder:
         builder.append("World")
 
         assert len(builder) == 11
-        assert builder.build() == "Hello World"
+        if builder.build() != "Hello World":
+            raise AssertionError
 
     def test_string_builder_append_line(self):
         """Test appending with newlines."""
@@ -132,7 +140,8 @@ class TestStringBuilder:
         builder.append_line()  # Empty line
 
         expected = "Line 1\nLine 2\n\n"
-        assert builder.build() == expected
+        if builder.build() != expected:
+            raise AssertionError
 
     def test_string_builder_format(self):
         """Test formatted string appending."""
@@ -140,17 +149,20 @@ class TestStringBuilder:
         builder.append_format("Hello {}", "World")
         builder.append_format(" - Count: {count}", count=42)
 
-        assert builder.build() == "Hello World - Count: 42"
+        if builder.build() != "Hello World - Count: 42":
+            raise AssertionError
 
     def test_string_builder_clear(self):
         """Test clearing the builder."""
         builder = StringBuilder()
         builder.append("Some text")
-        assert len(builder) > 0
+        if len(builder) <= 0:
+            raise AssertionError
 
         builder.clear()
         assert len(builder) == 0
-        assert builder.build() == ""
+        if builder.build() != "":
+            raise AssertionError
 
     def test_string_builder_chaining(self):
         """Test method chaining."""
@@ -158,7 +170,8 @@ class TestStringBuilder:
             StringBuilder().append("Hello").append(" ").append("World").append_line("!").build()
         )
 
-        assert result == "Hello World!\n"
+        if result != "Hello World!\n":
+            raise AssertionError
 
 
 class TestObjectPool:
@@ -174,13 +187,16 @@ class TestObjectPool:
 
         # First get should create new object
         obj1 = pool.get()
-        assert obj1 == "new_string"
+        if obj1 != "new_string":
+            raise AssertionError
 
         # Put it back and get again
         pool.put(obj1)
         obj2 = pool.get()
-        assert obj2 == "new_string"
-        assert pool.size() == 0  # Should be empty after get
+        if obj2 != "new_string":
+            raise AssertionError
+        if pool.size() != 0:
+            raise AssertionError
 
     def test_object_pool_max_size(self):
         """Test object pool respects max size."""
@@ -197,11 +213,13 @@ class TestObjectPool:
 
         pool.put(obj1)
         pool.put(obj2)
-        assert pool.size() == 2
+        if pool.size() != 2:
+            raise AssertionError
 
         # Third put should be ignored (exceeds max_size)
         pool.put(obj3)
-        assert pool.size() == 2
+        if pool.size() != 2:
+            raise AssertionError
 
     def test_object_pool_cleanup(self):
         """Test object pool with cleanup function."""
@@ -217,11 +235,13 @@ class TestObjectPool:
         pool = ObjectPool(list_factory, max_size=2, cleanup_func=cleanup_func)
 
         obj = pool.get()
-        assert obj == [1, 2, 3]
+        if obj != [1, 2, 3]:
+            raise AssertionError
 
         pool.put(obj)
         assert len(cleanup_called) == 1
-        assert obj == []  # Should be cleared
+        if obj != []:
+            raise AssertionError
 
     def test_object_pool_thread_safety(self):
         """Test object pool thread safety."""
@@ -248,9 +268,11 @@ class TestObjectPool:
         for thread in threads:
             thread.join()
 
-        assert not errors
+        if errors:
+            raise AssertionError
         assert len(results) == 200
-        assert all(r == 42 for r in results)
+        if not all(r == 42 for r in results):
+            raise AssertionError
 
 
 class TestLazyImporter:
@@ -262,8 +284,10 @@ class TestLazyImporter:
 
         # Import a standard library module
         math_module = importer.get_module("math")
-        assert hasattr(math_module, "sqrt")
-        assert math_module.sqrt(4) == 2.0
+        if not hasattr(math_module, "sqrt"):
+            raise AssertionError
+        if math_module.sqrt(4) != 2.0:
+            raise AssertionError
 
     def test_lazy_importer_class_import(self):
         """Test lazy class importing."""
@@ -271,7 +295,8 @@ class TestLazyImporter:
 
         # Import a standard library class
         thread_class = importer.get_class("threading", "Thread")
-        assert thread_class is threading.Thread
+        if thread_class is not threading.Thread:
+            raise AssertionError
 
     def test_lazy_importer_caching(self):
         """Test lazy importer caches modules."""
@@ -282,7 +307,8 @@ class TestLazyImporter:
         module2 = importer.get_module("os")
 
         # Should be the same object (cached)
-        assert module1 is module2
+        if module1 is not module2:
+            raise AssertionError
 
     def test_lazy_importer_clear_cache(self):
         """Test clearing the import cache."""
@@ -296,7 +322,8 @@ class TestLazyImporter:
 
         # Import again - should be fresh import
         sys_module = importer.get_module("sys")
-        assert hasattr(sys_module, "version")
+        if not hasattr(sys_module, "version"):
+            raise AssertionError
 
 
 class TestUtilityFunctions:
@@ -304,34 +331,40 @@ class TestUtilityFunctions:
 
     def test_build_string_empty(self):
         """Test build_string with empty input."""
-        assert build_string() == ""
+        if build_string() != "":
+            raise AssertionError
 
     def test_build_string_single(self):
         """Test build_string with single string."""
-        assert build_string("hello") == "hello"
+        if build_string("hello") != "hello":
+            raise AssertionError
 
     def test_build_string_multiple(self):
         """Test build_string with multiple strings."""
         result = build_string("Hello", " ", "World", "!")
-        assert result == "Hello World!"
+        if result != "Hello World!":
+            raise AssertionError
 
     def test_safe_string_join_basic(self):
         """Test safe_string_join with valid strings."""
         parts = ["hello", "world", "test"]
         result = safe_string_join(parts, " ")
-        assert result == "hello world test"
+        if result != "hello world test":
+            raise AssertionError
 
     def test_safe_string_join_with_none(self):
         """Test safe_string_join filters None values."""
         parts = ["hello", None, "world", None, "test"]
         result = safe_string_join(parts, " ")
-        assert result == "hello world test"
+        if result != "hello world test":
+            raise AssertionError
 
     def test_safe_string_join_with_numbers(self):
         """Test safe_string_join converts non-strings."""
         parts = [1, 2.5, True, "test"]
         result = safe_string_join(parts, ",")
-        assert result == "1,2.5,True,test"
+        if result != "1,2.5,True,test":
+            raise AssertionError
 
     def test_operation_timer_context_manager(self):
         """Test operation_timer context manager."""
@@ -341,7 +374,8 @@ class TestUtilityFunctions:
             time.sleep(0.01)
 
         # Should complete without error
-        assert True
+        if not True:
+            raise AssertionError
 
 
 class TestComponentState:
@@ -349,10 +383,14 @@ class TestComponentState:
 
     def test_component_state_values(self):
         """Test ComponentState enum values."""
-        assert ComponentState.UNINITIALIZED.value == "uninitialized"
-        assert ComponentState.INITIALIZING.value == "initializing"
-        assert ComponentState.INITIALIZED.value == "initialized"
-        assert ComponentState.ERROR.value == "error"
+        if ComponentState.UNINITIALIZED.value != "uninitialized":
+            raise AssertionError
+        if ComponentState.INITIALIZING.value != "initializing":
+            raise AssertionError
+        if ComponentState.INITIALIZED.value != "initialized":
+            raise AssertionError
+        if ComponentState.ERROR.value != "error":
+            raise AssertionError
 
 
 class TestLazyComponentManager:
@@ -369,7 +407,8 @@ class TestLazyComponentManager:
 
         # Component should not be initialized yet
         assert len(manager._components) == 1
-        assert manager._components["test"].state == ComponentState.UNINITIALIZED
+        if manager._components["test"].state != ComponentState.UNINITIALIZED:
+            raise AssertionError
 
     def test_component_initialization(self):
         """Test component lazy initialization."""
@@ -382,8 +421,10 @@ class TestLazyComponentManager:
 
         # Get component - should initialize it
         component = manager.get_component("test")
-        assert component == {"initialized": True}
-        assert manager._components["test"].state == ComponentState.INITIALIZED
+        if component != {"initialized": True}:
+            raise AssertionError
+        if manager._components["test"].state != ComponentState.INITIALIZED:
+            raise AssertionError
 
     def test_component_dependency_resolution(self):
         """Test component dependency resolution."""
@@ -403,8 +444,10 @@ class TestLazyComponentManager:
 
         # Get main component - should initialize dependency first
         main = manager.get_component("main")
-        assert main == "main_component"
-        assert results == ["dependency", "main"]
+        if main != "main_component":
+            raise AssertionError
+        if results != ["dependency", "main"]:
+            raise AssertionError
 
     def test_component_circular_dependency_detection(self):
         """Test circular dependency detection."""
@@ -435,8 +478,10 @@ class TestLazyComponentManager:
         manager.preload_components(["test"])
 
         # Should already be initialized
-        assert manager._components["test"].state == ComponentState.INITIALIZED
-        assert manager._components["test"].instance == "preloaded_component"
+        if manager._components["test"].state != ComponentState.INITIALIZED:
+            raise AssertionError
+        if manager._components["test"].instance != "preloaded_component":
+            raise AssertionError
 
     def test_initialization_metrics(self):
         """Test initialization metrics."""
@@ -449,9 +494,12 @@ class TestLazyComponentManager:
         manager.get_component("comp1")
 
         metrics = manager.get_initialization_metrics()
-        assert metrics["total_components"] == 2
-        assert metrics["initialized_components"] == 1
-        assert "comp1" in metrics["initialization_order"]
+        if metrics["total_components"] != 2:
+            raise AssertionError
+        if metrics["initialized_components"] != 1:
+            raise AssertionError
+        if "comp1" not in metrics["initialization_order"]:
+            raise AssertionError
 
 
 class TestSignalConnectionManager:
@@ -468,7 +516,8 @@ class TestSignalConnectionManager:
 
         result = manager.connect_signal(mock_signal, mock_slot, "test_connection")
 
-        assert result is True
+        if result is not True:
+            raise AssertionError
         mock_signal.connect.assert_called_once_with(mock_slot)
 
     def test_signal_connection_validation_failure(self):
@@ -480,7 +529,8 @@ class TestSignalConnectionManager:
         mock_slot = Mock()
 
         result = manager.connect_signal(invalid_signal, mock_slot)
-        assert result is False
+        if result is not False:
+            raise AssertionError
 
     def test_signal_group_disconnection(self):
         """Test disconnecting signal groups."""
@@ -500,7 +550,8 @@ class TestSignalConnectionManager:
 
         # Disconnect group
         count = manager.disconnect_group("test_group")
-        assert count == 3
+        if count != 3:
+            raise AssertionError
 
         # All signals should be disconnected
         for signal in signals:
@@ -519,10 +570,14 @@ class TestSignalConnectionManager:
         manager.connect_signal(mock_signal, Mock(), "conn3", group="group2")
 
         stats = manager.get_connection_stats()
-        assert stats["total_connections"] == 3
-        assert stats["connection_groups"] == 2
-        assert stats["group_details"]["group1"] == 2
-        assert stats["group_details"]["group2"] == 1
+        if stats["total_connections"] != 3:
+            raise AssertionError
+        if stats["connection_groups"] != 2:
+            raise AssertionError
+        if stats["group_details"]["group1"] != 2:
+            raise AssertionError
+        if stats["group_details"]["group2"] != 1:
+            raise AssertionError
 
 
 class TestDebouncedEventHandler:
@@ -543,7 +598,8 @@ class TestDebouncedEventHandler:
 
         # Only the last one should execute after delay
         time.sleep(0.1)
-        assert results == ["third"]
+        if results != ["third"]:
+            raise AssertionError
 
     def test_debounced_event_cancellation(self):
         """Test debounced event cancellation."""
@@ -557,10 +613,12 @@ class TestDebouncedEventHandler:
 
         # Cancel before execution
         cancelled = handler.cancel_event("test_event")
-        assert cancelled is True
+        if cancelled is not True:
+            raise AssertionError
 
         time.sleep(0.15)
-        assert results == []  # Should not execute
+        if results != []:
+            raise AssertionError
 
     def test_debounced_multiple_events(self):
         """Test multiple independent debounced events."""
@@ -577,8 +635,10 @@ class TestDebouncedEventHandler:
         handler.debounce("event2", callback2)
 
         time.sleep(0.1)
-        assert "event1" in results
-        assert "event2" in results
+        if "event1" not in results:
+            raise AssertionError
+        if "event2" not in results:
+            raise AssertionError
 
 
 class TestBatchUpdateManager:
@@ -598,8 +658,10 @@ class TestBatchUpdateManager:
         manager.batch_update(update1)
         manager.batch_update(update2)
 
-        assert manager.get_queue_size() == 2
-        assert results == []  # Not executed yet
+        if manager.get_queue_size() != 2:
+            raise AssertionError
+        if results != []:
+            raise AssertionError
 
     def test_batch_update_execution(self):
         """Test batch update execution."""
@@ -616,8 +678,10 @@ class TestBatchUpdateManager:
         manager.batch_update(update2)
         manager.execute_batch()
 
-        assert results == ["update1", "update2"]
-        assert manager.get_queue_size() == 0
+        if results != ["update1", "update2"]:
+            raise AssertionError
+        if manager.get_queue_size() != 0:
+            raise AssertionError
 
     def test_batch_update_with_parent_widget(self):
         """Test batch update with parent widget."""
@@ -646,11 +710,14 @@ class TestBatchUpdateManager:
         manager.batch_update(lambda: None)
         manager.batch_update(lambda: None)
 
-        assert manager.get_queue_size() == 2
+        if manager.get_queue_size() != 2:
+            raise AssertionError
 
         cleared_count = manager.clear_queue()
-        assert cleared_count == 2
-        assert manager.get_queue_size() == 0
+        if cleared_count != 2:
+            raise AssertionError
+        if manager.get_queue_size() != 0:
+            raise AssertionError
 
 
 class TestGlobalInstances:
@@ -665,10 +732,14 @@ class TestGlobalInstances:
 
     def test_accessor_functions(self):
         """Test global accessor functions."""
-        assert get_lazy_component_manager() is lazy_component_manager
-        assert get_signal_connection_manager() is signal_connection_manager
-        assert get_debounced_event_handler() is debounced_event_handler
-        assert get_batch_update_manager() is batch_update_manager
+        if get_lazy_component_manager() is not lazy_component_manager:
+            raise AssertionError
+        if get_signal_connection_manager() is not signal_connection_manager:
+            raise AssertionError
+        if get_debounced_event_handler() is not debounced_event_handler:
+            raise AssertionError
+        if get_batch_update_manager() is not batch_update_manager:
+            raise AssertionError
 
     def test_convenience_functions(self):
         """Test convenience wrapper functions."""
@@ -682,7 +753,8 @@ class TestGlobalInstances:
         time.sleep(0.1)
 
         # Should execute without error
-        assert True
+        if not True:
+            raise AssertionError
 
     def test_batch_widget_update_function(self):
         """Test batch_widget_update convenience function."""
@@ -695,7 +767,8 @@ class TestGlobalInstances:
         batch_widget_update(mock_widget, update)
         execute_batch_updates()
 
-        assert results == ["updated"]
+        if results != ["updated"]:
+            raise AssertionError
 
 
 class TestIntegrationScenarios:
@@ -712,7 +785,8 @@ class TestIntegrationScenarios:
         builder.append("Hello").append(" ").append("World")
         result = builder.build()
 
-        assert result == "Hello World"
+        if result != "Hello World":
+            raise AssertionError
         builder_pool.put(builder)
 
     @pytest.mark.integration
@@ -727,12 +801,15 @@ class TestIntegrationScenarios:
         manager.register_component("expensive", create_expensive_resource)
 
         # Component should not be created yet
-        assert manager._components["expensive"].state == ComponentState.UNINITIALIZED
+        if manager._components["expensive"].state != ComponentState.UNINITIALIZED:
+            raise AssertionError
 
         # Access should trigger creation
         resource = manager.get_component("expensive")
-        assert resource["data"] == "expensive_resource"
-        assert manager._components["expensive"].state == ComponentState.INITIALIZED
+        if resource["data"] != "expensive_resource":
+            raise AssertionError
+        if manager._components["expensive"].state != ComponentState.INITIALIZED:
+            raise AssertionError
 
     @pytest.mark.boundary
     def test_error_handling_boundaries(self):
@@ -747,7 +824,8 @@ class TestIntegrationScenarios:
         with pytest.raises(RuntimeError, match="Failed to initialize component"):
             manager.get_component("failing")
 
-        assert manager._components["failing"].state == ComponentState.ERROR
+        if manager._components["failing"].state != ComponentState.ERROR:
+            raise AssertionError
 
     @pytest.mark.slow
     def test_performance_characteristics(self):
@@ -761,7 +839,8 @@ class TestIntegrationScenarios:
         end_time = time.perf_counter()
 
         # Should complete quickly (less than 0.1 seconds for 1000 patterns)
-        assert (end_time - start_time) < 0.1
+        if (end_time - start_time) >= 0.1:
+            raise AssertionError
 
     @pytest.mark.bulk
     def test_bulk_operations(self):
@@ -778,4 +857,5 @@ class TestIntegrationScenarios:
 
         # Verify all are initialized
         metrics = manager.get_initialization_metrics()
-        assert metrics["initialized_components"] == 100
+        if metrics["initialized_components"] != 100:
+            raise AssertionError

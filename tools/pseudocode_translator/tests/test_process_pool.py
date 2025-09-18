@@ -91,8 +91,10 @@ def test_pool_parse_submit_and_complete(manager_mock_config):
         # Expect SUBMITTED and COMPLETED lifecycle
         submitted = any(e.type == EventType.EXEC_POOL_TASK_SUBMITTED for e in events)
         completed = any(e.type == EventType.EXEC_POOL_TASK_COMPLETED for e in events)
-        assert submitted is True
-        assert completed is True
+        if submitted is not True:
+            raise AssertionError
+        if completed is not True:
+            raise AssertionError
     finally:
         manager.shutdown()
 
@@ -122,8 +124,10 @@ def test_pool_timeout_then_retry_then_fallback(manager_mock_config, monkeypatch)
         # Expect TIMEOUT and FALLBACK emitted
         timeout_seen = any(e.type == EventType.EXEC_POOL_TIMEOUT for e in events)
         fallback_seen = any(e.type == EventType.EXEC_POOL_FALLBACK for e in events)
-        assert timeout_seen is True
-        assert fallback_seen is True
+        if timeout_seen is not True:
+            raise AssertionError
+        if fallback_seen is not True:
+            raise AssertionError
     finally:
         manager.shutdown()
 
@@ -145,7 +149,8 @@ def test_job_size_cap_triggers_fallback(manager_mock_config):
 
         # FALLBACK reason should be job_too_large; ensure we did NOT submit
         fallbacks = [e for e in events if e.type == EventType.EXEC_POOL_FALLBACK]
-        assert any(e.data.get("reason") == "job_too_large" for e in fallbacks)
+        if not any(e.data.get("reason") == "job_too_large" for e in fallbacks):
+            raise AssertionError
         submits = [e for e in events if e.type == EventType.EXEC_POOL_TASK_SUBMITTED]
         assert len(submits) == 0
     finally:
@@ -173,14 +178,19 @@ def test_events_emitted_for_lifecycle():
         assert res is not None
 
         # Validate lifecycle emissions and payload basics
-        assert any(e.type == EventType.EXEC_POOL_STARTED for e in events)
-        assert any(e.type == EventType.EXEC_POOL_TASK_SUBMITTED for e in events)
+        if not any(e.type == EventType.EXEC_POOL_STARTED for e in events):
+            raise AssertionError
+        if not any(e.type == EventType.EXEC_POOL_TASK_SUBMITTED for e in events):
+            raise AssertionError
         completes = [e for e in events if e.type == EventType.EXEC_POOL_TASK_COMPLETED]
-        assert len(completes) >= 1
+        if len(completes) < 1:
+            raise AssertionError
         # payload keys
         for e in completes:
-            assert "kind" in e.data
-            assert "duration_ms" in e.data
+            if "kind" not in e.data:
+                raise AssertionError
+            if "duration_ms" not in e.data:
+                raise AssertionError
     finally:
         ex.shutdown()
 
@@ -198,11 +208,19 @@ def test_env_overrides_applied(monkeypatch, tmp_path):
 
     cfg = ConfigManager.load(None)
     # Verify applied
-    assert cfg.execution.process_pool_enabled is True
-    assert cfg.execution.process_pool_max_workers == 3
-    assert cfg.execution.process_pool_target == "validate_only"
-    assert cfg.execution.process_pool_task_timeout_ms == 1234
-    assert cfg.execution.process_pool_job_max_chars == 777
-    assert cfg.execution.process_pool_retry_on_timeout is True
-    assert cfg.execution.process_pool_retry_limit == 2
-    assert cfg.execution.process_pool_start_method == "spawn"
+    if cfg.execution.process_pool_enabled is not True:
+        raise AssertionError
+    if cfg.execution.process_pool_max_workers != 3:
+        raise AssertionError
+    if cfg.execution.process_pool_target != "validate_only":
+        raise AssertionError
+    if cfg.execution.process_pool_task_timeout_ms != 1234:
+        raise AssertionError
+    if cfg.execution.process_pool_job_max_chars != 777:
+        raise AssertionError
+    if cfg.execution.process_pool_retry_on_timeout is not True:
+        raise AssertionError
+    if cfg.execution.process_pool_retry_limit != 2:
+        raise AssertionError
+    if cfg.execution.process_pool_start_method != "spawn":
+        raise AssertionError

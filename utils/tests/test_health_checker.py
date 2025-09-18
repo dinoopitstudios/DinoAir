@@ -24,15 +24,20 @@ class TestHealthStatus:
 
     def test_health_status_values(self):
         """Test HealthStatus enum values."""
-        assert HealthStatus.HEALTHY.value == "healthy"
-        assert HealthStatus.DEGRADED.value == "degraded"
-        assert HealthStatus.UNHEALTHY.value == "unhealthy"
-        assert HealthStatus.UNKNOWN.value == "unknown"
+        if HealthStatus.HEALTHY.value != "healthy":
+            raise AssertionError
+        if HealthStatus.DEGRADED.value != "degraded":
+            raise AssertionError
+        if HealthStatus.UNHEALTHY.value != "unhealthy":
+            raise AssertionError
+        if HealthStatus.UNKNOWN.value != "unknown":
+            raise AssertionError
 
     def test_health_status_string_inheritance(self):
         """Test that HealthStatus inherits from str."""
         assert isinstance(HealthStatus.HEALTHY, str)
-        assert HealthStatus.HEALTHY == "healthy"
+        if HealthStatus.HEALTHY != "healthy":
+            raise AssertionError
 
 
 class TestHealthCheck:
@@ -52,12 +57,18 @@ class TestHealthCheck:
             timestamp=timestamp,
         )
 
-        assert check.name == "test_service"
-        assert check.status == HealthStatus.HEALTHY
-        assert check.response_time_ms == 150.5
-        assert check.message == "Service is healthy"
-        assert check.details == details
-        assert check.timestamp == timestamp
+        if check.name != "test_service":
+            raise AssertionError
+        if check.status != HealthStatus.HEALTHY:
+            raise AssertionError
+        if check.response_time_ms != 150.5:
+            raise AssertionError
+        if check.message != "Service is healthy":
+            raise AssertionError
+        if check.details != details:
+            raise AssertionError
+        if check.timestamp != timestamp:
+            raise AssertionError
 
     def test_health_check_defaults(self):
         """Test HealthCheck with default values."""
@@ -65,9 +76,11 @@ class TestHealthCheck:
             name="test", status=HealthStatus.UNKNOWN, response_time_ms=0.0, message="Unknown status"
         )
 
-        assert check.details == {}
+        if check.details != {}:
+            raise AssertionError
         assert isinstance(check.timestamp, float)
-        assert check.timestamp > 0
+        if check.timestamp <= 0:
+            raise AssertionError
 
     def test_health_check_post_init(self):
         """Test HealthCheck post-initialization behavior."""
@@ -78,8 +91,10 @@ class TestHealthCheck:
         after_time = time.time()
 
         # Timestamp should be set automatically
-        assert before_time <= check.timestamp <= after_time
-        assert check.details == {}
+        if not before_time <= check.timestamp <= after_time:
+            raise AssertionError
+        if check.details != {}:
+            raise AssertionError
 
 
 class TestHealthReport:
@@ -103,13 +118,20 @@ class TestHealthReport:
             timestamp=timestamp,
         )
 
-        assert report.overall_status == HealthStatus.DEGRADED
-        assert report.checks == checks
-        assert report.total_checks == 2
-        assert report.healthy_checks == 1
-        assert report.degraded_checks == 1
-        assert report.unhealthy_checks == 0
-        assert report.timestamp == timestamp
+        if report.overall_status != HealthStatus.DEGRADED:
+            raise AssertionError
+        if report.checks != checks:
+            raise AssertionError
+        if report.total_checks != 2:
+            raise AssertionError
+        if report.healthy_checks != 1:
+            raise AssertionError
+        if report.degraded_checks != 1:
+            raise AssertionError
+        if report.unhealthy_checks != 0:
+            raise AssertionError
+        if report.timestamp != timestamp:
+            raise AssertionError
 
     def test_health_report_from_checks_all_healthy(self):
         """Test HealthReport.from_checks with all healthy services."""
@@ -121,11 +143,16 @@ class TestHealthReport:
 
         report = HealthReport.from_checks(checks)
 
-        assert report.overall_status == HealthStatus.HEALTHY
-        assert report.total_checks == 3
-        assert report.healthy_checks == 3
-        assert report.degraded_checks == 0
-        assert report.unhealthy_checks == 0
+        if report.overall_status != HealthStatus.HEALTHY:
+            raise AssertionError
+        if report.total_checks != 3:
+            raise AssertionError
+        if report.healthy_checks != 3:
+            raise AssertionError
+        if report.degraded_checks != 0:
+            raise AssertionError
+        if report.unhealthy_checks != 0:
+            raise AssertionError
 
     def test_health_report_from_checks_with_degraded(self):
         """Test HealthReport.from_checks with degraded services."""
@@ -136,10 +163,14 @@ class TestHealthReport:
 
         report = HealthReport.from_checks(checks)
 
-        assert report.overall_status == HealthStatus.DEGRADED
-        assert report.healthy_checks == 1
-        assert report.degraded_checks == 1
-        assert report.unhealthy_checks == 0
+        if report.overall_status != HealthStatus.DEGRADED:
+            raise AssertionError
+        if report.healthy_checks != 1:
+            raise AssertionError
+        if report.degraded_checks != 1:
+            raise AssertionError
+        if report.unhealthy_checks != 0:
+            raise AssertionError
 
     def test_health_report_from_checks_with_unhealthy(self):
         """Test HealthReport.from_checks with unhealthy services."""
@@ -150,17 +181,23 @@ class TestHealthReport:
 
         report = HealthReport.from_checks(checks)
 
-        assert report.overall_status == HealthStatus.UNHEALTHY
-        assert report.healthy_checks == 1
-        assert report.unhealthy_checks == 1
+        if report.overall_status != HealthStatus.UNHEALTHY:
+            raise AssertionError
+        if report.healthy_checks != 1:
+            raise AssertionError
+        if report.unhealthy_checks != 1:
+            raise AssertionError
 
     def test_health_report_from_checks_empty(self):
         """Test HealthReport.from_checks with no checks."""
         report = HealthReport.from_checks([])
 
-        assert report.overall_status == HealthStatus.UNKNOWN
-        assert report.total_checks == 0
-        assert report.healthy_checks == 0
+        if report.overall_status != HealthStatus.UNKNOWN:
+            raise AssertionError
+        if report.total_checks != 0:
+            raise AssertionError
+        if report.healthy_checks != 0:
+            raise AssertionError
 
 
 class TestHealthChecker:
@@ -170,16 +207,20 @@ class TestHealthChecker:
         """Test HealthChecker initialization."""
         checker = HealthChecker(timeout=15.0, retries=5)
 
-        assert checker.timeout == 15.0
-        assert checker.retries == 5
+        if checker.timeout != 15.0:
+            raise AssertionError
+        if checker.retries != 5:
+            raise AssertionError
         assert checker._http_client is None
 
     def test_health_checker_default_values(self):
         """Test HealthChecker with default values."""
         checker = HealthChecker()
 
-        assert checker.timeout == 10.0
-        assert checker.retries == 3
+        if checker.timeout != 10.0:
+            raise AssertionError
+        if checker.retries != 3:
+            raise AssertionError
 
     @pytest.mark.asyncio
     async def test_health_checker_context_manager(self):
@@ -189,7 +230,8 @@ class TestHealthChecker:
             mock_client.return_value = mock_instance
 
             async with HealthChecker() as checker:
-                assert checker._http_client == mock_instance
+                if checker._http_client != mock_instance:
+                    raise AssertionError
                 mock_client.assert_called_once()
 
             mock_instance.aclose.assert_called_once()
@@ -210,11 +252,16 @@ class TestHealthChecker:
                     "test_api", "http://localhost:8000/health"
                 )
 
-                assert result.name == "test_api"
-                assert result.status == HealthStatus.HEALTHY
-                assert result.message == "HTTP 200"
-                assert result.details["status_code"] == 200
-                assert result.details["url"] == "http://localhost:8000/health"
+                if result.name != "test_api":
+                    raise AssertionError
+                if result.status != HealthStatus.HEALTHY:
+                    raise AssertionError
+                if result.message != "HTTP 200":
+                    raise AssertionError
+                if result.details["status_code"] != 200:
+                    raise AssertionError
+                if result.details["url"] != "http://localhost:8000/health":
+                    raise AssertionError
                 assert isinstance(result.response_time_ms, float)
 
     @pytest.mark.asyncio
@@ -233,8 +280,10 @@ class TestHealthChecker:
                     "failing_api", "http://localhost:8000/health", expected_status=200
                 )
 
-                assert result.status == HealthStatus.DEGRADED
-                assert "HTTP 500, expected 200" in result.message
+                if result.status != HealthStatus.DEGRADED:
+                    raise AssertionError
+                if "HTTP 500, expected 200" not in result.message:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_http_endpoint_connection_error(self):
@@ -249,9 +298,12 @@ class TestHealthChecker:
                     "unreachable_api", "http://localhost:8000/health"
                 )
 
-                assert result.status == HealthStatus.UNHEALTHY
-                assert "Connection failed" in result.message
-                assert "Connection refused" in result.details["error"]
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if "Connection failed" not in result.message:
+                    raise AssertionError
+                if "Connection refused" not in result.details["error"]:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_redis_not_installed(self):
@@ -260,9 +312,12 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_redis()
 
-                assert result.status == HealthStatus.UNHEALTHY
-                assert result.message == "redis client not installed"
-                assert result.response_time_ms == 0
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if result.message != "redis client not installed":
+                    raise AssertionError
+                if result.response_time_ms != 0:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_redis_success(self):
@@ -284,12 +339,18 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_redis(name="test_redis", host="localhost", port=6379)
 
-                assert result.name == "test_redis"
-                assert result.status == HealthStatus.HEALTHY
-                assert "Redis ping and operations successful" in result.message
-                assert result.details["version"] == "6.2.0"
-                assert result.details["memory_usage"] == "1.5M"
-                assert result.details["connected_clients"] == "3"
+                if result.name != "test_redis":
+                    raise AssertionError
+                if result.status != HealthStatus.HEALTHY:
+                    raise AssertionError
+                if "Redis ping and operations successful" not in result.message:
+                    raise AssertionError
+                if result.details["version"] != "6.2.0":
+                    raise AssertionError
+                if result.details["memory_usage"] != "1.5M":
+                    raise AssertionError
+                if result.details["connected_clients"] != "3":
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_redis_connection_failure(self):
@@ -302,8 +363,10 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_redis()
 
-                assert result.status == HealthStatus.UNHEALTHY
-                assert "Redis connection failed" in result.message
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if "Redis connection failed" not in result.message:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_redis_operations_failure(self):
@@ -320,8 +383,10 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_redis()
 
-                assert result.status == HealthStatus.DEGRADED
-                assert "Redis operations failed" in result.message
+                if result.status != HealthStatus.DEGRADED:
+                    raise AssertionError
+                if "Redis operations failed" not in result.message:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_postgres_not_installed(self):
@@ -330,8 +395,10 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_postgres()
 
-                assert result.status == HealthStatus.UNHEALTHY
-                assert result.message == "asyncpg not installed"
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if result.message != "asyncpg not installed":
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_postgres_success(self):
@@ -352,12 +419,18 @@ class TestHealthChecker:
                     name="test_postgres", dsn="postgresql://user:pass@localhost:5432/testdb"
                 )
 
-                assert result.name == "test_postgres"
-                assert result.status == HealthStatus.HEALTHY
-                assert "PostgreSQL query successful" in result.message
-                assert result.details["table_count"] == 15
-                assert result.details["database_size"] == "50 MB"
-                assert "PostgreSQL 13.4" in result.details["version"]
+                if result.name != "test_postgres":
+                    raise AssertionError
+                if result.status != HealthStatus.HEALTHY:
+                    raise AssertionError
+                if "PostgreSQL query successful" not in result.message:
+                    raise AssertionError
+                if result.details["table_count"] != 15:
+                    raise AssertionError
+                if result.details["database_size"] != "50 MB":
+                    raise AssertionError
+                if "PostgreSQL 13.4" not in result.details["version"]:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_postgres_connection_failure(self):
@@ -368,8 +441,10 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_postgres()
 
-                assert result.status == HealthStatus.UNHEALTHY
-                assert "PostgreSQL connection failed" in result.message
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if "PostgreSQL connection failed" not in result.message:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_postgres_query_failure(self):
@@ -383,8 +458,10 @@ class TestHealthChecker:
             async with HealthChecker() as checker:
                 result = await checker.check_postgres()
 
-                assert result.status == HealthStatus.DEGRADED
-                assert "unexpected result" in result.message
+                if result.status != HealthStatus.DEGRADED:
+                    raise AssertionError
+                if "unexpected result" not in result.message:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_postgres_default_dsn(self):
@@ -418,7 +495,8 @@ class TestHealthChecker:
                 # Should have constructed DSN from environment
                 expected_dsn = "postgresql://testuser:testpass@testhost:5433/testdb"
                 mock_asyncpg.connect.assert_called_with(expected_dsn)
-                assert result.status == HealthStatus.HEALTHY
+                if result.status != HealthStatus.HEALTHY:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_lmstudio(self):
@@ -433,7 +511,8 @@ class TestHealthChecker:
                     name="test_lmstudio", base_url="http://localhost:1234"
                 )
 
-                assert result == mock_result
+                if result != mock_result:
+                    raise AssertionError
                 mock_check.assert_called_with("test_lmstudio", "http://localhost:1234/v1/models")
 
     @pytest.mark.asyncio
@@ -458,9 +537,12 @@ class TestHealthChecker:
 
                 report = await checker.check_all()
 
-                assert report.overall_status == HealthStatus.HEALTHY
-                assert report.total_checks == 4
-                assert report.healthy_checks == 4
+                if report.overall_status != HealthStatus.HEALTHY:
+                    raise AssertionError
+                if report.total_checks != 4:
+                    raise AssertionError
+                if report.healthy_checks != 4:
+                    raise AssertionError
 
                 # Verify all checks were called
                 mock_http.assert_called_once()
@@ -501,12 +583,15 @@ class TestHealthChecker:
                 await checker.check_all(config)
 
                 # Should have called HTTP endpoint check twice
-                assert mock_http.call_count == 2
+                if mock_http.call_count != 2:
+                    raise AssertionError
 
                 # Verify custom parameters were used
                 redis_call = mock_redis.call_args
-                assert redis_call[1]["host"] == "redis.example.com"
-                assert redis_call[1]["port"] == 6380
+                if redis_call[1]["host"] != "redis.example.com":
+                    raise AssertionError
+                if redis_call[1]["port"] != 6380:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_check_all_partial_config(self):
@@ -522,8 +607,10 @@ class TestHealthChecker:
 
                 report = await checker.check_all(config)
 
-                assert report.total_checks == 1
-                assert report.healthy_checks == 1
+                if report.total_checks != 1:
+                    raise AssertionError
+                if report.healthy_checks != 1:
+                    raise AssertionError
                 mock_http.assert_called_once()
 
     @pytest.mark.asyncio
@@ -545,10 +632,14 @@ class TestHealthChecker:
 
                 report = await checker.check_all(config)
 
-                assert report.overall_status == HealthStatus.UNHEALTHY
-                assert report.total_checks == 2
-                assert report.healthy_checks == 1
-                assert report.unhealthy_checks == 1
+                if report.overall_status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if report.total_checks != 2:
+                    raise AssertionError
+                if report.healthy_checks != 1:
+                    raise AssertionError
+                if report.unhealthy_checks != 1:
+                    raise AssertionError
 
 
 class TestQuickHealthCheck:
@@ -573,12 +664,17 @@ class TestQuickHealthCheck:
 
             result = await quick_health_check()
 
-            assert result["status"] == "healthy"
-            assert result["summary"]["total"] == 1
-            assert result["summary"]["healthy"] == 1
+            if result["status"] != "healthy":
+                raise AssertionError
+            if result["summary"]["total"] != 1:
+                raise AssertionError
+            if result["summary"]["healthy"] != 1:
+                raise AssertionError
             assert len(result["checks"]) == 1
-            assert result["checks"][0]["name"] == "test"
-            assert result["checks"][0]["status"] == "healthy"
+            if result["checks"][0]["name"] != "test":
+                raise AssertionError
+            if result["checks"][0]["status"] != "healthy":
+                raise AssertionError
 
     @pytest.mark.asyncio
     async def test_quick_health_check_with_degraded_services(self):
@@ -596,11 +692,16 @@ class TestQuickHealthCheck:
 
             result = await quick_health_check()
 
-            assert result["status"] == "unhealthy"  # Overall status
-            assert result["summary"]["total"] == 3
-            assert result["summary"]["healthy"] == 1
-            assert result["summary"]["degraded"] == 1
-            assert result["summary"]["unhealthy"] == 1
+            if result["status"] != "unhealthy":
+                raise AssertionError
+            if result["summary"]["total"] != 3:
+                raise AssertionError
+            if result["summary"]["healthy"] != 1:
+                raise AssertionError
+            if result["summary"]["degraded"] != 1:
+                raise AssertionError
+            if result["summary"]["unhealthy"] != 1:
+                raise AssertionError
 
 
 class TestRetryDecorator:
@@ -637,7 +738,8 @@ class TestRetryDecorator:
 
                 # Should call underlying HTTP check
                 mock_check.assert_called_once()
-                assert result.name == "lmstudio"
+                if result.name != "lmstudio":
+                    raise AssertionError
 
 
 class TestPerformanceAndConcurrency:
@@ -666,9 +768,11 @@ class TestPerformanceAndConcurrency:
                 end_time = time.time()
 
                 # Should complete faster than sequential execution
-                assert (end_time - start_time) < 1.0  # Much faster than 5 * 0.1 = 0.5s
+                if (end_time - start_time) >= 1.0:
+                    raise AssertionError
                 assert len(results) == 5
-                assert all(r.status == HealthStatus.HEALTHY for r in results)
+                if not all(r.status == HealthStatus.HEALTHY for r in results):
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_timeout_handling_under_load(self):
@@ -695,7 +799,8 @@ class TestPerformanceAndConcurrency:
                 result = await checker.check_http_endpoint("slow_api", "http://localhost:8000")
 
                 # Should handle timeout gracefully
-                assert result.status == HealthStatus.UNHEALTHY
+                if result.status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_large_response_handling(self):
@@ -713,7 +818,8 @@ class TestPerformanceAndConcurrency:
             async with HealthChecker() as checker:
                 result = await checker.check_http_endpoint("large_api", "http://localhost:8000")
 
-                assert result.status == HealthStatus.HEALTHY
+                if result.status != HealthStatus.HEALTHY:
+                    raise AssertionError
                 assert len(result.details["response_headers"]) == 100
 
 
@@ -739,9 +845,12 @@ class TestErrorHandlingAndRecovery:
                 async with HealthChecker() as checker:
                     result = await checker.check_http_endpoint("test", "http://localhost:8000")
 
-                    assert result.status == HealthStatus.UNHEALTHY
-                    assert "Connection failed" in result.message
-                    assert str(error) in result.details["error"]
+                    if result.status != HealthStatus.UNHEALTHY:
+                        raise AssertionError
+                    if "Connection failed" not in result.message:
+                        raise AssertionError
+                    if str(error) not in result.details["error"]:
+                        raise AssertionError
 
     @pytest.mark.asyncio
     async def test_partial_service_failures(self):
@@ -765,10 +874,14 @@ class TestErrorHandlingAndRecovery:
                 report = await checker.check_all(config)
 
                 # Overall should be unhealthy due to Redis failure
-                assert report.overall_status == HealthStatus.UNHEALTHY
-                assert report.total_checks == 2
-                assert report.healthy_checks == 1
-                assert report.unhealthy_checks == 1
+                if report.overall_status != HealthStatus.UNHEALTHY:
+                    raise AssertionError
+                if report.total_checks != 2:
+                    raise AssertionError
+                if report.healthy_checks != 1:
+                    raise AssertionError
+                if report.unhealthy_checks != 1:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_exception_in_check_all(self):
@@ -837,10 +950,14 @@ class TestIntegrationScenarios:
 
                 result = await quick_health_check()
 
-                assert "status" in result
-                assert "timestamp" in result
-                assert "summary" in result
-                assert "checks" in result
+                if "status" not in result:
+                    raise AssertionError
+                if "timestamp" not in result:
+                    raise AssertionError
+                if "summary" not in result:
+                    raise AssertionError
+                if "checks" not in result:
+                    raise AssertionError
                 assert isinstance(result["checks"], list)
 
     @pytest.mark.asyncio
@@ -873,7 +990,8 @@ class TestIntegrationScenarios:
 
             assert len(check_results) == 3
             for result in check_results:
-                assert result["status"] == "healthy"
+                if result["status"] != "healthy":
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_service_discovery_integration(self):
@@ -894,10 +1012,13 @@ class TestIntegrationScenarios:
 
                 report = await checker.check_all(config)
 
-                assert report.total_checks == 3
-                assert report.healthy_checks == 3
+                if report.total_checks != 3:
+                    raise AssertionError
+                if report.healthy_checks != 3:
+                    raise AssertionError
                 # Should have called check for each discovered service
-                assert mock_check.call_count == 3
+                if mock_check.call_count != 3:
+                    raise AssertionError
 
     @pytest.mark.asyncio
     async def test_degraded_performance_detection(self):
@@ -913,8 +1034,10 @@ class TestIntegrationScenarios:
                 report = await checker.check_all(config)
 
                 # Service is technically healthy but slow
-                assert report.overall_status == HealthStatus.HEALTHY
-                assert report.checks[0].response_time_ms == 2000.0
+                if report.overall_status != HealthStatus.HEALTHY:
+                    raise AssertionError
+                if report.checks[0].response_time_ms != 2000.0:
+                    raise AssertionError
 
                 # In a real scenario, you might mark this as degraded based on response time
                 # but that would be application logic, not health checker logic
