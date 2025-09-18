@@ -178,7 +178,6 @@ def auto_register_from_config_and_env(
 
     Returns the provided registry for chaining.
     """
-    from contextlib import suppress
 
     import httpx
 

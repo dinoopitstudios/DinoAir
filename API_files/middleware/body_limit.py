@@ -25,7 +25,6 @@ try:
     # type: ignore[import]
     from core_router.errors import error_response as core_error_response
 except ImportError:  # pragma: no cover
-    from fastapi.responses import JSONResponse as _JSONResponse
 
     def core_error_response(
         *,
