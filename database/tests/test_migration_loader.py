@@ -3,14 +3,13 @@
 Test script to verify migration loader functionality.
 """
 
-from pathlib import Path
 import sqlite3
 import sys
 import tempfile
+from pathlib import Path
 
 from database.migrations.loader import get_notes_migrations
 from database.migrations.runner import MigrationRunner
-
 
 # Add the project root to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -24,8 +23,7 @@ def test_migration_loader():
         migrations = get_notes_migrations()
 
         if migrations:
-            for _migration in migrations:
-                pass
+            pass
 
         # Test 2: Test with runner
 

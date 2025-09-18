@@ -5,10 +5,10 @@ Tests schema validation, precedence, environment overrides, and compatibility
 
 import json
 import os
-from pathlib import Path
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 import pytest
 
@@ -19,7 +19,6 @@ from config.versioned_config import (
     ConfigValue,
     VersionedConfigManager,
 )
-
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -547,12 +546,10 @@ def run_tests():
     # Print results
 
     if result.failures:
-        for _test, _traceback in result.failures:
-            pass
+        pass
 
     if result.errors:
-        for _test, _traceback in result.errors:
-            pass
+        pass
 
     success = len(result.failures) == 0 and len(result.errors) == 0
 

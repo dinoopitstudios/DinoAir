@@ -8,6 +8,7 @@ from typing import Any
 
 from models.note import Note
 from utils.logger import Logger
+
 from .notes_repository import NotesRepository
 from .notes_security import NotesSecurity
 from .notes_validator import NotesValidator
@@ -47,10 +48,6 @@ class NotesService:
         """Clean up test data in test environments"""
         try:
             import os
-
-            if os.environ.get("PYTEST_CURRENT_TEST"):
-                # This would be handled by the repository in a real implementation
-                pass
         except Exception as e:
             self.logger.error(f"Error during test data cleanup: {str(e)}")
 

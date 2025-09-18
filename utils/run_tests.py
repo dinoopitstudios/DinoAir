@@ -25,11 +25,6 @@ def run_tests(args=None):
 
     success, stdout, stderr = run_command(cmd)
 
-    if stdout:
-        pass
-    if stderr:
-        pass
-
     return success
 
 

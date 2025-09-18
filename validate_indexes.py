@@ -48,14 +48,12 @@ def check_database_indexes(db_path: str) -> None:
             # Check for missing indexes
             missing_indexes = set(expected_indexes) - set(existing_indexes)
             if missing_indexes:
-                for idx in sorted(missing_indexes):
-                    pass
+                pass
 
             # Check for unexpected indexes
             unexpected_indexes = set(existing_indexes) - set(expected_indexes)
             if unexpected_indexes:
-                for idx in sorted(unexpected_indexes):
-                    pass
+                pass
 
             # Show all existing indexes
             for idx in sorted(existing_indexes):

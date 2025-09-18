@@ -5,19 +5,21 @@ This module provides adapters and helpers for integrating the pseudocode
 translator with GUI frameworks, particularly Qt-based applications.
 """
 
-from collections.abc import Callable
-from dataclasses import dataclass
 import logging
 import threading
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 from .api import TranslatorAPI
 from .callbacks import CallbackData, CallbackManager, CallbackType
 from .events import EventDispatcher, EventType
 
-
 try:
-    from PySide6.QtCore import QObject as QtObject, QThread as QtThread, Signal as QtSignal, Slot
+    from PySide6.QtCore import QObject as QtObject
+    from PySide6.QtCore import QThread as QtThread
+    from PySide6.QtCore import Signal as QtSignal
+    from PySide6.QtCore import Slot
 
     HAS_QT = True
 except ImportError:
@@ -390,9 +392,6 @@ def create_result_handler(
             code_editor.setText(code)
         if language_label:
             language_label.setText(f"Language: {language}")
-        if save_dialog_func and save_dialog_func():  # If user wants to save
-            # Save logic would go here
-            pass
 
     return handle_result
 
