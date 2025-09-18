@@ -6,15 +6,15 @@ Refactored to reduce duplication with centralized helpers and declarative schema
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 import logging
 import os
-from pathlib import Path
 import shutil
 import sqlite3
 import tempfile
 import threading
 import time
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 # Migration system
@@ -22,7 +22,6 @@ from .migrations import MigrationRunner, get_notes_migrations
 
 # External resilient connection wrapper (behavior preserved)
 from .resilient_db import ResilientDB
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -929,7 +928,6 @@ class DatabaseManager:
 
             # 3. Clean old backup files
             if cleanup_old_backups:
-
                 cutoff_time = time.time() - (max_backup_age_days * 24 * 3600)
                 backup_patterns = ["*backup*", "*.bak", "*_old*"]
 
