@@ -60,6 +60,7 @@ def parse_and_translate_blocks(
         )
         return []
 
+
 def translate_chunk_blocks(
     translator: StreamingTranslator,
     parse_result,
