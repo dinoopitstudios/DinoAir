@@ -6,9 +6,9 @@ responses from the core router services.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import json
 import logging
+from collections.abc import Mapping
 from typing import Any, cast
 
 from fastapi import APIRouter, HTTPException
@@ -18,20 +18,20 @@ from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,
 )
+from core_router.errors import ValidationError as CoreValidationError
+
 from ..schemas import ChatRequest, ChatResponse
 from ..services import router_client
 from ..services.tool_schema_generator import get_tool_registry
 
-
 logger = logging.getLogger(__name__)
-
 
 # ErrorResponse model may not exist in local test stubs; provide a safe pydantic fallback
 try:
     from core_router.errors import (
-        ErrorResponse as ErrorResponseModel,  # type: ignore[import-not-found,unused-ignore]
+        # type: ignore[import-not-found,unused-ignore]
+        ErrorResponse as ErrorResponseModel,
     )
 except ImportError:  # pragma: no cover
     from pydantic import BaseModel
@@ -123,7 +123,8 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
             requested_tools = _extract_list_param(req.extra_params, "tools")
             tool_schemas = registry.get_tool_schemas(requested_tools)
 
-            logger.info("Function calling enabled with %d tools", len(tool_schemas))
+            logger.info("Function calling enabled with %d tools",
+                        len(tool_schemas))
         except Exception as e:
             logger.warning(
                 "Failed to load tools for function calling, continuing without tools: %s", e
@@ -139,7 +140,8 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
     result_obj: Any = _execute_router_call(r, svc_name, tag, policy, payload)
 
     result_dict: dict[str, Any] | None = (
-        cast("dict[str, Any]", result_obj) if isinstance(result_obj, dict) else None
+        cast("dict[str, Any]", result_obj) if isinstance(
+            result_obj, dict) else None
     )
 
     # Handle function calls if present
@@ -153,10 +155,13 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
             updated_messages = messages + _build_function_call_messages(
                 result_dict, function_call_results
             )
-            updated_payload = _build_payload(updated_messages, options, tool_schemas)
-            result_obj = _execute_router_call(r, svc_name, tag, policy, updated_payload)
+            updated_payload = _build_payload(
+                updated_messages, options, tool_schemas)
+            result_obj = _execute_router_call(
+                r, svc_name, tag, policy, updated_payload)
             result_dict = (
-                cast("dict[str, Any]", result_obj) if isinstance(result_obj, dict) else None
+                cast("dict[str, Any]", result_obj) if isinstance(
+                    result_obj, dict) else None
             )
 
     text: str = _extract_first_message_text(result_dict)
@@ -248,7 +253,8 @@ def _parse_routing_params(
         return None, None, None
 
     svc_name = _pick_first_str(extra_params, "router_service", "serviceName")
-    tag = _normalize_tag(extra_params.get("router_tag") or extra_params.get("router_tags"))
+    tag = _normalize_tag(extra_params.get("router_tag")
+                         or extra_params.get("router_tags"))
     policy = _pick_first_str(extra_params, "router_policy")
 
     return svc_name, tag, policy
@@ -270,21 +276,25 @@ def _execute_router_call(
     except (ServiceNotFound, NoHealthyService) as exc:
         # Try fallback to mock service if available
         try:
-            logger.info("Primary service failed (%s), trying mock fallback...", exc)
+            logger.info(
+                "Primary service failed (%s), trying mock fallback...", exc)
             return r.execute_by("mock", payload, "first_healthy")
         except (ServiceNotFound, NoHealthyService):
             # If mock also fails, re-raise original exception
             if isinstance(exc, ServiceNotFound):
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(
+                    exc)
             ) from exc
     except CoreValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
         ) from exc
     except AdapterError as exc:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
 def _choice_content(choices: Any) -> str:
@@ -422,7 +432,8 @@ async def _handle_function_calls(result_dict: dict[str, Any]) -> list[dict[str, 
         for tool_call in tool_calls:
             try:
                 function_name = tool_call.get("function", {}).get("name")
-                function_args = tool_call.get("function", {}).get("arguments", "{}")
+                function_args = tool_call.get(
+                    "function", {}).get("arguments", "{}")
                 tool_call_id = tool_call.get("id")
 
                 if not function_name or not tool_call_id:
@@ -441,7 +452,8 @@ async def _handle_function_calls(result_dict: dict[str, Any]) -> list[dict[str, 
                 result = await registry.execute_tool(function_name, function_args)
 
                 function_results.append(
-                    {"tool_call_id": tool_call_id, "function_name": function_name, "result": result}
+                    {"tool_call_id": tool_call_id,
+                        "function_name": function_name, "result": result}
                 )
 
             except Exception as e:
@@ -517,3 +529,28 @@ def _build_function_call_messages(
         logger.error("Error building function call messages: %s", e)
 
     return messages
+
+
+@router.get("/v1/models", tags=["ai"])
+async def list_models():
+    """
+    GET /v1/models
+    - Returns available models from LM Studio via direct proxy
+    """
+    import httpx
+
+    try:
+        # Direct proxy to LM Studio
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://127.0.0.1:1234/v1/models")
+            response.raise_for_status()
+            return response.json()
+    except httpx.ConnectError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="LM Studio is not available"
+        ) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Failed to get models: {str(exc)}",
+        ) from exc

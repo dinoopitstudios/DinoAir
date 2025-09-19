@@ -25,7 +25,7 @@ def main() -> int:
     settings = Settings()
 
     config = uvicorn.Config(
-        app="api.app:create_app",
+        app="API_files.app:create_app",
         factory=True,
         host="127.0.0.1",  # enforce local-only binding
         port=int(settings.port),

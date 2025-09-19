@@ -1,11 +1,13 @@
-# ---- Python bytecode ----
+# ---- Python bytecode and compiled files ----
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
 
 # ---- C extensions ----
 *.so
-*.pyd
 *.dll
 
 # ---- Distribution / packaging ----
@@ -148,17 +150,50 @@ dmypy.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.idea/
 *.code-workspace
+
+# IntelliJ / PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Nano
+*.save
 
 # ---- OS files ----
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 desktop.ini
 
 # ---- Logs & temp files ----
 *.log
 logs/
+log/
 *.tmp
 *.temp
 *.bak
@@ -166,6 +201,24 @@ logs/
 *~
 *.swp
 *.swo
+*.orig
+
+# ---- Test results and coverage ----
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test_results.xml
+test-results/
+.testmondata
 
 # ---- Backup files that might contain secrets ----
 *.orig
@@ -212,6 +265,25 @@ user_data/
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ---- Build artifacts ----
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# ---- Node.js (if any frontend components) ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+.pnp.*
 
 # ---- Project-specific test files and artifacts ----
 /tag_normalization_strategy.md
@@ -222,7 +294,38 @@ user_data/
 /test_tag_core.py
 /test_tag_improvements.py
 
+# ---- Project-specific temp/working files ----
+working-*
+test-*
+demo-*
+*.working
+*.draft
+
 # ---- Keep important lockfiles (do NOT ignore) ----
 # Keep uv.lock if present
 # Keep poetry.lock / Pipfile.lock if you use them
 # Keep requirements.txt / requirements-dev.txt (these should be committed)
+
+# ---- Development artifacts ----
+.coverage
+.nyc_output
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.venv/
+venv/
+
+# ---- OS and filesystem artifacts ----
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ---- Windows specific ----
+thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
