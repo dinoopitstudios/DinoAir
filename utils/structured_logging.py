@@ -77,6 +77,14 @@ class RedactionFilter(logging.Filter):
         return sanitized
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Filter.
+
+        Args:
+            record: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         try:
             # Scan known attributes often used to carry dictionaries
             for attr in ("msg",):
@@ -107,6 +115,14 @@ class JsonFormatter(logging.Formatter):
     """Minimal JSON formatter with core fields."""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format.
+
+        Args:
+            record: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         try:
             payload = {
                 "ts": self.formatTime(record, datefmt="%Y-%m-%dT%H:%M:%S.%fZ"),
@@ -127,10 +143,26 @@ class JsonFormatter(logging.Formatter):
 
 
 def is_structured_logging_configured(logger: logging.Logger) -> bool:
+    """Check if structured logging configured.
+
+    Args:
+        logger: TODO: Add description
+
+    Returns:
+        TODO: Add return description
+    """
     return getattr(logger, "_dinoair_structured_logging_configured", False)
 
 
 def set_structured_logging_configured(logger: logging.Logger) -> None:
+    """Set structured logging configured.
+
+    Args:
+        logger: TODO: Add description
+
+    Returns:
+        TODO: Add return description
+    """
     setattr(logger, "_dinoair_structured_logging_configured", True)
 
 

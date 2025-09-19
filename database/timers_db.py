@@ -28,6 +28,17 @@ class TimersDatabase:
     def create_log(
         self,
         task_name: str,
+        """Create log.
+        
+        Args:
+            task_name: TODO: Add description
+            start_time: TODO: Add description
+            end_time: TODO: Add description
+            elapsed_seconds: TODO: Add description
+            
+        Returns:
+            TODO: Add return description
+        """
         start_time: datetime,
         end_time: datetime,
         elapsed_seconds: float,
