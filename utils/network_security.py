@@ -27,7 +27,8 @@ try:
     from starlette.responses import Response
 except ImportError:
     # Graceful fallback for testing without FastAPI
-    Request = HTTPException = status = JSONResponse = None
+    Request = status = JSONResponse = None
+    HTTPException = Exception
     BaseHTTPMiddleware = RequestResponseEndpoint = Response = object
 
 
