@@ -154,9 +154,56 @@ class WatchdogConfigValidator:
                 min_value=1,
                 max_value=1000,
                 default_value=10,
-            description="Seconds to wait before fallback",
-        ),
-    }
+                description="Size of the metrics buffer",
+            ),
+            # CPU threshold
+            "cpu_threshold": ValidationRule(
+                name="cpu_threshold",
+                min_value=50.0,
+                max_value=100.0,
+                default_value=90.0,
+                description="CPU usage percentage threshold for warnings",
+            ),
+            # RAM threshold
+            "ram_threshold": ValidationRule(
+                name="ram_threshold",
+                min_value=50.0,
+                max_value=100.0,
+                default_value=90.0,
+                description="RAM usage percentage threshold for warnings",
+            ),
+            # Response time threshold
+            "response_time_threshold": ValidationRule(
+                name="response_time_threshold",
+                min_value=0.1,
+                max_value=10.0,
+                default_value=2.0,
+                description="Maximum allowed response time in seconds",
+            ),
+            # Max retries
+            "max_retries": ValidationRule(
+                name="max_retries",
+                min_value=0,
+                max_value=10,
+                default_value=3,
+                description="Maximum number of retries for failed operations",
+            ),
+            # Auto fallback
+            "auto_fallback": ValidationRule(
+                name="auto_fallback",
+                allowed_values=[True, False],
+                default_value=True,
+                description="Enable automatic fallback on failure",
+            ),
+            # Fallback delay
+            "fallback_delay": ValidationRule(
+                name="fallback_delay",
+                min_value=0,
+                max_value=300,
+                default_value=10,
+                description="Seconds to wait before fallback",
+            ),
+        }
 
     def _check_unknown_params(self, config: dict[str, Any], result: ValidationResult) -> None:
         known_params = set(self.rules.keys())

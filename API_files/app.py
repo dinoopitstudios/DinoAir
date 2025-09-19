@@ -26,6 +26,16 @@ log = logging.getLogger("api.app")
 
 
 class TimeoutMiddleware:
+    def __init__(self, app: ASGIApp, timeout: float = 10.0):
+        self.app = app
+        self.timeout = timeout
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        from anyio import move_on_after
+        async with move_on_after(self.timeout) as cancel_scope:
+            await self.app(scope, receive, send)
+        if cancel_scope.cancel_called:
+            await self._send_timeout(scope, receive, send)
     async def _send_timeout(self, scope: Scope, receive: Receive, send: Send):
         from starlette import status
 

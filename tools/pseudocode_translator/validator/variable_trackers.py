@@ -490,8 +490,7 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         """Bind the star variable in pattern matching, returning its name if present."""
         return {pattern.name} if pattern.name else set()
 
-    @staticmethod
-    def _bind_match_or(pattern: ast.MatchOr) -> set[str]:
+    def _bind_match_or(self, pattern: ast.MatchOr) -> set[str]:
         """Bind names common to all alternatives in 'or' pattern."""
         alts = [self._collect_pattern_binds(p) for p in pattern.patterns]
         if not alts:

@@ -1009,7 +1009,6 @@ class DatabaseManager:
 
         return stats
 
-        return stats
 
 
 # For easy initialization when GUI starts

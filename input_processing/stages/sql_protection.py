@@ -99,7 +99,7 @@ class SQLInjectionProtection:
             r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
             r"(UNION\s+SELECT)",  # UNION SELECT
             r"(INTO\s+OUTFILE)",  # INTO OUTFILE
-            r"(LOAD_FILE\s*\(),",  # LOAD_FILE(
+            r"(LOAD_FILE\s*\()",  # LOAD_FILE(
             r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
             r"('\s*AND\s*SLEEP\s*\(),",  # Time-based injection
             r"('\s*AND\s*BENCHMARK\s*\(),",  # Benchmark injection
