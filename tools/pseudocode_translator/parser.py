@@ -187,13 +187,13 @@ class ParserModule:
                 in_multiline, line, stripped, current_indent, prev_indent
             ):
                 if current_block:
-                    blocks.append(''.join(current_block))
+                    blocks.append("".join(current_block))
                     current_block = []
             current_block.append(line)
             prev_indent = current_indent
 
         if current_block:
-            blocks.append(''.join(current_block))
+            blocks.append("".join(current_block))
 
         return blocks
 
@@ -231,6 +231,7 @@ class ParserModule:
         if current_indent < prev_indent - 4:
             return True
         return False
+
     def _classify_block(self, block: str) -> BlockType:
         """
         Determine the type of a code block
@@ -381,7 +382,7 @@ class ParserModule:
         indent_chars = set()
         max_indent = 0
         for line in lines:
-            leading = line[:len(line) - len(line.lstrip())]
+            leading = line[: len(line) - len(line.lstrip())]
             if leading:
                 indent_chars.update(leading)
                 max_indent = max(max_indent, len(leading))
