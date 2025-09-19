@@ -221,6 +221,10 @@ class StreamlinedWatchdog:
 
             # Return safe defaults - create a basic metrics object
             class _EmptyMetrics:
+                """Placeholder metrics class when system metrics retrieval fails.
+
+                Instances provide default zero values for all metric attributes.
+                """
                 def __init__(self):
                     self.vram_percent = 0
                     self.ram_percent = 0

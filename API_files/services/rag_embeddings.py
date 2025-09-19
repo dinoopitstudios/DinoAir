@@ -13,6 +13,10 @@ RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
 
 class RagEmbeddingMaintenanceService:
+    """
+    Service for generating and maintaining embeddings for retrieval-augmented generation (RAG).
+    Provides batch processing of missing embeddings with error handling and availability checks.
+    """
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 

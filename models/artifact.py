@@ -18,8 +18,8 @@ def _dump_json_if_needed(value: JsonLike | None) -> str | None:
         try:
             return json.dumps(value, ensure_ascii=False)
         except (TypeError, ValueError):
-            return str(value)
-    return str(value)
+           return str(value)
+   return str(value)
 
 
 def _load_json_list(value: str | list[str] | None) -> list[str] | None:
@@ -69,6 +69,7 @@ def _list_to_string(value: list[str] | str | None) -> str | None:
 
 @dataclass
 class Artifact:
+    """Represents an artifact with metadata and content, providing methods to serialize to/from dict and compute storage paths."""
     id: str
     name: str | None = None
     description: str | None = None
@@ -154,6 +155,7 @@ class Artifact:
 
 @dataclass
 class ArtifactCollection:
+    """Represents a collection of artifacts, maintaining metadata, counts, and providing serialization utilities."""
     id: str
     name: str
     description: str | None = None
@@ -206,6 +208,7 @@ class ArtifactCollection:
 
 @dataclass
 class ArtifactVersion:
+    """Represents a specific version of an artifact, tracking changes and providing serialization to/from dict."""
     id: str
     artifact_id: str
     version_number: int

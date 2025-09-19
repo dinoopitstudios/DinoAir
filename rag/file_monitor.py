@@ -31,26 +31,32 @@ except ImportError:
     # Create dummy classes for type hints
 
     class FileSystemEventHandler:
+        """Dummy base class for file system event handlers when watchdog is unavailable."""
         pass
 
     class FileModifiedEvent:
+        """Dummy event to represent a file modification when watchdog is unavailable."""
         src_path = ""
         is_directory = False
 
     class FileCreatedEvent:
+        """Dummy event to represent a file creation when watchdog is unavailable."""
         src_path = ""
         is_directory = False
 
     class FileDeletedEvent:
+        """Dummy event to represent a file deletion when watchdog is unavailable."""
         src_path = ""
         is_directory = False
 
     class FileMovedEvent:
+        """Dummy event to represent a file move when watchdog is unavailable."""
         src_path = ""
         dest_path = ""
         is_directory = False
 
     class Observer:
+        """Dummy observer for file system watching when watchdog is unavailable."""
         pass
 
 

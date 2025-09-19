@@ -34,6 +34,7 @@ from dataclasses import dataclass
 
 @dataclass
 class _ConfigSnapshot:
+    """Holds immutable configuration parameters for AdaptiveChunkSizer."""
     min_size: int
     max_size: int
     target_ms: int
@@ -83,6 +84,7 @@ class AdaptiveChunkSizer:
     ) -> None:
         """
         Initialize the controller.
+        """
 
         Args:
             min_size: Minimum allowed chunk size (inclusive).

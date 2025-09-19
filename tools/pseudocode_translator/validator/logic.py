@@ -182,6 +182,9 @@ class LogicValidator:
         """Find unreachable code after return statements."""
 
         class UnreachableCodeFinder(ast.NodeVisitor):
+            """Detects and reports unreachable code after return statements.
+            Traverses function definitions and records statements that occur after a return."""
+
             def __init__(self):
                 self.issues = []
 
@@ -203,6 +206,7 @@ class LogicValidator:
         """Find variables that are assigned but never used."""
 
         class UnusedVariableFinder(ast.NodeVisitor):
+            """Visitor that tracks assigned variables and identifies unused ones in the AST."""
             def __init__(self):
                 self.assigned = set()
                 self.used = set()
@@ -228,6 +232,8 @@ class LogicValidator:
         """Detect potential infinite loops."""
 
         class InfiniteLoopDetector(ast.NodeVisitor):
+            """AST NodeVisitor that detects potential infinite loops by finding while True loops without break statements."""
+
             def __init__(self):
                 self.issues = []
 
@@ -248,6 +254,8 @@ class LogicValidator:
         """Check for functions missing return statements."""
 
         class MissingReturnChecker(ast.NodeVisitor):
+            """Visitor that checks function definitions for missing return statements."""
+
             def __init__(self):
                 self.issues = []
 

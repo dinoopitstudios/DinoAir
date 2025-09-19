@@ -25,6 +25,7 @@ try:
 except ImportError:
     # Simple fallback logger
     class Logger:
+        """Simple fallback logger providing basic logging methods (info, warning, error, debug)."""
         @staticmethod
         def info(msg):
             pass

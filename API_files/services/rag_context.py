@@ -16,6 +16,9 @@ RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
 
 class RagContextService:
+    """
+    Service for retrieving context for queries using RAG (Retrieval-Augmented Generation) providers.
+    """
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
@@ -66,6 +69,7 @@ class RagContextService:
             # pylint: disable=import-outside-toplevel
             from rag import get_context_provider  # type: ignore[attr-defined]
         except ImportError:
+            ...
             return None, True
         # type: ignore[assignment]
         provider_factory: Callable[..., Any] = get_context_provider

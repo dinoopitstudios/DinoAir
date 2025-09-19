@@ -12,8 +12,8 @@ QUERY_EMPTY_ERROR = "query must not be empty"
 # Enums (align with spec)
 # -----------------------
 
-
 class TargetLanguageEnum(str, Enum):
+    """Enumeration of supported target programming languages."""
     python = "python"
     javascript = "javascript"
     typescript = "typescript"
@@ -31,6 +31,7 @@ class TargetLanguageEnum(str, Enum):
 
 
 class DistanceMetricEnum(str, Enum):
+    """Enumeration of available distance metrics for vector search."""
     cosine = "cosine"
     euclidean = "euclidean"
 
@@ -39,14 +40,15 @@ class DistanceMetricEnum(str, Enum):
 # Common types
 # -----------------------
 
-
 class ValidationFieldError(BaseModel):
+    """Represents a validation error for a specific field."""
     field: str = Field(..., description="Field name that failed validation")
     message: str = Field(..., description="Human-readable message")
     code: str = Field(..., description="Machine-friendly code")
 
 
 class ValidationErrors(BaseModel):
+    """Container for validation field errors."""
     field_errors: list[ValidationFieldError] = Field(
         default_factory=lambda: cast("list[ValidationFieldError]", [])
     )
@@ -56,8 +58,8 @@ class ValidationErrors(BaseModel):
 # Translate DTOs
 # -----------------------
 
-
 class TranslateRequest(BaseModel):
+    """Request model for translating pseudocode into target programming language."""
     pseudocode: str = Field(..., min_length=1, max_length=100_000)
     target_language: TargetLanguageEnum | None = Field(default=TargetLanguageEnum.python)
 
@@ -70,6 +72,7 @@ class TranslateRequest(BaseModel):
 
 
 class TranslateResponse(BaseModel):
+    """Response model for the result of a pseudocode translation request."""
     success: bool
     language: str
     code: str | None
@@ -109,9 +112,9 @@ class TranslateResponse(BaseModel):
 # Search DTOs
 # -----------------------
 
-
 # Hit used by vector, keyword, and hybrid responses (spec uses unified shape)
 class VectorSearchHit(BaseModel):
+    """Represents a single search hit in vector search results."""
     file_path: str
     content: str = Field(
         ...,
@@ -126,6 +129,7 @@ class VectorSearchHit(BaseModel):
 
 
 class VectorSearchRequest(BaseModel):
+    """Request model for performing a vector-based search."""
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=10, ge=1, le=50)
     similarity_threshold: float | None = Field(default=0.5, ge=0.0, le=1.0)
@@ -141,10 +145,12 @@ class VectorSearchRequest(BaseModel):
 
 
 class VectorSearchResponse(BaseModel):
+    """Response model containing hits from vector search."""
     hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
 class KeywordSearchRequest(BaseModel):
+    """Request model for performing a keyword-based search."""
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=10, ge=1, le=50)
     file_types: list[str] | None = Field(default=None)
@@ -158,10 +164,12 @@ class KeywordSearchRequest(BaseModel):
 
 
 class KeywordSearchResponse(BaseModel):
+    """Response model containing hits from keyword search."""
     hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
 class HybridSearchRequest(BaseModel):
+    """Request model for performing a hybrid (vector + keyword) search."""
     query: str = Field(..., min_length=1, max_length=1000)
     top_k: int = Field(default=10, ge=1, le=50)
     vector_weight: float = Field(default=0.7, ge=0.0, le=1.0)
@@ -185,6 +193,7 @@ class HybridSearchRequest(BaseModel):
 
 
 class HybridSearchResponse(BaseModel):
+    """Response model containing hits from hybrid search."""
     hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
@@ -192,8 +201,8 @@ class HybridSearchResponse(BaseModel):
 # Index/config DTOs
 # -----------------------
 
-
 class FileIndexStatsResponse(BaseModel):
+    """Statistics about files indexed in the system."""
     total_files: int
     files_by_type: dict[str, int]
     total_size_bytes: int
@@ -207,6 +216,7 @@ class FileIndexStatsResponse(BaseModel):
 
 
 class DirectorySettingsResponse(BaseModel):
+    """Response model for directory indexing settings."""
     allowed_directories: list[str] = Field(default_factory=list)
     excluded_directories: list[str] = Field(default_factory=list)
     total_allowed: int = 0
@@ -217,14 +227,15 @@ class DirectorySettingsResponse(BaseModel):
 # AI Chat DTOs
 # -----------------------
 
-
 class ChatRoleEnum(str, Enum):
+    """Enumeration of possible roles in chat messages."""
     system = "system"
     user = "user"
     assistant = "assistant"
 
 
 class ChatMessage(BaseModel):
+    """Represents a single chat message with role and content."""
     role: ChatRoleEnum = Field(
         ...,
         description="Chat role: system|user|assistant",
@@ -240,6 +251,7 @@ class ChatMessage(BaseModel):
 
 
 class ChatRequest(BaseModel):
+    """Request model for initiating a chat conversation."""
     messages: list[ChatMessage] = Field(..., min_length=1)
     provider: str | None = Field(
         default="lmstudio",
@@ -265,6 +277,7 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
+    """Response model for a chat conversation result."""
     success: bool
     content: str
     finish_reason: str | None = None
@@ -277,8 +290,8 @@ class ChatResponse(BaseModel):
 # RAG minimal request models
 # -----------------------
 
-
 class IngestDirectoryRequest(BaseModel):
+    """Request model to ingest all files in a directory."""
     directory: str = Field(..., min_length=1, max_length=10_000)
     recursive: bool = Field(default=True)
     file_types: list[str] | None = Field(default=None)
@@ -286,15 +299,18 @@ class IngestDirectoryRequest(BaseModel):
 
 
 class IngestFilesRequest(BaseModel):
+    """Request model to ingest specific file paths."""
     paths: list[str] = Field(..., min_length=1)
     force_reprocess: bool = Field(default=False)
 
 
 class GenerateMissingEmbeddingsRequest(BaseModel):
+    """Request model to generate embeddings for unprocessed file chunks."""
     batch_size: int = Field(default=32, ge=1, le=4096)
 
 
 class ContextRequest(BaseModel):
+    """Request model to retrieve contextual snippets based on a query."""
     query: str = Field(..., min_length=1, max_length=1000)
     file_types: list[str] | None = Field(default=None)
     top_k: int = Field(default=10, ge=1, le=50)
@@ -309,5 +325,6 @@ class ContextRequest(BaseModel):
 
 
 class MonitorStartRequest(BaseModel):
+    """Request model to start monitoring specified directories."""
     directories: list[str] = Field(..., min_length=1)
     file_extensions: list[str] | None = Field(default=None)

@@ -40,6 +40,7 @@ RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
 # TypedDicts to narrow free-form payloads accepted by router_* helpers and others.
 class _ContextPayload(TypedDict, total=False):
+    """Payload for requesting context retrieval, including query, filters, and options."""
     query: str
     file_types: NotRequired[list[str] | None]
     top_k: NotRequired[int]
@@ -47,6 +48,7 @@ class _ContextPayload(TypedDict, total=False):
 
 
 class _IngestDirPayload(TypedDict, total=False):
+    """Payload for ingesting directories with options for recursion, file types, and force reprocessing."""
     directory: str
     recursive: NotRequired[bool]
     file_types: NotRequired[list[str] | None]
@@ -54,15 +56,18 @@ class _IngestDirPayload(TypedDict, total=False):
 
 
 class _IngestFilesPayload(TypedDict, total=False):
+    """Payload for ingesting specific files with an option to force reprocessing."""
     paths: list[str]
     force_reprocess: NotRequired[bool]
 
 
 class _BatchEmbPayload(TypedDict, total=False):
+    """Payload for specifying batch size when embedding items."""
     batch_size: int
 
 
 class _MonitorStartPayload(TypedDict, total=False):
+    """Payload for starting directory monitoring with specified directories and file extensions."""
     directories: list[str]
     file_extensions: NotRequired[list[str] | None]
 
