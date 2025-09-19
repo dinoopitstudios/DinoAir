@@ -517,3 +517,29 @@ def _build_function_call_messages(
         logger.error("Error building function call messages: %s", e)
 
     return messages
+
+
+@router.get("/v1/models", tags=["ai"])
+async def list_models():
+    """
+    GET /v1/models
+    - Returns available models from LM Studio via direct proxy
+    """
+    import httpx
+
+    try:
+        # Direct proxy to LM Studio
+        async with httpx.AsyncClient() as client:
+            response = await client.get("http://127.0.0.1:1234/v1/models")
+            response.raise_for_status()
+            return response.json()
+    except httpx.ConnectError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LM Studio is not available"
+        ) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Failed to get models: {str(exc)}"
+        ) from exc
