@@ -100,56 +100,55 @@ class InputPipeline:
                 components.
             enable_enhanced_security: Enable comprehensive XSS, SQL injection,
                 and Unicode protection.
-    """Module for input sanitization providing security checks, validation, enhanced security processing, and rate limiting for user inputs."""
-            """
-            self.gui_feedback = gui_feedback_hook
-            self.skip_empty_feedback = skip_empty_feedback
+        """
+        self.gui_feedback = gui_feedback_hook
+        self.skip_empty_feedback = skip_empty_feedback
 
-            # Initialize modular components
-            self.validator = InputValidator()
-            self.escaper = TextEscaper(model_type)
-            self.pattern_normalizer = PatternNormalizer()
-            self.profanity_filter = ProfanityFilter()
-            self.intent_classifier = IntentClassifier()
+        # Initialize modular components
+        self.validator = InputValidator()
+        self.escaper = TextEscaper(model_type)
+        self.pattern_normalizer = PatternNormalizer()
+        self.profanity_filter = ProfanityFilter()
+        self.intent_classifier = IntentClassifier()
 
-            # Initialize enhanced security if enabled
-            self.enable_enhanced_security = enable_enhanced_security
-            if enable_enhanced_security:
-                logger = Logger() if watchdog_ref else None
-                self.enhanced_sanitizer = EnhancedInputSanitizer(logger)
-            else:
-                self.enhanced_sanitizer = None
+        # Initialize enhanced security if enabled
+        self.enable_enhanced_security = enable_enhanced_security
+        if enable_enhanced_security:
+            logger = Logger() if watchdog_ref else None
+            self.enhanced_sanitizer = EnhancedInputSanitizer(logger)
+        else:
+            self.enhanced_sanitizer = None
 
-            # Configure rate limiter
-            rate_config = RateLimitConfig(
-                max_requests=60,
-                window_seconds=60,
-                strategy=RateLimitStrategy.SLIDING_WINDOW,
-            )
-            self.rate_limiter = RateLimiter(rate_config)
+        # Configure rate limiter
+        rate_config = RateLimitConfig(
+            max_requests=60,
+            window_seconds=60,
+            strategy=RateLimitStrategy.SLIDING_WINDOW,
+        )
+        self.rate_limiter = RateLimiter(rate_config)
 
-            # Initialize context manager (kept from original)
-            self.context = ContextManager()
+        # Initialize context manager (kept from original)
+        self.context = ContextManager()
 
-            # Initialize watchdog command handler
-            self.watchdog_handler = WatchdogCommandHandler(
-                watchdog=watchdog_ref, chat_callback=gui_feedback_hook
-            )
+        # Initialize watchdog command handler
+        self.watchdog_handler = WatchdogCommandHandler(
+            watchdog=watchdog_ref, chat_callback=gui_feedback_hook
+        )
 
-            # Store references for legacy compatibility
-            self.watchdog_ref = watchdog_ref
-            self.main_window_ref = main_window_ref
+        # Store references for legacy compatibility
+        self.watchdog_ref = watchdog_ref
+        self.main_window_ref = main_window_ref
 
-            # Store alerts history for legacy compatibility
-            self.watchdog_alerts_history: list[tuple[str, str, datetime]] = []
-            # Security outcome counters (basic metrics)
-            self.security_counters: dict[str, int] = {
-                "attacks_blocked": 0,
-                "rejections": 0,
-            }
+        # Store alerts history for legacy compatibility
+        self.watchdog_alerts_history: list[tuple[str, str, datetime]] = []
+        # Security outcome counters (basic metrics)
+        self.security_counters: dict[str, int] = {
+            "attacks_blocked": 0,
+            "rejections": 0,
+        }
 
-            # User identifier for rate limiting
-            self.user_id = "default_user"  # Could use actual user ID
+        # User identifier for rate limiting
+        self.user_id = "default_user"  # Could use actual user ID
 
         def _increment_counter(self, key: str, value: int = 1) -> None:
             """Increment the security counter for the given key by the specified value.

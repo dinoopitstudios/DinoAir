@@ -137,9 +137,9 @@ class XSSProtection:
             # Match various attribute formats
             patterns = [
                 rf'\s*{attr}\s*=\s*"[^"]*"',  # Double quotes
-                rf"\s*{attr}\s*=\s*\'[^]*\'",  # Single quotes
-                rf"\s*{attr}\s*=\s*[^\s>]+",  # No quotes
-                rf"\s*{attr}(?=\s|>)",  # Boolean attribute
+                rf"\s*{attr}\s*=\s*'[^']*'",  # Single quotes
+                rf'\s*{attr}\s*=\s*[^\s>]+',  # No quotes
+                rf'\s*{attr}(?=\s|>)',  # Boolean attribute
             ]
 
             for pattern in patterns:
@@ -148,7 +148,7 @@ class XSSProtection:
         # Remove dangerous protocols in href/src attributes
         for protocol in XSSProtection.DANGEROUS_PROTOCOLS:
             html_str = re.sub(
-                rf'(href|src)\s*=\s*["\']?' rf'{re.escape(protocol)}[^"'>\s]*["\']?',
+                rf"(href|src)\s*=\s*[\"']?{re.escape(protocol)}[^\"'\s>]*[\"']?",
                 r'\1=""',
                 html_str,
                 flags=re.IGNORECASE,

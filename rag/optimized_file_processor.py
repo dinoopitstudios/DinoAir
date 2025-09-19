@@ -646,7 +646,6 @@ class OptimizedFileProcessor(FileProcessor):
             self._save_embedding(chunk_id, embedding)
             count += 1
         return count
-                        )
 
                     # Generate batch embeddings
                     batch_texts = [item[2] for item in batch]
