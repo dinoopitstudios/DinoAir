@@ -231,18 +231,6 @@ class ParserModule:
         if current_indent < prev_indent - 4:
             return True
         return False
-            if self._should_start_new_block(in_multiline, line, stripped_line, current_indent, prev_indent) and current_block:
-                blocks.append("".join(current_block))
-                current_block = []
-
-            current_block.append(line)
-            prev_indent = current_indent
-
-        if current_block:
-            blocks.append("".join(current_block))
-
-        return blocks
-
     def _classify_block(self, block: str) -> BlockType:
         """
         Determine the type of a code block
