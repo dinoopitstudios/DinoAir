@@ -21,7 +21,7 @@ except ImportError:
 # Check for Sentry DSN
 sentry_dsn = os.getenv("SENTRY_DSN")
 if sentry_dsn:
-    print(f"✅ Sentry DSN found: {sentry_dsn[:50]}...")
+    print(f"✅ Sentry DSN found: ***{sentry_dsn[-10:]}") # Only show last 10 chars
 else:
     print("❌ No SENTRY_DSN environment variable found")
 
@@ -42,7 +42,7 @@ try:
         # Test error capture
         try:
             1 / 0  # This will trigger a division by zero error
-        except Exception as e:
+        except ZeroDivisionError as e:
             sentry_sdk.capture_exception(e)
             print("✅ Test error sent to Sentry")
             print("   Check your Sentry dashboard for the error!")
