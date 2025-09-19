@@ -508,19 +508,19 @@ def _get_default_user_data_directory() -> Path:
         user_home = Path.home().resolve()
         default_xdg = Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
         if xdg_env_path:
-            # Normalize BEFORE Path object creation; avoid dangerous expansion
+            # Normalize and validate as string BEFORE Path object creation
             expanded_env_path = os.path.expanduser(xdg_env_path)
             norm_env_path = os.path.normpath(expanded_env_path)
+            abs_env_path = os.path.abspath(norm_env_path)
             try:
-                candidate = Path(norm_env_path).resolve()
-                # Accept only if candidate is strictly inside user_home
-                is_within = getattr(candidate, "is_relative_to", None)
-                if is_within:
-                    safe_env = candidate.is_relative_to(user_home)
-                else:
-                    # Manual check for < 3.9
-                    safe_env = str(candidate).startswith(str(user_home) + os.sep)
+                # Accept only if abs_env_path is strictly inside user_home
+                user_home_str = str(user_home)
+                # Make sure user_home_str ends with os.sep for safe prefix check
+                if not user_home_str.endswith(os.sep):
+                    user_home_str += os.sep
+                safe_env = abs_env_path.startswith(user_home_str)
                 if safe_env:
+                    candidate = Path(abs_env_path).resolve()
                     root_dir = candidate
                 else:
                     logging.warning(
