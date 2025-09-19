@@ -115,7 +115,8 @@ class Enums:
             if isinstance(getattr(cls, name), type) and issubclass(getattr(cls, name), Enum)
         ]
 
-    def is_valid_value(self, enum_name: str, value: Any) -> bool:
+    @staticmethod
+    def is_valid_value(enum_name: str, value: Any) -> bool:
         """Validate if a value is valid for the specified enum.
 
         Args:
@@ -128,7 +129,7 @@ class Enums:
         if not isinstance(enum_name, str) or enum_name is None:
             return False
 
-        enum_class = getattr(self, enum_name, None)
+        enum_class = getattr(Enums, enum_name, None)
         if enum_class and issubclass(enum_class, Enum):
             return isinstance(value, enum_class)
         return False
