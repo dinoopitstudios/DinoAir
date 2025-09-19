@@ -362,6 +362,18 @@ const ToolGroupCard = memo(function ToolGroupCard({
         <div style={{ marginBottom: 8, color: '#9ca3af', fontSize: 12 }}>from {group.module}</div>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        const toolClickHandlers = React.useMemo(() => {
+          const handlers: Record<string, () => void> = {};
+          group.tools.forEach(tool => {
+            handlers[tool] = () => {
+              if (wiredReadOnlyTools.has(tool)) {
+                onInvoke(group.title, tool);
+              }
+            };
+          });
+          return handlers;
+        }, [group.tools, wiredReadOnlyTools, onInvoke, group.title]);
+
         {group.tools.map(tool => {
           const isWired = wiredReadOnlyTools.has(tool);
           const isLoading = loadingTool === tool;
@@ -371,7 +383,7 @@ const ToolGroupCard = memo(function ToolGroupCard({
               tool={tool}
               isWired={isWired}
               isLoading={isLoading}
-              onClick={() => isWired && onInvoke(group.title, tool)}
+              onClick={toolClickHandlers[tool]}
             />
           );
         })}
@@ -387,6 +399,15 @@ type RagRemediationBannerProps = {
 const RagRemediationBanner = memo(function RagRemediationBanner({
   onInvoke,
 }: RagRemediationBannerProps) {
+  const handleIngestClick = useCallback(
+    () => onInvoke('RAG operations', 'rag_ingest_files'),
+    [onInvoke]
+  );
+  const handleGenerateClick = useCallback(
+    () => onInvoke('RAG operations', 'rag_generate_missing_embeddings'),
+    [onInvoke]
+  );
+
   return (
     <Banner type='warning'>
       <div
@@ -404,13 +425,13 @@ const RagRemediationBanner = memo(function RagRemediationBanner({
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
             variant='secondary'
-            onClick={() => onInvoke('RAG operations', 'rag_ingest_files')}
+            onClick={handleIngestClick}
           >
             Ingest files…
           </Button>
           <Button
             variant='secondary'
-            onClick={() => onInvoke('RAG operations', 'rag_generate_missing_embeddings')}
+            onClick={handleGenerateClick}
           >
             Generate embeddings
           </Button>

@@ -39,12 +39,19 @@ export default function SearchInput({
     ...style,
   };
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.value);
+    },
+    [onChange]
+  );
+
   return (
     <input
       className={className}
       type='text'
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={handleChange}
       placeholder={placeholder ?? 'Search...'}
       style={responsiveStyle}
       aria-label={restProps['aria-label'] || placeholder || 'Search input'}

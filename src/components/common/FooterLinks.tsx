@@ -1,4 +1,4 @@
-import { useState, type FC, type ReactNode } from 'react';
+import { useState, useCallback, type FC, type ReactNode } from 'react';
 
 /**
  * FooterLinks component renders a set of navigational links in the footer.
@@ -16,11 +16,17 @@ export default function FooterLinks() {
    */
   const LinkItem: FC<{ href: string; children: ReactNode }> = ({ href, children }) => {
     const [h, setH] = useState(false);
+    const handleMouseEnter = useCallback(() => {
+      setH(true);
+    }, []);
+    const handleMouseLeave = useCallback(() => {
+      setH(false);
+    }, []);
     return (
       <a
         href={href}
-        onMouseEnter={() => setH(true)}
-        onMouseLeave={() => setH(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{
           color: h ? hover : base,
           textDecoration: 'none',

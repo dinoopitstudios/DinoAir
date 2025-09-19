@@ -190,6 +190,14 @@ export default function FilesPage() {
 
   const columns = ['Name', 'Category', 'Size', 'Status', 'Actions'];
 
+  const indexHandlers = React.useMemo(() => {
+    const handlers: Record<string, () => void> = {};
+    filtered.forEach(f => {
+      handlers[f.id] = () => indexFile(f.id);
+    });
+    return handlers;
+  }, [filtered, indexFile]);
+
   const rows = filtered.map(f => {
     const dotStyle: CSSProperties = {
       display: 'inline-block',
@@ -209,7 +217,7 @@ export default function FilesPage() {
       <Button
         key={`b-${f.id}`}
         variant='secondary'
-        onClick={() => indexFile(f.id)}
+        onClick={indexHandlers[f.id]}
         disabled={f.indexed}
       >
         Index
@@ -252,10 +260,7 @@ export default function FilesPage() {
               {categories.map(c => (
                 <li key={c}>
                   <button
-                    onClick={() => {
-                      setActiveCat(c);
-                      announceInfo(`Switched to ${c} category`);
-                    }}
+                    onClick={categoryHandlers[c]}
                     className='nav-link'
                     role='tab'
                     aria-selected={activeCat === c}
@@ -309,7 +314,7 @@ export default function FilesPage() {
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <SearchInput
                     value={searchQuery}
-                    onChange={value => setSearchQuery(value)}
+                    onChange={handleSearchInputChange}
                     placeholder='Search files...'
                     data-testid='file-search-input'
                     aria-label='Search files'
@@ -331,44 +336,7 @@ export default function FilesPage() {
                   variant='secondary'
                   data-testid='generate-embeddings-button'
                   aria-label='Generate missing embeddings'
-                  onClick={async () => {
-                    try {
-                      const res = (await ragApi.generateMissingEmbeddings({
-                        batch_size: 32,
-                      })) as RagEnvelope;
-                      if (res && typeof res === 'object' && 'success' in res) {
-                        if (res.success) {
-                          setBanner({
-                            type: 'success',
-                            text: 'Requested generation of missing embeddings.',
-                          });
-                        } else if ('code' in res && (res as { code?: number }).code === 501) {
-                          setBanner({
-                            type: 'warning',
-                            text: 'RAG unavailable. Use Tools > RAG operations to ingest files and generate embeddings.',
-                          });
-                        } else {
-                          setBanner({
-                            type: 'error',
-                            text:
-                              'error' in res && typeof res.error === 'string'
-                                ? res.error
-                                : 'Embedding generation failed.',
-                          });
-                        }
-                      } else {
-                        setBanner({
-                          type: 'success',
-                          text: 'Requested generation of missing embeddings.',
-                        });
-                      }
-                    } catch (err: unknown) {
-                      setBanner({
-                        type: 'error',
-                        text: err instanceof Error ? err.message : String(err),
-                      });
-                    }
-                  }}
+                  onClick={handleGenerateMissingEmbeddings}
                   style={{
                     width: isMobile ? '100%' : 'auto',
                   }}

@@ -18,6 +18,13 @@ interface CheckboxProps {
 export default function Checkbox({ checked, onChange, label }: CheckboxProps) {
   const id = useId();
 
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.checked);
+    },
+    [onChange]
+  );
+
   return (
     <label
       htmlFor={id}
@@ -28,7 +35,7 @@ export default function Checkbox({ checked, onChange, label }: CheckboxProps) {
         id={id}
         type='checkbox'
         checked={checked}
-        onChange={e => onChange(e.target.checked)}
+        onChange={handleChange}
         style={{
           width: 16,
           height: 16,

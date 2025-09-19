@@ -67,11 +67,13 @@ export default function Table({ columns, rows }: TableProps) {
               rows.map((row, i) => {
                 const zebra = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)';
                 const bg = hoverIndex === i ? 'rgba(255,255,255,0.04)' : zebra;
+                const handleMouseEnter = React.useCallback(() => setHoverIndex(i), [i]);
+                const handleMouseLeave = React.useCallback(() => setHoverIndex(null), []);
                 return (
                   <tr
                     key={i}
-                    onMouseEnter={() => setHoverIndex(i)}
-                    onMouseLeave={() => setHoverIndex(null)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                     style={{ background: bg }}
                   >
                     {row.map((cell, j) => (
