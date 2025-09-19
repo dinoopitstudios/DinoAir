@@ -99,7 +99,7 @@ def main():
     print("\n✅ Setup complete!")
     print("\nNext steps:")
     print("1. Set your GITHUB_TOKEN environment variable")
-    print("2. Run: python github_security_loader.py")
+    print("2. Run: python simple_github_security.py")
 
 
 if __name__ == "__main__":
