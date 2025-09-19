@@ -126,7 +126,8 @@ class AuditLogger:
         encrypt_logs: bool = True,
     ):
         self.log_file = Path(log_file)
-        self.secret_key = secret_key.encode() if isinstance(secret_key, str) else secret_key
+        self.secret_key = secret_key.encode() if isinstance(
+            secret_key, str) else secret_key
         self.encrypt_logs = encrypt_logs
 
         # Ensure log directory exists
@@ -211,13 +212,15 @@ class AuditLogger:
         event_dict["severity"] = event.severity.value
 
         # Create canonical JSON representation
-        canonical_json = json.dumps(event_dict, sort_keys=True, separators=(",", ":"))
+        canonical_json = json.dumps(
+            event_dict, sort_keys=True, separators=(",", ":"))
 
         # Calculate checksum
         checksum = hashlib.sha256(canonical_json.encode()).hexdigest()
 
         # Create HMAC signature
-        signature = hmac.new(self.secret_key, canonical_json.encode(), hashlib.sha256).hexdigest()
+        signature = hmac.new(
+            self.secret_key, canonical_json.encode(), hashlib.sha256).hexdigest()
 
         # Return new event with integrity fields
         return AuditEvent(
@@ -267,10 +270,12 @@ class AuditLogger:
                 return False
 
             # Recreate canonical JSON
-            canonical_json = json.dumps(event_data, sort_keys=True, separators=(",", ":"))
+            canonical_json = json.dumps(
+                event_data, sort_keys=True, separators=(",", ":"))
 
             # Verify checksum
-            calculated_checksum = hashlib.sha256(canonical_json.encode()).hexdigest()
+            calculated_checksum = hashlib.sha256(
+                canonical_json.encode()).hexdigest()
             if calculated_checksum != stored_checksum:
                 return False
 
@@ -341,7 +346,8 @@ class SecurityAuditManager:
             "import": AuditEventType.DATA_IMPORT,
         }
 
-        event_type = event_type_map.get(action.lower(), AuditEventType.DATA_READ)
+        event_type = event_type_map.get(
+            action.lower(), AuditEventType.DATA_READ)
         severity = SeverityLevel.ERROR if outcome == "failure" else SeverityLevel.INFO
 
         return self.audit_logger.audit(

@@ -8,7 +8,6 @@ from .common import guard_imports, resp
 if TYPE_CHECKING:
     from ..settings import Settings
 
-
 log = logging.getLogger("api.services.rag_ingestion")
 RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
@@ -27,7 +26,8 @@ class RagIngestionService:
         if not getattr(self.settings, "rag_enabled", True):
             return resp(False, None, RAG_UNAVAILABLE_MSG, 501)
 
-        guard = guard_imports(("rag.directory_validator", "rag.optimized_file_processor"))
+        guard = guard_imports(
+            ("rag.directory_validator", "rag.optimized_file_processor"))
         if guard is not None:
             return guard
 
@@ -42,8 +42,10 @@ class RagIngestionService:
 
         try:
             validator = DirectoryValidator(
-                allowed_dirs=getattr(self.settings, "rag_allowed_dirs", []) or None,
-                excluded_dirs=getattr(self.settings, "rag_excluded_dirs", []) or None,
+                allowed_dirs=getattr(
+                    self.settings, "rag_allowed_dirs", []) or None,
+                excluded_dirs=getattr(
+                    self.settings, "rag_excluded_dirs", []) or None,
             )
             v = validator.validate_path(directory)
             if not v.get("valid"):
@@ -60,7 +62,8 @@ class RagIngestionService:
                 chunk_overlap=getattr(self.settings, "rag_chunk_overlap", 200),
                 generate_embeddings=True,
                 embedding_batch_size=None,
-                max_workers=getattr(self.settings, "rag_watchdog_max_workers", 2),
+                max_workers=getattr(
+                    self.settings, "rag_watchdog_max_workers", 2),
                 cache_size=getattr(self.settings, "rag_cache_size", 100),
                 enable_caching=True,
             )
@@ -84,7 +87,8 @@ class RagIngestionService:
         if not getattr(self.settings, "rag_enabled", True):
             return resp(False, None, RAG_UNAVAILABLE_MSG, 501)
 
-        guard = guard_imports(("rag.directory_validator", "rag.optimized_file_processor"))
+        guard = guard_imports(
+            ("rag.directory_validator", "rag.optimized_file_processor"))
         if guard is not None:
             return guard
 
@@ -141,10 +145,12 @@ class RagIngestionService:
         for path in files:
             try:
                 if has_run_single:
-                    res = proc.run_single(path, force_reprocess=force_reprocess)
+                    res = proc.run_single(
+                        path, force_reprocess=force_reprocess)
                 else:
                     # Align with FileProcessor signature to ensure DB storage
-                    res = proc.process_file(path, force_reprocess=force_reprocess, store_in_db=True)
+                    res = proc.process_file(
+                        path, force_reprocess=force_reprocess, store_in_db=True)
 
                 # Normalize and collect minimal stable shape for the response
                 success = bool(res.get("success"))
@@ -170,7 +176,8 @@ class RagIngestionService:
                 )
             except (OSError, ValueError, RuntimeError, AttributeError, TypeError) as e:
                 stats["failed"] += 1
-                results.append({"file": path, "success": False, "error": str(e)})
+                results.append(
+                    {"file": path, "success": False, "error": str(e)})
 
         return results, stats
 
@@ -206,7 +213,8 @@ class RagIngestionService:
         has_run_single = hasattr(proc, "run_single")
 
         # Process files with reduced branching
-        results, stats = self._process_files(proc, allowed, force_reprocess, has_run_single)
+        results, stats = self._process_files(
+            proc, allowed, force_reprocess, has_run_single)
 
         out: dict[str, Any] = {
             "success": stats["failed"] == 0,

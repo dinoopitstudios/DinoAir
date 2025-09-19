@@ -153,7 +153,8 @@ class GPT2Model(BaseModel):
         if code.startswith("#"):
             # Remove comment lines at the start
             lines = code.split("\n")
-            code = "\n".join(line for line in lines if not line.strip().startswith("#"))
+            code = "\n".join(
+                line for line in lines if not line.strip().startswith("#"))
 
         return code.strip()
 

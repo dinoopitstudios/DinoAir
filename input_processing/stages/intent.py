@@ -27,7 +27,8 @@ class IntentClassification:
     primary_intent: IntentType
     confidence: float  # 0-1 confidence score
     secondary_intents: list[tuple[IntentType, float]]  # Other possible intents
-    extracted_entities: dict[str, Any]  # Extracted entities (commands, topics, etc.)
+    # Extracted entities (commands, topics, etc.)
+    extracted_entities: dict[str, Any]
     reasoning: str  # Brief explanation of classification
 
 
@@ -330,7 +331,8 @@ class IntentClassifier:
         combined_scores = self._combine_scores(pattern_scores, keyword_scores)
 
         # Sort intents by score
-        sorted_intents = sorted(combined_scores.items(), key=lambda x: x[1], reverse=True)
+        sorted_intents = sorted(combined_scores.items(),
+                                key=lambda x: x[1], reverse=True)
 
         # Determine primary intent
         if not sorted_intents or sorted_intents[0][1] < 0.2:

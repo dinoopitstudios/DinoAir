@@ -22,7 +22,6 @@ from .performance_monitor import PerformanceMonitor, get_performance_monitor
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
-
 # Qt timer import with fallback for headless environments
 # pylint: disable=import-error
 try:
@@ -117,7 +116,8 @@ class OptimizedPatterns:
     CLASS_PATTERN = re.compile(r"class\s+\w+")
 
     # Validation patterns
-    EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+    EMAIL_PATTERN = re.compile(
+        r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
     URL_PATTERN = re.compile(r"^https?://[^\s/$.?#].[^\s]*$")
     PHONE_PATTERN = re.compile(r"^\+?[\d\s\-\(\)]{10,}$")
 
@@ -372,7 +372,8 @@ class LazyComponentManager:
 
         if component_info.state == ComponentState.INITIALIZING:
             # Handle circular dependencies
-            raise RuntimeError(f"Circular dependency detected for component '{name}'")
+            raise RuntimeError(
+                f"Circular dependency detected for component '{name}'")
 
         # Initialize dependencies first
         for dep_name in component_info.dependencies:
@@ -421,7 +422,8 @@ class LazyComponentManager:
         metrics: dict[str, Any] = {
             "total_components": len(self._components),
             "initialized_components": len(
-                [c for c in self._components.values() if c.state == ComponentState.INITIALIZED]
+                [c for c in self._components.values() if c.state ==
+                 ComponentState.INITIALIZED]
             ),
             "initialization_order": self._initialization_order.copy(),
             "component_times": {},
@@ -438,7 +440,8 @@ class SignalConnectionManager:
     """Optimizes signal connections with connection pooling and validation."""
 
     def __init__(self) -> None:
-        self._connections: dict[str, list[tuple[Any, Any, Any]]] = defaultdict(list)
+        self._connections: dict[str,
+                                list[tuple[Any, Any, Any]]] = defaultdict(list)
         self._connection_groups: dict[str, list[str]] = defaultdict(list)
         self._performance_monitor = get_performance_monitor()
 
@@ -473,7 +476,8 @@ class SignalConnectionManager:
 
         except (AttributeError, TypeError, ValueError, RuntimeError) as e:
             # Log error using standard logging since new PerformanceMonitor doesn't have log_error
-            logging.getLogger(__name__).warning("Signal connection failed: %s", e)
+            logging.getLogger(__name__).warning(
+                "Signal connection failed: %s", e)
             return False
 
     def disconnect_group(self, group: str) -> int:
@@ -507,7 +511,8 @@ class SignalConnectionManager:
 
     def get_connection_stats(self) -> dict[str, Any]:
         """Get statistics about signal connections."""
-        total_connections = sum(len(conns) for conns in self._connections.values())
+        total_connections = sum(len(conns)
+                                for conns in self._connections.values())
         total_groups = len(self._connection_groups)
 
         return {
@@ -539,7 +544,8 @@ class DebouncedEventHandler:
         # Create new timer
         timer = QTimer()
         timer.setSingleShot(True)
-        timer.timeout.connect(lambda: self._execute_callback(event_id, *args, **kwargs))
+        timer.timeout.connect(
+            lambda: self._execute_callback(event_id, *args, **kwargs))
 
         self._timers[event_id] = timer
         self._callbacks[event_id] = callback
@@ -550,12 +556,14 @@ class DebouncedEventHandler:
     def _execute_callback(self, event_id: str, *args: Any, **kwargs: Any) -> None:
         """Execute the debounced callback."""
         if event_id in self._callbacks:
-            operation_id = self._performance_monitor.start_operation(f"debounced_event_{event_id}")
+            operation_id = self._performance_monitor.start_operation(
+                f"debounced_event_{event_id}")
             try:
                 self._callbacks[event_id](*args, **kwargs)
             except RuntimeError as e:
                 # Log error using standard logging
-                logging.getLogger(__name__).warning("Debounced event error: %s", e)
+                logging.getLogger(__name__).warning(
+                    "Debounced event error: %s", e)
             finally:
                 self._performance_monitor.end_operation(operation_id)
 
@@ -610,7 +618,8 @@ class BatchUpdateManager:
             return
 
         self._is_batching = True
-        operation_id = self._performance_monitor.start_operation("batch_update")
+        operation_id = self._performance_monitor.start_operation(
+            "batch_update")
 
         try:
             # Disable updates during batch operation
@@ -623,7 +632,8 @@ class BatchUpdateManager:
                     update_func()
                 except RuntimeError as e:
                     # Log error using standard logging
-                    logging.getLogger(__name__).warning("Batch update error: %s", e)
+                    logging.getLogger(__name__).warning(
+                        "Batch update error: %s", e)
 
             # Clear the queue
             self._update_queue.clear()

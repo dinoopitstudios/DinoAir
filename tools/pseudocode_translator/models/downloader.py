@@ -96,7 +96,8 @@ class ModelDownloader:
                 raise ConfigurationError(
                     f"Checksum required for downloads unless force=True; refusing unverified download: {url}"
                 )
-            logger.warning(f"Proceeding without checksum verification (force=True) for: {url}")
+            logger.warning(
+                f"Proceeding without checksum verification (force=True) for: {url}")
 
         # Determine file path
         model_dir = self.download_dir / model_name
@@ -200,14 +201,17 @@ class ModelDownloader:
         response = None
         for attempt in range(self.max_retries):
             try:
-                response = self.session.get(url, headers=headers, stream=True, timeout=self.timeout)
+                response = self.session.get(
+                    url, headers=headers, stream=True, timeout=self.timeout)
 
                 # Check if server supports resume
                 if resume_pos > 0 and response.status_code != 206:
-                    logger.warning("Server doesn't support resume, starting over")
+                    logger.warning(
+                        "Server doesn't support resume, starting over")
                     resume_pos = 0
                     mode = "wb"
-                    response = self.session.get(url, stream=True, timeout=self.timeout)
+                    response = self.session.get(
+                        url, stream=True, timeout=self.timeout)
 
                 response.raise_for_status()
                 break

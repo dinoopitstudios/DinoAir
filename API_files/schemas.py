@@ -59,7 +59,8 @@ class ValidationErrors(BaseModel):
 
 class TranslateRequest(BaseModel):
     pseudocode: str = Field(..., min_length=1, max_length=100_000)
-    target_language: TargetLanguageEnum | None = Field(default=TargetLanguageEnum.python)
+    target_language: TargetLanguageEnum | None = Field(
+        default=TargetLanguageEnum.python)
 
     @field_validator("pseudocode")
     @classmethod
@@ -75,11 +76,13 @@ class TranslateResponse(BaseModel):
     code: str | None
     errors: list[str] = Field(
         default_factory=lambda: cast("list[str]", []),
-        description=("List of error messages (bounded to 50 elements; each up to 500 chars)"),
+        description=(
+            "List of error messages (bounded to 50 elements; each up to 500 chars)"),
     )
     warnings: list[str] = Field(
         default_factory=lambda: cast("list[str]", []),
-        description=("List of warning messages (bounded to 50 elements; each up to 500 chars)"),
+        description=(
+            "List of warning messages (bounded to 50 elements; each up to 500 chars)"),
     )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -91,7 +94,8 @@ class TranslateResponse(BaseModel):
             if not isinstance(s, str):
                 raise ValueError(f"All {field_name} entries must be strings")
             if len(s) > 500:
-                raise ValueError(f"{field_name} entries must be <= 500 characters")
+                raise ValueError(
+                    f"{field_name} entries must be <= 500 characters")
         return cast("list[str]", values)
 
     @field_validator("errors")
@@ -130,7 +134,8 @@ class VectorSearchRequest(BaseModel):
     top_k: int = Field(default=10, ge=1, le=50)
     similarity_threshold: float | None = Field(default=0.5, ge=0.0, le=1.0)
     file_types: list[str] | None = Field(default=None)
-    distance_metric: DistanceMetricEnum = Field(default=DistanceMetricEnum.cosine)
+    distance_metric: DistanceMetricEnum = Field(
+        default=DistanceMetricEnum.cosine)
 
     @field_validator("query")
     @classmethod
@@ -141,7 +146,8 @@ class VectorSearchRequest(BaseModel):
 
 
 class VectorSearchResponse(BaseModel):
-    hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
+    hits: list[VectorSearchHit] = Field(
+        default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
 class KeywordSearchRequest(BaseModel):
@@ -158,7 +164,8 @@ class KeywordSearchRequest(BaseModel):
 
 
 class KeywordSearchResponse(BaseModel):
-    hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
+    hits: list[VectorSearchHit] = Field(
+        default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
 class HybridSearchRequest(BaseModel):
@@ -185,7 +192,8 @@ class HybridSearchRequest(BaseModel):
 
 
 class HybridSearchResponse(BaseModel):
-    hits: list[VectorSearchHit] = Field(default_factory=lambda: cast("list[VectorSearchHit]", []))
+    hits: list[VectorSearchHit] = Field(
+        default_factory=lambda: cast("list[VectorSearchHit]", []))
 
 
 # -----------------------
@@ -243,7 +251,8 @@ class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(..., min_length=1)
     provider: str | None = Field(
         default="lmstudio",
-        description=("Provider alias; 'lmstudio' or 'local' will use router-first path."),
+        description=(
+            "Provider alias; 'lmstudio' or 'local' will use router-first path."),
     )
     model: str | None = Field(
         default=None,

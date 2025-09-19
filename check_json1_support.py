@@ -22,10 +22,12 @@ def check_json1_support():
 
         # Test JSON1 functions
         test_queries = [
-            ("json_extract", "SELECT json_extract('[\"tag1\", \"tag2\"]', '$[0]')"),
+            ("json_extract",
+             "SELECT json_extract('[\"tag1\", \"tag2\"]', '$[0]')"),
             ("json_each", 'SELECT value FROM json_each(\'["tag1", "tag2"]\')'),
             ("json_valid", 'SELECT json_valid(\'["tag1", "tag2"]\')'),
-            ("json_array_length", 'SELECT json_array_length(\'["tag1", "tag2"]\')'),
+            ("json_array_length",
+             'SELECT json_array_length(\'["tag1", "tag2"]\')'),
         ]
 
         supported_functions = []

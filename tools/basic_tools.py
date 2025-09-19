@@ -204,7 +204,8 @@ def list_directory_contents(path: str = ".") -> dict[str, Any]:
 
         for item in path_obj.iterdir():
             st = item.stat()
-            modified_time = datetime.datetime.fromtimestamp(st.st_mtime).isoformat()
+            modified_time = datetime.datetime.fromtimestamp(
+                st.st_mtime).isoformat()
 
             if item.is_file():
                 files.append(
@@ -383,7 +384,8 @@ def execute_system_command(command: str, timeout: int = 30) -> dict[str, Any]:
                 "error": "Command cannot be empty",
             }
 
-        proc = safe_run(parts, allowed_binaries=ALLOWED_BINARIES, timeout=timeout, text=True)
+        proc = safe_run(parts, allowed_binaries=ALLOWED_BINARIES,
+                        timeout=timeout, text=True)
         execution_time = (datetime.datetime.now() - start_time).total_seconds()
 
         return build_success(

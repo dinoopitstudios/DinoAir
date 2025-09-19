@@ -215,7 +215,8 @@ class WindowStateManager:
                 content = json.dumps(self.state_data, indent=2)
                 await f.write(content)
         except OSError as e:
-            self.logger.error(f"Failed to save window state asynchronously: {e}")
+            self.logger.error(
+                f"Failed to save window state asynchronously: {e}")
             if error_aggregator:
                 error_aggregator.record_error(e, "_save_state_async")
 
@@ -267,7 +268,8 @@ class WindowStateManager:
             await self._save_state_async()
             self.logger.info("Window state saved successfully (async)")
         except OSError as e:
-            self.logger.error(f"Failed to save window state asynchronously: {e}")
+            self.logger.error(
+                f"Failed to save window state asynchronously: {e}")
             if error_aggregator:
                 error_aggregator.record_error(e, "save_window_state_async")
 
@@ -281,7 +283,8 @@ class WindowStateManager:
         try:
             # Restore geometry
             geometry = self.state_data["window"]["geometry"]
-            window.setGeometry(geometry[0], geometry[1], geometry[2], geometry[3])
+            window.setGeometry(
+                geometry[0], geometry[1], geometry[2], geometry[3])
 
             # Restore maximized state
             if self.state_data.get("window", {}).get("maximized", False):
@@ -306,7 +309,8 @@ class WindowStateManager:
 
             # Restore geometry
             geometry = self.state_data["window"]["geometry"]
-            window.setGeometry(QRect(geometry[0], geometry[1], geometry[2], geometry[3]))
+            window.setGeometry(
+                QRect(geometry[0], geometry[1], geometry[2], geometry[3]))
 
             # Restore maximized state
             if self.state_data["window"]["maximized"]:
@@ -314,7 +318,8 @@ class WindowStateManager:
 
             self.logger.info("Window state restored successfully (async)")
         except RuntimeError as e:
-            self.logger.error(f"Failed to restore window state asynchronously: {e}")
+            self.logger.error(
+                f"Failed to restore window state asynchronously: {e}")
             if error_aggregator:
                 error_aggregator.record_error(e, "restore_window_state_async")
 
@@ -399,9 +404,11 @@ class WindowStateManager:
                     self.state_data["splitters"][splitter_name] = percentages
 
             await self._save_state_async()
-            self.logger.info(f"Splitter state saved asynchronously: {splitter_name}")
+            self.logger.info(
+                f"Splitter state saved asynchronously: {splitter_name}")
         except RuntimeError as e:
-            self.logger.error(f"Failed to save splitter state asynchronously: {e}")
+            self.logger.error(
+                f"Failed to save splitter state asynchronously: {e}")
             if error_aggregator:
                 error_aggregator.record_error(e, "save_splitter_state_async")
 
@@ -444,7 +451,8 @@ class WindowStateManager:
                     scaling_helper = get_scaling_helper()
                     # Ensure saved_state is an int, not a list
                     # Ensure saved_state is an int, not a list
-                    width_value = saved_state if isinstance(saved_state, int) else saved_state[0]
+                    width_value = saved_state if isinstance(
+                        saved_state, int) else saved_state[0]
                     scaled_width = scaling_helper.scaled_size(width_value)
                     # Get current sizes and update first panel
                     current_sizes = splitter.sizes()
@@ -455,7 +463,8 @@ class WindowStateManager:
                     # For percentage-based splitters
                     # Get total size based on orientation
                     try:
-                        orientation_horizontal = Qt.Orientation.Horizontal  # type: ignore[attr-defined]
+                        # type: ignore[attr-defined]
+                        orientation_horizontal = Qt.Orientation.Horizontal
                     except AttributeError:
                         orientation_horizontal = 1
                     if splitter.orientation() == orientation_horizontal:
@@ -463,7 +472,8 @@ class WindowStateManager:
                     else:
                         total_size = splitter.height()
                     # Convert percentages to actual sizes
-                    sizes = [int(total_size * pct / 100) for pct in saved_state]
+                    sizes = [int(total_size * pct / 100)
+                             for pct in saved_state]
                     splitter.setSizes(sizes)
                 self.logger.info(f"Splitter state restored: {splitter_name}")
         except Exception as e:

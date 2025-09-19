@@ -168,7 +168,8 @@ class MockModel(BaseTranslationModel):
         code = self._generate_mock_code(instruction, config, context)
 
         # Calculate mock confidence
-        confidence = 0.95 if self.config["deterministic"] else random.uniform(0.7, 0.99)
+        confidence = 0.95 if self.config["deterministic"] else random.uniform(
+            0.7, 0.99)
 
         return TranslationResult(
             success=True,
@@ -265,7 +266,8 @@ class MockModel(BaseTranslationModel):
                 name = self._extract_name(instruction, "variable")
                 code = lang_templates["variable"].format(name=name)
             else:
-                code = lang_templates["default"].format(instruction=instruction)
+                code = lang_templates["default"].format(
+                    instruction=instruction)
         else:
             # Echo style - just echo the instruction
             code = f"# Instruction: {instruction}\n# Mock output"

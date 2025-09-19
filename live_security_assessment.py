@@ -61,13 +61,15 @@ class LiveSecurityAssessment:
                             print(f"   ✅ {header}: {headers[header]}")
                             passed += 1
                         else:
-                            print(f"   ⚠️  {header}: {headers[header]} (not optimal)")
+                            print(
+                                f"   ⚠️  {header}: {headers[header]} (not optimal)")
                     else:
                         if expected in headers[header]:
                             print(f"   ✅ {header}: {headers[header]}")
                             passed += 1
                         else:
-                            print(f"   ⚠️  {header}: {headers[header]} (not optimal)")
+                            print(
+                                f"   ⚠️  {header}: {headers[header]} (not optimal)")
                 else:
                     print(f"   ❌ Missing {header}")
 
@@ -94,7 +96,8 @@ class LiveSecurityAssessment:
                 "Access-Control-Request-Headers": "Content-Type",
             }
 
-            response = self.session.options(f"{self.base_url}/", headers=headers, timeout=5)
+            response = self.session.options(
+                f"{self.base_url}/", headers=headers, timeout=5)
 
             if "Access-Control-Allow-Origin" in response.headers:
                 allowed_origin = response.headers["Access-Control-Allow-Origin"]
@@ -117,7 +120,8 @@ class LiveSecurityAssessment:
         self.total_tests += 1
         print("\n💉 Testing SQL Injection Protection...")
 
-        sql_payloads = ["' OR '1'='1", "'; DROP TABLE users; --", "' UNION SELECT null,null,null--"]
+        sql_payloads = ["' OR '1'='1", "'; DROP TABLE users; --",
+                        "' UNION SELECT null,null,null--"]
 
         try:
             # Test various endpoints with SQL injection
@@ -146,7 +150,8 @@ class LiveSecurityAssessment:
 
                         if any(error in response_text for error in sql_errors):
                             print(f"   ❌ SQL error exposed at {endpoint}")
-                            self.findings.append(f"SQL error disclosure at {endpoint}")
+                            self.findings.append(
+                                f"SQL error disclosure at {endpoint}")
                         else:
                             sql_blocked += 1
 
@@ -178,7 +183,8 @@ class LiveSecurityAssessment:
             xss_blocked = 0
             for payload in xss_payloads:
                 try:
-                    response = self.session.get(f"{self.base_url}/?search={payload}", timeout=5)
+                    response = self.session.get(
+                        f"{self.base_url}/?search={payload}", timeout=5)
 
                     # Check if payload is reflected unescaped
                     if payload in response.text:
@@ -213,10 +219,12 @@ class LiveSecurityAssessment:
 
             for i in range(request_count):
                 try:
-                    response = self.session.get(f"{self.base_url}/health", timeout=2)
+                    response = self.session.get(
+                        f"{self.base_url}/health", timeout=2)
                     if response.status_code == 429:  # Too Many Requests
                         blocked_count += 1
-                        print(f"   ✅ Rate limit triggered after {i + 1} requests")
+                        print(
+                            f"   ✅ Rate limit triggered after {i + 1} requests")
                         break
                     time.sleep(0.1)  # Small delay between requests
                 except Exception:
@@ -245,7 +253,8 @@ class LiveSecurityAssessment:
             auth_required = 0
             for endpoint in protected_endpoints:
                 try:
-                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=5)
+                    response = self.session.get(
+                        f"{self.base_url}{endpoint}", timeout=5)
                     if response.status_code in [
                         401,
                         403,
@@ -255,7 +264,8 @@ class LiveSecurityAssessment:
                         print(f"   ✅ {endpoint} requires authentication")
                     elif response.status_code == 200:
                         print(f"   ❌ {endpoint} accessible without auth")
-                        self.findings.append(f"Unprotected endpoint: {endpoint}")
+                        self.findings.append(
+                            f"Unprotected endpoint: {endpoint}")
                 except Exception:
                     pass  # Endpoint might not exist
 
@@ -289,7 +299,8 @@ class LiveSecurityAssessment:
             exposed_count = 0
             for endpoint in sensitive_endpoints:
                 try:
-                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=5)
+                    response = self.session.get(
+                        f"{self.base_url}{endpoint}", timeout=5)
                     if response.status_code == 200 and len(response.text) > 50:
                         print(f"   ⚠️  Potentially exposed: {endpoint}")
                         exposed_count += 1
@@ -301,7 +312,8 @@ class LiveSecurityAssessment:
                 print("   ✅ No obvious information disclosure")
             else:
                 print(f"   ❌ {exposed_count} potentially exposed endpoints")
-                self.findings.append(f"{exposed_count} information disclosure risks")
+                self.findings.append(
+                    f"{exposed_count} information disclosure risks")
 
         except Exception as e:
             print(f"   ❌ Information disclosure test failed: {e}")
@@ -310,7 +322,8 @@ class LiveSecurityAssessment:
         """Generate security assessment report."""
 
         pass_percentage = (
-            (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+            (self.passed_tests / self.total_tests *
+             100) if self.total_tests > 0 else 0
         )
 
         if pass_percentage >= 90:
@@ -435,10 +448,12 @@ if __name__ == "__main__":
         report = run_live_security_assessment()
 
         if report and report["pass_percentage"] >= 80:
-            print(f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
+            print(
+                f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
             sys.exit(0)
         elif report:
-            print(f"\n🔧 Security improvements needed - current level: {report['security_level']}")
+            print(
+                f"\n🔧 Security improvements needed - current level: {report['security_level']}")
             sys.exit(1)
         else:
             print("\n❌ Assessment could not be completed")

@@ -45,7 +45,8 @@ async def router_execute(req: ExecuteRequest) -> Any:
     try:
         return r.execute(req.serviceName, req.payload or {})
     except ServiceNotFound as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except NoHealthyService as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
@@ -56,7 +57,8 @@ async def router_execute(req: ExecuteRequest) -> Any:
         ) from exc
     except AdapterError as exc:
         # Upstream adapter error
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
 @router.post("/router/executeBy", tags=["router"])
@@ -71,7 +73,8 @@ async def router_execute_by(req: ExecuteByRequest) -> Any:
     try:
         return r.execute_by(req.tag, req.payload or {}, policy)
     except ServiceNotFound as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except NoHealthyService as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
@@ -81,7 +84,8 @@ async def router_execute_by(req: ExecuteByRequest) -> Any:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
         ) from exc
     except AdapterError as exc:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
 @router.get("/router/metrics", tags=["router"])

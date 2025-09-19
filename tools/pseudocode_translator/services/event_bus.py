@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -121,12 +120,14 @@ class EventBus:
         self._handlers[event_type].append(handler)
 
         # Sort handlers by priority
-        self._handlers[event_type].sort(key=lambda h: h.priority.value, reverse=True)
+        self._handlers[event_type].sort(
+            key=lambda h: h.priority.value, reverse=True)
 
         self._handler_count += 1
         handler_id = f"{event_type}_{id(handler)}"
 
-        logger.debug("Subscribed to %s events (priority: %s)", event_type, priority.name)
+        logger.debug("Subscribed to %s events (priority: %s)",
+                     event_type, priority.name)
         return handler_id
 
     def subscribe_all(
@@ -150,7 +151,8 @@ class EventBus:
         self._global_handlers.append(handler)
 
         # Sort global handlers by priority
-        self._global_handlers.sort(key=lambda h: h.priority.value, reverse=True)
+        self._global_handlers.sort(
+            key=lambda h: h.priority.value, reverse=True)
 
         self._handler_count += 1
         handler_id = f"global_{id(handler)}"
@@ -211,12 +213,14 @@ class EventBus:
         Returns:
             Number of handlers that processed the event
         """
-        event = Event(type=event_type, data=data, source=source, priority=priority)
+        event = Event(type=event_type, data=data,
+                      source=source, priority=priority)
 
         self._event_count += 1
         handlers_called = 0
 
-        logger.debug("Emitting event: %s from %s", event_type, source or "unknown")
+        logger.debug("Emitting event: %s from %s",
+                     event_type, source or "unknown")
 
         # Call specific event handlers
         if event_type in self._handlers:
@@ -240,7 +244,8 @@ class EventBus:
 
         self._global_handlers = active_global
 
-        logger.debug("Event %s processed by %d handlers", event_type, handlers_called)
+        logger.debug("Event %s processed by %d handlers",
+                     event_type, handlers_called)
         return handlers_called
 
     def clear_handlers(self, event_type: str | None = None) -> None:
@@ -257,7 +262,8 @@ class EventBus:
                 self._handler_count -= count
                 logger.debug("Cleared %d handlers for %s", count, event_type)
         else:
-            total_handlers = sum(len(handlers) for handlers in self._handlers.values())
+            total_handlers = sum(len(handlers)
+                                 for handlers in self._handlers.values())
             total_handlers += len(self._global_handlers)
 
             self._handlers.clear()
@@ -268,7 +274,8 @@ class EventBus:
 
     def get_statistics(self) -> dict[str, Any]:
         """Get event bus statistics."""
-        specific_handlers = sum(len(handlers) for handlers in self._handlers.values())
+        specific_handlers = sum(len(handlers)
+                                for handlers in self._handlers.values())
 
         return {
             "total_events": self._event_count,

@@ -129,14 +129,16 @@ class InputValidator:
                     ThreatLevel.HIGH,
                     "URL encoded path traversal: ..%5C",
                 ),
-                (re.compile(r"%2[Ee]%2[Ee]"), ThreatLevel.HIGH, "URL encoded dots"),
+                (re.compile(r"%2[Ee]%2[Ee]"),
+                 ThreatLevel.HIGH, "URL encoded dots"),
                 # Double encoded
                 (
                     re.compile(r"%252[Ee]%252[Ee]%252[Ff]"),
                     ThreatLevel.HIGH,
                     "Double encoded path traversal",
                 ),
-                (re.compile(r"%255[Cc]"), ThreatLevel.HIGH, "Double encoded backslash"),
+                (re.compile(r"%255[Cc]"), ThreatLevel.HIGH,
+                 "Double encoded backslash"),
                 # Unicode/UTF-8 encoded
                 (
                     re.compile(r"\\x2e\\x2e[\\\/]"),
@@ -162,14 +164,20 @@ class InputValidator:
             ],
             "command_injection": [
                 # Shell command separators
-                (re.compile(r"[;&|]"), ThreatLevel.HIGH, "Command separator detected"),
+                (re.compile(r"[;&|]"), ThreatLevel.HIGH,
+                 "Command separator detected"),
                 # Command substitution
-                (re.compile(r"`"), ThreatLevel.HIGH, "Backtick command substitution"),
-                (re.compile(r"\$\("), ThreatLevel.HIGH, "Command substitution: $("),
-                (re.compile(r"\$\{"), ThreatLevel.HIGH, "Variable expansion: ${"),
+                (re.compile(r"`"), ThreatLevel.HIGH,
+                 "Backtick command substitution"),
+                (re.compile(r"\$\("), ThreatLevel.HIGH,
+                 "Command substitution: $("),
+                (re.compile(r"\$\{"), ThreatLevel.HIGH,
+                 "Variable expansion: ${"),
                 # Process substitution
-                (re.compile(r"<\("), ThreatLevel.HIGH, "Process substitution: <("),
-                (re.compile(r">\("), ThreatLevel.HIGH, "Process substitution: >("),
+                (re.compile(r"<\("), ThreatLevel.HIGH,
+                 "Process substitution: <("),
+                (re.compile(r">\("), ThreatLevel.HIGH,
+                 "Process substitution: >("),
                 # Redirection
                 (
                     re.compile(r"(?<!\w)[<>]+(?!\w)"),
@@ -206,7 +214,8 @@ class InputValidator:
                     ThreatLevel.MEDIUM,
                     "Absolute Windows path",
                 ),
-                (re.compile(r"^[\\\/]"), ThreatLevel.MEDIUM, "Absolute Unix path"),
+                (re.compile(r"^[\\\/]"),
+                 ThreatLevel.MEDIUM, "Absolute Unix path"),
                 # UNC paths
                 (re.compile(r"^\\\\"), ThreatLevel.HIGH, "UNC path detected"),
                 # Device files
@@ -216,7 +225,8 @@ class InputValidator:
                     "Device file access attempt",
                 ),
                 # Hidden files
-                (re.compile(r"[\\\/]\."), ThreatLevel.LOW, "Hidden file access"),
+                (re.compile(r"[\\\/]\."),
+                 ThreatLevel.LOW, "Hidden file access"),
             ],
         }
 
@@ -249,14 +259,16 @@ class InputValidator:
             ValidationError: If critical validation failure occurs
         """
         if not isinstance(text, str):
-            raise ValidationError(f"Input must be string, got {type(text).__name__}")
+            raise ValidationError(
+                f"Input must be string, got {type(text).__name__}")
 
         issues: list[str] = []
         threat_level = ThreatLevel.NONE
 
         # Length validation
         if len(text) > self.max_length:
-            issues.append(f"Input exceeds maximum length of {self.max_length} characters")
+            issues.append(
+                f"Input exceeds maximum length of {self.max_length} characters")
             threat_level = ThreatLevel.MEDIUM
             text = text[: self.max_length]
 
@@ -271,7 +283,8 @@ class InputValidator:
             for pattern, level, description in patterns:
                 if pattern.search(text):
                     issues.append(f"{category}: {description}")
-                    threat_level = max(threat_level, level, key=lambda x: x.value)
+                    threat_level = max(threat_level, level,
+                                       key=lambda x: x.value)
 
         # Windows reserved filename check
         # Check both the full text and any potential filename components
@@ -279,14 +292,18 @@ class InputValidator:
         for filename in potential_filenames:
             base_name = filename.upper().split(".")[0]
             if base_name in self.windows_reserved:
-                issues.append(f"Windows reserved filename detected: {filename}")
-                threat_level = max(threat_level, ThreatLevel.MEDIUM, key=lambda x: x.value)
+                issues.append(
+                    f"Windows reserved filename detected: {filename}")
+                threat_level = max(
+                    threat_level, ThreatLevel.MEDIUM, key=lambda x: x.value)
 
         # Unicode normalization check
         normalized = unicodedata.normalize("NFKC", text)
         if normalized != text:
-            issues.append("Unicode normalization changed input (possible obfuscation)")
-            threat_level = max(threat_level, ThreatLevel.LOW, key=lambda x: x.value)
+            issues.append(
+                "Unicode normalization changed input (possible obfuscation)")
+            threat_level = max(threat_level, ThreatLevel.LOW,
+                               key=lambda x: x.value)
 
         # Clean the text if threats were detected
         cleaned_text = self._clean_text(text, threat_level) if issues else text
@@ -345,7 +362,8 @@ class InputValidator:
             cleaned = re.sub(r"\s+", " ", cleaned)
 
         # Final safety: ensure no control characters remain
-        cleaned = "".join(c for c in cleaned if c in {"\n", "\r", "\t"} or ord(c) >= 32)
+        cleaned = "".join(c for c in cleaned if c in {
+                          "\n", "\r", "\t"} or ord(c) >= 32)
 
         return cleaned.strip()
 

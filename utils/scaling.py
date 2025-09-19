@@ -114,7 +114,8 @@ class ScalingHelper(QObject):
                 if screens:
                     screen = screens[0]
                 else:
-                    self.logger.warning("No screens available, using default scale factor")
+                    self.logger.warning(
+                        "No screens available, using default scale factor")
                     self._scale_factor = 1.0
                     return self._scale_factor
 
@@ -124,7 +125,8 @@ class ScalingHelper(QObject):
             # Calculate scale factor
             self._scale_factor = logical_dpi / self.BASELINE_DPI
 
-            self.logger.info(f"Detected DPI: {logical_dpi}, Scale factor: {self._scale_factor:.2f}")
+            self.logger.info(
+                f"Detected DPI: {logical_dpi}, Scale factor: {self._scale_factor:.2f}")
 
         except RuntimeError as e:  # pylint: disable=broad-exception-caught
             self.logger.error(f"Error calculating scale factor: {e}")

@@ -169,13 +169,15 @@ class CircularDependencyDetector:
         for cycle in cycles:
             # Normalize cycle by rotating to start with lexicographically smallest element
             if len(cycle) > 1:
-                min_idx = cycle.index(min(cycle[:-1]))  # Exclude last element (duplicate)
+                # Exclude last element (duplicate)
+                min_idx = cycle.index(min(cycle[:-1]))
                 normalized = cycle[min_idx:-1] + cycle[:min_idx]
                 cycle_key = tuple(normalized)
 
                 if cycle_key not in seen_cycles:
                     seen_cycles.add(cycle_key)
-                    unique_cycles.append(cycle[:-1])  # Remove duplicate last element
+                    # Remove duplicate last element
+                    unique_cycles.append(cycle[:-1])
 
         return unique_cycles
 
@@ -297,7 +299,8 @@ def main():
     parser.add_argument(
         "--fix", action="store_true", help="Suggest fixes for detected circular dependencies"
     )
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Enable verbose output")
 
     args = parser.parse_args()
 
@@ -320,7 +323,8 @@ def main():
         suggestions = detector.suggest_fixes(cycles)
 
     # Output results
-    output = format_output(cycles, suggestions, args.format, detector.module_paths)
+    output = format_output(cycles, suggestions,
+                           args.format, detector.module_paths)
     print(output)
 
     # Exit with appropriate code

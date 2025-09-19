@@ -130,7 +130,8 @@ class FileStreamHandler(StreamHandler):
                 self._file = open(
                     self.filepath,
                     self.mode,
-                    encoding=(self.config.encoding if "b" not in self.mode else None),
+                    encoding=(
+                        self.config.encoding if "b" not in self.mode else None),
                     buffering=self.config.buffer_size,
                 )
                 return
@@ -320,10 +321,12 @@ class PipeStreamHandler(StreamHandler):
 
         # Create file objects from descriptors
         self.read_file = (
-            os.fdopen(self.read_fd, "r", encoding=self.config.encoding) if self.read_fd else None
+            os.fdopen(self.read_fd, "r",
+                      encoding=self.config.encoding) if self.read_fd else None
         )
         self.write_file = (
-            os.fdopen(self.write_fd, "w", encoding=self.config.encoding) if self.write_fd else None
+            os.fdopen(self.write_fd, "w",
+                      encoding=self.config.encoding) if self.write_fd else None
         )
 
     def read(self, size: int = -1) -> str:

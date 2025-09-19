@@ -8,7 +8,6 @@ from .common import guard_imports, resp
 if TYPE_CHECKING:
     from ..settings import Settings
 
-
 log = logging.getLogger("api.services.rag_monitor")
 RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 

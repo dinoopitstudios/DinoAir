@@ -34,7 +34,8 @@ def parse_and_translate_blocks(
             return []
         translations: list[str] = []
         for block_index, block in enumerate(parse_result.blocks):
-            translated = translate_block(translator, block, chunk_index, block_index)
+            translated = translate_block(
+                translator, block, chunk_index, block_index)
             if not translated:
                 continue
             translations.append(translated)
@@ -68,7 +69,8 @@ def translate_chunk_blocks(
 ) -> list[str]:
     results: list[str] = []
     for block_index, block in enumerate(parse_result.blocks):
-        translated = translate_block(translator, block, chunk_index, block_index)
+        translated = translate_block(
+            translator, block, chunk_index, block_index)
         if not translated:
             continue
         results.append(translated)
@@ -146,7 +148,8 @@ def process_statement(
     chunk_index: int,
     on_update: Callable[[TranslationUpdate], None] | None,
 ) -> str | None:
-    translations = parse_and_translate_blocks(translator, statement, chunk_index, on_update)
+    translations = parse_and_translate_blocks(
+        translator, statement, chunk_index, on_update)
     return ("\n".join(translations) + "\n") if translations else None
 
 
@@ -163,7 +166,8 @@ def process_accumulated_blocks(
             for i, block_text in enumerate(blocks[:-1]):
                 if not block_text.strip():
                     continue
-                translations = parse_and_translate_blocks(translator, block_text, i, on_update)
+                translations = parse_and_translate_blocks(
+                    translator, block_text, i, on_update)
                 if translations:
                     translated_chunks.append("\n".join(translations) + "\n\n")
             return translated_chunks, [blocks[-1]]

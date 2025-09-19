@@ -22,7 +22,6 @@ from .search import vector as vector_search
 # because `from api.services.router_client import get_router` first executes this __init__.
 # Export search-only re-exports and provide access to router_client without importing translator.
 
-
 # Do NOT import translator module here to avoid optional dependency import at package import time.
 # Callers should import api.services.translator directly if needed.
 

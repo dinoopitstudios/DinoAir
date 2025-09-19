@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 # ErrorResponse model may not exist in local test stubs; provide a safe pydantic fallback
 try:
     from core_router.errors import (
-        ErrorResponse as ErrorResponseModel,  # type: ignore[import-not-found,unused-ignore]
+        # type: ignore[import-not-found,unused-ignore]
+        ErrorResponse as ErrorResponseModel,
     )
 except ImportError:  # pragma: no cover
     from pydantic import BaseModel
@@ -56,10 +57,12 @@ def _get_tool_schemas_from_params(extra_params: Mapping | None) -> list[dict[str
         registry = get_tool_registry()
         requested_tools = _extract_list_param(extra_params, "tools")
         tool_schemas = registry.get_tool_schemas(requested_tools)
-        logger.info("Function calling enabled with %d tools", len(tool_schemas))
+        logger.info("Function calling enabled with %d tools",
+                    len(tool_schemas))
         return tool_schemas
     except Exception as e:
-        logger.warning("Failed to load tools for function calling, continuing without tools: %s", e)
+        logger.warning(
+            "Failed to load tools for function calling, continuing without tools: %s", e)
         return []
 
 
@@ -118,7 +121,8 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
       which are mapped to LM Studio's 'options' payload.
     - Function calling: Set extra_params.enable_tools=true to enable function calling.
     """
-    mapping_params = req.extra_params if isinstance(req.extra_params, Mapping) else None
+    mapping_params = req.extra_params if isinstance(
+        req.extra_params, Mapping) else None
 
     messages: list[dict[str, str]] = [
         {"role": m.role.value, "content": m.content} for m in req.messages
@@ -134,7 +138,8 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
     result_obj: Any = _execute_router_call(r, svc_name, tag, policy, payload)
 
     result_dict: dict[str, Any] | None = (
-        cast("dict[str, Any]", result_obj) if isinstance(result_obj, dict) else None
+        cast("dict[str, Any]", result_obj) if isinstance(
+            result_obj, dict) else None
     )
 
     # Handle function calls if present
@@ -153,10 +158,13 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
             updated_messages = messages + _build_function_call_messages(
                 result_dict, function_call_results
             )
-            updated_payload = _build_payload(updated_messages, options, tool_schemas)
-            result_obj = _execute_router_call(r, svc_name, tag, policy, updated_payload)
+            updated_payload = _build_payload(
+                updated_messages, options, tool_schemas)
+            result_obj = _execute_router_call(
+                r, svc_name, tag, policy, updated_payload)
             result_dict = (
-                cast("dict[str, Any]", result_obj) if isinstance(result_obj, dict) else None
+                cast("dict[str, Any]", result_obj) if isinstance(
+                    result_obj, dict) else None
             )
 
     text: str = _extract_first_message_text(result_dict)
@@ -248,7 +256,8 @@ def _parse_routing_params(
         return None, None, None
 
     svc_name = _pick_first_str(extra_params, "router_service", "serviceName")
-    tag = _normalize_tag(extra_params.get("router_tag") or extra_params.get("router_tags"))
+    tag = _normalize_tag(extra_params.get("router_tag")
+                         or extra_params.get("router_tags"))
     policy = _pick_first_str(extra_params, "router_policy")
 
     return svc_name, tag, policy
@@ -270,21 +279,25 @@ def _execute_router_call(
     except (ServiceNotFound, NoHealthyService) as exc:
         # Try fallback to mock service if available
         try:
-            logger.info("Primary service failed (%s), trying mock fallback...", exc)
+            logger.info(
+                "Primary service failed (%s), trying mock fallback...", exc)
             return r.execute_by("mock", payload, "first_healthy")
         except (ServiceNotFound, NoHealthyService):
             # If mock also fails, re-raise original exception
             if isinstance(exc, ServiceNotFound):
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(
+                    exc)
             ) from exc
     except CoreValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
         ) from exc
     except AdapterError as exc:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
 def _choice_content(choices: Any) -> str:
@@ -422,7 +435,8 @@ async def _handle_function_calls(result_dict: dict[str, Any]) -> list[dict[str, 
         for tool_call in tool_calls:
             try:
                 function_name = tool_call.get("function", {}).get("name")
-                function_args = tool_call.get("function", {}).get("arguments", "{}")
+                function_args = tool_call.get(
+                    "function", {}).get("arguments", "{}")
                 tool_call_id = tool_call.get("id")
 
                 if not function_name or not tool_call_id:
@@ -441,7 +455,8 @@ async def _handle_function_calls(result_dict: dict[str, Any]) -> list[dict[str, 
                 result = await registry.execute_tool(function_name, function_args)
 
                 function_results.append(
-                    {"tool_call_id": tool_call_id, "function_name": function_name, "result": result}
+                    {"tool_call_id": tool_call_id,
+                        "function_name": function_name, "result": result}
                 )
 
             except Exception as e:

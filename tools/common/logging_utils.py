@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import Callable
 
-
 P = ParamSpec("P")
 R = TypeVar("R")
 

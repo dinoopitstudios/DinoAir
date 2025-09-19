@@ -75,7 +75,8 @@ def generate_schema(func: Callable[..., Any]) -> dict[str, Any]:
         for name, param in sig.parameters.items():
             if name in ("self", "cls"):
                 continue
-            all_params[name] = {"type": "string", "description": f"Parameter {name}"}
+            all_params[name] = {"type": "string",
+                                "description": f"Parameter {name}"}
             if param.default == inspect.Parameter.empty:
                 required.append(name)
     except Exception:
@@ -138,7 +139,8 @@ def get_current_time() -> str:
 
 
 # Test the schema generation
-test_functions = {"add_two_numbers": add_two_numbers, "get_current_time": get_current_time}
+test_functions = {"add_two_numbers": add_two_numbers,
+                  "get_current_time": get_current_time}
 
 logger.info("Testing OpenAI Function Schema Generation:")
 
@@ -149,7 +151,8 @@ for schema_name, schema_func in test_functions.items():
         schema = generate_schema(schema_func)
         logger.info("✅ Schema for %s:", schema_name)
         logger.info("   Description: %s...", schema["description"][:80])
-        logger.info("   Parameters: %s", list(schema["parameters"]["properties"].keys()))
+        logger.info("   Parameters: %s", list(
+            schema["parameters"]["properties"].keys()))
         logger.info("   Required: %s", schema["parameters"]["required"])
     except Exception as e:
         logger.error("❌ Failed to generate schema for %s: %s", schema_name, e)

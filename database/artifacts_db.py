@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Artifacts Database Manager
 Manages all artifact database operations with resilient handling,
@@ -35,7 +34,8 @@ class ArtifactsDatabase:
         self.username = db_manager.user_name
 
         # Initialize encryption if password provided
-        self.encryption = ArtifactEncryption(encryption_password) if encryption_password else None
+        self.encryption = ArtifactEncryption(
+            encryption_password) if encryption_password else None
         self.encryption_at_rest = bool(encryption_password)
 
     def _get_connection(self):
@@ -101,7 +101,8 @@ class ArtifactsDatabase:
             return encrypted_content
 
         if not self.encryption:
-            raise ValueError("Encryption password required to decrypt file content")
+            raise ValueError(
+                "Encryption password required to decrypt file content")
 
         try:
             # Parse encrypted JSON
@@ -130,13 +131,15 @@ class ArtifactsDatabase:
             storage_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Encrypt content if encryption is enabled
-            content_to_store, encryption_metadata = self._encrypt_file_content(content)
+            content_to_store, encryption_metadata = self._encrypt_file_content(
+                content)
 
             file_path = storage_path / "content.bin"
             with open(file_path, "wb") as f:
                 f.write(content_to_store)
 
-            artifact.content_path = str(file_path.relative_to(self.db_manager.base_dir))
+            artifact.content_path = str(
+                file_path.relative_to(self.db_manager.base_dir))
             artifact.content = None  # Don't store in database
 
             # Store encryption metadata if content was encrypted
@@ -214,7 +217,8 @@ class ArtifactsDatabase:
 
                 # Update collection stats if applicable
                 if artifact.collection_id:
-                    self._update_collection_stats(cursor, artifact.collection_id)
+                    self._update_collection_stats(
+                        cursor, artifact.collection_id)
 
                 conn.commit()
 
@@ -242,7 +246,8 @@ class ArtifactsDatabase:
                 if content is not None:
                     temp_artifact = Artifact(id=artifact_id)
                     temp_artifact.created_at = current.created_at
-                    temp_artifact = self._handle_file_storage(temp_artifact, content)
+                    temp_artifact = self._handle_file_storage(
+                        temp_artifact, content)
 
                     updates["content"] = temp_artifact.content
                     updates["content_path"] = temp_artifact.content_path
@@ -322,7 +327,8 @@ class ArtifactsDatabase:
                             artifact_id=artifact_id,
                             version_number=new_version,
                             artifact_data=updated.to_dict(),
-                            change_summary=updates.get("change_summary", "Updated artifact"),
+                            change_summary=updates.get(
+                                "change_summary", "Updated artifact"),
                             changed_fields=changed_fields,
                         )
                         self._create_version_record(cursor, version)
@@ -331,10 +337,12 @@ class ArtifactsDatabase:
                 if "collection_id" in updates:
                     # Update old collection
                     if current.collection_id:
-                        self._update_collection_stats(cursor, current.collection_id)
+                        self._update_collection_stats(
+                            cursor, current.collection_id)
                     # Update new collection
                     if updates["collection_id"]:
-                        self._update_collection_stats(cursor, updates["collection_id"])
+                        self._update_collection_stats(
+                            cursor, updates["collection_id"])
 
                 conn.commit()
 
@@ -379,7 +387,8 @@ class ArtifactsDatabase:
 
                     # Clean up file storage if exists
                     if artifact.content_path:
-                        file_path = Path(self.db_manager.base_dir) / artifact.content_path
+                        file_path = Path(
+                            self.db_manager.base_dir) / artifact.content_path
                         if file_path.exists():
                             file_path.unlink()
                             # Try to remove empty directories
@@ -390,7 +399,8 @@ class ArtifactsDatabase:
 
                     # Update collection stats
                     if artifact.collection_id:
-                        self._update_collection_stats(cursor, artifact.collection_id)
+                        self._update_collection_stats(
+                            cursor, artifact.collection_id)
                 else:
                     # Soft delete
                     cursor.execute(
@@ -454,7 +464,8 @@ class ArtifactsDatabase:
                 return artifact.content.encode("utf-8")
             if artifact.content_path:
                 # Content stored in file
-                file_path = Path(self.db_manager.base_dir) / artifact.content_path
+                file_path = Path(self.db_manager.base_dir) / \
+                    artifact.content_path
                 if "../" in str(file_path) or "..\\" in str(file_path):
                     raise Exception("Invalid file path")
                 if file_path.exists():
@@ -556,7 +567,8 @@ class ArtifactsDatabase:
                 return artifacts
 
         except Exception as e:
-            self.logger.error(f"Failed to get artifacts by collection: {str(e)}")
+            self.logger.error(
+                f"Failed to get artifacts by collection: {str(e)}")
             return []
 
     def get_artifacts_by_project(self, project_id: str) -> list[Artifact]:
@@ -634,13 +646,11 @@ class ArtifactsDatabase:
 
                 if parent_id is None:
                     # Get root collections
-                    cursor.execute(
-                        """
+                    cursor.execute("""
                         SELECT * FROM artifact_collections
                         WHERE parent_id IS NULL
                         ORDER BY name
-                    """
-                    )
+                    """)
                 else:
                     # Get child collections
                     cursor.execute(
@@ -816,42 +826,35 @@ class ArtifactsDatabase:
                 stats = {}
 
                 # Total artifacts
-                cursor.execute(
-                    """SELECT COUNT(*) FROM artifacts
-                                 WHERE status != 'deleted' """
-                )
+                cursor.execute("""SELECT COUNT(*) FROM artifacts
+                                 WHERE status != 'deleted' """)
                 stats["total_artifacts"] = cursor.fetchone()[0]
 
                 # Artifacts by type
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT content_type, COUNT(*)
                     FROM artifacts
                     WHERE status != 'deleted'
                     GROUP BY content_type
-                """
-                )
-                stats["artifacts_by_type"] = {row[0]: row[1] for row in cursor.fetchall()}
+                """)
+                stats["artifacts_by_type"] = {
+                    row[0]: row[1] for row in cursor.fetchall()}
 
                 # Total storage size
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT SUM(size_bytes)
                     FROM artifacts
                     WHERE status != 'deleted'
-                """
-                )
+                """)
                 total_size = cursor.fetchone()[0] or 0
                 stats["total_size_bytes"] = total_size
                 stats["total_size_mb"] = round(total_size / (1024 * 1024), 2)
 
                 # Encrypted artifacts
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(*) FROM artifacts
                     WHERE encrypted_fields != '' AND status != 'deleted'
-                """
-                )
+                """)
                 stats["encrypted_artifacts"] = cursor.fetchone()[0]
 
                 # Collections
@@ -859,12 +862,10 @@ class ArtifactsDatabase:
                 stats["total_collections"] = cursor.fetchone()[0]
 
                 # Artifacts with versions
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(DISTINCT artifact_id)
                     FROM artifact_versions
-                """
-                )
+                """)
                 stats["versioned_artifacts"] = cursor.fetchone()[0]
 
                 return stats

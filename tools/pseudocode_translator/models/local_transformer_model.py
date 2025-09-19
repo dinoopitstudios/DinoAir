@@ -85,8 +85,10 @@ class LocalTransformerModel(BaseTranslationModel):
 
         # Set default configuration
         self.config.setdefault("model_name", "Salesforce/codegen-350M-mono")
-        self.config.setdefault("device", "cuda" if torch.cuda.is_available() else "cpu")
-        self.config.setdefault("torch_dtype", "float16" if torch.cuda.is_available() else "float32")
+        self.config.setdefault(
+            "device", "cuda" if torch.cuda.is_available() else "cpu")
+        self.config.setdefault(
+            "torch_dtype", "float16" if torch.cuda.is_available() else "float32")
         self.config.setdefault("temperature", 0.3)
         self.config.setdefault("top_p", 0.9)
         self.config.setdefault("top_k", 40)
@@ -159,7 +161,8 @@ class LocalTransformerModel(BaseTranslationModel):
             model_path: Optional local path to model
             **kwargs: Additional initialization parameters
         """
-        model_name_or_path = str(model_path) if model_path else self.config["model_name"]
+        model_name_or_path = str(
+            model_path) if model_path else self.config["model_name"]
         logger.info(f"Loading transformer model: {model_name_or_path}")
 
         try:
@@ -185,7 +188,8 @@ class LocalTransformerModel(BaseTranslationModel):
             if self.config["load_in_8bit"]:
                 load_kwargs["load_in_8bit"] = True
 
-            self._model = AutoModelForCausalLM.from_pretrained(model_name_or_path, **load_kwargs)
+            self._model = AutoModelForCausalLM.from_pretrained(
+                model_name_or_path, **load_kwargs)
 
             # Move to device if not using device_map
             if self.config["device"] != "cuda" or not load_kwargs.get("device_map"):
@@ -253,7 +257,8 @@ class LocalTransformerModel(BaseTranslationModel):
                 stopping_criteria = None
                 if config.stop_sequences:
                     stop_tokens = [
-                        self._tokenizer.encode(seq, add_special_tokens=False)[0]
+                        self._tokenizer.encode(
+                            seq, add_special_tokens=False)[0]
                         for seq in config.stop_sequences
                     ]
                     stopping_criteria = StoppingCriteriaList(
@@ -268,7 +273,7 @@ class LocalTransformerModel(BaseTranslationModel):
 
             # Decode
             generated_text = self._tokenizer.decode(
-                outputs[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
+                outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
             )
 
             # Extract code
@@ -381,7 +386,7 @@ class LocalTransformerModel(BaseTranslationModel):
 
         for prefix in prefixes_to_remove:
             if text.startswith(prefix):
-                text = text[len(prefix) :].strip()
+                text = text[len(prefix):].strip()
 
         return text
 
