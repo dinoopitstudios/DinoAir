@@ -183,10 +183,10 @@ class ProjectSummary:
     @classmethod
     def from_project(cls, project: Project) -> ProjectSummary:
         """Create from project.
-        
+
         Args:
             project: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """

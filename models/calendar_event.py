@@ -40,10 +40,10 @@ class CalendarEvent:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CalendarEvent:
         """Create from dict.
-        
+
         Args:
             data: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
@@ -82,7 +82,7 @@ class CalendarEvent:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dict.
-        
+
         Returns:
             TODO: Add return description
         """

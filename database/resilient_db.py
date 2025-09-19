@@ -26,10 +26,10 @@ class ResilientDB:
 
     def log(self, message: str) -> None:
         """Log.
-        
+
         Args:
             message: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
@@ -87,11 +87,11 @@ class ResilientDB:
 
     def connect_with_retry(self, retries: int = 3, delay: int = 1) -> sqlite3.Connection:
         """Connect with retry.
-        
+
         Args:
             retries: TODO: Add description
             delay: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
