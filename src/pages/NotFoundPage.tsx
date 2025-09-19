@@ -22,7 +22,7 @@ export default function NotFoundPage() {
       <Banner type='error'>Page not found</Banner>
 
       <div style={{ marginTop: 10 }}>
-        <Button variant='primary' onClick={() => navigate('/')}>  
+        <Button variant='primary' onClick={() => navigate('/')}>
           Go to Home
         </Button>
       </div>
