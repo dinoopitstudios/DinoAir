@@ -175,8 +175,8 @@ class SimpleGitHubSecurityLoader:
                             "enabled": True,
                             "timestamp": datetime.now().isoformat(),
                         }
-                    )
-            except:
+            except (GithubException, AttributeError) as e:
+                print(f"ℹ️  Vulnerability alerts not available or not enabled: {e}")
                 pass  # Vulnerability alerts not available or not enabled
 
             return alerts
