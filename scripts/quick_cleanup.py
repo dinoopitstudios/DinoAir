@@ -5,11 +5,10 @@ Quick cleanup script for DinoAir development
 This provides a simple interface to run cleanup operations during development.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from utils.dev_cleanup import UserDataCleanupManager
-
 
 # Add the parent directory to the path so we can import DinoAir modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -31,7 +30,8 @@ def quick_cleanup():
     )
 
     if total_size > 0:
-        print(f"\nFound {total_size:.2f} MB of user data across {len(analysis)} locations")
+        print(
+            f"\nFound {total_size:.2f} MB of user data across {len(analysis)} locations")
 
         # Ask user if they want to proceed
         response = input("\nProceed with cleanup? (y/N): ").strip().lower()
@@ -45,7 +45,8 @@ def quick_cleanup():
 
             summary = results.get("summary", {})
             print("\nCleanup completed!")
-            print(f"Space freed: {summary.get('total_space_freed_mb', 0):.2f} MB")
+            print(
+                f"Space freed: {summary.get('total_space_freed_mb', 0):.2f} MB")
             print(f"Items removed: {summary.get('total_items_removed', 0)}")
         else:
             print("Cleanup cancelled.")
@@ -58,6 +59,6 @@ if __name__ == "__main__":
         quick_cleanup()
     except KeyboardInterrupt:
         print("\nCleanup cancelled by user.")
-    except (OSError, PermissionError, ImportError) as e:
+    except (OSError, ImportError) as e:
         print(f"Error during cleanup: {e}")
         sys.exit(1)

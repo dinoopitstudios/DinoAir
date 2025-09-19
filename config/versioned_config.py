@@ -4,12 +4,11 @@ Provides schema validation, clear precedence (env>file>defaults), and centralize
 """
 
 import copy
-from dataclasses import dataclass, field
 import json
 import os
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
 
 try:
     import jsonschema
@@ -23,7 +22,7 @@ except ImportError:
 
 try:
     from ..utils.logger import Logger
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     # Simple fallback logger
     class Logger:
         def info(self, msg):
@@ -102,7 +101,8 @@ class VersionedConfigManager:
         # Set default paths
         base_dir = Path(__file__).parent.parent
         self.schema_path = schema_path or (base_dir / "config" / "schema.json")
-        self.config_file_path = config_file_path or (base_dir / "config" / "app_config.json")
+        self.config_file_path = config_file_path or (
+            base_dir / "config" / "app_config.json")
         self.env_file_path = env_file_path or (base_dir / ".env")
 
         # Configuration sources (ordered by priority: lowest to highest)
@@ -133,16 +133,19 @@ class VersionedConfigManager:
         """Load and parse the configuration schema"""
         try:
             if not self.schema_path.exists():
-                raise ConfigurationError(f"Schema file not found: {self.schema_path}")
+                raise ConfigurationError(
+                    f"Schema file not found: {self.schema_path}")
 
             with open(self.schema_path, encoding="utf-8") as f:
                 self.schema = json.load(f)
 
             # Validate schema format
             if "schema_version" not in self.schema:
-                raise ConfigurationError("Schema missing 'schema_version' field")
+                raise ConfigurationError(
+                    "Schema missing 'schema_version' field")
 
-            self.logger.info(f"Loaded configuration schema v{self.schema['schema_version']}")
+            self.logger.info(
+                f"Loaded configuration schema v{self.schema['schema_version']}")
 
         except (OSError, json.JSONDecodeError) as e:
             raise ConfigurationError(f"Failed to load schema: {e}") from e
@@ -150,7 +153,8 @@ class VersionedConfigManager:
     def _extract_env_mappings(self) -> None:
         """Extract environment variable mappings from schema"""
         self.env_mappings = {}
-        self._extract_env_mappings_recursive(self.schema.get("properties", {}), [])
+        self._extract_env_mappings_recursive(
+            self.schema.get("properties", {}), [])
 
     def _extract_env_mappings_recursive(self, properties: dict[str, Any], path: list[str]) -> None:
         """Recursively extract environment variable mappings"""
@@ -165,7 +169,8 @@ class VersionedConfigManager:
 
                 # Recurse into nested properties
                 if "properties" in value:
-                    self._extract_env_mappings_recursive(value["properties"], current_path)
+                    self._extract_env_mappings_recursive(
+                        value["properties"], current_path)
 
     def _load_all_sources(self) -> None:
         """Load all configuration sources"""
@@ -181,7 +186,8 @@ class VersionedConfigManager:
                     self._load_env_file_config(source)
 
                 source.loaded = True
-                self.logger.debug(f"Loaded configuration source: {source.name}")
+                self.logger.debug(
+                    f"Loaded configuration source: {source.name}")
 
             except Exception as e:
                 source.error = str(e)
@@ -189,7 +195,8 @@ class VersionedConfigManager:
 
     def _load_defaults(self, source: ConfigSource) -> None:
         """Extract default values from schema"""
-        source.data = self._extract_defaults_recursive(self.schema.get("properties", {}))
+        source.data = self._extract_defaults_recursive(
+            self.schema.get("properties", {}))
 
     def _extract_defaults_recursive(self, properties: dict[str, Any]) -> dict[str, Any]:
         """Recursively extract default values from schema"""
@@ -201,7 +208,8 @@ class VersionedConfigManager:
                     defaults[key] = value["default"]
                 elif "properties" in value:
                     # Recurse into nested objects
-                    nested_defaults = self._extract_defaults_recursive(value["properties"])
+                    nested_defaults = self._extract_defaults_recursive(
+                        value["properties"])
                     if nested_defaults:
                         defaults[key] = nested_defaults
 
@@ -214,7 +222,8 @@ class VersionedConfigManager:
                 with open(source.path, encoding="utf-8") as f:
                     source.data = json.load(f)
             except (OSError, json.JSONDecodeError) as e:
-                raise ConfigurationError(f"Failed to load config file: {e}") from e
+                raise ConfigurationError(
+                    f"Failed to load config file: {e}") from e
 
     def _load_environment_config(self, source: ConfigSource) -> None:
         """Load configuration from environment variables"""
@@ -226,10 +235,13 @@ class VersionedConfigManager:
 
                 # Convert to appropriate type based on schema
                 try:
-                    typed_value = self._convert_env_value(raw_value, config_path)
-                    self._set_nested_value(source.data, config_path, typed_value)
+                    typed_value = self._convert_env_value(
+                        raw_value, config_path)
+                    self._set_nested_value(
+                        source.data, config_path, typed_value)
                 except Exception as e:
-                    self.logger.warning(f"Failed to convert env var {env_var}: {e}")
+                    self.logger.warning(
+                        f"Failed to convert env var {env_var}: {e}")
 
     def _load_env_file_config(self, source: ConfigSource) -> None:
         """Load configuration from .env file"""
@@ -244,13 +256,17 @@ class VersionedConfigManager:
                         raw_value = env_vars[env_var]
 
                         try:
-                            typed_value = self._convert_env_value(raw_value, config_path)
-                            self._set_nested_value(source.data, config_path, typed_value)
+                            typed_value = self._convert_env_value(
+                                raw_value, config_path)
+                            self._set_nested_value(
+                                source.data, config_path, typed_value)
                         except Exception as e:
-                            self.logger.warning(f"Failed to convert .env var {env_var}: {e}")
+                            self.logger.warning(
+                                f"Failed to convert .env var {env_var}: {e}")
 
             except Exception as e:
-                raise ConfigurationError(f"Failed to load .env file: {e}") from e
+                raise ConfigurationError(
+                    f"Failed to load .env file: {e}") from e
 
     def _parse_env_file(self, env_path: Path) -> dict[str, str]:
         """Parse .env file and return key-value pairs"""
@@ -265,7 +281,8 @@ class VersionedConfigManager:
                     continue
 
                 if "=" not in line:
-                    self.logger.warning(f"Invalid .env line {line_num}: {line}")
+                    self.logger.warning(
+                        f"Invalid .env line {line_num}: {line}")
                     continue
 
                 key, value = line.split("=", 1)
@@ -359,7 +376,8 @@ class VersionedConfigManager:
     def validate(self) -> None:
         """Validate the merged configuration against the schema"""
         if not JSONSCHEMA_AVAILABLE:
-            self.logger.warning("jsonschema not available, skipping validation")
+            self.logger.warning(
+                "jsonschema not available, skipping validation")
             return
 
         try:
@@ -421,7 +439,8 @@ class VersionedConfigManager:
     def _get_value_source(self, path: str) -> str:
         """Determine which source provided a configuration value"""
         # Check sources in reverse priority order (highest to lowest)
-        sorted_sources = sorted(self.sources, key=lambda s: s.priority, reverse=True)
+        sorted_sources = sorted(
+            self.sources, key=lambda s: s.priority, reverse=True)
 
         for source in sorted_sources:
             if source.loaded and self._has_path(source.data, path):
@@ -483,7 +502,8 @@ class VersionedConfigManager:
     def list_all_settings(self) -> list[ConfigValue]:
         """List all configuration settings with their metadata"""
         settings = []
-        self._collect_settings_recursive(self.schema.get("properties", {}), [], settings)
+        self._collect_settings_recursive(
+            self.schema.get("properties", {}), [], settings)
         return settings
 
     def _collect_settings_recursive(
@@ -501,7 +521,8 @@ class VersionedConfigManager:
                     settings.append(config_value)
                 elif "properties" in value:
                     # Recurse into nested object
-                    self._collect_settings_recursive(value["properties"], current_path, settings)
+                    self._collect_settings_recursive(
+                        value["properties"], current_path, settings)
 
     def get_env_mappings(self) -> dict[str, str]:
         """Get all environment variable mappings"""

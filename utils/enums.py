@@ -140,7 +140,7 @@ try:
     from ..config.compatibility import get_legacy_defaults
 
     DEFAULT_CONFIG = get_legacy_defaults()
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     # Fallback if new config system not available
     DEFAULT_CONFIG = {
         "APP_NAME": "DinoAir 2.0",
