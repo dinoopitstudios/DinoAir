@@ -116,7 +116,7 @@ class NetworkSecurityConfig:
 
     # CORS Configuration
     cors_allow_origins: List[str] = field(
-        default_factory=lambda: ["http://localhost:3000"])
+        default_factory=list)
     cors_allow_methods: List[str] = field(
         default_factory=lambda: ["GET", "POST", "PUT", "DELETE"])
     cors_allow_headers: List[str] = field(default_factory=lambda: ["*"])
