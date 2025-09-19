@@ -276,9 +276,7 @@ if __name__ == "__main__":
 
         # Make executable on Unix systems with secure permissions
         if os.name != "nt":
-            os.chmod(
-                script_file, 0o700
-            )  # Owner: read/write/execute, Group: none, Others: none
+            os.chmod(script_file, 0o700)  # Owner: read/write/execute, Group: none, Others: none
 
         print(f"✅ Created coverage script: {script_file}")
         return script_file
