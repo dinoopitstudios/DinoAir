@@ -13,8 +13,8 @@ import time
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from functools import total_ordering
 from enum import Enum
+from functools import total_ordering
 from pathlib import Path
 from typing import Any
 
