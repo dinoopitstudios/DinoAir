@@ -21,7 +21,8 @@ except ImportError:
 # Check for Sentry DSN
 sentry_dsn = os.getenv("SENTRY_DSN")
 if sentry_dsn:
-    print(f"✅ Sentry DSN found: ***{sentry_dsn[-10:]}") # Only show last 10 chars
+    # Only show last 10 chars
+    print(f"✅ Sentry DSN found: ***{sentry_dsn[-10:]}")
 else:
     print("❌ No SENTRY_DSN environment variable found")
 
