@@ -331,7 +331,7 @@ def print_security_status() -> None:
         f"  Multi-Factor Auth: {'✅ Required' if config.require_mfa else '❌ Optional'}")
     print(f"  Session Timeout: {config.session_timeout_minutes} minutes")
     print(
-        f"  Password Length: {config.password_min_length} characters minimum")
+        "  Password Policy: Enforced")
     print()
 
     print("🛡️  Privacy & Protection:")
