@@ -63,7 +63,7 @@ def test_password_security():
             for pwd, should_pass in test_passwords:
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
-                print(f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
+                print(f"   📝 Password '<REDACTED, length={len(pwd)}>' : {'✅' if result == should_pass else '❌'}")
 
         except Exception:
             print("   ⚠️  Password validation method not found")
