@@ -78,8 +78,7 @@ class ModelFactory:
             cls.discover_models()
 
         cls._initialized = True
-        logger.info(
-            f"ModelFactory initialized with {len(cls._registry)} models")
+        logger.info(f"ModelFactory initialized with {len(cls._registry)} models")
 
     @classmethod
     def register_model(
@@ -206,11 +205,9 @@ class ModelFactory:
                 model_name = selected
             else:
                 # Fallback to existing default behavior
-                model_name = cls._default_model or next(
-                    iter(cls._registry.keys()), None)
+                model_name = cls._default_model or next(iter(cls._registry.keys()), None)
                 if not model_name:
-                    raise ValueError(
-                        "No model name specified and no default set")
+                    raise ValueError("No model name specified and no default set")
                 logger.warning(
                     f"No models matched requested capabilities (streaming={require_streaming}, language={language}); falling back to '{model_name}'"
                 )
@@ -230,12 +227,10 @@ class ModelFactory:
                     logger.info(f"Trying fallback model: {fallback_name}")
                     return cls._create_model_instance(fallback_name, config)
                 except Exception as fallback_e:
-                    logger.error(
-                        f"Fallback '{fallback_name}' failed: {fallback_e}")
+                    logger.error(f"Fallback '{fallback_name}' failed: {fallback_e}")
                     continue
 
-            raise ValueError(
-                f"No suitable model found (tried {model_name} and fallbacks)")
+            raise ValueError(f"No suitable model found (tried {model_name} and fallbacks)")
 
     @classmethod
     def _create_model_instance(
@@ -343,8 +338,7 @@ class ModelFactory:
                 if temp_instance.metadata.supports_language(language):
                     supporting_models.append(name)
             except Exception as e:
-                logger.warning(
-                    f"Error checking language support for {name}: {e}")
+                logger.warning(f"Error checking language support for {name}: {e}")
 
         return sorted(supporting_models)
 
@@ -417,8 +411,7 @@ class ModelFactory:
             failed_priority = ModelPriority.FALLBACK  # Worst priority to include all
 
         # Sort models by priority
-        sorted_models = sorted(cls._registry.items(),
-                               key=lambda x: (x[1].priority.value, x[0]))
+        sorted_models = sorted(cls._registry.items(), key=lambda x: (x[1].priority.value, x[0]))
 
         # Add models with same or better priority
         for name, registration in sorted_models:
@@ -454,8 +447,7 @@ class ModelFactory:
             if require_streaming and not cls._supports_streaming(caps):
                 continue
 
-            streaming_match = 1 if (
-                require_streaming and cls._supports_streaming(caps)) else 0
+            streaming_match = 1 if (require_streaming and cls._supports_streaming(caps)) else 0
             quality_score = cls._get_quality_score(caps)
             tps_max = cls._get_tps_max(caps)
 
@@ -523,8 +515,7 @@ class ModelFactory:
         discovered_count = 0
 
         # Skip these modules
-        skip_modules = {"base_model", "model_factory",
-                        "plugin_system", "__init__"}
+        skip_modules = {"base_model", "model_factory", "plugin_system", "__init__"}
 
         logger.info(f"Discovering models in: {package_path}")
 
@@ -553,8 +544,7 @@ class ModelFactory:
                         discovered_count += 1
 
             except Exception as e:
-                logger.warning(
-                    f"Failed to import model module '{module_name}': {e}")
+                logger.warning(f"Failed to import model module '{module_name}': {e}")
 
         logger.info(f"Discovered {discovered_count} models")
         return discovered_count

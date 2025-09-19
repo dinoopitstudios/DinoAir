@@ -119,8 +119,7 @@ class LogFilterConfig:
     """Configuration for log filtering."""
 
     enabled: bool = True
-    level_filters: dict[str, int] = field(
-        default_factory=dict)  # module -> level
+    level_filters: dict[str, int] = field(default_factory=dict)  # module -> level
     sampling_rate: float = 1.0  # 1.0 = 100% sampling
     exclude_patterns: list[str] = field(default_factory=list)
     include_patterns: list[str] = field(default_factory=list)
@@ -320,11 +319,9 @@ class AsyncLogHandler(logging.Handler):
     def __init__(self, handler: logging.Handler, queue_size: int = 1000):
         super().__init__()
         self.handler = handler
-        self.queue: queue.Queue[logging.LogRecord] = queue.Queue(
-            maxsize=queue_size)
+        self.queue: queue.Queue[logging.LogRecord] = queue.Queue(maxsize=queue_size)
         self._shutdown_event = threading.Event()
-        self._worker_thread = threading.Thread(
-            target=self._process_queue, daemon=True)
+        self._worker_thread = threading.Thread(target=self._process_queue, daemon=True)
         self._worker_thread.start()
 
     def emit(self, record: logging.LogRecord):
@@ -448,10 +445,8 @@ class EnhancedLogger:
 
         # Wrap in async handler if enabled
         if self.config.async_logging:
-            file_handler = AsyncLogHandler(
-                file_handler, self.config.async_queue_size)
-            console_handler = AsyncLogHandler(
-                console_handler, self.config.async_queue_size)
+            file_handler = AsyncLogHandler(file_handler, self.config.async_queue_size)
+            console_handler = AsyncLogHandler(console_handler, self.config.async_queue_size)
 
         # Add handlers
         root.addHandler(file_handler)
@@ -610,8 +605,7 @@ class LogAggregationConfig:
 
     time_window_seconds: int = 300  # 5 minutes
     max_entries: int = 10000
-    aggregation_fields: list[str] = field(
-        default_factory=lambda: ["level", "logger", "component"])
+    aggregation_fields: list[str] = field(default_factory=lambda: ["level", "logger", "component"])
     enable_pattern_analysis: bool = True
     enable_error_rate_tracking: bool = True
 
@@ -621,8 +615,7 @@ class LogAggregator:
 
     def __init__(self, config: LogAggregationConfig | None = None):
         self.config = config or LogAggregationConfig()
-        self._entries: deque[dict[str, Any]] = deque(
-            maxlen=self.config.max_entries)
+        self._entries: deque[dict[str, Any]] = deque(maxlen=self.config.max_entries)
         self._lock = threading.RLock()
         self._start_time = time.time()
 
@@ -658,8 +651,7 @@ class LogAggregator:
         cutoff_time = time.time() - window
 
         with self._lock:
-            recent_entries = [
-                e for e in self._entries if e["timestamp"] > cutoff_time]
+            recent_entries = [e for e in self._entries if e["timestamp"] > cutoff_time]
 
             summary: dict[str, Any] = {
                 "total_entries": len(recent_entries),
@@ -670,8 +662,7 @@ class LogAggregator:
 
             if recent_entries:
                 # Level distribution
-                summary["level_distribution"] = self._count_by_field(
-                    recent_entries, "level")
+                summary["level_distribution"] = self._count_by_field(recent_entries, "level")
 
                 # Component distribution
                 summary["component_distribution"] = self._count_by_field(
@@ -683,19 +674,16 @@ class LogAggregator:
                     error_entries = [
                         e for e in recent_entries if e["level"] in ["ERROR", "CRITICAL"]
                     ]
-                    summary["error_rate"] = len(
-                        error_entries) / len(recent_entries)
+                    summary["error_rate"] = len(error_entries) / len(recent_entries)
                     summary["error_count"] = len(error_entries)
 
                     # Error types
-                    summary["error_types"] = self._count_by_field(
-                        error_entries, "error_type")
+                    summary["error_types"] = self._count_by_field(error_entries, "error_type")
 
                 # Operations with most logs
                 operations = self._count_by_field(recent_entries, "operation")
                 summary["top_operations"] = dict(
-                    sorted(operations.items(),
-                           key=lambda x: x[1], reverse=True)[:10]
+                    sorted(operations.items(), key=lambda x: x[1], reverse=True)[:10]
                 )
 
             return summary
@@ -703,8 +691,7 @@ class LogAggregator:
     def get_error_patterns(self) -> dict[str, Any]:
         """Analyze error patterns in logs."""
         with self._lock:
-            error_entries = [
-                e for e in self._entries if e["level"] in ["ERROR", "CRITICAL"]]
+            error_entries = [e for e in self._entries if e["level"] in ["ERROR", "CRITICAL"]]
 
             patterns: dict[str, Any] = {
                 "total_errors": len(error_entries),
@@ -730,8 +717,7 @@ class LogAggregator:
                 # Frequent error messages
                 messages = self._count_by_field(error_entries, "message")
                 patterns["frequent_messages"] = dict(
-                    sorted(messages.items(),
-                           key=lambda x: x[1], reverse=True)[:10]
+                    sorted(messages.items(), key=lambda x: x[1], reverse=True)[:10]
                 )
 
             return patterns
@@ -797,10 +783,8 @@ class LogAnalyzer:
             return {"anomalies_detected": False, "reason": "Insufficient data"}
 
         # Simple anomaly detection based on error rate spikes
-        recent_entries = [e for e in entries if e["timestamp"]
-                          > time.time() - baseline_window]
-        baseline_entries = [
-            e for e in entries if e["timestamp"] <= time.time() - baseline_window]
+        recent_entries = [e for e in entries if e["timestamp"] > time.time() - baseline_window]
+        baseline_entries = [e for e in entries if e["timestamp"] <= time.time() - baseline_window]
 
         if not baseline_entries:
             return {"anomalies_detected": False, "reason": "No baseline data"}

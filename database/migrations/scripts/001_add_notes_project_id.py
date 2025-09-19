@@ -38,10 +38,12 @@ class AddNotesProjectIdMigration(BaseMigration):
 
         try:
             # Check if table exists
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='note_list'
-            """)
+            """
+            )
             table_exists = cursor.fetchone() is not None
 
             if table_exists:
@@ -51,8 +53,7 @@ class AddNotesProjectIdMigration(BaseMigration):
 
                 if "project_id" not in columns:
                     # Add the project_id column
-                    cursor.execute(
-                        "ALTER TABLE note_list ADD COLUMN project_id TEXT")
+                    cursor.execute("ALTER TABLE note_list ADD COLUMN project_id TEXT")
                     conn.commit()
                 else:
                     pass
@@ -62,8 +63,7 @@ class AddNotesProjectIdMigration(BaseMigration):
                 pass
 
         except sqlite3.Error as e:
-            raise MigrationError(
-                f"Failed to add project_id column: {str(e)}") from e
+            raise MigrationError(f"Failed to add project_id column: {str(e)}") from e
 
     def down(self, conn: sqlite3.Connection) -> None:
         """Rollback the migration: remove project_id column."""

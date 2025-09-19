@@ -109,8 +109,7 @@ class DependencyMonitor:
 
         if not logger.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -144,8 +143,7 @@ class DependencyMonitor:
         for file_path in python_files:
             try:
                 module_name = self._path_to_module(file_path)
-                metrics[module_name] = self._measure_module_import(
-                    file_path, module_name)
+                metrics[module_name] = self._measure_module_import(file_path, module_name)
             except Exception as e:
                 self.logger.warning(f"Failed to measure {file_path}: {e}")
 
@@ -173,8 +171,7 @@ class DependencyMonitor:
         last_modified = datetime.fromtimestamp(stat.st_mtime)
 
         # Analyze dependencies
-        dependency_count, circular_deps = self._analyze_module_dependencies(
-            file_path)
+        dependency_count, circular_deps = self._analyze_module_dependencies(file_path)
 
         # Calculate import time estimate (size-based, not real import time)
         # TODO: Replace with actual import timing using importlib or time.perf_counter for accuracy.
@@ -228,8 +225,7 @@ class DependencyMonitor:
                     " -> ".join(cycle["cycle"]) for cycle in data.get("circular_dependencies", [])
                 ]
                 # Cache results for this directory
-                cache_result = (
-                    len(data.get("circular_dependencies", [])), circular_deps)
+                cache_result = (len(data.get("circular_dependencies", [])), circular_deps)
                 self._dependency_cache[directory] = cache_result
                 return cache_result
 
@@ -239,8 +235,7 @@ class DependencyMonitor:
             return cache_result
 
         except Exception as e:
-            self.logger.warning(
-                f"Failed to analyze dependencies for {file_path}: {e}")
+            self.logger.warning(f"Failed to analyze dependencies for {file_path}: {e}")
             # Cache empty result for failed analysis
             cache_result = (0, [])
             self._dependency_cache[directory] = cache_result
@@ -334,8 +329,7 @@ class DependencyMonitor:
                         parts = dep.split(" -> ")
                         for i in range(len(parts) - 1):
                             if parts[i] in G.nodes and parts[i + 1] in G.nodes:
-                                G.add_edge(
-                                    parts[i], parts[i + 1], style="circular")
+                                G.add_edge(parts[i], parts[i + 1], style="circular")
 
             # Create visualization
             plt.figure(figsize=(12, 8))
@@ -401,8 +395,7 @@ class DependencyMonitor:
             "total_alerts": len(alerts),
             "critical_alerts": sum(1 for a in alerts if a.severity == "critical"),
             "average_health_score": (
-                sum(m.health_score for m in metrics.values()) /
-                len(metrics) if metrics else 0
+                sum(m.health_score for m in metrics.values()) / len(metrics) if metrics else 0
             ),
             "total_circular_dependencies": sum(
                 len(m.circular_dependencies) for m in metrics.values()
@@ -419,8 +412,7 @@ class DependencyMonitor:
             output_dir.mkdir(exist_ok=True)
 
             graph_path = (
-                output_dir /
-                f"dependency_graph_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                output_dir / f"dependency_graph_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
             )
             self.generate_dependency_graph(metrics, graph_path)
 
@@ -463,8 +455,7 @@ def main():
         default=Path(),
         help="Path to analyze (default: current directory)",
     )
-    parser.add_argument("--output", type=Path,
-                        help="Output file/directory for results")
+    parser.add_argument("--output", type=Path, help="Output file/directory for results")
     parser.add_argument(
         "--format",
         choices=["json", "text", "html"],
@@ -503,14 +494,12 @@ def main():
             "modules": {name: asdict(metric) for name, metric in metrics.items()},
             "summary": {
                 "average_import_time_estimate": (
-                    sum(m.import_time_estimate for m in metrics.values()) /
-                    len(metrics)
+                    sum(m.import_time_estimate for m in metrics.values()) / len(metrics)
                     if metrics
                     else 0
                 ),
                 "average_health_score": (
-                    sum(m.health_score for m in metrics.values()) /
-                    len(metrics) if metrics else 0
+                    sum(m.health_score for m in metrics.values()) / len(metrics) if metrics else 0
                 ),
                 "modules_with_circular_deps": sum(
                     1 for m in metrics.values() if m.circular_dependencies
@@ -526,8 +515,7 @@ def main():
 
     elif args.command == "visualize":
         if not HAS_VISUALIZATION:
-            print("Error: Visualization requires matplotlib and networkx",
-                  file=sys.stderr)
+            print("Error: Visualization requires matplotlib and networkx", file=sys.stderr)
             sys.exit(1)
 
         metrics = monitor.measure_import_performance()

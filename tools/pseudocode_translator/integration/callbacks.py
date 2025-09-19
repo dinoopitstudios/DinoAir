@@ -310,8 +310,7 @@ class CallbackManager:
             message: Progress message
         """
         data = CallbackData(
-            type=CallbackType.PROGRESS, message=message, data={
-                "percentage": percentage}
+            type=CallbackType.PROGRESS, message=message, data={"percentage": percentage}
         )
         self.trigger(data)
 
@@ -323,8 +322,7 @@ class CallbackManager:
             status: Status message
             **kwargs: Additional status data
         """
-        data = CallbackData(type=CallbackType.STATUS,
-                            message=status, data=kwargs)
+        data = CallbackData(type=CallbackType.STATUS, message=status, data=kwargs)
         self.trigger(data)
 
     def trigger_error(self, error: str, **kwargs) -> None:
@@ -335,8 +333,7 @@ class CallbackManager:
             error: Error message
             **kwargs: Additional error data
         """
-        data = CallbackData(type=CallbackType.ERROR,
-                            message=error, data=kwargs)
+        data = CallbackData(type=CallbackType.ERROR, message=error, data=kwargs)
         self.trigger(data)
 
     def clear(self, callback_type: CallbackType | None = None) -> None:

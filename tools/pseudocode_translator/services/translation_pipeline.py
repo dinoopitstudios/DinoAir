@@ -119,8 +119,7 @@ class TranslationPipeline:
             if llm_result and llm_result.success:
                 self._emit_event(
                     "translation_completed",
-                    {"id": context.translation_id,
-                        "approach": "llm_first", "success": True},
+                    {"id": context.translation_id, "approach": "llm_first", "success": True},
                 )
                 return llm_result
 
@@ -140,8 +139,7 @@ class TranslationPipeline:
             else:
                 self._emit_event(
                     "translation_failed",
-                    {"id": context.translation_id,
-                        "error": "Both translation approaches failed"},
+                    {"id": context.translation_id, "error": "Both translation approaches failed"},
                 )
 
             return structured_result or self._create_failure_result(
@@ -153,8 +151,7 @@ class TranslationPipeline:
                 e, ErrorCategory.TRANSLATION, additional_context="Pipeline execution"
             )
 
-            self._emit_event("translation_failed", {
-                             "id": context.translation_id, "error": str(e)})
+            self._emit_event("translation_failed", {"id": context.translation_id, "error": str(e)})
 
             return TranslationResult(
                 success=False,
@@ -183,8 +180,7 @@ class TranslationPipeline:
         try:
             # TODO: Implement LLM-first service resolution when services are created
             logger.debug("Attempting LLM-first translation")
-            logger.warning(
-                "LLM-first translation not yet implemented in new architecture")
+            logger.warning("LLM-first translation not yet implemented in new architecture")
             return None
 
         except Exception as e:
@@ -199,8 +195,7 @@ class TranslationPipeline:
         try:
             # TODO: Implement structured translation service resolution when services are created
             logger.debug("Attempting structured parsing translation")
-            logger.warning(
-                "Structured translation not yet implemented in new architecture")
+            logger.warning("Structured translation not yet implemented in new architecture")
 
             # Return a placeholder successful result for now
             return TranslationResult(

@@ -134,8 +134,7 @@ class PatternNormalizer:
             # Check if it's a shortcut
             lower_word = clean_word.lower()
             if lower_word in self.shortcuts:
-                expanded_words.append(
-                    prefix + self.shortcuts[lower_word] + suffix)
+                expanded_words.append(prefix + self.shortcuts[lower_word] + suffix)
             else:
                 expanded_words.append(word)
 

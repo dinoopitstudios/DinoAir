@@ -118,14 +118,11 @@ class CodeAssembler:
                 logger.warning("No Python blocks to assemble")
                 error = AssemblyError(
                     "No Python code blocks found to assemble",
-                    blocks_info=[{"type": b.type.value,
-                                  "lines": b.line_numbers} for b in blocks],
+                    blocks_info=[{"type": b.type.value, "lines": b.line_numbers} for b in blocks],
                     assembly_stage="filtering",
                 )
-                error.add_suggestion(
-                    "Ensure pseudocode was translated to Python")
-                error.add_suggestion(
-                    "Check that block types are correctly identified")
+                error.add_suggestion("Ensure pseudocode was translated to Python")
+                error.add_suggestion("Check that block types are correctly identified")
                 logger.warning(error.format_error())
                 return []
             return python_blocks
@@ -151,8 +148,7 @@ class CodeAssembler:
         try:
             return self._organize_imports(python_blocks)
         except Exception as e:
-            error = AssemblyError(
-                "Failed to organize imports", assembly_stage="imports", cause=e)
+            error = AssemblyError("Failed to organize imports", assembly_stage="imports", cause=e)
             error.add_suggestion("Check import statement syntax")
             error.add_suggestion("Verify module names are valid")
             raise error from e
@@ -278,8 +274,7 @@ class CodeAssembler:
         )
 
         # Step 4: Organize global variables and constants
-        globals_section = self._organize_globals_with_errors(
-            sections["globals"])
+        globals_section = self._organize_globals_with_errors(sections["globals"])
 
         # Step 5: Organize main execution code
         main_section = self._organize_main_with_errors(sections["main"])
@@ -327,8 +322,7 @@ class CodeAssembler:
         try:
             final_code = self._final_cleanup(final_code)
         except Exception as e:
-            error = AssemblyError(
-                "Failed during final cleanup", assembly_stage="cleanup", cause=e)
+            error = AssemblyError("Failed during final cleanup", assembly_stage="cleanup", cause=e)
             raise error from e
 
         return final_code
@@ -365,8 +359,7 @@ class CodeAssembler:
 
         imports_section = self._collect_imports(python_blocks)
         main_code_sections = self._normalize_sections(python_blocks)
-        assembled_code = self._stitch_sections(
-            main_code_sections, imports_section)
+        assembled_code = self._stitch_sections(main_code_sections, imports_section)
         final_code = self._postprocess_output(assembled_code)
 
         logger.info("Code assembly complete")
@@ -656,8 +649,7 @@ class CodeAssembler:
         """
         Log SyntaxError while parsing a block for imports, replicating existing warnings and ErrorContext usage.
         """
-        logger.warning("Could not parse block for imports: %s",
-                       block.line_numbers)
+        logger.warning("Could not parse block for imports: %s", block.line_numbers)
         context = ErrorContext(
             line_number=block.line_numbers[0],
             code_snippet=block.content[:100],
@@ -792,20 +784,14 @@ class CodeAssembler:
         # Build import section with group ordering and blank-line rules preserved
         import_lines: list[str] = []
 
-        standard_group_lines = self._build_group_lines(
-            "standard", imports, from_imports)
-        self._append_group(import_lines, standard_group_lines,
-                           add_trailing_blank=True)
+        standard_group_lines = self._build_group_lines("standard", imports, from_imports)
+        self._append_group(import_lines, standard_group_lines, add_trailing_blank=True)
 
-        third_party_group_lines = self._build_group_lines(
-            "third_party", imports, from_imports)
-        self._append_group(
-            import_lines, third_party_group_lines, add_trailing_blank=True)
+        third_party_group_lines = self._build_group_lines("third_party", imports, from_imports)
+        self._append_group(import_lines, third_party_group_lines, add_trailing_blank=True)
 
-        local_group_lines = self._build_group_lines(
-            "local", imports, from_imports)
-        self._append_group(import_lines, local_group_lines,
-                           add_trailing_blank=False)
+        local_group_lines = self._build_group_lines("local", imports, from_imports)
+        self._append_group(import_lines, local_group_lines, add_trailing_blank=False)
 
         # Remove trailing empty lines (exact prior behavior)
         self._trim_trailing_blanks(import_lines)
@@ -1079,8 +1065,7 @@ class CodeAssembler:
 
         # Check if we should wrap in if __name__ == "__main__":
         needs_main_guard = any(
-            "print(" in code or "input(" in code or re.search(
-                r"\b(main|run|execute)\s*\(", code)
+            "print(" in code or "input(" in code or re.search(r"\b(main|run|execute)\s*\(", code)
             for code in main_sections
         )
 
@@ -1196,14 +1181,12 @@ class CodeAssembler:
                 # Check for block start
                 if stripped.endswith(":") and not stripped.startswith("#"):
                     fixed_lines.append(" " * current_indent + stripped)
-                    self._handle_block_start(
-                        stripped, current_indent, indent_stack)
+                    self._handle_block_start(stripped, current_indent, indent_stack)
                 else:
                     # Adjust indentation based on context
                     if current_indent < indent_stack[-1] and len(indent_stack) > 1:
                         # Dedent detected
-                        current_indent = self._dedent_to_match_stack(
-                            indent_stack, current_indent)
+                        current_indent = self._dedent_to_match_stack(indent_stack, current_indent)
 
                     fixed_lines.append(" " * current_indent + stripped)
 
@@ -1608,8 +1591,7 @@ class CodeAssembler:
 
         for i, line in enumerate(trimmed_lines):
             # Check if this is a top-level definition
-            is_definition: bool = self._is_top_level_definition_line(
-                line, i, trimmed_lines)
+            is_definition: bool = self._is_top_level_definition_line(line, i, trimmed_lines)
 
             # Add spacing before definitions (except the first)
             if is_definition and prev_was_definition and cleaned_lines:

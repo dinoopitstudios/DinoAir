@@ -56,8 +56,7 @@ def demonstrate_calendar_event_serialization():
         tags=["meeting", "planning", "sprint"],
     )
     # Set participants separately (from mixin)
-    event.participants = ["alice@company.com",
-                          "bob@company.com", "charlie@company.com"]
+    event.participants = ["alice@company.com", "bob@company.com", "charlie@company.com"]
 
     # Model layer serialization (arrays)
     event.to_model_dict()

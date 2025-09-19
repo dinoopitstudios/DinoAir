@@ -62,8 +62,7 @@ def load_migrations_from_directory(migrations_dir: Path) -> list[BaseMigration]:
     migrations = []
 
     if not migrations_dir.exists():
-        LOGGER.warning(
-            "Migrations directory does not exist: %s", migrations_dir)
+        LOGGER.warning("Migrations directory does not exist: %s", migrations_dir)
         return migrations
 
     # Find all Python files in the migrations directory
@@ -79,8 +78,7 @@ def load_migrations_from_directory(migrations_dir: Path) -> list[BaseMigration]:
             migrations.append(migration)
             LOGGER.debug("Loaded migration: %s", migration.full_name)
         except (ImportError, AttributeError, OSError) as e:
-            LOGGER.error("Failed to load migration from %s: %s",
-                         migration_file, str(e))
+            LOGGER.error("Failed to load migration from %s: %s", migration_file, str(e))
             # Continue loading other migrations instead of failing completely
 
     # Sort by version to ensure proper execution order

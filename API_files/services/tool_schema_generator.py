@@ -56,8 +56,7 @@ def extract_docstring_info(func: Callable[..., Any]) -> dict[str, Any]:
 
         if in_args and stripped and (match := re.match(r"^(\w+)\s*\(([^)]+)\):\s*(.+)$", stripped)):
             name, type_str, desc = match.groups()
-            params[name] = {
-                "type": type_str.strip(), "description": desc.strip()}
+            params[name] = {"type": type_str.strip(), "description": desc.strip()}
         elif not in_args and stripped:
             desc_lines.append(stripped)
 

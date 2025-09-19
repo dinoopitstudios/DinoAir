@@ -195,8 +195,7 @@ def search_files_by_keywords(
         }
 
     except Exception as e:
-        log_exception(
-            logger, f"Error searching files by keywords {keywords}", e)
+        log_exception(logger, f"Error searching files by keywords {keywords}", e)
         return {
             "success": False,
             "error": str(e),
@@ -555,8 +554,7 @@ def manage_search_directories(
         }
 
     except Exception as e:
-        log_exception(
-            logger, f"Error managing directories with action {action}", e)
+        log_exception(logger, f"Error managing directories with action {action}", e)
         return {
             "success": False,
             "error": str(e),
@@ -669,8 +667,7 @@ def get_file_embeddings(file_path: str, user_name: str = "default_user") -> dict
         }
 
     except Exception as e:
-        log_exception(
-            logger, f"Error getting embeddings for file {file_path}", e)
+        log_exception(logger, f"Error getting embeddings for file {file_path}", e)
         return {
             "success": False,
             "error": str(e),
