@@ -460,19 +460,25 @@ def _get_default_user_data_directory() -> Path:
     # Determine platform-specific root for validation.
     if os.name == "nt":
         # Use AppData/Local
-        root_dir = (
-            Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local")))
-            .expanduser()
-            .resolve()
-        )
+        localappdata_env = os.environ.get("LOCALAPPDATA")
+        default_localappdata = os.path.expanduser("~/AppData/Local")
+        home_dir = Path(os.path.expanduser("~")).resolve()
+        raw_root = Path(localappdata_env) if localappdata_env else Path(default_localappdata)
+        root_dir = raw_root.expanduser().resolve()
+        # Validate root_dir is within the home directory, else fallback to default
+        if not str(root_dir).startswith(str(home_dir) + os.sep):
+            root_dir = Path(default_localappdata).expanduser().resolve()
         root_sub = "DinoAir"
     else:
         # Unix/Linux/MacOS
-        root_dir = (
-            Path(os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")))
-            .expanduser()
-            .resolve()
-        )
+        xdg_data_home_env = os.environ.get("XDG_DATA_HOME")
+        default_xdg_data_home = os.path.expanduser("~/.local/share")
+        home_dir = Path(os.path.expanduser("~")).resolve()
+        raw_root = Path(xdg_data_home_env) if xdg_data_home_env else Path(default_xdg_data_home)
+        root_dir = raw_root.expanduser().resolve()
+        # Validate root_dir is within the home directory, else fallback to default
+        if not str(root_dir).startswith(str(home_dir) + os.sep):
+            root_dir = Path(default_xdg_data_home).expanduser().resolve()
         root_sub = "dinoair"
     app_root = root_dir / root_sub
 
