@@ -75,6 +75,27 @@ export default function ProjectsPage() {
     }
   }
 
+  const handleCancelCreate = React.useCallback(() => {
+    setShowCreateDialog(false);
+    setProjectName('');
+    announceInfo('Create project dialog closed');
+  }, [announceInfo]);
+
+  const handleOpenCreate = React.useCallback(() => {
+    setShowCreateDialog(true);
+    announceInfo('Create project dialog opened');
+  }, [announceInfo]);
+
+  const handleArtifactsClick = React.useCallback((projectName: string) => () => {
+    announceInfo(`Navigating to artifacts for ${projectName}`);
+    navigate('/artifacts');
+  }, [announceInfo, navigate]);
+
+  const handleNotesClick = React.useCallback((projectName: string) => () => {
+    announceInfo(`Navigating to notes for ${projectName}`);
+    navigate('/notes');
+  }, [announceInfo, navigate]);
+
   return (
     <PageContainer className='projects-page'>
       <PageHeader icon={<Projects width={20} height={20} />} title='Projects' />
@@ -122,11 +143,7 @@ export default function ProjectsPage() {
                   Create
                 </Button>
                 <Button
-                  onClick={() => {
-                    setShowCreateDialog(false);
-                    setProjectName('');
-                    announceInfo('Create project dialog closed');
-                  }}
+                  onClick={handleCancelCreate}
                   variant='secondary'
                   data-testid='cancel-create-button'
                   style={{ minWidth: isMobile ? '100%' : 'auto' }}
@@ -159,10 +176,7 @@ export default function ProjectsPage() {
             />
           </div>
           <Button
-            onClick={() => {
-              setShowCreateDialog(true);
-              announceInfo('Create project dialog opened');
-            }}
+            onClick={handleOpenCreate}
             variant='primary'
             data-testid='new-project-button'
             aria-label='Create new project'
@@ -203,10 +217,7 @@ export default function ProjectsPage() {
                   >
                     <Button
                       variant='ghost'
-                      onClick={() => {
-                        announceInfo(`Navigating to artifacts for ${p.name}`);
-                        navigate('/artifacts');
-                      }}
+                      onClick={handleArtifactsClick(p.name)}
                       aria-label={`View artifacts for ${p.name}`}
                       style={{ minWidth: isMobile ? '45%' : 'auto' }}
                     >
@@ -214,10 +225,7 @@ export default function ProjectsPage() {
                     </Button>
                     <Button
                       variant='secondary'
-                      onClick={() => {
-                        announceInfo(`Navigating to notes for ${p.name}`);
-                        navigate('/notes');
-                      }}
+                      onClick={handleNotesClick(p.name)}
                       aria-label={`View notes for ${p.name}`}
                       style={{ minWidth: isMobile ? '45%' : 'auto' }}
                     >

@@ -13,6 +13,15 @@ import PageHeader from '../components/layout/PageHeader';
  *
  * @returns JSX.Element The rendered ModelSettingsPage component.
  */
+import { useMemo, useState, useCallback, type CSSProperties, type ChangeEvent } from 'react';
+
+import Card from '../components/common/Card';
+import MetricTile from '../components/common/MetricTile';
+import Toggle from '../components/common/Toggle';
+import ModelSettingsSystemWatchdog from '../components/icons/ModelSettingsSystemWatchdog';
+import PageContainer from '../components/layout/PageContainer';
+import PageHeader from '../components/layout/PageHeader';
+
 export default function ModelSettingsPage() {
   const [model, setModel] = useState('gpt-4o-mini');
   const [watchdogOn, setWatchdogOn] = useState(true);
@@ -31,6 +40,10 @@ export default function ModelSettingsPage() {
     [connectionOk]
   );
 
+  const handleModelChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+    setModel(e.target.value);
+  }, []);
+
   return (
     <PageContainer className='model-settings-page'>
       <PageHeader
@@ -45,7 +58,7 @@ export default function ModelSettingsPage() {
               <span style={{ color: '#cdd6ff', fontSize: 14 }}>Preferred Model</span>
               <select
                 value={model}
-                onChange={e => setModel(e.target.value)}
+                onChange={handleModelChange}
                 style={{
                   background: '#0f3460',
                   border: '1px solid #2a3b7a',

@@ -52,30 +52,47 @@ function LinkItem({ to, label, Icon }: Item) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
 
+  const handleMouseEnter = React.useCallback(() => setHovered(true), []);
+  const handleMouseLeave = React.useCallback(() => setHovered(false), []);
+  const handleFocus = React.useCallback(() => setFocused(true), []);
+  const handleBlur = React.useCallback(() => setFocused(false), []);
+  const linkClassName = React.useCallback(
+    ({ isActive }: { isActive: boolean }) => `nav-link${isActive ? ' is-active' : ''}`,
+    []
+  );
+  const linkStyle = React.useCallback(
+    ({ isActive }: { isActive: boolean }) => {
+      const color = isActive
+        ? tokens.textActive
+        : hovered
+        ? tokens.textHover
+        : tokens.textBase;
+      return {
+        color,
+        borderBottom: isActive ? `2px solid ${tokens.textActive}` : '2px solid transparent',
+        textDecoration: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '0 8px',
+        height: 56,
+        outline: focused ? `2px solid ${tokens.focusRing}` : 'none',
+        outlineOffset: 2,
+      } as CSSProperties;
+    },
+    [hovered, focused]
+  );
+
   return (
     <NavLink
       key={to}
       to={to}
-      className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={({ isActive }) => {
-        const color = isActive ? tokens.textActive : hovered ? tokens.textHover : tokens.textBase;
-        return {
-          color,
-          borderBottom: isActive ? `2px solid ${tokens.textActive}` : '2px solid transparent',
-          textDecoration: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '0 8px',
-          height: 56,
-          outline: focused ? `2px solid ${tokens.focusRing}` : 'none',
-          outlineOffset: 2,
-        } as CSSProperties;
-      }}
+      className={linkClassName}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      style={linkStyle}
     >
       <Icon width={16} height={16} />
       <span>{label}</span>

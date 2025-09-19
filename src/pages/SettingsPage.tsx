@@ -119,252 +119,266 @@ export default function SettingsPage() {
         ) : null}
 
         <section style={{ margin: '12px 0' }}>
-          <Card title='Backend Integration'>
-            <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ color: '#9ca3af' }}>API Base:</span>
-                <code>{API_BASE_URL}</code>
-              </div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <div>
-                  Version: <strong>{ver?.version ?? '—'}</strong>
-                </div>
-                <div>
-                  Build: <code>{ver?.build ?? '—'}</code>
-                </div>
-                <div>
-                  Commit: <code>{ver?.commit ?? '—'}</code>
-                </div>
-                <div>
-                  Uptime: <strong>{uptimeSeconds}s</strong>
-                </div>
-                <div>
-                  Capabilities: <strong>{caps.length}</strong>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <Button
-                  variant='secondary'
-                  onClick={loadBackendInfo}
-                  disabled={backendLoading}
-                  data-testid='refresh-backend-button'
-                  aria-label='Refresh backend information'
-                >
-                  {backendLoading ? 'Refreshing…' : 'Refresh Backend Info'}
-                </Button>
-                {backendError ? <span style={{ color: '#fca5a5' }}>{backendError}</span> : null}
-              </div>
+      const handleLmStudioUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setLmStudioUrl(e.target.value);
+      }, []);
+
+      const handleLmStudioModelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setLmStudioModel(e.target.value);
+      }, []);
+
+      const handleTestLMStudioConnection = useCallback(async () => {
+        setLmStudioTesting(true);
+        try {
+          const response = await fetch(`${lmStudioUrl}/v1/models`);
+          if (response.ok) {
+            setLmStudioStatus('connected');
+            announceSuccess('LM Studio connection successful!');
+          } else {
+            setLmStudioStatus('disconnected');
+            announceError('LM Studio connection failed');
+          }
+        } catch (error) {
+          setLmStudioStatus('disconnected');
+          announceError('Unable to connect to LM Studio');
+        } finally {
+          setLmStudioTesting(false);
+        }
+      }, [lmStudioUrl, announceSuccess, announceError]);
+
+      const handleDarkModeToggle = useCallback((value: boolean) => {
+        setDarkMode(value);
+        announceInfo(`Dark mode ${value ? 'enabled' : 'disabled'}`);
+      }, [announceInfo]);
+
+      const handleNotificationsToggle = useCallback((value: boolean) => {
+        setNotifications(value);
+        announceInfo(`Notifications ${value ? 'enabled' : 'disabled'}`);
+      }, [announceInfo]);
+
+      const handleAutoSaveToggle = useCallback((value: boolean) => {
+        setAutoSave(value);
+        announceInfo(`Auto-save ${value ? 'enabled' : 'disabled'}`);
+      }, [announceInfo]);
+
+      <Card title='Backend Integration'>
+        <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ color: '#9ca3af' }}>API Base:</span>
+            <code>{API_BASE_URL}</code>
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div>
+              Version: <strong>{ver?.version ?? '—'}</strong>
             </div>
-          </Card>
-        </section>
-
-        <section>
-          <Card title='LM Studio Configuration'>
-            <div style={{ display: 'grid', gap: 10 }}>
-              <div>
-                <label htmlFor='lmstudio-url' style={{ display: 'block', marginBottom: 4 }}>
-                  LM Studio URL:
-                </label>
-                <input
-                  id='lmstudio-url'
-                  type='text'
-                  value={lmStudioUrl}
-                  onChange={e => setLmStudioUrl(e.target.value)}
-                  placeholder='http://127.0.0.1:1234'
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #374151',
-                    borderRadius: '4px',
-                    backgroundColor: '#1f2937',
-                    color: '#f9fafb',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor='lmstudio-model' style={{ display: 'block', marginBottom: 4 }}>
-                  Model Name:
-                </label>
-                <input
-                  id='lmstudio-model'
-                  type='text'
-                  value={lmStudioModel}
-                  onChange={e => setLmStudioModel(e.target.value)}
-                  placeholder='llama-3.1-8b-instruct'
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #374151',
-                    borderRadius: '4px',
-                    backgroundColor: '#1f2937',
-                    color: '#f9fafb',
-                  }}
-                />
-              </div>
-
-              <Toggle
-                checked={lmStudioEnabled}
-                onChange={setLmStudioEnabled}
-                label='Enable LM Studio Integration'
-              />
-              <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '-8px' }}>
-                Connect to local LM Studio instance for AI responses
-              </p>
-
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <Button
-                  variant='secondary'
-                  onClick={async () => {
-                    setLmStudioTesting(true);
-                    try {
-                      const response = await fetch(`${lmStudioUrl}/v1/models`);
-                      if (response.ok) {
-                        setLmStudioStatus('connected');
-                        announceSuccess('LM Studio connection successful!');
-                      } else {
-                        setLmStudioStatus('disconnected');
-                        announceError('LM Studio connection failed');
-                      }
-                    } catch (error) {
-                      setLmStudioStatus('disconnected');
-                      announceError('Unable to connect to LM Studio');
-                    } finally {
-                      setLmStudioTesting(false);
-                    }
-                  }}
-                  disabled={lmStudioTesting}
-                  data-testid='test-lmstudio-button'
-                >
-                  {lmStudioTesting ? 'Testing...' : 'Test Connection'}
-                </Button>
-
-                <div
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    backgroundColor:
-                      lmStudioStatus === 'connected'
-                        ? '#059669'
-                        : lmStudioStatus === 'disconnected'
-                          ? '#dc2626'
-                          : '#6b7280',
-                    color: 'white',
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  {lmStudioStatus === 'connected'
-                    ? '● Connected'
-                    : lmStudioStatus === 'disconnected'
-                      ? '● Disconnected'
-                      : '● Unknown'}
-                </div>
-              </div>
+            <div>
+              Build: <code>{ver?.build ?? '—'}</code>
             </div>
-          </Card>
-        </section>
-
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: 12,
-          }}
-        >
-          <Card title='General Settings'>
-            <div
-              style={{ display: 'grid', gap: 10 }}
-              role='group'
-              aria-labelledby='general-settings'
+            <div>
+              Commit: <code>{ver?.commit ?? '—'}</code>
+            </div>
+            <div>
+              Uptime: <strong>{uptimeSeconds}s</strong>
+            </div>
+            <div>
+              Capabilities: <strong>{caps.length}</strong>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Button
+              variant='secondary'
+              onClick={loadBackendInfo}
+              disabled={backendLoading}
+              data-testid='refresh-backend-button'
+              aria-label='Refresh backend information'
             >
-              <h3 id='general-settings' className='sr-only'>
-                General Settings
-              </h3>
-              <Toggle
-                checked={darkMode}
-                onChange={value => {
-                  setDarkMode(value);
-                  announceInfo(`Dark mode ${value ? 'enabled' : 'disabled'}`);
-                }}
-                label='Enable Dark Mode'
-                data-testid='dark-mode-toggle'
-                aria-label='Enable dark mode'
-              />
-              <Toggle
-                checked={notifications}
-                onChange={value => {
-                  setNotifications(value);
-                  announceInfo(`Notifications ${value ? 'enabled' : 'disabled'}`);
-                }}
-                label='Enable Notifications'
-                data-testid='notifications-toggle'
-                aria-label='Enable notifications'
-              />
-              <Toggle
-                checked={autoSave}
-                onChange={value => {
-                  setAutoSave(value);
-                  announceInfo(`Auto-save ${value ? 'enabled' : 'disabled'}`);
-                }}
-                label='Auto-save Changes'
-                data-testid='auto-save-toggle'
-                aria-label='Enable auto-save'
-              />
-            </div>
-          </Card>
-
-          <Card title='Advanced Settings'>
-            <div
-              style={{ display: 'grid', gap: 10 }}
-              role='group'
-              aria-labelledby='advanced-settings'
-            >
-              <h3 id='advanced-settings' className='sr-only'>
-                Advanced Settings
-              </h3>
-              <Toggle
-                checked={advancedEnabled}
-                onChange={setAdvancedEnabled}
-                label='Enable Advanced Mode'
-                data-testid='advanced-mode-toggle'
-                aria-label='Enable advanced mode'
-              />
-              <Checkbox
-                checked={betaFeatures}
-                onChange={setBetaFeatures}
-                label='Enable experimental features'
-                data-testid='beta-features-checkbox'
-                aria-label='Enable experimental features'
-              />
-              <Checkbox
-                checked={telemetry}
-                onChange={setTelemetry}
-                label='Send anonymous telemetry'
-                data-testid='telemetry-checkbox'
-                aria-label='Send anonymous telemetry'
-              />
-            </div>
-          </Card>
-        </section>
-
-        <div style={{ marginTop: 12 }}>
-          <Button
-            variant='primary'
-            onClick={saveChanges}
-            disabled={saving}
-            data-testid='save-settings-button'
-            aria-label='Save settings'
-            style={{
-              minWidth: isMobile ? '100%' : 'auto',
-            }}
-          >
-            {saving ? 'Saving…' : 'Save Changes'}
-          </Button>
+              {backendLoading ? 'Refreshing…' : 'Refresh Backend Info'}
+            </Button>
+            {backendError ? <span style={{ color: '#fca5a5' }}>{backendError}</span> : null}
+          </div>
         </div>
-      </main>
+      </Card>
+    </section>
 
-      {/* Screen reader live region for announcements */}
-      <LiveRegion ariaLabel='Settings page announcements' showLatestOnly />
-    </PageContainer>
-  );
-}
+    <section>
+      <Card title='LM Studio Configuration'>
+        <div style={{ display: 'grid', gap: 10 }}>
+          <div>
+            <label htmlFor='lmstudio-url' style={{ display: 'block', marginBottom: 4 }}>
+              LM Studio URL:
+            </label>
+            <input
+              id='lmstudio-url'
+              type='text'
+              value={lmStudioUrl}
+              onChange={handleLmStudioUrlChange}
+              placeholder='http://127.0.0.1:1234'
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #374151',
+                borderRadius: '4px',
+                backgroundColor: '#1f2937',
+                color: '#f9fafb',
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor='lmstudio-model' style={{ display: 'block', marginBottom: 4 }}>
+              Model Name:
+            </label>
+            <input
+              id='lmstudio-model'
+              type='text'
+              value={lmStudioModel}
+              onChange={handleLmStudioModelChange}
+              placeholder='llama-3.1-8b-instruct'
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #374151',
+                borderRadius: '4px',
+                backgroundColor: '#1f2937',
+                color: '#f9fafb',
+              }}
+            />
+          </div>
+
+          <Toggle
+            checked={lmStudioEnabled}
+            onChange={setLmStudioEnabled}
+            label='Enable LM Studio Integration'
+          />
+          <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '-8px' }}>
+            Connect to local LM Studio instance for AI responses
+          </p>
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Button
+              variant='secondary'
+              onClick={handleTestLMStudioConnection}
+              disabled={lmStudioTesting}
+              data-testid='test-lmstudio-button'
+            >
+              {lmStudioTesting ? 'Testing...' : 'Test Connection'}
+            </Button>
+
+            <div
+              style={{
+                padding: '4px 8px',
+                borderRadius: '4px',
+                backgroundColor:
+                  lmStudioStatus === 'connected'
+                    ? '#059669'
+                    : lmStudioStatus === 'disconnected'
+                      ? '#dc2626'
+                      : '#6b7280',
+                color: 'white',
+                fontSize: '0.875rem',
+              }}
+            >
+              {lmStudioStatus === 'connected'
+                ? '● Connected'
+                : lmStudioStatus === 'disconnected'
+                  ? '● Disconnected'
+                  : '● Unknown'}
+            </div>
+          </div>
+        </div>
+      </Card>
+    </section>
+
+    <section
+      style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: 12,
+      }}
+    >
+      <Card title='General Settings'>
+        <div
+          style={{ display: 'grid', gap: 10 }}
+          role='group'
+          aria-labelledby='general-settings'
+        >
+          <h3 id='general-settings' className='sr-only'>
+            General Settings
+          </h3>
+          <Toggle
+            checked={darkMode}
+            onChange={handleDarkModeToggle}
+            label='Enable Dark Mode'
+            data-testid='dark-mode-toggle'
+            aria-label='Enable dark mode'
+          />
+          <Toggle
+            checked={notifications}
+            onChange={handleNotificationsToggle}
+            label='Enable Notifications'
+            data-testid='notifications-toggle'
+            aria-label='Enable notifications'
+          />
+          <Toggle
+            checked={autoSave}
+            onChange={handleAutoSaveToggle}
+            label='Auto-save Changes'
+            data-testid='auto-save-toggle'
+            aria-label='Enable auto-save'
+          />
+        </div>
+      </Card>
+
+      <Card title='Advanced Settings'>
+        <div
+          style={{ display: 'grid', gap: 10 }}
+          role='group'
+          aria-labelledby='advanced-settings'
+        >
+          <h3 id='advanced-settings' className='sr-only'>
+            Advanced Settings
+          </h3>
+          <Toggle
+            checked={advancedEnabled}
+            onChange={setAdvancedEnabled}
+            label='Enable Advanced Mode'
+            data-testid='advanced-mode-toggle'
+            aria-label='Enable advanced mode'
+          />
+          <Checkbox
+            checked={betaFeatures}
+            onChange={setBetaFeatures}
+            label='Enable experimental features'
+            data-testid='beta-features-checkbox'
+            aria-label='Enable experimental features'
+          />
+          <Checkbox
+            checked={telemetry}
+            onChange={setTelemetry}
+            label='Send anonymous telemetry'
+            data-testid='telemetry-checkbox'
+            aria-label='Send anonymous telemetry'
+          />
+        </div>
+      </Card>
+    </section>
+
+    <div style={{ marginTop: 12 }}>
+      <Button
+        variant='primary'
+        onClick={saveChanges}
+        disabled={saving}
+        data-testid='save-settings-button'
+        aria-label='Save settings'
+        style={{
+          minWidth: isMobile ? '100%' : 'auto',
+        }}
+      >
+        {saving ? 'Saving…' : 'Save Changes'}
+      </Button>
+    </div>
+  </main>
+
+  {/* Screen reader live region for announcements */}
+  <LiveRegion ariaLabel='Settings page announcements' showLatestOnly />
+</PageContainer>

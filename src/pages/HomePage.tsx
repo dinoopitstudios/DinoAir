@@ -46,6 +46,14 @@ export default function HomePage() {
     checkApi();
   }, []);
 
+  const handleStartNewChat = useCallback(() => {
+    setLoading(true);
+  }, [setLoading]);
+
+  const handleCancel = useCallback(() => {
+    setLoading(false);
+  }, [setLoading]);
+
   return (
     <PageContainer className='home-page'>
       <PageHeader icon={<Home width={20} height={20} />} title='Home' />
@@ -105,10 +113,10 @@ export default function HomePage() {
 
         <aside>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Button onClick={() => setLoading(true)} variant='primary'>
+            <Button onClick={handleStartNewChat} variant='primary'>
               Start New Chat
             </Button>
-            <Button onClick={() => setLoading(false)} variant='secondary'>
+            <Button onClick={handleCancel} variant='secondary'>
               Cancel
             </Button>
             {loading ? (

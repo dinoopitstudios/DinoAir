@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 import Banner from '../common/Banner';
 import Button from '../common/Button';
@@ -10,6 +10,12 @@ export type RagRemediationBannerProps = {
 };
 
 export default memo(function RagRemediationBanner({ onInvoke }: RagRemediationBannerProps) {
+  const handleIngestFiles = useCallback(() => {
+    onInvoke('RAG operations', 'rag_ingest_files');
+  }, [onInvoke]);
+  const handleGenerateEmbeddings = useCallback(() => {
+    onInvoke('RAG operations', 'rag_generate_missing_embeddings');
+  }, [onInvoke]);
   return (
     <Banner type='warning'>
       <div
@@ -27,13 +33,13 @@ export default memo(function RagRemediationBanner({ onInvoke }: RagRemediationBa
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
             variant='secondary'
-            onClick={() => onInvoke('RAG operations', 'rag_ingest_files')}
+            onClick={handleIngestFiles}
           >
             Ingest files…
           </Button>
           <Button
             variant='secondary'
-            onClick={() => onInvoke('RAG operations', 'rag_generate_missing_embeddings')}
+            onClick={handleGenerateEmbeddings}
           >
             Generate embeddings
           </Button>
