@@ -26,6 +26,15 @@ exclude_patterns = [
   "dinoair_test_files_archive.zip"
 ]
 
+# Python analyzer - should come first
+[[analyzers]]
+name = "python"
+
+  [analyzers.meta]
+  runtime_version = "3.x"
+  max_line_length = 100
+
+# JavaScript/TypeScript analyzer for frontend
 [[analyzers]]
 name = "javascript"
 
@@ -33,23 +42,18 @@ name = "javascript"
   plugins = ["react"]
   environment = [
     "browser",
-    "nodejs",
-    "jest"
+    "nodejs"
   ]
 
-[[analyzers]]
-name = "test-coverage"
-
-[[analyzers]]
-name = "python"
-
-  [analyzers.meta]
-  runtime_version = "3.11"
-  max_line_length = 100
-
+# Security analyzer for secrets detection
 [[analyzers]]
 name = "secrets"
 
+# Test coverage analyzer
+[[analyzers]]
+name = "test-coverage"
+
+# Python transformers
 [[transformers]]
 name = "black"
 
@@ -59,5 +63,6 @@ name = "isort"
 [[transformers]]
 name = "ruff"
 
+# JavaScript/TypeScript transformers
 [[transformers]]
 name = "prettier"
