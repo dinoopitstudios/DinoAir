@@ -78,10 +78,10 @@ class RedactionFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         """Filter.
-        
+
         Args:
             record: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
@@ -116,10 +116,10 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Format.
-        
+
         Args:
             record: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
@@ -144,10 +144,10 @@ class JsonFormatter(logging.Formatter):
 
 def is_structured_logging_configured(logger: logging.Logger) -> bool:
     """Check if structured logging configured.
-    
+
     Args:
         logger: TODO: Add description
-        
+
     Returns:
         TODO: Add return description
     """
@@ -156,10 +156,10 @@ def is_structured_logging_configured(logger: logging.Logger) -> bool:
 
 def set_structured_logging_configured(logger: logging.Logger) -> None:
     """Set structured logging configured.
-    
+
     Args:
         logger: TODO: Add description
-        
+
     Returns:
         TODO: Add return description
     """

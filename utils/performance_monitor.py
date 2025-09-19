@@ -358,10 +358,10 @@ def performance_monitor_decorator(
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         """Decorator.
-        
+
         Args:
             func: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
@@ -371,7 +371,7 @@ def performance_monitor_decorator(
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             """Wrapper.
-            
+
             Returns:
                 TODO: Add return description
             """

@@ -524,7 +524,7 @@ if _HAS_PERFORMANCE_MONITOR:
 
             def telemetry_enabled_end_operation(operation_id: str):
                 """Telemetry enabled end operation.
-                
+
                 Args:
                     operation_id: TODO: Add description
                 """

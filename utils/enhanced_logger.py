@@ -135,10 +135,10 @@ class EnhancedLogFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         """Filter.
-        
+
         Args:
             record: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
