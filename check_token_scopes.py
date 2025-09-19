@@ -37,8 +37,12 @@ def check_token_detailed():
     scopes_header = response.headers.get("X-OAuth-Scopes", "")
     accepted_scopes = response.headers.get("X-Accepted-OAuth-Scopes", "")
 
-    print(f"\nCurrent Scopes: {scopes_header or 'None visible'}")
-    print(f"Accepted Scopes for /user endpoint: {accepted_scopes or 'None listed'}")
+    # Redact sensitive scope information for security
+    scopes_display = "*** REDACTED ***" if scopes_header else "None visible"
+    accepted_display = "*** REDACTED ***" if accepted_scopes else "None listed"
+
+    print(f"\nCurrent Scopes: {scopes_display}")
+    print(f"Accepted Scopes for /user endpoint: {accepted_display}")
 
     # Test repository access specifically
     repo_response = requests.get(
