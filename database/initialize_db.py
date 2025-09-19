@@ -1009,7 +1009,6 @@ class DatabaseManager:
                 try:
                     if not backup_file.is_file() or backup_file.stat().st_mtime >= cutoff_time:
                         continue
-                    size_mb = backup_file.stat().st_size / (1024 * 1024)
                     backup_file.unlink()
                     stats["backups_removed"] += 1
                     if hasattr(self, "user_feedback"):

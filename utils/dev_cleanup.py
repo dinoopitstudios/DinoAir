@@ -354,7 +354,7 @@ def main():
     if args.analyze:
         analysis = cleanup_manager.analyze_user_data()
 
-        for _location, info in analysis.items():
+        for _location, _ in analysis.items():
             pass
     else:
         results = cleanup_manager.full_cleanup(
@@ -363,7 +363,7 @@ def main():
             backup_repo_data=not args.no_backup,
         )
 
-        for operation, stats in results.items():
+        for operation, _ in results.items():
             if operation == "summary":
                 continue
 

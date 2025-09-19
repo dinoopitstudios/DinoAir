@@ -28,8 +28,6 @@ def setup_small_team_security():
 def integrate_with_fastapi():
     """Show how to integrate with your FastAPI app."""
 
-    security_manager = setup_small_team_security()
-
     # Example FastAPI integration
     example_code = """
 # In your API_files/app.py or wherever you configure FastAPI:
