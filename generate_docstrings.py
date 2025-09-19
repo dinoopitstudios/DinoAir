@@ -158,9 +158,9 @@ def generate_docstrings_for_file(file_path: str) -> bool:
 
             logger.info(f"Updated {file_path} with generated docstrings (backup: {backup_path})")
             return True
-        else:
-            logger.info(f"No changes needed for {file_path}")
-            return False
+
+        logger.info(f"No changes needed for {file_path}")
+        return False
 
     except Exception as e:
         logger.error(f"Error processing {file_path}: {e}")

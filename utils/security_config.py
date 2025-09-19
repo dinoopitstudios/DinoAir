@@ -83,12 +83,11 @@ class SecretManager:
         """Get a secret from the configured provider."""
         if self.provider == "environment":
             return self._get_from_environment(key, default)
-        elif self.provider == "azure_kv":
+        if self.provider == "azure_kv":
             return self._get_from_azure_kv(key, default)
-        elif self.provider == "aws_secrets":
+        if self.provider == "aws_secrets":
             return self._get_from_aws_secrets(key, default)
-        else:
-            raise ValueError(f"Unsupported secret provider: {self.provider}")
+        raise ValueError(f"Unsupported secret provider: {self.provider}")
 
     @staticmethod
     def _get_from_environment(key: str, default: Optional[str] = None) -> Optional[str]:
@@ -258,10 +257,9 @@ def _get_bool_env(key: str, default: bool) -> bool:
     value = os.environ.get(key, "").lower()
     if value in ("true", "1", "yes", "on"):
         return True
-    elif value in ("false", "0", "no", "off"):
+    if value in ("false", "0", "no", "off"):
         return False
-    else:
-        return default
+    return default
 
 
 def _get_int_env(key: str, default: int) -> int:
