@@ -294,6 +294,18 @@ yarn-error.log*
 /test_tag_core.py
 /test_tag_improvements.py
 
+# ---- Test artifacts and temporary test files ----
+test-*.js
+test-*.cjs
+test_*.py
+*_test.py
+/conftest.py
+test-results/
+playwright-report/
+**/test_report.txt
+*-report.json
+*.test.log
+
 # ---- Project-specific temp/working files ----
 working-*
 test-*
