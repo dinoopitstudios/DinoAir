@@ -508,22 +508,24 @@ def _get_default_user_data_directory() -> Path:
         user_home = Path.home().resolve()
         default_xdg = Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
         if xdg_env_path:
-            # Normalize and validate as string BEFORE Path object creation
+            # Normalize, absolutize and validate as string BEFORE Path object creation or resolution
             expanded_env_path = os.path.expanduser(xdg_env_path)
             norm_env_path = os.path.normpath(expanded_env_path)
             abs_env_path = os.path.abspath(norm_env_path)
             try:
-                # Accept only if abs_env_path is strictly inside user_home
-                # Canonicalize both paths and use is_relative_to for robust containment check
-                candidate = Path(abs_env_path).resolve()
-                home_canon = user_home
-                try:
-                    # Python 3.9+: use Path.is_relative_to
-                    safe_env = candidate.is_relative_to(home_canon)
-                except AttributeError:
-                    # Python <3.9: implement manually
-                    safe_env = str(home_canon) in [str(p) for p in candidate.parents]
-                if safe_env:
+                # Only accept if abs_env_path is strictly inside user_home
+                user_home_str = str(user_home)
+                # Make sure user_home has trailing separator for prefix check
+                if not user_home_str.endswith(os.sep):
+                    user_home_str_with_sep = user_home_str + os.sep
+                else:
+                    user_home_str_with_sep = user_home_str
+                # Also normalize abs_env_path to ensure a trailing sep removed for exact matching
+                abs_env_path_str = abs_env_path
+                # Ensure abs_env_path is not identical to or above user_home, but within
+                if abs_env_path_str.startswith(user_home_str_with_sep):
+                    # Now, after validation, create Path object and resolve symlinks
+                    candidate = Path(abs_env_path_str).resolve()
                     root_dir = candidate
                 else:
                     logging.warning(
