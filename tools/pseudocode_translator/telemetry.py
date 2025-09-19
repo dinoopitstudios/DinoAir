@@ -178,7 +178,7 @@ class TelemetryRecorder:
                 agg["max_ms"] = d if prev_max is None else float(max(float(prev_max), d))
 
                 # histogram bucket
-                bucket_key = self._bucket_label(d)
+                bucket_key = TelemetryRecorder._bucket_label(d)
                 buckets: dict = agg.get("buckets") or {}
                 buckets[bucket_key] = int(buckets.get(bucket_key, 0)) + 1
                 agg["buckets"] = buckets
@@ -253,9 +253,9 @@ class TelemetryRecorder:
     def _self_check_basic(self) -> None:
         # Minimal, non-raising sanity checks on bucket labeling and counters math
         try:
-            if self._bucket_label(0.4) not in {"0.5"}:
+            if TelemetryRecorder._bucket_label(0.4) not in {"0.5"}:
                 raise AssertionError("Bucket label for 0.4 is incorrect")
-            if self._bucket_label(1.0) not in {"1"}:
+            if TelemetryRecorder._bucket_label(1.0) not in {"1"}:
                 raise AssertionError("Bucket label for 1.0 is incorrect")
 
             # simple counters aggregation mimic
@@ -273,12 +273,13 @@ class TelemetryRecorder:
 class NoOpTelemetryRecorder:
     """No-op recorder used when telemetry is disabled."""
 
+    @staticmethod
     @contextmanager
-    def timed_section(self, name: str, extra: dict | None = None):
+    def timed_section(name: str, extra: dict | None = None):
         yield
 
+    @staticmethod
     def record_event(
-        self,
         name: str,
         duration_ms: float | None = None,
         extra: dict | None = None,
@@ -286,7 +287,8 @@ class NoOpTelemetryRecorder:
     ) -> None:  # noqa: D401
         return None
 
-    def snapshot(self) -> dict:
+    @staticmethod
+    def snapshot() -> dict:
         # Explicitly empty dictionary to satisfy "empty when disabled" requirement
         return {}
 

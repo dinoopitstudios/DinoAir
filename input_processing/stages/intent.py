@@ -354,7 +354,7 @@ class IntentClassifier:
         ][:3]  # Max 3 secondary intents
 
         # Generate reasoning
-        reasoning = self._generate_reasoning(
+        reasoning = IntentClassifier._generate_reasoning(
             primary_intent, primary_score, pattern_scores, keyword_scores
         )
 
@@ -366,8 +366,8 @@ class IntentClassifier:
             reasoning=reasoning,
         )
 
+    @staticmethod
     def _generate_reasoning(
-        self,
         intent: IntentType,
         score: float,
         pattern_scores: dict[IntentType, float],
@@ -407,7 +407,8 @@ class IntentClassifier:
             return f"{confidence} based on {' and '.join(reasons)}"
         return f"{confidence} classification"
 
-    def get_intent_description(self, intent_type: IntentType) -> str:
+    @staticmethod
+    def get_intent_description(intent_type: IntentType) -> str:
         """Get a description of what an intent type means.
 
         Args:
