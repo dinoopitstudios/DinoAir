@@ -238,61 +238,61 @@ class InputPipeline:
 
                 # Continue with further processing...
 
-            # Stage 2: Pattern normalization
-            text, pattern_metadata = self.pattern_normalizer.normalize(text)
-            if pattern_metadata.get("changed"):
-                self.gui_feedback("✨ Input normalized")
+                # Stage 2: Pattern normalization
+                text, pattern_metadata = self.pattern_normalizer.normalize(text)
+                if pattern_metadata.get("changed"):
+                    self.gui_feedback("✨ Input normalized")
 
-            # Stage 3: LLM-specific escaping
-            text = self.escaper.escape(text)
+                # Stage 3: LLM-specific escaping
+                text = self.escaper.escape(text)
 
-            # Stage 4: Profanity filtering
-            filter_result = self.profanity_filter.filter(text)
-            if filter_result.has_profanity:
-                severity_emoji = {
-                    Severity.MILD: "😅",
-                    Severity.MODERATE: "⚠️",
-                    Severity.SEVERE: "🚨",
-                    Severity.HATE: "🛑",
-                }
-                if filter_result.max_severity:
-                    emoji = severity_emoji.get(filter_result.max_severity, "⚠️")
-                    self.gui_feedback(
-                        f"{emoji} Content filtered (severity: {filter_result.max_severity.name})"
-                    )
-                else:
-                    self.gui_feedback("⚠️ Content filtered")
-                text = filter_result.filtered_text
+                # Stage 4: Profanity filtering
+                filter_result = self.profanity_filter.filter(text)
+                if filter_result.has_profanity:
+                    severity_emoji = {
+                        Severity.MILD: "😅",
+                        Severity.MODERATE: "⚠️",
+                        Severity.SEVERE: "🚨",
+                        Severity.HATE: "🛑",
+                    }
+                    if filter_result.max_severity:
+                        emoji = severity_emoji.get(filter_result.max_severity, "⚠️")
+                        self.gui_feedback(
+                            f"{emoji} Content filtered (severity: {filter_result.max_severity.name})"
+                        )
+                    else:
+                        self.gui_feedback("⚠️ Content filtered")
+                    text = filter_result.filtered_text
 
-            # Stage 5: Intent classification
-            intent_result = self.intent_classifier.classify(text)
-            intent = intent_result.primary_intent
+                # Stage 5: Intent classification
+                intent_result = self.intent_classifier.classify(text)
+                intent = intent_result.primary_intent
 
-            # Stage 5b: Handle watchdog commands if detected
-            if intent == IntentType.COMMAND and self.watchdog_handler.can_handle(text):
-                command_result = self.watchdog_handler.handle_command(text)
-                if command_result.should_display_in_chat:
-                    # Return the command result as processed text
-                    return command_result.message, IntentType.COMMAND
+                # Stage 5b: Handle watchdog commands if detected
+                if intent == IntentType.COMMAND and self.watchdog_handler.can_handle(text):
+                    command_result = self.watchdog_handler.handle_command(text)
+                    if command_result.should_display_in_chat:
+                        # Return the command result as processed text
+                        return command_result.message, IntentType.COMMAND
 
-            # Stage 6: Add to context history
-            self.context.add_entry(text)
+                # Stage 6: Add to context history
+                self.context.add_entry(text)
 
-            # Final feedback
-            confidence_emoji = "🎯" if intent_result.confidence > 0.8 else "🤔"
-            self.gui_feedback(
-                f"{confidence_emoji} Intent: {intent.value} ({intent_result.confidence:.0%} confident)"
-            )
+                # Final feedback
+                confidence_emoji = "🎯" if intent_result.confidence > 0.8 else "🤔"
+                self.gui_feedback(
+                    f"{confidence_emoji} Intent: {intent.value} ({intent_result.confidence:.0%} confident)"
+                )
 
-            return text, intent
+                return text, intent
 
-        except InputPipelineError as e:
-            self.gui_feedback(f"Input error: {e}")
-            raise
-        except Exception as e:
-            error_msg = f"Unexpected error in input pipeline: {e}"
-            self.gui_feedback(error_msg)
-            raise InputPipelineError(error_msg) from e
+            except InputPipelineError as e:
+                self.gui_feedback(f"Input error: {e}")
+                raise
+            except Exception as e:
+                error_msg = f"Unexpected error in input pipeline: {e}"
+                self.gui_feedback(error_msg)
+                raise InputPipelineError(error_msg) from e
 
     def get_conversation_context(self) -> str:
         """Get the current conversation context."""

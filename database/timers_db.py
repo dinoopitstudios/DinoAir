@@ -28,6 +28,10 @@ class TimersDatabase:
     def create_log(
         self,
         task_name: str,
+        start_time: datetime,
+        end_time: datetime,
+        elapsed_seconds: float,
+    ):
         """Create log.
         
         Args:
@@ -39,9 +43,6 @@ class TimersDatabase:
         Returns:
             TODO: Add return description
         """
-        start_time: datetime,
-        end_time: datetime,
-        elapsed_seconds: float,
     ) -> dict[str, Any]:
         try:
             with self.db_manager.get_timers_connection() as conn:

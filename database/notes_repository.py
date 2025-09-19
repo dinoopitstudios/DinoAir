@@ -80,7 +80,8 @@ class NotesRepository:
             self.logger.error(f"Database write error: {str(e)}")
             return QueryResult(success=False, error=str(e))
 
-    def _row_to_note(self, row: sqlite3.Row) -> Note:
+    @staticmethod
+    def _row_to_note(row: sqlite3.Row) -> Note:
         """Convert database row to Note object"""
         note = Note(
             id=row[0],
@@ -96,7 +97,8 @@ class NotesRepository:
         note.content_html = row[3]
         return note
 
-    def _normalize_tags(self, tags: list[str]) -> list[str]:
+    @staticmethod
+    def _normalize_tags(tags: list[str]) -> list[str]:
         """
         Normalize tags for consistent storage and searching.
 
@@ -134,7 +136,7 @@ class NotesRepository:
     def create_note(self, note: Note, content_html: str | None = None) -> QueryResult:
         """Insert a new note into the database"""
         # Normalize tags before storage
-        normalized_tags = self._normalize_tags(note.tags) if note.tags else []
+        normalized_tags = NotesRepository._normalize_tags(note.tags) if note.tags else []
         tags_json = json.dumps(normalized_tags)
 
         query = f"""
@@ -176,7 +178,7 @@ class NotesRepository:
 
                 row = cursor.fetchone()
                 if row:
-                    note = self._row_to_note(row)
+                    note = NotesRepository._row_to_note(row)
                     return QueryResult(success=True, data=note)
                 return QueryResult(success=False, error="Note not found")
 
@@ -198,7 +200,7 @@ class NotesRepository:
                     """
                 )
 
-                notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} notes")
                 return QueryResult(success=True, data=notes)
 
@@ -224,7 +226,9 @@ class NotesRepository:
                 update_fields.append(sql_template)
                 if field == "tags":
                     # Normalize tags before storage
-                    normalized_tags = self._normalize_tags(updates[field]) if updates[field] else []
+                    normalized_tags = (
+                        NotesRepository._normalize_tags(updates[field]) if updates[field] else []
+                    )
                     params.append(json.dumps(normalized_tags))
                 else:
                     params.append(updates[field])
@@ -302,7 +306,7 @@ class NotesRepository:
                     """
                 )
 
-                notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} deleted notes")
                 return QueryResult(success=True, data=notes)
 
@@ -347,7 +351,7 @@ class NotesRepository:
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(full_query, params)
-                notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
 
             self.logger.info(f"Search found {len(notes)} notes for query: '{query}'")
             return QueryResult(success=True, data=notes)
@@ -382,7 +386,7 @@ class NotesRepository:
                         (normalized_tag,),
                     )
 
-                    notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                    notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
             else:
                 # Fallback to LIKE query with post-filtering for systems without JSON1
                 tag_pattern = f'%"{normalized_tag}"%'
@@ -400,7 +404,7 @@ class NotesRepository:
 
                     notes = []
                     for row in cursor.fetchall():
-                        note = self._row_to_note(row)
+                        note = NotesRepository._row_to_note(row)
                         # Double-check that the normalized tag is actually in the list
                         if normalized_tag in (note.tags or []):
                             notes.append(note)
@@ -562,7 +566,7 @@ class NotesRepository:
                     (project_id,),
                 )
 
-                notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} notes for project: {project_id}")
                 return QueryResult(success=True, data=notes)
 
@@ -584,7 +588,7 @@ class NotesRepository:
                     """
                 )
 
-                notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                notes = [NotesRepository._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} notes without project association")
                 return QueryResult(success=True, data=notes)
 

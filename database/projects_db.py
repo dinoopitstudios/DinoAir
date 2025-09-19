@@ -56,12 +56,13 @@ def _is_list_any(x: Any) -> TypeGuard[list[Any]]:
 class DBManagerProtocol(Protocol):
     """Protocol for database manager expected by ProjectsDatabase."""
 
-    def get_projects_connection(self) -> sqlite3.Connection: ...
+    def get_projects_connection(self) -> sqlite3.Connection:
         """Get projects connection.
         
         Returns:
             TODO: Add return description
         """
+        ...
 
 
 class ProjectsDatabase:
@@ -113,7 +114,7 @@ class ProjectsDatabase:
     ) -> list[Project]:
         """Execute a query returning projects and map rows to Project."""
         cursor.execute(sql, params)
-        return [self._row_to_project(row) for row in cursor.fetchall()]
+        return [ProjectsDatabase._row_to_project(row) for row in cursor.fetchall()]
 
     def _max_updated_at(self, cursor: Cursor, table: str, project_id: str) -> datetime | None:
         """Return MAX(updated_at) for a given table and project_id, or None if unavailable."""
@@ -476,7 +477,7 @@ class ProjectsDatabase:
                 if not row:
                     return None
 
-                return self._row_to_project(row)
+                return ProjectsDatabase._row_to_project(row)
 
         except Exception as e:
             self.logger.error(f"Failed to get project: {str(e)}")
@@ -728,7 +729,8 @@ class ProjectsDatabase:
 
     # ------------- Row Mapping and Hierarchy Utilities -------------
 
-    def _row_to_project(self, row: Row) -> Project:
+    @staticmethod
+    def _row_to_project(row: Row) -> Project:
         """Convert database row to Project object"""
         return Project.from_dict(
             {

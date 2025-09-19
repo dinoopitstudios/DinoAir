@@ -174,11 +174,11 @@ class EnhancedInputSanitizer:
             # For filenames, apply strict rules
             sanitized = self._sanitize_filename(sanitized)
             return sanitized
-        return sanitized
-
         elif context == self.CONTEXT_URL:
             # For URLs, validate and sanitize
             sanitized = self._sanitize_url(sanitized)
+            return sanitized
+        return sanitized
 
         elif context == self.CONTEXT_JSON:
             # For JSON, escape special characters

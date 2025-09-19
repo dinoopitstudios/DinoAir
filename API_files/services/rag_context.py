@@ -69,8 +69,7 @@ class RagContextService:
         try:
             # pylint: disable=import-outside-toplevel
             from rag import get_context_provider  # type: ignore[attr-defined]
-            pass
-            ...
+        except ImportError:
             return None, True
         # type: ignore[assignment]
         provider_factory: Callable[..., Any] = get_context_provider

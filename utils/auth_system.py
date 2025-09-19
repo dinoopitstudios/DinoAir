@@ -513,82 +513,82 @@ def _validate_password(self, password: str, username: str, email: str, full_name
     """Validate password against policy requirements."""
     self._validate_length(password)
     self._validate_character_requirements(password)
-        self._validate_special_chars(password)
-        self._validate_personal_info(password, username, email, full_name)
+    self._validate_special_chars(password)
+    self._validate_personal_info(password, username, email, full_name)
 
-    def _validate_length(self, password: str) -> None:
-        """Ensure password length meets the policy requirements."""
-        policy = self.password_policy
-        if len(password) < policy.min_length:
-            raise ValueError(f"Password must be at least {policy.min_length} characters")
-        if len(password) > policy.max_length:
-            raise ValueError(f"Password must be no more than {policy.max_length} characters")
+def _validate_length(self, password: str) -> None:
+    """Ensure password length meets the policy requirements."""
+    policy = self.password_policy
+    if len(password) < policy.min_length:
+        raise ValueError(f"Password must be at least {policy.min_length} characters")
+    if len(password) > policy.max_length:
+        raise ValueError(f"Password must be no more than {policy.max_length} characters")
 
-    def _validate_character_requirements(self, password: str) -> None:
-        """Ensure password contains required character types (uppercase, lowercase, digits)."""
-        policy = self.password_policy
-        requirements = [
-            (policy.require_uppercase, r"[A-Z]", "uppercase letters"),
-            (policy.require_lowercase, r"[a-z]", "lowercase letters"),
-            (policy.require_digits, r"\d", "digits"),
-        ]
-        for required, pattern, description in requirements:
-            if required and not re.search(pattern, password):
-                raise ValueError(f"Password must contain {description}")
+def _validate_character_requirements(self, password: str) -> None:
+    """Ensure password contains required character types (uppercase, lowercase, digits)."""
+    policy = self.password_policy
+    requirements = [
+        (policy.require_uppercase, r"[A-Z]", "uppercase letters"),
+        (policy.require_lowercase, r"[a-z]", "lowercase letters"),
+        (policy.require_digits, r"\d", "digits"),
+    ]
+    for required, pattern, description in requirements:
+        if required and not re.search(pattern, password):
+            raise ValueError(f"Password must contain {description}")
 
-    def _validate_special_chars(self, password: str) -> None:
-        """Ensure password contains required special characters."""
-        policy = self.password_policy
-        if policy.require_special_chars:
-            special_pattern = f"[{re.escape(policy.special_chars)}]"
-            if not re.search(special_pattern, password):
-                raise ValueError(
-                    f"Password must contain special characters: "
-                    f"{policy.special_chars}"
-                )
+def _validate_special_chars(self, password: str) -> None:
+    """Ensure password contains required special characters."""
+    policy = self.password_policy
+    if policy.require_special_chars:
+        special_pattern = f"[{re.escape(policy.special_chars)}]"
+        if not re.search(special_pattern, password):
+            raise ValueError(
+                f"Password must contain special characters: "
+                f"{policy.special_chars}"
+            )
 
-    def _validate_personal_info(
-        self, password: str, username: str, email: str, full_name: str
-    ) -> None:
-        """Prevent password from containing personal user information."""
-        policy = self.password_policy
-        if policy.disallow_personal_info:
-            personal_info = [username.lower(), email.split("@")[0].lower()]
-            if full_name:
-                personal_info.extend(full_name.lower().split())
+def _validate_personal_info(
+    self, password: str, username: str, email: str, full_name: str
+) -> None:
+    """Prevent password from containing personal user information."""
+    policy = self.password_policy
+    if policy.disallow_personal_info:
+        personal_info = [username.lower(), email.split("@")[0].lower()]
+        if full_name:
+            personal_info.extend(full_name.lower().split())
 
-            lower_password = password.lower()
-            for info in personal_info:
-                if len(info) >= 4 and info in lower_password:
-                    raise ValueError("Password cannot contain personal information")
+        lower_password = password.lower()
+        for info in personal_info:
+            if len(info) >= 4 and info in lower_password:
+                raise ValueError("Password cannot contain personal information")
 
-    def _hash_password(self, password: str) -> str:
-        """Hash password using bcrypt."""
-        salt = bcrypt.gensalt(rounds=12)
-        return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+def _hash_password(self, password: str) -> str:
+    """Hash password using bcrypt."""
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
-    def _verify_password(self, password: str, password_hash: str) -> bool:
-        """Verify password against hash."""
-        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+def _verify_password(self, password: str, password_hash: str) -> bool:
+    """Verify password against hash."""
+    return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
 
-    def _calculate_permissions(self, roles: Set[UserRole]) -> Set[Permission]:
-        """Calculate permissions based on user roles."""
-        permissions = set()
-        role_permissions = get_role_permissions()
+def _calculate_permissions(self, roles: Set[UserRole]) -> Set[Permission]:
+    """Calculate permissions based on user roles."""
+    permissions = set()
+    role_permissions = get_role_permissions()
 
-        for role in roles:
-            permissions.update(role_permissions.get(role, set()))
+    for role in roles:
+        permissions.update(role_permissions.get(role, set()))
 
-        return permissions
+    return permissions
 
-    def _invalidate_user_sessions(self, user_id: str) -> None:
-        """Invalidate all sessions for a given user."""
-        sessions_to_remove = [
-            sid for sid, session in self.sessions.items() if session.user_id == user_id
-        ]
+def _invalidate_user_sessions(self, user_id: str) -> None:
+    """Invalidate all sessions for a given user."""
+    sessions_to_remove = [
+        sid for sid, session in self.sessions.items() if session.user_id == user_id
+    ]
 
-        for session_id in sessions_to_remove:
-            del self.sessions[session_id]
+    for session_id in sessions_to_remove:
+        del self.sessions[session_id]
 
 
 class AuthenticationMiddleware:
