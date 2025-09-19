@@ -156,8 +156,8 @@ class OptimizedFileProcessor(FileProcessor):
                         "stats": {"action": "skipped"},
                         "message": "Unchanged file; skipped",
                     }
-        except (OSError, ValueError, TypeError):
-            pass
+            except (OSError, ValueError, TypeError):
+                pass
         return None
 
     def _read_file_text(self, file_path: str) -> str:
