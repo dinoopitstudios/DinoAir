@@ -756,7 +756,7 @@ if __name__ == "__main__":
     print("✅ Testing MFA setup...")
     try:
         mfa_setup = user_manager.enable_mfa(user.user_id)
-        print(f"   MFA secret generated: {mfa_setup['secret'][:8]}...")
+        print("   MFA secret generated and stored securely.")
         print(f"   Backup codes: {len(mfa_setup['backup_codes'])}")
     except Exception as e:
         print(f"   Error: {e}")
