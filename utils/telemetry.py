@@ -523,6 +523,11 @@ if _HAS_PERFORMANCE_MONITOR:
             original_end_operation = _global_performance_monitor.end_operation
 
             def telemetry_enabled_end_operation(operation_id: str):
+                """Telemetry enabled end operation.
+                
+                Args:
+                    operation_id: TODO: Add description
+                """
                 result = original_end_operation(operation_id)
                 if result:
                     _add_telemetry_metric(result)

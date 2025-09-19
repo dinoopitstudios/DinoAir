@@ -326,6 +326,8 @@ class ResourceManager:
                 cleanup_result = {"completed": False, "exception": None}
 
                 def cleanup_wrapper():
+                    """Cleanup wrapper.
+                    """
                     try:
                         resource_info.cleanup_func()
                         cleanup_result["completed"] = True

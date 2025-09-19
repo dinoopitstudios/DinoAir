@@ -357,11 +357,24 @@ def performance_monitor_decorator(
     """Decorator for automatic performance monitoring of functions."""
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        """Decorator.
+        
+        Args:
+            func: TODO: Add description
+            
+        Returns:
+            TODO: Add return description
+        """
         op_name = operation or f"{func.__module__}.{func.__qualname__}"
         mon = monitor or _global_performance_monitor
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Wrapper.
+            
+            Returns:
+                TODO: Add return description
+            """
             operation_id = mon.start_operation(op_name, **context)
             try:
                 return func(*args, **kwargs)
