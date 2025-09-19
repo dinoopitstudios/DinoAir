@@ -18,9 +18,12 @@ interface CheckboxProps {
 export default function Checkbox({ checked, onChange, label }: CheckboxProps) {
   const id = useId();
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.checked);
-  }, [onChange]);
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.checked);
+    },
+    [onChange]
+  );
 
   return (
     <label

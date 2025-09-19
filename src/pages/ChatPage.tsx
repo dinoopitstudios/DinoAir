@@ -1,14 +1,21 @@
-  import { useEffect, useRef, useState, useCallback, type KeyboardEvent, type ChangeEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  type KeyboardEvent,
+  type ChangeEvent,
+} from 'react';
 
-  import { LiveRegion } from '../components/accessibility/LiveRegion';
-  import Button from '../components/common/Button';
-  import SearchInput from '../components/common/SearchInput';
-  import Chat from '../components/icons/Chat';
-  import PageContainer from '../components/layout/PageContainer';
-  import PageHeader from '../components/layout/PageHeader';
-  import { useAnnouncement } from '../hooks/useAnnouncement';
-  import { useResponsive } from '../hooks/useResponsive';
-  import { sendChatMessage, type ChatMessage } from '../lib/api';
+import { LiveRegion } from '../components/accessibility/LiveRegion';
+import Button from '../components/common/Button';
+import SearchInput from '../components/common/SearchInput';
+import Chat from '../components/icons/Chat';
+import PageContainer from '../components/layout/PageContainer';
+import PageHeader from '../components/layout/PageHeader';
+import { useAnnouncement } from '../hooks/useAnnouncement';
+import { useResponsive } from '../hooks/useResponsive';
+import { sendChatMessage, type ChatMessage } from '../lib/api';
 
 type Msg = { role: 'user' | 'assistant'; text: string };
 
@@ -110,11 +117,14 @@ export default function ChatPage() {
     }
   }
 
-  const handleModelChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
-    const newModel = e.target.value;
-    setSelectedModel(newModel);
-    announceStatus(`Model changed to ${newModel}`);
-  }, [announceStatus]);
+  const handleModelChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      const newModel = e.target.value;
+      setSelectedModel(newModel);
+      announceStatus(`Model changed to ${newModel}`);
+    },
+    [announceStatus]
+  );
 
   // styles are applied inline below; no shared style object needed
 

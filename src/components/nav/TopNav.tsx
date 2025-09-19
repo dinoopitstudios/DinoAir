@@ -62,11 +62,7 @@ function LinkItem({ to, label, Icon }: Item) {
   );
   const linkStyle = React.useCallback(
     ({ isActive }: { isActive: boolean }) => {
-      const color = isActive
-        ? tokens.textActive
-        : hovered
-        ? tokens.textHover
-        : tokens.textBase;
+      const color = isActive ? tokens.textActive : hovered ? tokens.textHover : tokens.textBase;
       return {
         color,
         borderBottom: isActive ? `2px solid ${tokens.textActive}` : '2px solid transparent',

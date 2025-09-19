@@ -86,15 +86,21 @@ export default function ProjectsPage() {
     announceInfo('Create project dialog opened');
   }, [announceInfo]);
 
-  const handleArtifactsClick = React.useCallback((projectName: string) => () => {
-    announceInfo(`Navigating to artifacts for ${projectName}`);
-    navigate('/artifacts');
-  }, [announceInfo, navigate]);
+  const handleArtifactsClick = React.useCallback(
+    (projectName: string) => () => {
+      announceInfo(`Navigating to artifacts for ${projectName}`);
+      navigate('/artifacts');
+    },
+    [announceInfo, navigate]
+  );
 
-  const handleNotesClick = React.useCallback((projectName: string) => () => {
-    announceInfo(`Navigating to notes for ${projectName}`);
-    navigate('/notes');
-  }, [announceInfo, navigate]);
+  const handleNotesClick = React.useCallback(
+    (projectName: string) => () => {
+      announceInfo(`Navigating to notes for ${projectName}`);
+      navigate('/notes');
+    },
+    [announceInfo, navigate]
+  );
 
   return (
     <PageContainer className='projects-page'>

@@ -31,16 +31,10 @@ export default memo(function RagRemediationBanner({ onInvoke }: RagRemediationBa
           RAG features.
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button
-            variant='secondary'
-            onClick={handleIngestFiles}
-          >
+          <Button variant='secondary' onClick={handleIngestFiles}>
             Ingest files…
           </Button>
-          <Button
-            variant='secondary'
-            onClick={handleGenerateEmbeddings}
-          >
+          <Button variant='secondary' onClick={handleGenerateEmbeddings}>
             Generate embeddings
           </Button>
         </div>

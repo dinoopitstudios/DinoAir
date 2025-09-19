@@ -48,9 +48,12 @@ export default function Toggle({ checked, onChange, label }: ToggleProps) {
     userSelect: 'none',
   };
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.checked);
-  }, [onChange]);
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.checked);
+    },
+    [onChange]
+  );
 
   return (
     <label

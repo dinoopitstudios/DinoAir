@@ -1,4 +1,10 @@
-import { useState, useCallback, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
+import {
+  useState,
+  useCallback,
+  type ButtonHTMLAttributes,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 
 export default function Button({
   children,
