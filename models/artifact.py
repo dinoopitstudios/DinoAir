@@ -14,12 +14,12 @@ JsonLike = Union[dict[str, Any], list[Any], str]
 def _dump_json_if_needed(value: JsonLike | None) -> str | None:
     if value is None:
         return None
-    if isinstance(value, dict | list):
+    if isinstance(value, (dict, list)):
         try:
             return json.dumps(value, ensure_ascii=False)
         except (TypeError, ValueError):
-           return str(value)
-   return str(value)
+            return str(value)
+    return str(value)
 
 
 def _load_json_list(value: str | list[str] | None) -> list[str] | None:

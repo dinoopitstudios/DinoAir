@@ -56,12 +56,13 @@ def _is_list_any(x: Any) -> TypeGuard[list[Any]]:
 class DBManagerProtocol(Protocol):
     """Protocol for database manager expected by ProjectsDatabase."""
 
-    def get_projects_connection(self) -> sqlite3.Connection: ...
+    def get_projects_connection(self) -> sqlite3.Connection:
         """Get projects connection.
         
         Returns:
             TODO: Add return description
         """
+        ...
 
 
 class ProjectsDatabase:

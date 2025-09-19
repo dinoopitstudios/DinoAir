@@ -403,7 +403,7 @@ def create_result_handler(
 
 # Example usage
 """
-Example Usage:
+"""Example Usage:
 
     # Basic GUI adapter usage
     from pseudocode_translator.integration.gui_adapter import GUITranslatorAdapter
