@@ -3,7 +3,7 @@
 # These are development tools: testing, linting, type checking, profiling, documentation
 
 # Testing framework and plugins
-pytest==7.4.4             # Testing framework
+pytest==8.4.2             # Testing framework
 pytest-asyncio==0.23.8    # Async test support
 pytest-cov==7.0.0         # Coverage reporting
 pytest-mock==3.15.1       # Mock objects for testing
