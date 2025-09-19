@@ -4,12 +4,11 @@ Simple script to run the DinoAir API server
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-
-# Add the 05_api directory to Python path
-api_dir = Path(__file__).parent / "05_api"
+# Add the API_files directory to Python path
+api_dir = Path(__file__).parent / "API_files"
 sys.path.insert(0, str(api_dir))
 
 try:
