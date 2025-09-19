@@ -6,7 +6,7 @@ Parse the security data and create a readable summary of security issues.
 """
 
 import json
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 
 
 def load_security_data(filename="dinoair_security_data.json"):

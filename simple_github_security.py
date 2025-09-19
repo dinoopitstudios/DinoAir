@@ -6,13 +6,14 @@ A simplified version that fetches security information using GitHub's REST API
 through PyGithub with correct method calls.
 """
 
+import json
 import os
 import sys
-import json
-from typing import List, Dict, Any, Optional
-from github import Github, GithubException
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 import requests
+from github import Github, GithubException
 
 
 class SimpleGitHubSecurityLoader:

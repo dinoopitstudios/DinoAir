@@ -6,11 +6,12 @@ This script checks permissions, settings, and potential issues preventing
 access to security features in GitHub repositories.
 """
 
+import json
 import os
 import sys
-import json
+from typing import Any, Dict
+
 import requests
-from typing import Dict, Any
 from github import Github, GithubException
 
 

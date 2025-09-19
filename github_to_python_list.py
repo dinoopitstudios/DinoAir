@@ -8,7 +8,7 @@ Convert GitHub security data into structured Python lists for easy processing.
 import json
 import os
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 class GitHubSecurityIssuesList:

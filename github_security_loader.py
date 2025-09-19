@@ -12,12 +12,13 @@ Usage:
     python github_security_loader.py
 """
 
+import json
 import os
 import sys
-from typing import List, Dict, Any, Optional
-from github import Github, GithubException
 from datetime import datetime
-import json
+from typing import Any, Dict, List, Optional
+
+from github import Github, GithubException
 
 
 class GitHubSecurityLoader:
@@ -112,15 +113,17 @@ class GitHubSecurityLoader:
                         "ref": instance.ref,
                         "state": instance.state,
                         "commit_sha": instance.commit_sha,
-                        "location": {
-                            "path": instance.location.path,
-                            "start_line": instance.location.start_line,
-                            "end_line": instance.location.end_line,
-                            "start_column": instance.location.start_column,
-                            "end_column": instance.location.end_column,
-                        }
-                        if instance.location
-                        else None,
+                        "location": (
+                            {
+                                "path": instance.location.path,
+                                "start_line": instance.location.start_line,
+                                "end_line": instance.location.end_line,
+                                "start_column": instance.location.start_column,
+                                "end_column": instance.location.end_column,
+                            }
+                            if instance.location
+                            else None
+                        ),
                         "message": instance.message.text if instance.message else None,
                     }
                     alert_data["instances"].append(instance_data)
@@ -165,16 +168,16 @@ class GitHubSecurityLoader:
                     location_data = {
                         "type": location.type,
                         "path": location.details.get("path") if location.details else None,
-                        "start_line": location.details.get("start_line")
-                        if location.details
-                        else None,
+                        "start_line": (
+                            location.details.get("start_line") if location.details else None
+                        ),
                         "end_line": location.details.get("end_line") if location.details else None,
-                        "start_column": location.details.get("start_column")
-                        if location.details
-                        else None,
-                        "end_column": location.details.get("end_column")
-                        if location.details
-                        else None,
+                        "start_column": (
+                            location.details.get("start_column") if location.details else None
+                        ),
+                        "end_column": (
+                            location.details.get("end_column") if location.details else None
+                        ),
                     }
                     alert_data["locations"].append(location_data)
 
@@ -217,20 +220,26 @@ class GitHubSecurityLoader:
                         "summary": alert.security_advisory.summary,
                         "description": alert.security_advisory.description,
                         "severity": alert.security_advisory.severity,
-                        "cvss_score": alert.security_advisory.cvss.score
-                        if alert.security_advisory.cvss
-                        else None,
-                        "published_at": alert.security_advisory.published_at.isoformat()
-                        if alert.security_advisory.published_at
-                        else None,
+                        "cvss_score": (
+                            alert.security_advisory.cvss.score
+                            if alert.security_advisory.cvss
+                            else None
+                        ),
+                        "published_at": (
+                            alert.security_advisory.published_at.isoformat()
+                            if alert.security_advisory.published_at
+                            else None
+                        ),
                     },
                     "security_vulnerability": {
                         "package": alert.security_vulnerability.package.name,
                         "ecosystem": alert.security_vulnerability.package.ecosystem,
                         "vulnerable_version_range": alert.security_vulnerability.vulnerable_version_range,
-                        "first_patched_version": alert.security_vulnerability.first_patched_version.identifier
-                        if alert.security_vulnerability.first_patched_version
-                        else None,
+                        "first_patched_version": (
+                            alert.security_vulnerability.first_patched_version.identifier
+                            if alert.security_vulnerability.first_patched_version
+                            else None
+                        ),
                     },
                     "url": alert.html_url,
                     "created_at": alert.created_at.isoformat() if alert.created_at else None,

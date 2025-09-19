@@ -5,9 +5,9 @@ Setup script for GitHub Security Loader
 This script sets up the environment and installs required dependencies.
 """
 
+import os
 import subprocess
 import sys
-import os
 
 
 def install_pygithub():
