@@ -64,7 +64,8 @@ def test_password_security():
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
                 print(
-                    f"   📝 Test password {i + 1} ({'should pass' if should_pass else 'should fail'}): {'✅' if result == should_pass else '❌'}"
+
+                    f"   📝 Password '<REDACTED, length={len(pwd)}>' : {'✅' if result == should_pass else '❌'}"
                 )
 
 
