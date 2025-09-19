@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * Renders the "Other Tools" icon as an SVG component.
+ *
+ * @param props - SVG properties passed to the SVG element.
+ * @returns The SVG element representing the Other Tools icon.
+ */
 const OtherToolsPage: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

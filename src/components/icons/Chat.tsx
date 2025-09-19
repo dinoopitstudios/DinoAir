@@ -2,6 +2,14 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * Chat icon component.
+ *
+ * Renders a chat bubble SVG icon.
+ *
+ * @param {Props} props - SVG props for the icon component.
+ * @returns {JSX.Element} SVG element representing the chat icon.
+ */
 const Chat: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

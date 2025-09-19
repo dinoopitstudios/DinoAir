@@ -40,6 +40,14 @@ const tokens = {
   focusRing: '#374151',
 } as const;
 
+/**
+ * Renders a navigation link item with an icon and label.
+ *
+ * @param {string} to - The destination path for the navigation link.
+ * @param {string} label - The text label displayed for the link.
+ * @param {React.ComponentType<{ width?: number; height?: number }>} Icon - The icon component to render alongside the label.
+ * @returns {JSX.Element} The rendered navigation link item.
+ */
 function LinkItem({ to, label, Icon }: Item) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -75,6 +83,11 @@ function LinkItem({ to, label, Icon }: Item) {
   );
 }
 
+/**
+ * TopNav renders the top navigation bar for the application.
+ *
+ * @returns {JSX.Element} The navigation bar component.
+ */
 export default function TopNav() {
   return (
     <div

@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * Notes icon component.
+ *
+ * @param props - SVG properties applied to the SVG element.
+ * @returns A React element rendering a notes icon.
+ */
 const Notes: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

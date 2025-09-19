@@ -8,6 +8,13 @@ interface TelemetryBarProps {
   telemetry: TelemetryData;
 }
 
+/**
+ * Renders a telemetry bar displaying CPU, memory, and latency metrics.
+ *
+ * @param {TelemetryBarProps} props - The TelemetryBar component props.
+ * @param {TelemetryBarProps['telemetry']} props.telemetry - Object containing telemetry metrics (cpu, mem, latency).
+ * @returns {JSX.Element} The rendered telemetry bar component.
+ */
 export default function TelemetryBar({ telemetry }: TelemetryBarProps) {
   return (
     <section

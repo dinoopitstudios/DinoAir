@@ -39,6 +39,10 @@ function deterministicSizeMBLabel(name: string, id: number): string {
   return `${sizeMB.toFixed(1)} MB`;
 }
 
+/**
+ * FilesPage component renders the file management interface including category tabs, search input, file table, and related actions.
+ * @returns JSX.Element The rendered files page component.
+ */
 export default function FilesPage() {
   const { isMobile } = useResponsive();
   const { announceSuccess, announceError, announceInfo, announceWarning } = useAnnouncement();
@@ -80,6 +84,10 @@ export default function FilesPage() {
     text: string;
   } | null>(null);
 
+  /**
+   * Adds a new file to the current category with a deterministic size and announces success.
+   * @returns void
+   */
   function addNewFile() {
     const id = files.length ? Math.max(...files.map(f => f.id)) + 1 : 1;
     const fileName = `new-file-${id}.txt`;
@@ -96,6 +104,11 @@ export default function FilesPage() {
     announceSuccess(`Added new file: ${fileName} to ${activeCat}`);
   }
 
+  /**
+   * Index a file by its id, triggering ingestion and updating UI state.
+   * @param id - The unique identifier of the file to index.
+   * @returns A promise that resolves when the indexing process is complete.
+   */
   async function indexFile(id: number) {
     setBanner(null);
     const row = files.find(f => f.id === id);

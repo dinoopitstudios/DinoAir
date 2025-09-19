@@ -5,6 +5,13 @@ interface TableProps {
   rows: (string | number | ReactNode)[][];
 }
 
+/**
+ * Table component for displaying data in a table format with hover and zebra striping.
+ *
+ * @param {Array<string>} columns - An array of column header labels.
+ * @param {Array<Array<any>>} rows - A 2D array representing rows of cell data.
+ * @returns {JSX.Element} The rendered table component.
+ */
 export default function Table({ columns, rows }: TableProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 

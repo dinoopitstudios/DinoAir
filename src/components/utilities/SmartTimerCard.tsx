@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import Button from '../common/Button';
 import Card from '../common/Card';
 
+/**
+ * SmartTimerCard component that displays a timer with start, stop, and reset controls.
+ * @returns {JSX.Element} The rendered SmartTimerCard component.
+ */
 export default function SmartTimerCard() {
   const [running, setRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -15,6 +19,10 @@ export default function SmartTimerCard() {
     return () => clearInterval(id);
   }, [running]);
 
+  /**
+   * Resets the timer to zero and stops the timer.
+   * @returns {void}
+   */
   function reset() {
     setSeconds(0);
     setRunning(false);

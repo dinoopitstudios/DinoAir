@@ -6,6 +6,11 @@
 console.log('🎯 DinoAir Live API Demo');
 console.log('========================');
 
+/**
+ * Runs a live tracking demonstration by printing service URLs and making test API calls.
+ * Logs the health endpoint status and provides a summary of service statuses.
+ * @returns {Promise<void>} A promise that resolves when the demo completes.
+ */
 async function demoLiveTracking() {
   console.log('📊 Dashboard: http://localhost:3002');
   console.log('🌐 Frontend: http://localhost:5173');

@@ -11,6 +11,10 @@ const path = require('path');
 
 const { chromium } = require('playwright');
 
+/**
+ * Class to track DinoAir API calls in real-time using Playwright.
+ * Captures request and response flows and manages logging and dashboard display.
+ */
 class DinoAirAPITracker {
   constructor() {
     this.apiCalls = [];
@@ -27,6 +31,12 @@ class DinoAirAPITracker {
     }
   }
 
+  /**
+   * Starts the API tracking session by launching a browser, setting up monitoring,
+   * and opening the DinoAir frontend.
+   *
+   * @returns {Promise<{browser: import('playwright').Browser, page: import('playwright').Page, context: import('playwright').BrowserContext}>} Objects for browser, page, and context.
+   */
   async startTracking() {
     console.log('🚀 Starting DinoAir API Tracker...');
 
@@ -72,6 +82,13 @@ class DinoAirAPITracker {
     return { browser, page, context };
   }
 
+  /**
+   * Sets up network monitoring on the provided page, intercepting requests and responses
+   * to the DinoAir backend and logging them.
+   *
+   * @param {import('playwright').Page} page - The Playwright Page object to monitor.
+   * @returns {Promise<void>}
+   */
   async setupNetworkMonitoring(page) {
     console.log('🔌 Setting up network monitoring...');
 
@@ -203,6 +220,18 @@ class DinoAirAPITracker {
     });
   }
 
+  /**
+   * Logs an API call with a timestamp, type, and request/response details.
+   * @param {string} type - The category or type of the API call.
+   * @param {Object} data - Details about the API request/response.
+   * @param {string} data.method - The HTTP method used in the call.
+   * @param {string} data.path - The endpoint path accessed.
+   * @param {Object} [data.headers] - The headers sent with the request.
+   * @param {string} [data.headers.x-trace-id] - The trace ID for distributed tracing.
+   * @param {number} [data.status] - The HTTP status code returned.
+   * @param {string} [data.statusText] - The status text associated with the HTTP status code.
+   * @returns {void}
+   */
   logAPICall(type, data) {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${type} - ${data.method} ${data.path}`;
@@ -234,6 +263,11 @@ class DinoAirAPITracker {
     this.saveToLogFile(logEntry, data);
   }
 
+  /**
+   * Saves a log entry and associated data to a daily JSON log file.
+   * @param {string} logEntry - The log entry description.
+   * @param {*} data - The data to be logged.
+   */
   saveToLogFile(logEntry, data) {
     const logFile = path.join(
       this.outputDir,
@@ -258,32 +292,36 @@ class DinoAirAPITracker {
     fs.writeFileSync(logFile, JSON.stringify(existingLogs, null, 2));
   }
 
+  /**
+   * Initializes and starts the live dashboard server for real-time API call tracking.
+   */
   startDashboard() {
     const express = require('express');
     const app = express();
 
     // Serve static dashboard files
     app.use('/static', express.static(path.join(__dirname, 'dashboard-assets')));
-
-    // API endpoint for live data
-    app.get('/api/calls', (req, res) => {
-      res.json({
-        session: this.currentSession,
-        calls: this.currentSession.calls.slice(-50), // Last 50 calls
-      });
+  /**
+   * Starts the dashboard server by defining API endpoints for live data and dashboard UI,
+   * and begins listening on the configured port.
+   * @returns {void}
+   */
+  // API endpoint for live data
+  app.get('/api/calls', (req, res) => {
+    res.json({
+      session: this.currentSession,
+      calls: this.currentSession.calls.slice(-50), // Last 50 calls
     });
+  });
 
-    // Dashboard HTML
-    app.get('/', (req, res) => {
-      res.send(this.generateDashboardHTML());
-    });
+  // Dashboard HTML
+  app.get('/', (req, res) => {
+    res.send(this.generateDashboardHTML());
+  });
 
-    app.listen(this.dashboardPort, () => {
-      console.log(`📊 Dashboard running at http://localhost:${this.dashboardPort}`);
-    });
-  }
-
-  generateDashboardHTML() {
+  app.listen(this.dashboardPort, () => {
+    console.log(`📊 Dashboard running at http://localhost:${this.dashboardPort}`);
+  });
     return `
 <!DOCTYPE html>
 <html>
@@ -334,6 +372,8 @@ class DinoAirAPITracker {
             max-height: 600px;
             overflow-y: auto;
         }
+`;
+  }
         .call-entry {
             background: #3d3d3d;
             margin: 10px 0;
@@ -545,6 +585,16 @@ class DinoAirAPITracker {
     // The dashboard will auto-refresh via client-side polling
   }
 
+  /**
+   * Generates and saves the API tracking report.
+   *
+   * Collects session start/end times, computes duration and summary statistics
+   * (total calls, successful calls, failed calls, unique endpoints), writes
+   * the report to a JSON file in the output directory, and returns the report.
+   *
+   * @async
+   * @returns {Object} The tracking report object.
+   */
   async generateReport() {
     const reportFile = path.join(this.outputDir, `api-tracking-report-${Date.now()}.json`);
 

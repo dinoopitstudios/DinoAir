@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * SettingsPage icon component.
+ *
+ * @param props - SVG props applied to the SVG element.
+ * @returns SVG element representing the SettingsPage icon.
+ */
 const SettingsPage: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

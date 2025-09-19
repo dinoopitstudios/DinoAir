@@ -6,6 +6,11 @@ import FooterLinks from '../components/common/FooterLinks';
 import SidebarNav from '../components/nav/SidebarNav';
 import TopNav from '../components/nav/TopNav';
 
+/**
+ * PageShell - Layout component wrapping the application shell including header, sidebar, main content, and footer.
+ *
+ * @returns {JSX.Element} The page layout element.
+ */
 export default function PageShell() {
   return (
     <div

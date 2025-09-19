@@ -13,6 +13,12 @@ import { useAnnouncement } from '../hooks/useAnnouncement';
 import { useResponsive } from '../hooks/useResponsive';
 import { API_BASE_URL, getCapabilities, getConfigDirs, getMetrics, getVersion } from '../lib/api';
 
+/**
+ * SettingsPage component renders the settings page allowing users to configure
+ * general, advanced, and LM Studio settings.
+ *
+ * @returns JSX.Element - The settings page UI.
+ */
 export default function SettingsPage() {
   const { isMobile } = useResponsive();
   const { announceSuccess, announceError, announceInfo } = useAnnouncement();
@@ -85,6 +91,10 @@ export default function SettingsPage() {
     void loadBackendInfo();
   }, [loadBackendInfo]);
 
+  /**
+   * Initiates the save process for settings by displaying a saving indicator,
+   * announcing success upon completion, and resetting indicators after a delay.
+   */
   function saveChanges() {
     setSaving(true);
     setSaved(false);

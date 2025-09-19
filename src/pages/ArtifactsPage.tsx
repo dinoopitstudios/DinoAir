@@ -14,6 +14,11 @@ type Artifact = {
   size: string;
 };
 
+/**
+ * ArtifactsPage component renders a searchable list of artifacts with actions.
+ *
+ * @returns {JSX.Element} The rendered Artifacts page component.
+ */
 export default function ArtifactsPage() {
   const [q, setQ] = useState('');
   const [artifacts] = useState<Artifact[]>([

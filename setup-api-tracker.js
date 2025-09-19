@@ -9,12 +9,20 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Sets up the DinoAir API Tracker by creating necessary directories, installing dependencies, and generating config and scripts.
+ */
 class TrackerSetup {
   constructor() {
     this.rootDir = process.cwd();
     this.trackerDir = path.join(this.rootDir, 'api-tracker');
   }
 
+  /**
+   * Performs the full setup process: creates directories, installs dependencies, and creates configuration and start scripts.
+   *
+   * @returns {Promise<void>} Resolves when setup is complete.
+   */
   async setup() {
     console.log('🚀 Setting up DinoAir API Tracker...\n');
 
@@ -44,6 +52,11 @@ class TrackerSetup {
     }
   }
 
+  /**
+   * Creates the tracker directory and its subdirectories (logs, reports, config).
+   *
+   * @returns {void}
+   */
   createTrackerDirectory() {
     console.log('📁 Creating tracker directory...');
 
@@ -62,7 +75,12 @@ class TrackerSetup {
 
     console.log('✅ Tracker directory created');
   }
+}
 
+  /**
+   * Installs the necessary dependencies for the project, including Playwright and Express, and updates package.json accordingly.
+   * @returns {Promise<void>} A promise that resolves when dependencies are installed successfully.
+   */
   async installDependencies() {
     console.log('📦 Installing dependencies...');
 
@@ -110,6 +128,10 @@ class TrackerSetup {
     }
   }
 
+  /**
+   * Creates configuration files for the tracker and Playwright.
+   * @returns {void}
+   */
   createConfigFiles() {
     console.log('⚙️ Creating configuration files...');
 
@@ -192,6 +214,10 @@ export default defineConfig({
     console.log('✅ Configuration files created');
   }
 
+  /**
+   * Creates start scripts including copying tracker file and dashboard server script.
+   * @returns {void}
+   */
   createStartScripts() {
     console.log('📝 Creating start scripts...');
 

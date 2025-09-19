@@ -6,6 +6,10 @@
 const express = require('express');
 const { chromium } = require('playwright');
 
+/**
+ * DinoAirAPITracker tracks API calls from the DinoAir frontend,
+ * logs requests and responses, and provides a dashboard server.
+ */
 class DinoAirAPITracker {
   constructor() {
     this.calls = [];
@@ -14,6 +18,10 @@ class DinoAirAPITracker {
     this.page = null;
   }
 
+  /**
+   * Starts the Express server for the dashboard at the configured port.
+   * @returns {Promise<void>}
+   */
   async startDashboard() {
     const app = express();
 
@@ -34,6 +42,12 @@ class DinoAirAPITracker {
     });
   }
 
+  /**
+   * Starts tracking API calls by launching the browser,
+   * setting up request/response handlers, and navigating to the frontend.
+   * Also initializes the dashboard server.
+   * @returns {Promise<void>}
+   */
   async startTracking() {
     console.log('🚀 Starting DinoAir API Tracker...');
 
@@ -121,6 +135,12 @@ class DinoAirAPITracker {
     console.log(`[${timestamp}] ${type} - ${call.method} ${call.path}`);
 
     if (call.status) {
+  /**
+   * Logs the result of an API call to the console with an appropriate status emoji.
+   * @param {{status: number, statusText: string, error?: string}} call - The API call response object.
+   * @returns {void}
+   */
+  logCall(call) {
       const emoji = call.status < 300 ? '✅' : call.status < 500 ? '⚠️' : '❌';
       console.log(`  ${emoji} ${call.status} ${call.statusText}`);
     }
@@ -130,6 +150,10 @@ class DinoAirAPITracker {
     }
   }
 
+  /**
+   * Generates the HTML for the dashboard page.
+   * @returns {string}
+   */
   generateDashboard() {
     return `
 <!DOCTYPE html>
@@ -181,6 +205,7 @@ class DinoAirAPITracker {
             background: #21262d;
             margin: 8px 0;
             padding: 12px;
+`;}
             border-radius: 6px;
             border-left: 4px solid #238636;
             font-family: 'Monaco', 'Menlo', monospace;
@@ -350,6 +375,10 @@ class DinoAirAPITracker {
     `;
   }
 
+  /**
+   * Stops the API Tracker by closing the browser instance and logging the stop event.
+   * @returns {Promise<void>} A promise that resolves when the browser is closed.
+   */
   async stop() {
     if (this.browser) {
       await this.browser.close();

@@ -2,6 +2,13 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * ArtifactsPage icon component.
+ * Renders an SVG icon representing an artifacts page.
+ *
+ * @param props - SVG props for the SVG element.
+ * @returns JSX.Element representing the icon.
+ */
 const ArtifactsPage: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

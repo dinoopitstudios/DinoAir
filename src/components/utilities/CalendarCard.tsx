@@ -19,6 +19,11 @@ const monthNames = [
 
 const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+/**
+ * CalendarCard component that renders a calendar view for the current month and year.
+ *
+ * @returns A React element containing the calendar card.
+ */
 export default function CalendarCard() {
   const calendar = useMemo(() => {
     const today = new Date();

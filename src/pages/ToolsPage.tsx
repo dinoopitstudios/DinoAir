@@ -97,6 +97,11 @@ const chipDisabledStyle: CSSProperties = {
 
 type ToolHandler = (groupTitle: string) => Promise<unknown>;
 
+/**
+ * Checks whether the provided data is a successful RAG envelope.
+ * @param data - The data to check.
+ * @returns True if the data is a RagEnvelope with success true; otherwise, false.
+ */
 function isRagSuccessEnvelope(data: unknown): data is RagEnvelope {
   return (
     !!data &&
@@ -106,18 +111,30 @@ function isRagSuccessEnvelope(data: unknown): data is RagEnvelope {
   );
 }
 
+/**
+ * Checks if the given data indicates a RAG remediation failure with status code 501.
+ *
+ * @param data - The input data to evaluate, expected to have a 'success' property and optionally a 'code' property.
+ * @returns True if success is false and code is 501, otherwise false.
+ */
 function isRagRemediationFail501(data: unknown): boolean {
+  /**
+   * Checks if the given data represents an HTTP 501 response message.
+   * @param data - The data to evaluate, expected to be an object with optional `success` and `code` properties.
+   * @returns True if the data indicates a failed request with status code 501.
+   */
   if (!data || typeof data !== 'object' || !('success' in data)) return false;
   const d = data as { success?: unknown; code?: unknown };
   const code = typeof d.code === 'number' ? d.code : undefined;
   return d.success === false && code === 501;
 }
-
-function isHttp501Message(msg: unknown): boolean {
-  if (typeof msg !== 'string') return false;
-  return /(^|[^0-9])501([^0-9]|$)/.test(msg);
-}
-
+/**
+ * Starts a polling process that checks file index statistics periodically.
+ * It attempts up to 20 times, increasing delay up to 10000ms, and stops after 60 seconds.
+ *
+ * @param setMessage - Function callback to update the status message.
+ * @returns {Promise<void>} Promise that resolves when polling completes or embeddings are found.
+ */
 async function startStatsPoller(setMessage: (msg: string) => void): Promise<void> {
   let delay = 1000;
   let elapsed = 0;
@@ -146,6 +163,13 @@ const POLLER_TRIGGER_TOOLS = new Set<string>([
   'rag_generate_missing_embeddings',
 ]);
 
+/**
+ * Creates a handler function for performing searches of the given type via the provided API call.
+ *
+ * @param searchType - A string describing the type of search to perform.
+ * @param apiCall - A function that takes an object with query and top_k, and returns a Promise of the search result.
+ * @returns A ToolHandler function that prompts the user for query and top_k, then calls the API.
+ */
 function createSearchHandler(
   searchType: string,
   apiCall: (params: { query: string; top_k: number }) => Promise<unknown>
@@ -277,6 +301,12 @@ const HANDLERS: Record<string, ToolHandler> = {
   },
 };
 
+/**
+ * Generates a default response object for a tool when no further input is provided.
+ * @param {string} groupTitle - The title of the tool group.
+ * @param {string} tool - The identifier of the tool.
+ * @returns {{ note: string; tool: string; group: string; next_steps: string; }} The default response object including notes and next steps.
+ */
 function defaultToolResponse(groupTitle: string, tool: string) {
   return {
     note: 'This tool requires additional input or is not yet wired. Use Settings/Pages for richer forms as a next step.',
@@ -444,6 +474,12 @@ const ResultCard = memo(function ResultCard({ lastTool, lastError, lastResult }:
   );
 });
 
+/**
+ * ToolsPage component renders the UI for invoking various tools,
+ * manages tool invocation state, displays results, and handles RAG remediation.
+ *
+ * @returns JSX.Element The rendered Tools page component.
+ */
 export default function ToolsPage() {
   const [loadingTool, setLoadingTool] = useState<string | null>(null);
   const [lastTool, setLastTool] = useState<string | null>(null);

@@ -1,6 +1,10 @@
 const express = require('express');
 const { chromium } = require('playwright');
 
+/**
+ * InteractiveGUIDemo provides an interactive GUI dashboard
+ * demonstrating UI interactions via browser automation.
+ */
 class InteractiveGUIDemo {
   constructor() {
     this.app = express();
@@ -19,6 +23,11 @@ class InteractiveGUIDemo {
     ];
   }
 
+  /**
+   * Starts the interactive dashboard server and configures routes
+   * for serving the dashboard UI, API data endpoints, and demo controls.
+   * @returns {Promise<void>}
+   */
   async startDashboard() {
     this.app.use(express.json());
 
@@ -71,7 +80,12 @@ class InteractiveGUIDemo {
       console.log(`🎮 Interactive GUI Demo Dashboard: http://localhost:${this.dashboardPort}`);
     });
   }
+}
 
+  /**
+   * Initializes the browser and page if not already initialized.
+   * @returns {Promise<void>} Resolves when browser and page are initialized.
+   */
   async initializeBrowser() {
     if (this.browser && this.page) {
       return; // Already initialized
@@ -140,47 +154,61 @@ class InteractiveGUIDemo {
     });
   }
 
-  async performNextDemoStep() {
-    if (!this.page) {
-      throw new Error('Browser not initialized. Please start the demo first.');
+    /**
+     * Performs the next step of the interactive GUI demo.
+     * Throws an error if the browser is not initialized.
+     * Initializes currentStep to 0 if not set, loops demo steps, and executes GUI actions.
+     * @returns {Promise<{success: boolean, step: number, description?: string, nextStep?: string, error?: string}>} Result of performing the demo step.
+     */
+    async performNextDemoStep() {
+      if (!this.page) {
+        throw new Error('Browser not initialized. Please start the demo first.');
+      }
+
+      if (!this.currentStep) {
+        this.currentStep = 0;
+      }
+
+      if (this.currentStep >= this.demoSteps.length) {
+        console.log('🎉 All demo steps completed! Restarting from the beginning...');
+        this.currentStep = 0;
+      }
+
+      const step = this.demoSteps[this.currentStep];
+      console.log(
+        `
+  🎬 Manual Step ${this.currentStep + 1}/${this.demoSteps.length}: ${step.description}`
+      );
+
+      try {
+        await this.performGUIAction(step);
+        this.currentStep++;
+        return {
+          success: true,
+          step: this.currentStep,
+          description: step.description,
+          nextStep:
+            this.currentStep < this.demoSteps.length
+              ? this.demoSteps[this.currentStep].description
+              : 'Demo completed - will restart',
+        };
+      } catch (error) {
+        console.error(`❌ Error in manual step ${this.currentStep + 1}:`, error.message);
+        return {
+          success: false,
+          error: error.message,
+          step: this.currentStep + 1,
+        };
+      }
     }
 
-    if (!this.currentStep) {
-      this.currentStep = 0;
-    }
-
-    if (this.currentStep >= this.demoSteps.length) {
-      console.log('🎉 All demo steps completed! Restarting from the beginning...');
-      this.currentStep = 0;
-    }
-
-    const step = this.demoSteps[this.currentStep];
-    console.log(
-      `\n🎬 Manual Step ${this.currentStep + 1}/${this.demoSteps.length}: ${step.description}`
-    );
-
-    try {
-      await this.performGUIAction(step);
-      this.currentStep++;
-      return {
-        success: true,
-        step: this.currentStep,
-        description: step.description,
-        nextStep:
-          this.currentStep < this.demoSteps.length
-            ? this.demoSteps[this.currentStep].description
-            : 'Demo completed - will restart',
-      };
-    } catch (error) {
-      console.error(`❌ Error in manual step ${this.currentStep + 1}:`, error.message);
-      return {
-        success: false,
-        error: error.message,
-        step: this.currentStep + 1,
-      };
-    }
-  }
-
+  /**
+   * Performs a GUI action based on the given step.
+   * @param {Object} step - The step object containing action and target.
+   * @param {string} step.action - The type of action to perform (e.g., 'navigate', 'refresh').
+   * @param {string} [step.target] - The target for navigation actions.
+   * @returns {Promise<void>} A promise that resolves when the action is complete.
+   */
   async performGUIAction(step) {
     switch (step.action) {
       case 'navigate':
@@ -221,12 +249,24 @@ class InteractiveGUIDemo {
     console.log(`⚠️ Could not find ${target} navigation element`);
   }
 
+  /**
+   * Logs the call details to the console with a timestamp.
+   * @param {string} type - The type of the call.
+   * @param {Object} call - The call details including method, path, timestamp, and status.
+   * @returns {void}
+   */
   logCall(type, call) {
     const timestamp = new Date(call.timestamp).toLocaleTimeString();
     console.log(`[${timestamp}] ${type} - ${call.method} ${call.path}`);
 
     if (call.status) {
       const emoji = call.status >= 200 && call.status < 300 ? '✅' : '❌';
+  /**
+   * Logs the status and status text for a call and any errors to the console.
+   * @param {Object} call - The call object containing status, statusText, and error information.
+   * @returns {void}
+   */
+  logCall(call) {
       console.log(`  ${emoji} ${call.status} ${call.statusText}`);
     }
 
@@ -235,6 +275,10 @@ class InteractiveGUIDemo {
     }
   }
 
+  /**
+   * Generates an interactive HTML dashboard for the GUI demo.
+   * @returns {string} HTML string of the interactive demo dashboard.
+   */
   generateInteractiveDashboard() {
     return `
 <!DOCTYPE html>
@@ -286,6 +330,8 @@ class InteractiveGUIDemo {
         .controls {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+`;
+  }
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -594,6 +640,11 @@ class InteractiveGUIDemo {
     `;
   }
 
+  /**
+   * Stops the interactive demo by logging a stop message and closing the browser if open.
+   *
+   * @returns {Promise<void>} A promise that resolves once the browser is closed.
+   */
   async stop() {
     console.log('🛑 Interactive demo stopped');
     if (this.browser) {

@@ -9,6 +9,15 @@ export type ToolGridProps = {
   onInvoke: (groupTitle: string, tool: ToolName) => void;
 };
 
+/**
+ * Renders a responsive grid of tool group cards.
+ *
+ * @param groups - Array of tool groups to render.
+ * @param wiredReadOnlyTools - Collection of wired read-only tools.
+ * @param loadingTool - Identifier of the tool currently loading.
+ * @param onInvoke - Callback invoked when a tool is selected.
+ * @returns JSX.Element representing the rendered grid section.
+ */
 export default function ToolGrid({
   groups,
   wiredReadOnlyTools,

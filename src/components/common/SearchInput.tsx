@@ -7,6 +7,17 @@ interface SearchInputProps
   placeholder?: string;
 }
 
+/**
+ * SearchInput component renders a styled search input field.
+ *
+ * @param {string} value - The current value of the input.
+ * @param {(value: string) => void} onChange - Callback invoked when input value changes.
+ * @param {string} [placeholder] - Placeholder text displayed when input is empty.
+ * @param {string} [className='search-input'] - Additional CSS class name for the input.
+ * @param {CSSProperties} [style] - Inline styles to apply to the input.
+ * @param {object} restProps - Additional props to pass to the input element.
+ * @returns {JSX.Element} A styled search input element.
+ */
 export default function SearchInput({
   value,
   onChange,
