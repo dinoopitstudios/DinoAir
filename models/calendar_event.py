@@ -39,6 +39,14 @@ class CalendarEvent:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CalendarEvent:
+        """Create from dict.
+
+        Args:
+            data: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         parts = data or {}
         participants = parts.get("participants")
         if isinstance(participants, str):
@@ -73,6 +81,11 @@ class CalendarEvent:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert to dict.
+
+        Returns:
+            TODO: Add return description
+        """
         # participants are stored as comma-separated string by DB layer
         participants_str = ",".join(self.participants) if self.participants else ""
         return {

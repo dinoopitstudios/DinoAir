@@ -134,6 +134,14 @@ class EnhancedLogFilter(logging.Filter):
         self._sample_counter = 0
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Filter.
+
+        Args:
+            record: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         if not self.config.enabled:
             return True
 
