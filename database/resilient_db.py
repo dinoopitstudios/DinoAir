@@ -1,12 +1,12 @@
 # DinoAir2.0dev - ResilientDB.py
 # This file provides a resilient database wrapper for SQLite, ensuring safe initialization and recovery.
 
-from collections.abc import Callable
-from datetime import datetime
-from pathlib import Path
 import shutil
 import sqlite3
 import time
+from collections.abc import Callable
+from datetime import datetime
+from pathlib import Path
 
 
 class ResilientDB:
@@ -33,7 +33,8 @@ class ResilientDB:
             return self._attempt_connection()
         except sqlite3.OperationalError as e:
             if "unable to open database file" in str(e) or "no such file or directory" in str(e):
-                self.log("Creating database folder - this is normal for first-time setup.")
+                self.log(
+                    "Creating database folder - this is normal for first-time setup.")
                 self.db_path.parent.mkdir(parents=True, exist_ok=True)
                 return self._attempt_connection()
             if "database is locked" in str(e):
@@ -43,7 +44,8 @@ class ResilientDB:
             raise
         except sqlite3.DatabaseError as e:
             if "file is not a database" in str(e) or "database disk image is malformed" in str(e):
-                self.log("Found a damaged database file. Creating a backup and starting fresh...")
+                self.log(
+                    "Found a damaged database file. Creating a backup and starting fresh...")
                 self._backup_corrupted_db()
                 return self._attempt_connection()
             raise
@@ -51,10 +53,12 @@ class ResilientDB:
             self.log(
                 "Permission denied accessing database folder. Please check folder permissions or run as administrator."
             )
-            raise RuntimeError("Cannot access database due to permission restrictions.") from exc
+            raise RuntimeError(
+                "Cannot access database due to permission restrictions.") from exc
         except Exception as e:
             self.log(f"Unexpected database issue: {str(e)}")
-            raise RuntimeError("Database setup failed due to an unexpected error.") from e
+            raise RuntimeError(
+                "Database setup failed due to an unexpected error.") from e
 
     def _attempt_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path))
@@ -68,7 +72,8 @@ class ResilientDB:
         # Create backups directory if it doesn't exist
         backup_dir = self.db_path.parent / "backups"
         backup_dir.mkdir(exist_ok=True)
-        backup_path = backup_dir / f"{self.db_path.stem}_corrupted_{timestamp}.db"
+        backup_path = backup_dir / \
+            f"{self.db_path.stem}_corrupted_{timestamp}.db"
         try:
             shutil.move(self.db_path, backup_path)
             self.log(f"Backup saved to: {backup_path}")
@@ -107,5 +112,7 @@ class ResilientDB:
             # Re-raise database errors as-is for test compatibility
             raise last_exc
 
-        self.log("Database setup failed after multiple attempts. Please contact support.")
-        raise RuntimeError("Database initialization failed after all retry attempts.") from last_exc
+        self.log(
+            "Database setup failed after multiple attempts. Please contact support.")
+        raise RuntimeError(
+            "Database initialization failed after all retry attempts.") from last_exc

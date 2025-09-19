@@ -6,9 +6,9 @@ This script helps manage pre-commit hooks and resolve any configuration issues.
 It provides utilities to enable/disable hooks selectively and troubleshoot problems.
 """
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_command(cmd: list[str], capture_output: bool = True) -> subprocess.CompletedProcess:

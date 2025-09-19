@@ -40,7 +40,6 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     asyncpg = None  # type: ignore[assignment]
 
-
 # Note: Using dynamic casts to Any for optional third-party clients to avoid
 # strict type requirements when dependencies are not installed in the environment.
 
@@ -89,7 +88,8 @@ class HealthReport:
         """Create health report from individual checks."""
         healthy = sum(1 for c in checks if c.status == HealthStatus.HEALTHY)
         degraded = sum(1 for c in checks if c.status == HealthStatus.DEGRADED)
-        unhealthy = sum(1 for c in checks if c.status == HealthStatus.UNHEALTHY)
+        unhealthy = sum(1 for c in checks if c.status ==
+                        HealthStatus.UNHEALTHY)
 
         # Determine overall status
         if unhealthy > 0:
@@ -279,14 +279,12 @@ class HealthChecker:
             result: Any = await conn.fetchval("SELECT 1")
 
             # Get database stats
-            stats: Any = await conn.fetchrow(
-                """
+            stats: Any = await conn.fetchrow("""
                 SELECT
                     count(*) as table_count,
                     pg_size_pretty(pg_database_size(current_database())) as database_size,
                     version() as version
-            """
-            )
+            """)
 
             await conn.close()
             response_time_ms = (time.perf_counter() - start_time) * 1000
@@ -294,7 +292,8 @@ class HealthChecker:
             if result == 1:
                 version_str = str(stats["version"])
                 version_parts = version_str.split()
-                version_fmt = " ".join(version_parts[:2]) if version_parts else version_str
+                version_fmt = " ".join(
+                    version_parts[:2]) if version_parts else version_str
                 return HealthCheck(
                     name=name,
                     status=HealthStatus.HEALTHY,
