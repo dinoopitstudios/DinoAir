@@ -114,11 +114,13 @@ class ProjectsDatabase:
     def _max_updated_at(self, cursor: Cursor, table: str, project_id: str) -> datetime | None:
         """Return MAX(updated_at) for a given table and project_id, or None if unavailable."""
         # Whitelist known tables to prevent SQL injection
-        if table not in {"notes", "artifacts", "calendar_events"}:
+        allowed_tables = {"notes", "artifacts", "calendar_events"}
+        if table not in allowed_tables:
             return None
         try:
+            sql = "SELECT MAX(updated_at) FROM {} WHERE project_id = ?".format(table)
             cursor.execute(
-                f"SELECT MAX(updated_at) FROM {table} WHERE project_id = ?",
+                sql,
                 (project_id,),
             )
             row = cursor.fetchone()
