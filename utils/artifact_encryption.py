@@ -277,7 +277,8 @@ class ArtifactEncryption:
 
         return decrypted_data
 
-    def generate_encryption_key_id(self) -> str:
+    @staticmethod
+    def generate_encryption_key_id() -> str:
         """Generate a unique encryption key ID"""
         return base64.urlsafe_b64encode(secrets.token_bytes(16)).decode("utf-8").rstrip("=")
 
