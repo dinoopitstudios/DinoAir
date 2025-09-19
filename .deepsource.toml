@@ -1,12 +1,16 @@
 version = 1
 
 test_patterns = [
+  "utils\\tests",
   "tests",
-  "test_results"
+  "tools\\tests"
 ]
 
-[[analyzers]]
-name = "test-coverage"
+exclude_patterns = [
+  "utils\\tests",
+  "tests",
+  "tools\\tests"
+]
 
 [[analyzers]]
 name = "javascript"
@@ -16,6 +20,7 @@ name = "javascript"
   environment = [
     "nodejs",
     "browser",
+    "vitest",
     "jest"
   ]
 
@@ -28,8 +33,11 @@ name = "python"
   [analyzers.meta]
   runtime_version = "3.x.x"
 
+[[analyzers]]
+name = "test-coverage"
+
 [[transformers]]
-name = "prettier"
+name = "isort"
 
 [[transformers]]
 name = "black"
@@ -38,13 +46,13 @@ name = "black"
 name = "ruff"
 
 [[transformers]]
-name = "isort"
+name = "yapf"
 
 [[transformers]]
 name = "autopep8"
 
 [[transformers]]
-name = "standardjs"
+name = "prettier"
 
 [[transformers]]
-name = "yapf"
+name = "standardjs"
