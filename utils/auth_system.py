@@ -165,11 +165,9 @@ class User:
     password_changed_at: Optional[datetime] = None
 
     # Audit Fields
-    created_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None
-    updated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_by: Optional[str] = None
 
     # Healthcare Fields
@@ -236,14 +234,12 @@ class Session:
 
     def is_idle_timeout(self, idle_timeout_minutes: int = 30) -> bool:
         """Check if session has exceeded idle timeout."""
-        idle_cutoff = datetime.now(timezone.utc) - \
-            timedelta(minutes=idle_timeout_minutes)
+        idle_cutoff = datetime.now(timezone.utc) - timedelta(minutes=idle_timeout_minutes)
         return self.last_accessed < idle_cutoff
 
     def extend_session(self, duration_hours: int = 8) -> None:
         """Extend session expiration."""
-        self.expires_at = datetime.now(
-            timezone.utc) + timedelta(hours=duration_hours)
+        self.expires_at = datetime.now(timezone.utc) + timedelta(hours=duration_hours)
         self.last_accessed = datetime.now(timezone.utc)
 
 
@@ -257,8 +253,7 @@ class UserManager:
         self.password_history: Dict[str, List[str]] = {}
 
         if not CRYPTO_AVAILABLE:
-            raise ImportError(
-                "bcrypt and pyotp are required for authentication")
+            raise ImportError("bcrypt and pyotp are required for authentication")
 
     def create_user(
         self,
@@ -325,12 +320,10 @@ class UserManager:
 
         # Check account status
         if not auth_user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
 
         if auth_user.is_account_locked():
-            raise HTTPException(
-                status_code=status.HTTP_423_LOCKED, detail="Account is locked")
+            raise HTTPException(status_code=status.HTTP_423_LOCKED, detail="Account is locked")
 
         # Verify password
         if not self._verify_password(password, auth_user.password_hash):
@@ -357,8 +350,7 @@ class UserManager:
             mfa_verified = False  # Will need separate MFA verification
 
         # Create session
-        auth_session = self._create_session(
-            auth_user, source_ip, user_agent, mfa_verified)
+        auth_session = self._create_session(auth_user, source_ip, user_agent, mfa_verified)
 
         return auth_session
 
@@ -405,8 +397,7 @@ class UserManager:
 
         # Generate QR code
         totp = pyotp.TOTP(secret)
-        qr_url = totp.provisioning_uri(
-            name=target_user.email, issuer_name="DinoAir Healthcare")
+        qr_url = totp.provisioning_uri(name=target_user.email, issuer_name="DinoAir Healthcare")
 
         # Create QR code image
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -419,6 +410,7 @@ class UserManager:
             "backup_codes": backup_codes,
             "manual_entry_key": secret,
         }
+
 
 def change_password(self, user_id: str, old_password: str, new_password: str) -> None:
     """Change user password with policy validation."""
@@ -433,13 +425,14 @@ def change_password(self, user_id: str, old_password: str, new_password: str) ->
 
     # Validate new password
     self._validate_password(
-        new_password, target_user.username, target_user.email, target_user.full_name)
+        new_password, target_user.username, target_user.email, target_user.full_name
+    )
 
     # Check password history
     new_hash = self._hash_password(new_password)
     user_history = self.password_history.get(user_id, [])
 
-    for old_hash in user_history[-self.password_policy.password_history_count:]:
+    for old_hash in user_history[-self.password_policy.password_history_count :]:
         if self._verify_password(new_password, old_hash):
             raise ValueError("Password has been used recently")
 
@@ -450,19 +443,22 @@ def change_password(self, user_id: str, old_password: str, new_password: str) ->
     # Update password history
     user_history.append(new_hash)
     if len(user_history) > self.password_policy.password_history_count:
-        user_history = user_history[-self.password_policy.password_history_count:]
+        user_history = user_history[-self.password_policy.password_history_count :]
     self.password_history[user_id] = user_history
 
     # Invalidate all sessions
     self._invalidate_user_sessions(user_id)
 
+
 def get_user_by_username(self, username: str) -> Optional[User]:
     """Get user by username."""
     return next((u for u in self.users.values() if u.username == username), None)
 
+
 def get_user_by_email(self, email: str) -> Optional[User]:
     """Get user by email."""
     return next((u for u in self.users.values() if u.email == email), None)
+
 
 def get_session(self, session_id: str) -> Optional[Session]:
     """Get session by ID, removing it if expired."""
@@ -471,6 +467,7 @@ def get_session(self, session_id: str) -> Optional[Session]:
         del self.sessions[session_id]
         return None
     return found_session
+
 
 def cleanup_expired_sessions(self) -> None:
     """Remove expired or idle sessions from storage."""
@@ -482,6 +479,7 @@ def cleanup_expired_sessions(self) -> None:
 
     for session_id in expired_sessions:
         del self.sessions[session_id]
+
 
 def _create_session(
     self,
@@ -509,12 +507,14 @@ def _create_session(
     self.sessions[session_id] = session_obj
     return session_obj
 
+
 def _validate_password(self, password: str, username: str, email: str, full_name: str) -> None:
     """Validate password against policy requirements."""
     self._validate_length(password)
     self._validate_character_requirements(password)
     self._validate_special_chars(password)
     self._validate_personal_info(password, username, email, full_name)
+
 
 def _validate_length(self, password: str) -> None:
     """Ensure password length meets the policy requirements."""
@@ -523,6 +523,7 @@ def _validate_length(self, password: str) -> None:
         raise ValueError(f"Password must be at least {policy.min_length} characters")
     if len(password) > policy.max_length:
         raise ValueError(f"Password must be no more than {policy.max_length} characters")
+
 
 def _validate_character_requirements(self, password: str) -> None:
     """Ensure password contains required character types (uppercase, lowercase, digits)."""
@@ -536,20 +537,17 @@ def _validate_character_requirements(self, password: str) -> None:
         if required and not re.search(pattern, password):
             raise ValueError(f"Password must contain {description}")
 
+
 def _validate_special_chars(self, password: str) -> None:
     """Ensure password contains required special characters."""
     policy = self.password_policy
     if policy.require_special_chars:
         special_pattern = f"[{re.escape(policy.special_chars)}]"
         if not re.search(special_pattern, password):
-            raise ValueError(
-                f"Password must contain special characters: "
-                f"{policy.special_chars}"
-            )
+            raise ValueError(f"Password must contain special characters: {policy.special_chars}")
 
-def _validate_personal_info(
-    self, password: str, username: str, email: str, full_name: str
-) -> None:
+
+def _validate_personal_info(self, password: str, username: str, email: str, full_name: str) -> None:
     """Prevent password from containing personal user information."""
     policy = self.password_policy
     if policy.disallow_personal_info:
@@ -562,14 +560,17 @@ def _validate_personal_info(
             if len(info) >= 4 and info in lower_password:
                 raise ValueError("Password cannot contain personal information")
 
+
 def _hash_password(self, password: str) -> str:
     """Hash password using bcrypt."""
     salt = bcrypt.gensalt(rounds=12)
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
+
 def _verify_password(self, password: str, password_hash: str) -> bool:
     """Verify password against hash."""
     return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+
 
 def _calculate_permissions(self, roles: Set[UserRole]) -> Set[Permission]:
     """Calculate permissions based on user roles."""
@@ -580,6 +581,7 @@ def _calculate_permissions(self, roles: Set[UserRole]) -> Set[Permission]:
         permissions.update(role_permissions.get(role, set()))
 
     return permissions
+
 
 def _invalidate_user_sessions(self, user_id: str) -> None:
     """Invalidate all sessions for a given user."""
@@ -608,8 +610,7 @@ class AuthenticationMiddleware:
 
         user_session = self.user_manager.get_session(credentials.credentials)
         if not user_session:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session")
 
         current_user = self.user_manager.users.get(user_session.user_id)
         if not current_user or not current_user.is_active:

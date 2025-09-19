@@ -113,7 +113,9 @@ class SQLInjectionProtection:
     def _excessive_sql_keywords(text: str) -> bool:
         """Return True if the text contains two or more SQL keywords indicating potential injection."""
         text_upper = text.upper()
-        count = sum(1 for kw in SQLInjectionProtection.SQL_KEYWORDS if f" {kw} " in f" {text_upper} ")
+        count = sum(
+            1 for kw in SQLInjectionProtection.SQL_KEYWORDS if f" {kw} " in f" {text_upper} "
+        )
         return count >= 2
 
     @staticmethod
@@ -121,10 +123,7 @@ class SQLInjectionProtection:
         """Return True if the text contains any SQL operator
         from the predefined list."""
         text_upper = text.upper()
-        return any(
-            op.upper() in text_upper
-            for op in SQLInjectionProtection.SQL_OPERATORS
-        )
+        return any(op.upper() in text_upper for op in SQLInjectionProtection.SQL_OPERATORS)
 
     @staticmethod
     def _matches_sql_patterns(text: str) -> bool:
