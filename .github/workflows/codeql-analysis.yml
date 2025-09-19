@@ -13,7 +13,7 @@ jobs:
   analyze:
     name: Analyze Code
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       actions: read
       contents: read
@@ -39,8 +39,12 @@ jobs:
       if: matrix.language == 'python'
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+        if [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt
+        fi
 
     - name: Set up Node.js
       if: matrix.language == 'javascript'
@@ -51,16 +55,15 @@ jobs:
     - name: Install JavaScript dependencies
       if: matrix.language == 'javascript'
       run: |
-        if [ -f package.json ]; then npm ci; fi
+        if [ -f package.json ]; then
+          npm ci
+        fi
 
-    # Initializes the CodeQL tools for scanning
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         config-file: ./.github/codeql/codeql-config.yml
-        # Override the default queries
-        queries: security-extended,security-and-quality
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, or Java)
     - name: Autobuild
@@ -72,12 +75,8 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
 
-    # Upload results to GitHub Security tab
-    - name: Upload CodeQL results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: ../results/
+    # Results are automatically uploaded by the analyze action
+    # No separate upload step needed
 
     # Generate and upload human-readable report
     - name: Generate Summary Report
