@@ -211,7 +211,8 @@ class RedactionService:
 
         return text[:start] + self.config.redacted_placeholder + text[end:]
 
-    def _find_pattern_end(self, text: str, start: int, terminator: str | None) -> int:
+    @staticmethod
+    def _find_pattern_end(text: str, start: int, terminator: str | None) -> int:
         """Find the end position of a pattern to redact.
 
         Args:
@@ -320,12 +321,14 @@ class ISOFormatter(JsonFormatter):
         self._add_logger_name(log_record, record)
         self._copy_structured_fields(log_record, record, message_dict)
 
-    def _add_timestamp(self, log_record: dict[str, Any]) -> None:
+    @staticmethod
+    def _add_timestamp(log_record: dict[str, Any]) -> None:
         """Add ISO8601 timestamp if not present."""
         if "ts" not in log_record:
             log_record["ts"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
-    def _normalize_level(self, log_record: dict[str, Any], record: logging.LogRecord) -> None:
+    @staticmethod
+    def _normalize_level(log_record: dict[str, Any], record: logging.LogRecord) -> None:
         """Normalize the log level to lowercase."""
         lvl = (
             log_record.get("level")
@@ -340,7 +343,8 @@ class ISOFormatter(JsonFormatter):
         if "level" not in log_record:
             log_record["level"] = "info"
 
-    def _add_logger_name(self, log_record: dict[str, Any], record: logging.LogRecord) -> None:
+    @staticmethod
+    def _add_logger_name(log_record: dict[str, Any], record: logging.LogRecord) -> None:
         """Add logger name to the record."""
         log_record["logger"] = record.name
 
@@ -368,13 +372,14 @@ class ISOFormatter(JsonFormatter):
             if value is not None:
                 log_record[field_name] = value
 
-    def _mirror_path_to_route(self, log_record: dict[str, Any]) -> None:
+    @staticmethod
+    def _mirror_path_to_route(log_record: dict[str, Any]) -> None:
         """Mirror path to route for stability."""
         if "route" not in log_record and "path" in log_record:
             log_record["route"] = log_record.get("path")
 
+    @staticmethod
     def _get_field_value(
-        self,
         field_name: str,
         message_dict: dict[str, Any],
         log_record: dict[str, Any],
