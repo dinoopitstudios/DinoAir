@@ -4,23 +4,23 @@ Implements performance improvements including parallel processing, caching,
 and memory-efficient operations.
 """
 
-from collections import OrderedDict
-from collections.abc import Callable
 import concurrent.futures
-from datetime import datetime, timedelta
 import gc
 import os
 import threading
 import time
+from collections import OrderedDict
+from collections.abc import Callable
+from datetime import datetime, timedelta
 from typing import Any
 
 from database.file_search_db import FileSearchDB
 
 # Import DinoAir components
 from utils.logger import Logger
+
 from .embedding_generator import get_embedding_generator
 from .file_processor import FileProcessor
-
 
 # Import RAG components
 

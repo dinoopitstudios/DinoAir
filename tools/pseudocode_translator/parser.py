@@ -5,10 +5,9 @@ Handles parsing of mixed English/Python pseudocode input
 """
 
 import ast
-from collections.abc import Iterator
 import re
+from collections.abc import Iterator
 from typing import Any
-
 
 # Import models and exceptions
 try:

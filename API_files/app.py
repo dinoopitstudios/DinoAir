@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 import logging
+from collections.abc import Awaitable, Callable
 
 from anyio import move_on_after
 from fastapi import FastAPI
@@ -18,7 +18,6 @@ from .middleware.content_type import ContentTypeJSONMiddleware
 from .middleware.request_id import RequestIDMiddleware
 from .settings import Settings
 
-
 # Define locally to avoid linter/editor issues with starlette.types.ASGIApp
 ASGIApp = Callable[[Scope, Receive, Send], Awaitable[None]]
 
@@ -32,10 +31,12 @@ class TimeoutMiddleware:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         from anyio import move_on_after
+
         async with move_on_after(self.timeout) as cancel_scope:
             await self.app(scope, receive, send)
         if cancel_scope.cancel_called:
             await self._send_timeout(scope, receive, send)
+
     async def _send_timeout(self, scope: Scope, receive: Receive, send: Send):
         from starlette import status
 

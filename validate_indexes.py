@@ -35,11 +35,13 @@ def check_database_indexes(db_path: str) -> None:
             cursor = conn.cursor()
 
             # Get all indexes on note_list table
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT name FROM sqlite_master
                 WHERE type='index' AND tbl_name='note_list'
                 ORDER BY name
-            """)
+            """
+            )
 
             existing_indexes = [row[0] for row in cursor.fetchall()]
 
@@ -58,7 +60,8 @@ def check_database_indexes(db_path: str) -> None:
 
             for idx in sorted(existing_indexes):
                 # Ensure idx is a safe SQLite identifier (alphanumeric or underscore)
-                if not re.match(r'^[A-Za-z0-9_]+$', idx):
+
+                if not re.match(r"^[A-Za-z0-9_]+$", idx):
                     continue
 
                 # Get index details
@@ -121,8 +124,7 @@ def main():
     """Main validation function"""
 
     # Check for notes database
-    base_dir = os.path.join(os.path.dirname(
-        __file__), "user_data", "databases")
+    base_dir = os.path.join(os.path.dirname(__file__), "user_data", "databases")
     notes_db = os.path.join(base_dir, "notes.db")
 
     if not os.path.exists(notes_db):
