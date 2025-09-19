@@ -18,7 +18,7 @@ def create_coverage_config():
 [run]
 source = .
 branch = True
-omit = 
+omit =
     */tests/*
     */test_*
     */.venv/*
@@ -102,16 +102,16 @@ jobs:
   coverage:
     name: Generate Coverage Report
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -122,15 +122,15 @@ jobs:
         if [ -f requirements-dev.txt ]; then
           pip install -r requirements-dev.txt
         fi
-    
+
     - name: Run tests with coverage
       run: |
         python -m pytest --cov=. --cov-report=xml --cov-report=term-missing tests/ || true
-    
+
     - name: Install DeepSource CLI
       run: |
         curl https://deepsource.io/cli | sh
-    
+
     - name: Report coverage to DeepSource
       env:
         DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
@@ -203,7 +203,7 @@ from pathlib import Path
 def main():
     """Run coverage locally."""
     print("🧪 Running tests with coverage...")
-    
+
     try:
         # Run tests with coverage
         cmd = [
@@ -215,21 +215,21 @@ def main():
             '--cov-branch',
             'tests/'
         ]
-        
+
         result = subprocess.run(cmd, check=False)
-        
+
         if result.returncode == 0:
             print("✅ Tests completed successfully")
         else:
             print("⚠️  Some tests failed or no tests found")
-        
+
         # Check if coverage file was created
         if Path('coverage.xml').exists():
             print("✅ Coverage report generated: coverage.xml")
             print("📊 HTML report available: htmlcov/index.html")
         else:
             print("❌ No coverage report generated")
-            
+
     except FileNotFoundError:
         print("❌ pytest not found. Installing...")
         subprocess.run([sys.executable, '-m', 'pip', 'install', 'pytest', 'pytest-cov'])

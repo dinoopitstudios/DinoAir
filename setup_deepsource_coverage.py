@@ -118,7 +118,7 @@ class DeepSourceCoverageSetup:
 [run]
 source = .
 branch = True
-omit = 
+omit =
     */tests/*
     */test_*
     */.venv/*
@@ -178,11 +178,11 @@ from pathlib import Path
 def run_tests_with_coverage():
     """Run tests with coverage."""
     print("🧪 Running tests with coverage...")
-    
+
     # Change to project root
     project_root = Path(__file__).parent
     os.chdir(project_root)
-    
+
     try:
         # Run tests with coverage
         cmd = [
@@ -194,13 +194,13 @@ def run_tests_with_coverage():
             '--cov-branch',
             'tests/'
         ]
-        
+
         print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=True)
-        
+
         print("✅ Tests completed successfully")
         return True
-        
+
     except subprocess.CalledProcessError as e:
         print(f"❌ Tests failed: {e}")
         return False
@@ -213,20 +213,20 @@ def run_tests_with_coverage():
 def report_to_deepsource():
     """Report coverage to DeepSource."""
     print("📊 Reporting coverage to DeepSource...")
-    
+
     # Check for coverage.xml
     coverage_file = Path('coverage.xml')
     if not coverage_file.exists():
         print("❌ coverage.xml not found")
         return False
-    
+
     # Check for DEEPSOURCE_DSN
     dsn = os.getenv('DEEPSOURCE_DSN')
     if not dsn:
         print("❌ DEEPSOURCE_DSN environment variable not set")
         print("💡 Set it with: $env:DEEPSOURCE_DSN='your_dsn_here'")
         return False
-    
+
     try:
         # Report to DeepSource using CLI
         cmd = [
@@ -235,13 +235,13 @@ def report_to_deepsource():
             '--key', 'python',
             '--value-file', str(coverage_file)
         ]
-        
+
         print(f"Reporting: {' '.join(cmd[:4])}...")  # Don't show full command with DSN
         result = subprocess.run(cmd, check=True)
-        
+
         print("✅ Coverage reported to DeepSource")
         return True
-        
+
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to report to DeepSource: {e}")
         return False
@@ -255,17 +255,17 @@ def main():
     """Main function."""
     print("🔍 DeepSource Coverage Reporter")
     print("=" * 35)
-    
+
     # Run tests with coverage
     if not run_tests_with_coverage():
         sys.exit(1)
-    
+
     # Report to DeepSource
     if not report_to_deepsource():
         print("⚠️  Coverage generated but not reported to DeepSource")
         print("💡 Check your DEEPSOURCE_DSN and CLI installation")
         sys.exit(1)
-    
+
     print("🎉 Coverage analysis complete!")
 
 
@@ -337,16 +337,16 @@ jobs:
   coverage:
     name: Generate Coverage Report
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -357,15 +357,15 @@ jobs:
         if [ -f requirements-dev.txt ]; then
           pip install -r requirements-dev.txt
         fi
-    
+
     - name: Run tests with coverage
       run: |
         python -m pytest --cov=. --cov-report=xml --cov-report=term-missing tests/ || true
-    
+
     - name: Install DeepSource CLI
       run: |
         curl https://deepsource.io/cli | sh
-    
+
     - name: Report coverage to DeepSource
       env:
         DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
@@ -375,7 +375,7 @@ jobs:
         else
           echo "⚠️  No coverage.xml found"
         fi
-    
+
     - name: Upload coverage to Codecov (optional)
       uses: codecov/codecov-action@v3
       with:
