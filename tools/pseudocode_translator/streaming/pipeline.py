@@ -342,7 +342,6 @@ class StreamingPipeline:
         finally:
             # Record total stream time
             try:
-                recorder = get_recorder()
                 recorder.record_event("stream.total", (time.perf_counter() - _total_start) * 1000.0)
             except Exception:
                 pass

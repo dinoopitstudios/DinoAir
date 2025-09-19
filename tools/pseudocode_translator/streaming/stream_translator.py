@@ -263,18 +263,6 @@ class StreamingTranslator:
         async for out in interactive_translate_async(self, input_stream, on_update):
             yield out
 
-    async def _translate_line_by_line_async(self, input_stream, on_update=None):
-        async for out in async_translate_line_by_line(self, input_stream, on_update):
-            yield out
-
-    async def _translate_block_by_block_async(self, input_stream, on_update=None):
-        async for out in async_translate_block_by_block(self, input_stream, on_update):
-            yield out
-
-    async def _translate_full_document_async(self, full_text, on_update=None):
-        async for out in async_translate_full_document(self, full_text, on_update):
-            yield out
-
     def _translate_line_by_line(self, input_stream, on_update=None):
         """Translate incrementally when a complete statement is detected (sync)."""
         line_buffer: list[str] = []

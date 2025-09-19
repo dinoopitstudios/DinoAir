@@ -153,15 +153,15 @@ class SQLInjectionProtection:
             return True
         if SQLInjectionProtection._excessive_sql_keywords(text):
             return True
-            if SQLInjectionProtection._contains_sql_operator(text):
-                return True
-            if SQLInjectionProtection._matches_sql_patterns(text):
-                return True
-            if SQLInjectionProtection._contains_hex_encoded_sql(text):
-                return True
-            if SQLInjectionProtection._has_string_concat_in_sql_context(text):
-                return True
-            return False
+        if SQLInjectionProtection._contains_sql_operator(text):
+            return True
+        if SQLInjectionProtection._matches_sql_patterns(text):
+            return True
+        if SQLInjectionProtection._contains_hex_encoded_sql(text):
+            return True
+        if SQLInjectionProtection._has_string_concat_in_sql_context(text):
+            return True
+        return False
 
         @staticmethod
         def sanitize_sql_input(text: str) -> str:

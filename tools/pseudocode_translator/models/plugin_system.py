@@ -476,17 +476,22 @@ class PluginSystem:
         """Calculate checksum for plugin files"""
         hasher = hashlib.sha256()
 
-        if plugin_path.is_file():
-            # Single file
-            with open(plugin_path, "rb") as f:
-                hasher.update(f.read())
-        else:
-            # Directory - hash manifest and module
-            for filename in [self.PLUGIN_MANIFEST, self.PLUGIN_MODULE]:
-                file_path = plugin_path / filename
-                if file_path.exists():
-                    with open(file_path, "rb") as f:
-                        hasher.update(f.read())
+        try:
+            if plugin_path.is_file():
+                # Single file
+                with open(plugin_path, "rb") as f:
+                    hasher.update(f.read())
+            else:
+                # Directory - hash manifest and module
+                for filename in [self.PLUGIN_MANIFEST, self.PLUGIN_MODULE]:
+                    file_path = plugin_path / filename
+                    if file_path.exists():
+                        with open(file_path, "rb") as f:
+                            hasher.update(f.read())
+        except OSError as e:
+            # File access error - return empty hash as fallback
+            self.logger.warning(f"Could not read plugin file {plugin_path}: {e}")
+            return ""
 
         return hasher.hexdigest()
 
