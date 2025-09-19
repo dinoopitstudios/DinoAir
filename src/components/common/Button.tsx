@@ -1,22 +1,11 @@
-import { useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from 'react';
+import {
+  useState,
+  useCallback,
+  type ButtonHTMLAttributes,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  children: ReactNode;
-}
-
-/**
- * Button component that renders a styled button with hover and focus states.
- *
- * @param {React.ReactNode} children - The content to display inside the button.
- * @param {ButtonVariant} [variant='primary'] - Color variant for the button.
- * @param {boolean} [disabled] - Whether the button is disabled.
- * @param {CSSProperties} [style] - Inline styles to apply to the button.
- * @param {...any} rest - Additional props passed to the button element.
- * @returns {JSX.Element} The rendered button element.
- */
 export default function Button({
   children,
   variant = 'primary',
@@ -26,6 +15,24 @@ export default function Button({
 }: ButtonProps) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+
+  const handleMouseEnter = useCallback(() => {
+    if (!disabled) {
+      setHovered(true);
+    }
+  }, [disabled]);
+
+  const handleMouseLeave = useCallback(() => {
+    setHovered(false);
+  }, []);
+
+  const handleFocus = useCallback(() => {
+    setFocused(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setFocused(false);
+  }, []);
 
   const base: CSSProperties = {
     height: 38,
@@ -62,10 +69,10 @@ export default function Button({
     <button
       className='btn'
       disabled={disabled}
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       style={{ ...base, ...variants[variant], ...style }}
       {...rest}
     >

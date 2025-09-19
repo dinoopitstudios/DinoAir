@@ -25,6 +25,20 @@ export default memo(function ToolGroupCard({
         <div style={{ marginBottom: 8, color: '#9ca3af', fontSize: 12 }}>from {group.module}</div>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        const handleInvoke = React.useCallback((title: string, key: string) => {
+          if (wiredReadOnlyTools.has(key)) {
+            onInvoke(title, key);
+          }
+        }, [wiredReadOnlyTools, onInvoke]);
+
+        const clickHandlers = React.useMemo(() => {
+          const handlers: Record<string, () => void> = {};
+          group.tools.forEach(t => {
+            handlers[t.key] = () => handleInvoke(group.title, t.key);
+          });
+          return handlers;
+        }, [group.tools, group.title, handleInvoke]);
+
         {group.tools.map(t => {
           const isWired = wiredReadOnlyTools.has(t.key);
           const isLoading = loadingTool === t.key;
@@ -35,7 +49,7 @@ export default memo(function ToolGroupCard({
               label={t.label}
               isWired={isWired}
               isLoading={isLoading}
-              onClick={() => isWired && onInvoke(group.title, t.key)}
+              onClick={clickHandlers[t.key]}
             />
           );
         })}

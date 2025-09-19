@@ -62,6 +62,15 @@ export default function ArtifactsPage() {
           gap: 12,
         }}
       >
+        const handleViewClick = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          /* placeholder */
+        }, []);
+
+        const handleDownloadClick = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+          /* download noop */
+        }, []);
+
         {filtered.map(a => (
           <Card
             key={a.id}
@@ -70,17 +79,15 @@ export default function ArtifactsPage() {
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <Button
                   variant='secondary'
-                  onClick={() => {
-                    /* placeholder */
-                  }}
+                  data-id={a.id}
+                  onClick={handleViewClick}
                 >
                   View
                 </Button>
                 <Button
                   variant='ghost'
-                  onClick={() => {
-                    /* download noop */
-                  }}
+                  data-id={a.id}
+                  onClick={handleDownloadClick}
                 >
                   Download
                 </Button>

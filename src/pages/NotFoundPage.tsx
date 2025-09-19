@@ -1,5 +1,6 @@
 // no React default import needed with react-jsx
 
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Banner from '../components/common/Banner';
@@ -15,6 +16,10 @@ import PageHeader from '../components/layout/PageHeader';
 export default function NotFoundPage() {
   const navigate = useNavigate();
 
+  const handleGoHome = useCallback(() => {
+    navigate('/');
+  }, [navigate]);
+
   return (
     <PageContainer className='not-found-page'>
       <PageHeader title='Not Found' />
@@ -22,7 +27,7 @@ export default function NotFoundPage() {
       <Banner type='error'>Page not found</Banner>
 
       <div style={{ marginTop: 10 }}>
-        <Button variant='primary' onClick={() => navigate('/')}>
+        <Button variant='primary' onClick={handleGoHome}>
           Go to Home
         </Button>
       </div>

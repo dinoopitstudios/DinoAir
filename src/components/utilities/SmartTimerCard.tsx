@@ -19,14 +19,17 @@ export default function SmartTimerCard() {
     return () => clearInterval(id);
   }, [running]);
 
+  const start = useCallback(() => setRunning(true), []);
+  const stop = useCallback(() => setRunning(false), []);
+
   /**
    * Resets the timer to zero and stops the timer.
    * @returns {void}
    */
-  function reset() {
+  const reset = useCallback(() => {
     setSeconds(0);
     setRunning(false);
-  }
+  }, []);
 
   return (
     <Card title='Smart Timer'>
@@ -36,10 +39,10 @@ export default function SmartTimerCard() {
           {String(seconds % 60).padStart(2, '0')}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant='primary' onClick={() => setRunning(true)} disabled={running}>
+          <Button variant='primary' onClick={start} disabled={running}>
             Start
           </Button>
-          <Button variant='secondary' onClick={() => setRunning(false)} disabled={!running}>
+          <Button variant='secondary' onClick={stop} disabled={!running}>
             Stop
           </Button>
           <Button variant='ghost' onClick={reset}>

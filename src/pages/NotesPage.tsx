@@ -84,6 +84,28 @@ export default function NotesPage() {
     announceSuccess(`Deleted note: ${deletedTitle}`);
   }
 
+  const handleCancelDelete = useCallback(() => {
+    setConfirmOpen(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (selected) {
+      setConfirmOpen(true);
+      announceWarning(`Delete confirmation required for: ${selected.title}`);
+    }
+  }, [selected, announceWarning]);
+
+  const noteClickHandlers = useMemo(() => {
+    const handlers: Record<string, () => void> = {};
+    filtered.forEach(n => {
+      handlers[n.id] = () => {
+        setSelectedId(n.id);
+        announceInfo(`Selected note: ${n.title}`);
+      };
+    });
+    return handlers;
+  }, [filtered, announceInfo]);
+
   return (
     <PageContainer className='notes-page'>
       <PageHeader icon={<Notes width={20} height={20} />} title='Notes' />
@@ -127,7 +149,7 @@ export default function NotesPage() {
                     </Button>
                     <Button
                       variant='secondary'
-                      onClick={() => setConfirmOpen(false)}
+                      onClick={handleCancelDelete}
                       data-testid='cancel-delete-button'
                       aria-label='Cancel delete'
                     >
@@ -162,10 +184,7 @@ export default function NotesPage() {
                   {filtered.map(n => (
                     <li key={n.id} role='option' aria-selected={selectedId === n.id}>
                       <button
-                        onClick={() => {
-                          setSelectedId(n.id);
-                          announceInfo(`Selected note: ${n.title}`);
-                        }}
+                        onClick={noteClickHandlers[n.id]}
                         data-testid={`note-item-${n.id}`}
                         aria-label={`Select note: ${n.title}`}
                         style={{
@@ -207,12 +226,7 @@ export default function NotesPage() {
               </Button>
               <Button
                 variant='secondary'
-                onClick={() => {
-                  if (selected) {
-                    setConfirmOpen(true);
-                    announceWarning(`Delete confirmation required for: ${selected.title}`);
-                  }
-                }}
+                onClick={handleConfirmDelete}
                 disabled={!selected}
                 data-testid='delete-note-button'
                 aria-label='Delete selected note'

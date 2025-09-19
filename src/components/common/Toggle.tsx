@@ -1,4 +1,4 @@
-import { useId, type CSSProperties } from 'react';
+import { useId, useCallback, type CSSProperties, type ChangeEvent } from 'react';
 
 interface ToggleProps {
   checked: boolean;
@@ -48,6 +48,13 @@ export default function Toggle({ checked, onChange, label }: ToggleProps) {
     userSelect: 'none',
   };
 
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      onChange(e.target.checked);
+    },
+    [onChange]
+  );
+
   return (
     <label
       htmlFor={id}
@@ -65,7 +72,7 @@ export default function Toggle({ checked, onChange, label }: ToggleProps) {
         id={id}
         type='checkbox'
         checked={checked}
-        onChange={e => onChange(e.target.checked)}
+        onChange={handleChange}
         style={{
           position: 'absolute',
           opacity: 0,
