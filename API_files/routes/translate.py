@@ -30,7 +30,7 @@ async def translate(req: TranslateRequest) -> TranslateResponse:
     - Input validated via DTO (size/enum)
     - Runs within app-configured timeout window
     """
-    router = get_router()
+    service_router = get_router()
 
     payload = {"pseudocode": req.pseudocode}
     if req.target_language is not None:
@@ -40,7 +40,7 @@ async def translate(req: TranslateRequest) -> TranslateResponse:
             payload["target_language"] = str(req.target_language)
 
     try:
-        result = router.execute("translator.local.default", payload)
+        result = service_router.execute("translator.local.default", payload)
         return TranslateResponse.model_validate(result)
     except ServiceNotFound as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

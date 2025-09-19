@@ -23,9 +23,9 @@ def check_json1_support():
         # Test JSON1 functions
         test_queries = [
             ("json_extract", "SELECT json_extract('[\"tag1\", \"tag2\"]', '$[0]')"),
-            ("json_each", 'SELECT value FROM json_each(\'["tag1", "tag2"]\')'),
-            ("json_valid", 'SELECT json_valid(\'["tag1", "tag2"]\')'),
-            ("json_array_length", 'SELECT json_array_length(\'["tag1", "tag2"]\')'),
+            ("json_each", 'SELECT value FROM json_each(\'[\"tag1\", \"tag2\"]\')'),
+            ("json_valid", 'SELECT json_valid(\'[\"tag1\", \"tag2\"]\')'),
+            ("json_array_length", 'SELECT json_array_length(\'[\"tag1\", \"tag2\"]\')'),
         ]
 
         supported_functions = []
@@ -50,9 +50,9 @@ def check_json1_support():
         conn.close()
 
         # Summary
-        has_json1 = len(supported_functions) > 0
+        json1_supported = len(supported_functions) > 0
 
-        return has_json1, supported_functions
+        return json1_supported, supported_functions
 
     except Exception:
         return False, []

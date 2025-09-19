@@ -182,7 +182,6 @@ def auto_register_from_config_and_env(
     import httpx
 
     from .config import load_services_from_file
-    from .health import HealthState
 
     try:
         services = load_services_from_file(services_file)

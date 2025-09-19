@@ -64,10 +64,10 @@ def create_router(services_file: str | None = None) -> ServiceRouter:
     # Local imports to avoid cycles
     import os  # local to keep import-time surface minimal
 
-    from .registry import ServiceRegistry, auto_register_from_config_and_env  # noqa: WPS433
+    from .registry import ServiceRegistry as RouterServiceRegistry, auto_register_from_config_and_env  # noqa: WPS433
 
     file_path = services_file or os.getenv("DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
-    registry = ServiceRegistry()
+    registry = RouterServiceRegistry()
     auto_register_from_config_and_env(registry, file_path)
     return ServiceRouter(registry=registry)
 
@@ -171,7 +171,7 @@ class ServiceRouter:
           e) make_adapter(kind, config) and invoke.
           f) Validate output, update health, record metrics, log, return.
         """
-        from .health import HealthState  # Local import to avoid cycles
+        from .health import HealthState as _HealthState  # Local import to avoid cycles
 
         started = time.monotonic()
         # Lookup descriptor with dedicated ServiceNotFound handling
@@ -201,7 +201,7 @@ class ServiceRouter:
 
             self._registry.update_health(
                 desc.name,
-                HealthState.HEALTHY,
+                _HealthState.HEALTHY,
                 latency_ms=duration_ms,
             )
 
@@ -256,7 +256,7 @@ class ServiceRouter:
 
         Returns a dict snapshot of the latest health info for the service.
         """
-        from .health import HealthState, ping_with_timing  # Local import to avoid cycles
+        from .health import HealthState as AdapterHealthState, ping_with_timing  # Local import to avoid cycles
 
         started = time.monotonic()
         # Lookup descriptor with dedicated ServiceNotFound handling
@@ -284,7 +284,7 @@ class ServiceRouter:
             service=desc.name,
             event="check_health",
             duration_ms=duration_ms,
-            ok=(state == HealthState.HEALTHY),
+            ok=(state == AdapterHealthState.HEALTHY),
         )
 
         # Return latest snapshot (defensive copy via dict())

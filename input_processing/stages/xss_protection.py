@@ -127,34 +127,34 @@ class XSSProtection:
         return text.strip()
 
     @staticmethod
-    def sanitize_attributes(html: str) -> str:
+    def sanitize_attributes(html_str: str) -> str:
         """Remove dangerous attributes from HTML."""
-        if not html:
-            return html
+        if not html_str:
+            return html_str
 
         # Remove all event handlers
         for attr in XSSProtection.DANGEROUS_ATTRS:
             # Match various attribute formats
             patterns = [
                 rf'\s*{attr}\s*=\s*"[^"]*"',  # Double quotes
-                rf"\s*{attr}\s*=\s*\'[^\']*\'",  # Single quotes
+                rf"\s*{attr}\s*=\s*\'[^]*\'",  # Single quotes
                 rf"\s*{attr}\s*=\s*[^\s>]+",  # No quotes
                 rf"\s*{attr}(?=\s|>)",  # Boolean attribute
             ]
 
             for pattern in patterns:
-                html = re.sub(pattern, "", html, flags=re.IGNORECASE)
+                html_str = re.sub(pattern, "", html_str, flags=re.IGNORECASE)
 
         # Remove dangerous protocols in href/src attributes
         for protocol in XSSProtection.DANGEROUS_PROTOCOLS:
-            html = re.sub(
-                rf'(href|src)\s*=\s*["\']?' rf'{re.escape(protocol)}[^"\'>\s]*["\']?',
+            html_str = re.sub(
+                rf'(href|src)\s*=\s*["\']?' rf'{re.escape(protocol)}[^"'>\s]*["\']?',
                 r'\1=""',
-                html,
+                html_str,
                 flags=re.IGNORECASE,
             )
 
-        return html
+        return html_str
 
     @staticmethod
     def sanitize_css(css: str) -> str:

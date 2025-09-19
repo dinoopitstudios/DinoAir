@@ -182,7 +182,7 @@ def auto_register_from_config_and_env(
     import httpx
 
     from .config import load_services_from_file
-    from .health import HealthState
+    from .health import HealthState as _HealthState
 
     try:
         services = load_services_from_file(services_file)
@@ -209,7 +209,7 @@ def auto_register_from_config_and_env(
             # Mark as DEGRADED when base URL is unknown
             with suppress(Exception):
                 registry.update_health(
-                    s.name, HealthState.DEGRADED, latency_ms=0, error="missing base_url"
+                    s.name, _HealthState.DEGRADED, latency_ms=0, error="missing base_url"
                 )
             continue
 
@@ -225,7 +225,7 @@ def auto_register_from_config_and_env(
         with suppress(Exception):
             registry.update_health(
                 s.name,
-                HealthState.HEALTHY if ok else HealthState.DEGRADED,
+                _HealthState.HEALTHY if ok else _HealthState.DEGRADED,
                 latency_ms=0,
             )
 

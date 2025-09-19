@@ -286,7 +286,7 @@ class UserManager:
         user_id = str(uuid.uuid4())
         password_hash = self._hash_password(password)
 
-        user = User(
+        new_user = User(
             user_id=user_id,
             username=username,
             email=email,
@@ -299,15 +299,15 @@ class UserManager:
         )
 
         # Set role-based permissions
-        user.permissions = self._calculate_permissions(user.roles)
+        new_user.permissions = self._calculate_permissions(new_user.roles)
 
         # Store user
-        self.users[user_id] = user
+        self.users[user_id] = new_user
 
         # Initialize password history
         self.password_history[user_id] = [password_hash]
 
-        return user
+        return new_user
 
     def authenticate_user(
         self,
@@ -319,27 +319,27 @@ class UserManager:
     ) -> Optional[Session]:
         """Authenticate user and create session."""
 
-        user = self.get_user_by_username(username)
-        if not user:
+        auth_user = self.get_user_by_username(username)
+        if not auth_user:
             return None
 
         # Check account status
-        if not user.is_active:
+        if not auth_user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
 
-        if user.is_account_locked():
+        if auth_user.is_account_locked():
             raise HTTPException(
                 status_code=status.HTTP_423_LOCKED, detail="Account is locked")
 
         # Verify password
-        if not self._verify_password(password, user.password_hash):
-            user.failed_login_attempts += 1
+        if not self._verify_password(password, auth_user.password_hash):
+            auth_user.failed_login_attempts += 1
 
             # Lock account if too many failures
-            if user.failed_login_attempts >= self.password_policy.lockout_attempts:
-                user.is_locked = True
-                user.locked_until = datetime.now(timezone.utc) + timedelta(
+            if auth_user.failed_login_attempts >= self.password_policy.lockout_attempts:
+                auth_user.is_locked = True
+                auth_user.locked_until = datetime.now(timezone.utc) + timedelta(
                     minutes=self.password_policy.lockout_duration_minutes
                 )
 
@@ -348,42 +348,42 @@ class UserManager:
             )
 
         # Reset failed attempts on successful password
-        user.failed_login_attempts = 0
-        user.last_login = datetime.now(timezone.utc)
+        auth_user.failed_login_attempts = 0
+        auth_user.last_login = datetime.now(timezone.utc)
 
         # Check if MFA is required
         mfa_verified = True
-        if require_mfa and user.mfa_enabled:
+        if require_mfa and auth_user.mfa_enabled:
             mfa_verified = False  # Will need separate MFA verification
 
         # Create session
-        session = self._create_session(
-            user, source_ip, user_agent, mfa_verified)
+        auth_session = self._create_session(
+            auth_user, source_ip, user_agent, mfa_verified)
 
-        return session
+        return auth_session
 
     def verify_mfa(self, session_id: str, mfa_code: str) -> bool:
         """Verify MFA code and update session."""
 
-        session = self.sessions.get(session_id)
-        if not session or session.is_expired():
+        auth_session = self.sessions.get(session_id)
+        if not auth_session or auth_session.is_expired():
             return False
 
-        user = self.users.get(session.user_id)
-        if not user or not user.mfa_enabled:
+        auth_user = self.users.get(auth_session.user_id)
+        if not auth_user or not auth_user.mfa_enabled:
             return False
 
         # Verify TOTP code
-        if user.mfa_secret:
-            totp = pyotp.TOTP(user.mfa_secret)
+        if auth_user.mfa_secret:
+            totp = pyotp.TOTP(auth_user.mfa_secret)
             if totp.verify(mfa_code, valid_window=1):
-                session.mfa_verified = True
+                auth_session.mfa_verified = True
                 return True
 
         # Check backup codes
-        if mfa_code in user.mfa_backup_codes:
-            user.mfa_backup_codes.remove(mfa_code)
-            session.mfa_verified = True
+        if mfa_code in auth_user.mfa_backup_codes:
+            auth_user.mfa_backup_codes.remove(mfa_code)
+            auth_session.mfa_verified = True
             return True
 
         return False
@@ -391,22 +391,22 @@ class UserManager:
     def enable_mfa(self, user_id: str) -> Dict[str, Any]:
         """Enable MFA for user and return setup information."""
 
-        user = self.users.get(user_id)
-        if not user:
+        target_user = self.users.get(user_id)
+        if not target_user:
             raise ValueError("User not found")
 
         # Generate secret
         secret = pyotp.random_base32()
-        user.mfa_secret = secret
+        target_user.mfa_secret = secret
 
         # Generate backup codes
         backup_codes = [secrets.token_hex(4).upper() for _ in range(8)]
-        user.mfa_backup_codes = backup_codes
+        target_user.mfa_backup_codes = backup_codes
 
         # Generate QR code
         totp = pyotp.TOTP(secret)
         qr_url = totp.provisioning_uri(
-            name=user.email, issuer_name="DinoAir Healthcare")
+            name=target_user.email, issuer_name="DinoAir Healthcare")
 
         # Create QR code image
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -423,17 +423,17 @@ class UserManager:
     def change_password(self, user_id: str, old_password: str, new_password: str) -> None:
         """Change user password with policy validation."""
 
-        user = self.users.get(user_id)
-        if not user:
+        target_user = self.users.get(user_id)
+        if not target_user:
             raise ValueError("User not found")
 
         # Verify old password
-        if not self._verify_password(old_password, user.password_hash):
+        if not self._verify_password(old_password, target_user.password_hash):
             raise ValueError("Current password is incorrect")
 
         # Validate new password
         self._validate_password(
-            new_password, user.username, user.email, user.full_name)
+            new_password, target_user.username, target_user.email, target_user.full_name)
 
         # Check password history
         new_hash = self._hash_password(new_password)
@@ -444,8 +444,8 @@ class UserManager:
                 raise ValueError("Password has been used recently")
 
         # Update password
-        user.password_hash = new_hash
-        user.password_changed_at = datetime.now(timezone.utc)
+        target_user.password_hash = new_hash
+        target_user.password_changed_at = datetime.now(timezone.utc)
 
         # Update password history
         user_history.append(new_hash)
@@ -466,11 +466,11 @@ class UserManager:
 
     def get_session(self, session_id: str) -> Optional[Session]:
         """Get session by ID."""
-        session = self.sessions.get(session_id)
-        if session and session.is_expired():
+        found_session = self.sessions.get(session_id)
+        if found_session and found_session.is_expired():
             del self.sessions[session_id]
             return None
-        return session
+        return found_session
 
     def cleanup_expired_sessions(self) -> None:
         """Remove expired sessions."""
@@ -484,16 +484,16 @@ class UserManager:
             del self.sessions[session_id]
 
     def _create_session(
-        self, user: User, source_ip: str, user_agent: str, mfa_verified: bool = False
+        self, user_obj: User, source_ip: str, user_agent: str, mfa_verified: bool = False
     ) -> Session:
         """Create new user session."""
 
         session_id = secrets.token_urlsafe(32)
         now = datetime.now(timezone.utc)
 
-        session = Session(
+        session_obj = Session(
             session_id=session_id,
-            user_id=user.user_id,
+            user_id=user_obj.user_id,
             created_at=now,
             last_accessed=now,
             expires_at=now + timedelta(hours=8),  # 8 hour default
@@ -502,8 +502,8 @@ class UserManager:
             mfa_verified=mfa_verified,
         )
 
-        self.sessions[session_id] = session
-        return session
+        self.sessions[session_id] = session_obj
+        return session_obj
 
     def _validate_password(self, password: str, username: str, email: str, full_name: str) -> None:
         """Validate password against policy."""
@@ -576,8 +576,8 @@ class UserManager:
 class AuthenticationMiddleware:
     """FastAPI middleware for authentication."""
 
-    def __init__(self, user_manager: UserManager):
-        self.user_manager = user_manager
+    def __init__(self, user_mgr: UserManager):
+        self.user_manager = user_mgr
         self.security = HTTPBearer(auto_error=False)
 
     async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends()) -> User:
@@ -588,43 +588,43 @@ class AuthenticationMiddleware:
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
             )
 
-        session = self.user_manager.get_session(credentials.credentials)
-        if not session:
+        user_session = self.user_manager.get_session(credentials.credentials)
+        if not user_session:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session")
 
-        user = self.user_manager.users.get(session.user_id)
-        if not user or not user.is_active:
+        current_user = self.user_manager.users.get(user_session.user_id)
+        if not current_user or not current_user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive"
             )
 
         # Update last accessed
-        session.last_accessed = datetime.now(timezone.utc)
+        user_session.last_accessed = datetime.now(timezone.utc)
 
-        return user
+        return current_user
 
     def require_permission(self, permission: Permission):
         """Decorator to require specific permission."""
 
-        def permission_checker(user: User = Depends(self.get_current_user)) -> User:
-            if not user.has_permission(permission):
+        def permission_checker(current_user: User = Depends(self.get_current_user)) -> User:
+            if not current_user.has_permission(permission):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
                 )
-            return user
+            return current_user
 
         return permission_checker
 
     def require_role(self, role: UserRole):
         """Decorator to require specific role."""
 
-        def role_checker(user: User = Depends(self.get_current_user)) -> User:
-            if role not in user.roles:
+        def role_checker(current_user: User = Depends(self.get_current_user)) -> User:
+            if role not in current_user.roles:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role"
                 )
-            return user
+            return current_user
 
         return role_checker
 
