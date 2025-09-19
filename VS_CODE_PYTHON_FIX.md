@@ -49,7 +49,7 @@
 
 ```powershell
 .\fix-vscode-python.ps1
-```
+- **Location:** `<project-root>\.venv\Scripts\python.exe`
 
 ## ✅ Verification
 
