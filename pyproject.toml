@@ -40,7 +40,7 @@ dependencies = [
     "cryptography>=41.0.0,<45.0.0",
 
     # HTTP client for API calls
-    "httpx>=0.25.0,<0.26.0",
+    "httpx>=0.25.0,<0.29.0",
 
     # PDF processing
     "pypdf>=6.0.0,<7.0.0",
