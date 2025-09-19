@@ -5,7 +5,7 @@
 # Core async framework and HTTP client
 aiofiles==24.1.0          # Async file operations
 anyio==4.10.0             # Async compatibility layer
-httpx==0.25.2             # Modern async HTTP client
+httpx==0.28.1             # Modern async HTTP client
 httpcore==1.0.9           # HTTP core for httpx
 h11==0.16.0               # HTTP/1.1 implementation
 
