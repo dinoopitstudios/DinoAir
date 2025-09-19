@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Artifact Encryption Utilities
 Provides field-level encryption/decryption for sensitive artifact data.
@@ -135,7 +134,8 @@ class ArtifactEncryption:
 
         # Derive key if not provided
         if key is None:
-            key = self.derive_key(self.password, salt)  # type: ignore  # Already checked above
+            # type: ignore  # Already checked above
+            key = self.derive_key(self.password, salt)
 
         # Create cipher and decrypt
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
@@ -277,7 +277,8 @@ class ArtifactEncryption:
 
         return decrypted_data
 
-    def generate_encryption_key_id(self) -> str:
+    @staticmethod
+    def generate_encryption_key_id() -> str:
         """Generate a unique encryption key ID"""
         return base64.urlsafe_b64encode(secrets.token_bytes(16)).decode("utf-8").rstrip("=")
 

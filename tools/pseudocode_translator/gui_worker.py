@@ -293,8 +293,7 @@ class TranslationWorker(QObject):
             # Sort by (line, name) and create issue messages
             sorted_items = sorted(seen, key=lambda x: (x[1], x[0]))
             for name, line, col in sorted_items:
-                loc = f"line {line}" + \
-                    (f", col {col}" if col is not None else "")
+                loc = f"line {line}" + (f", col {col}" if col is not None else "")
                 issues.append(f"Undefined variable '{name}' at {loc}")
 
             return issues
@@ -322,8 +321,7 @@ class TranslationWorker(QObject):
                 try:
                     compile(stripped, "<import>", "single")
                 except SyntaxError:
-                    errors.append(
-                        f"Invalid import statement at line {i}: {stripped}")
+                    errors.append(f"Invalid import statement at line {i}: {stripped}")
 
         return errors
 
@@ -358,8 +356,7 @@ class TranslationWorker(QObject):
             success=len(validation_errors) == 0,
             code=final_code,
             errors=validation_errors,
-            warnings=parse_result.warnings +
-            ["No English instructions found to translate"],
+            warnings=parse_result.warnings + ["No English instructions found to translate"],
             metadata={
                 "blocks_processed": getattr(
                     parse_result,

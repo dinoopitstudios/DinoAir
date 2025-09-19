@@ -77,11 +77,9 @@ class SyntaxValidator:
             context = ErrorContext(
                 line_number=e.lineno,
                 column_number=e.offset,
-                code_snippet=(
-                    lines[e.lineno - 1] if e.lineno and e.lineno <= len(lines) else None),
+                code_snippet=(lines[e.lineno - 1] if e.lineno and e.lineno <= len(lines) else None),
                 surrounding_lines=(
-                    self._get_surrounding_lines(
-                        lines, e.lineno) if e.lineno else []
+                    self._get_surrounding_lines(lines, e.lineno) if e.lineno else []
                 ),
             )
 
@@ -163,8 +161,7 @@ class SyntaxValidator:
             indent = len(line) - len(stripped)
 
             # Check for mixed tabs and spaces
-            mixed_error = self._check_mixed_tabs_spaces(
-                line, indent, lines, line_num)
+            mixed_error = self._check_mixed_tabs_spaces(line, indent, lines, line_num)
             if mixed_error:
                 errors.append(mixed_error)
 
@@ -204,8 +201,7 @@ class SyntaxValidator:
     def _check_indentation_consistency(self, context: IndentationContext) -> str | None:
         """Check for consistent indentation levels."""
         if context.stripped.endswith(":"):
-            context.indent_stack.append(
-                context.indent + self.config.indent_size)
+            context.indent_stack.append(context.indent + self.config.indent_size)
             return None
         if context.indent not in context.indent_stack:
             if context.indent < context.indent_stack[-1]:
@@ -248,8 +244,7 @@ class SyntaxValidator:
 
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
-                issues.extend(self._check_regular_imports(
-                    node, imported_modules))
+                issues.extend(self._check_regular_imports(node, imported_modules))
             elif isinstance(node, ast.ImportFrom):
                 issues.extend(self._check_from_imports(node, imported_modules))
 
@@ -261,8 +256,7 @@ class SyntaxValidator:
         for alias in node.names:
             module_name = alias.name.split(".")[0]
             if module_name in imported_modules:
-                issues.append(
-                    f"Duplicate import: {module_name} at line {node.lineno}")
+                issues.append(f"Duplicate import: {module_name} at line {node.lineno}")
             else:
                 imported_modules.add(module_name)
                 if self._is_unsafe_module(module_name):
@@ -277,8 +271,7 @@ class SyntaxValidator:
         if node.module:
             module_name = node.module.split(".")[0]
             if module_name in imported_modules:
-                issues.append(
-                    f"Duplicate import: {module_name} at line {node.lineno}")
+                issues.append(f"Duplicate import: {module_name} at line {node.lineno}")
             else:
                 imported_modules.add(module_name)
                 if self._is_unsafe_module(module_name):
@@ -337,8 +330,7 @@ class SyntaxValidator:
             if suggestion:
                 error.add_suggestion(f"Try: {suggestion}")
 
-        error.add_suggestion(
-            "Check for missing colons, parentheses, or quotes")
+        error.add_suggestion("Check for missing colons, parentheses, or quotes")
         error.add_suggestion("Ensure proper indentation")
 
     def _suggest_syntax_fix(self, code: str, error: SyntaxError) -> str:
@@ -391,8 +383,7 @@ class SyntaxValidator:
         stack = []
 
         for char in line:
-            mismatch_result = self._process_bracket_char(
-                char, brackets, stack, line)
+            mismatch_result = self._process_bracket_char(char, brackets, stack, line)
             if mismatch_result:
                 return mismatch_result
 
@@ -425,8 +416,7 @@ class SyntaxValidator:
 
         for i, char in enumerate(line):
             if self._is_quote_character(char, i, line):
-                in_string, quote_char = self._process_quote_char(
-                    char, in_string, quote_char)
+                in_string, quote_char = self._process_quote_char(char, in_string, quote_char)
 
         return self._handle_unclosed_string(line, in_string, quote_char)
 

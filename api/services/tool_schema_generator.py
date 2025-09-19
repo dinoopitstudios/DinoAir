@@ -45,8 +45,7 @@ def generate_schema(func: Callable) -> dict[str, Any]:
             elif param_type == bool:
                 schema_type = "boolean"
 
-        properties[param_name] = {"type": schema_type,
-                                  "description": f"Parameter {param_name}"}
+        properties[param_name] = {"type": schema_type, "description": f"Parameter {param_name}"}
 
     return {
         "type": "function",

@@ -49,10 +49,12 @@ else:
                 pass
 
         class QMutex:  # type: ignore
-            def lock(self) -> None:
+            @staticmethod
+            def lock() -> None:
                 pass
 
-            def unlock(self) -> None:
+            @staticmethod
+            def unlock() -> None:
                 pass
 
         class QMutexLocker:  # type: ignore
@@ -67,20 +69,24 @@ else:
                 self._mutex.unlock()
 
         class QWaitCondition:  # type: ignore
-            def wait(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def wait(*_: Any, **__: Any) -> None:
                 pass
 
-            def wakeAll(self) -> None:
+            @staticmethod
+            def wakeAll() -> None:
                 pass
 
         class QThread:  # type: ignore
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
-            def start(self) -> None:
+            @staticmethod
+            def start() -> None:
                 pass
 
-            def isRunning(self) -> bool:
+            @staticmethod
+            def isRunning() -> bool:
                 return False
 
             def wait(self, *_: Any, **__: Any) -> bool:
@@ -291,14 +297,12 @@ class WatchdogSignals(QObject):
     """Qt signals for thread-safe communication from watchdog thread."""
 
     # Metrics updates
-    metrics_ready = Signal(cast("type", SystemMetrics)
-                           )  # Regular metrics updates
+    metrics_ready = Signal(cast("type", SystemMetrics))  # Regular metrics updates
     # Degraded metrics w/reason
     metrics_degraded = Signal(cast("type", SystemMetrics), str)
 
     # Alert notifications
-    alert_triggered = Signal(cast("type", AlertLevel),
-                             str)  # Alert level and message
+    alert_triggered = Signal(cast("type", AlertLevel), str)  # Alert level and message
 
     # Error handling
     error_occurred = Signal(str)  # Error message
@@ -407,8 +411,7 @@ class CircuitBreaker:
 
             if self._failure_count >= self.failure_threshold:
                 self._state = BreakerState.OPEN
-                logger.warning(
-                    f"Circuit breaker opened after {self._failure_count} failures")
+                logger.warning(f"Circuit breaker opened after {self._failure_count} failures")
 
             # Reset success count on any failure in half-open state
             if self._state == BreakerState.HALF_OPEN:
@@ -488,8 +491,7 @@ class WatchdogThread(QThread):
 
         # Metrics fallback and caching
         self.fallback = MetricsFallback()
-        self._metrics_history: deque[SystemMetricsT] = deque(
-            maxlen=10)  # Keep last 10 metrics
+        self._metrics_history: deque[SystemMetricsT] = deque(maxlen=10)  # Keep last 10 metrics
 
         # Component health tracking
         self.component_health = {
@@ -581,10 +583,8 @@ class WatchdogThread(QThread):
                     self._emit_status_update()
 
             except CircuitBreakerOpen:
-                logger.warning(
-                    "Circuit breaker is open, skipping metrics collection")
-                self.signals.circuit_breaker_opened.emit(
-                    "Too many errors collecting metrics")
+                logger.warning("Circuit breaker is open, skipping metrics collection")
+                self.signals.circuit_breaker_opened.emit("Too many errors collecting metrics")
 
             except (OSError, AttributeError, ImportError, RuntimeError) as e:
                 self.error_count += 1
@@ -602,8 +602,7 @@ class WatchdogThread(QThread):
         """Collect metrics with protection and graceful degradation."""
         try:
             # Use circuit breaker to protect metrics collection
-            metrics: SystemMetricsT = self.circuit_breaker.call(
-                self._collect_metrics_with_retry)
+            metrics: SystemMetricsT = self.circuit_breaker.call(self._collect_metrics_with_retry)
 
             # Update uptime based on thread's startup time
             uptime_seconds = int(time.time() - self._startup_time)
@@ -619,8 +618,7 @@ class WatchdogThread(QThread):
                 self.error_count = 0
                 self.consecutive_failures = 0
                 self.signals.circuit_breaker_closed.emit()
-                self.signals.error_recovered.emit(
-                    "Metrics collection recovered")
+                self.signals.error_recovered.emit("Metrics collection recovered")
 
             # Update component health
             self._update_component_health(
@@ -683,16 +681,14 @@ class WatchdogThread(QThread):
 
                 if retry_count < self.retry_config.max_retries:
                     # Calculate delay with exponential backoff
-                    delay = self._calculate_retry_delay(
-                        "metrics_collection", retry_count)
+                    delay = self._calculate_retry_delay("metrics_collection", retry_count)
                     logger.warning(
                         f"Metrics collection attempt {retry_count} failed, retrying in {delay:.1f}s: {e}"
                     )
                     time.sleep(delay)
 
         # All retries failed
-        raise RuntimeError(
-            f"Metrics collection failed after {retry_count} attempts: {last_error}")
+        raise RuntimeError(f"Metrics collection failed after {retry_count} attempts: {last_error}")
 
     def _collect_vram_with_fallback(self) -> tuple[float, float, float]:
         """Collect VRAM info with error handling and fallback."""
@@ -774,8 +770,7 @@ class WatchdogThread(QThread):
             total_processes = len(psutil.pids())
 
             # Use public method for dinoair process count
-            process_method = getattr(
-                self._watchdog_instance, "count_dinoair_processes")
+            process_method = getattr(self._watchdog_instance, "count_dinoair_processes")
             dinoair_count = process_method()
 
             self._update_component_health(
@@ -891,8 +886,7 @@ class WatchdogThread(QThread):
 
             # Emit signal if status changed
             if old_status != status:
-                self.signals.component_health_changed.emit(
-                    component, status, message)
+                self.signals.component_health_changed.emit(component, status, message)
 
     def _perform_health_check(self):
         """Perform comprehensive health check of all components."""
@@ -956,8 +950,7 @@ class WatchdogThread(QThread):
 
     def _handle_emergency_shutdown(self, metrics: SystemMetricsT):
         """Handle emergency shutdown for runaway processes."""
-        logger.critical(
-            f"Emergency shutdown triggered: {metrics.dinoair_processes} processes")
+        logger.critical(f"Emergency shutdown triggered: {metrics.dinoair_processes} processes")
         self.signals.emergency_shutdown_initiated.emit(
             f"Process limit exceeded: {metrics.dinoair_processes}"
         )
@@ -976,8 +969,7 @@ class WatchdogThread(QThread):
             # Re-check process count
             new_metrics = self._watchdog_instance.get_current_metrics()
             if new_metrics and new_metrics.dinoair_processes > self.config.max_processes:
-                logger.critical(
-                    "Emergency cleanup failed, performing full shutdown")
+                logger.critical("Emergency cleanup failed, performing full shutdown")
                 # Use public method for emergency shutdown
                 self._watchdog_instance.perform_emergency_shutdown()
 

@@ -79,8 +79,7 @@ class RedactionService:
         # Redact explicit secrets
         for secret in self.secrets:
             if secret and secret in redacted:
-                redacted = redacted.replace(
-                    secret, self.config.redacted_placeholder)
+                redacted = redacted.replace(secret, self.config.redacted_placeholder)
 
         # Apply pattern-based redaction
         redacted = self._redact_json_auth_header(redacted)
@@ -211,7 +210,8 @@ class RedactionService:
 
         return text[:start] + self.config.redacted_placeholder + text[end:]
 
-    def _find_pattern_end(self, text: str, start: int, terminator: str | None) -> int:
+    @staticmethod
+    def _find_pattern_end(text: str, start: int, terminator: str | None) -> int:
         """Find the end position of a pattern to redact.
 
         Args:
@@ -272,8 +272,7 @@ class RedactionFilter(logging.Filter):
                         k: self.redaction_service.redact_value(v) for k, v in record.args.items()
                     }
                 elif isinstance(record.args, tuple):
-                    record.args = tuple(
-                        self.redaction_service.redact_value(a) for a in record.args)
+                    record.args = tuple(self.redaction_service.redact_value(a) for a in record.args)
 
     def _redact_extra_fields(self, record: logging.LogRecord) -> None:
         """Redact sensitive extra fields in log records."""
@@ -284,8 +283,7 @@ class RedactionFilter(logging.Filter):
                         record.__dict__[key]
                     )
                 elif isinstance(record.__dict__[key], str):
-                    record.__dict__[key] = self.redaction_service.redact_text(record.__dict__[
-                                                                              key])
+                    record.__dict__[key] = self.redaction_service.redact_text(record.__dict__[key])
 
 
 class ISOFormatter(JsonFormatter):
@@ -320,12 +318,14 @@ class ISOFormatter(JsonFormatter):
         self._add_logger_name(log_record, record)
         self._copy_structured_fields(log_record, record, message_dict)
 
-    def _add_timestamp(self, log_record: dict[str, Any]) -> None:
+    @staticmethod
+    def _add_timestamp(log_record: dict[str, Any]) -> None:
         """Add ISO8601 timestamp if not present."""
         if "ts" not in log_record:
             log_record["ts"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
-    def _normalize_level(self, log_record: dict[str, Any], record: logging.LogRecord) -> None:
+    @staticmethod
+    def _normalize_level(log_record: dict[str, Any], record: logging.LogRecord) -> None:
         """Normalize the log level to lowercase."""
         lvl = (
             log_record.get("level")
@@ -340,7 +340,8 @@ class ISOFormatter(JsonFormatter):
         if "level" not in log_record:
             log_record["level"] = "info"
 
-    def _add_logger_name(self, log_record: dict[str, Any], record: logging.LogRecord) -> None:
+    @staticmethod
+    def _add_logger_name(log_record: dict[str, Any], record: logging.LogRecord) -> None:
         """Add logger name to the record."""
         log_record["logger"] = record.name
 
@@ -363,18 +364,18 @@ class ISOFormatter(JsonFormatter):
     ) -> None:
         """Copy configured structured fields."""
         for field_name in self.config.structured_log_fields:
-            value = self._get_field_value(
-                field_name, message_dict, log_record, record)
+            value = self._get_field_value(field_name, message_dict, log_record, record)
             if value is not None:
                 log_record[field_name] = value
 
-    def _mirror_path_to_route(self, log_record: dict[str, Any]) -> None:
+    @staticmethod
+    def _mirror_path_to_route(log_record: dict[str, Any]) -> None:
         """Mirror path to route for stability."""
         if "route" not in log_record and "path" in log_record:
             log_record["route"] = log_record.get("path")
 
+    @staticmethod
     def _get_field_value(
-        self,
         field_name: str,
         message_dict: dict[str, Any],
         log_record: dict[str, Any],

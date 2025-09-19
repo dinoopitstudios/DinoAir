@@ -54,8 +54,7 @@ class EventRuntime:
 
         # Start worker if not already running
         if self._worker is None or not self._worker.is_alive():
-            self._worker = threading.Thread(
-                target=self._worker_loop, daemon=True)
+            self._worker = threading.Thread(target=self._worker_loop, daemon=True)
             self._worker.start()
 
     def stop(self, final_progress, cancelled: bool) -> None:

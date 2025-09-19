@@ -42,7 +42,8 @@ class NotesServiceFactory:
             self.logger.error(f"Failed to create notes service: {str(e)}")
             raise
 
-    def create_database_manager(self, user_name: str | None = None):
+    @staticmethod
+    def create_database_manager(user_name: str | None = None):
         """
         Create database manager instance.
 
@@ -56,7 +57,8 @@ class NotesServiceFactory:
 
         return DatabaseManager(user_name)
 
-    def create_notes_repository(self, user_name: str | None = None):
+    @staticmethod
+    def create_notes_repository(user_name: str | None = None):
         """
         Create notes repository with optional user specification.
 
@@ -70,7 +72,8 @@ class NotesServiceFactory:
 
         return NotesRepository(user_name)
 
-    def create_notes_security(self):
+    @staticmethod
+    def create_notes_security():
         """
         Create notes security validator.
 
@@ -81,7 +84,8 @@ class NotesServiceFactory:
 
         return NotesSecurity()
 
-    def create_notes_validator(self):
+    @staticmethod
+    def create_notes_validator():
         """
         Create notes data validator.
 

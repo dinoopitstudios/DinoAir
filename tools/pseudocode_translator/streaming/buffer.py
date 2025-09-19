@@ -99,8 +99,7 @@ class StreamBuffer:
         self._current_size = 0
         # Convert MB to bytes
         self._max_size = self.config.max_size_mb * 1024 * 1024
-        self._stats = {"hits": 0, "misses": 0,
-                       "evictions": 0, "compressions": 0}
+        self._stats = {"hits": 0, "misses": 0, "evictions": 0, "compressions": 0}
 
     def add_chunk(self, chunk_index: int, data: Any) -> bool:
         """
@@ -225,8 +224,7 @@ class StreamBuffer:
                 "size": self._current_size,
                 "chunks": len(self._buffer),
                 "hit_rate": (
-                    self._stats["hits"] /
-                    max(1, self._stats["hits"] + self._stats["misses"])
+                    self._stats["hits"] / max(1, self._stats["hits"] + self._stats["misses"])
                 ),
             }
 
@@ -306,8 +304,7 @@ class StreamBuffer:
                 with gzip.open(save_path, "wt", encoding="utf-8") as f:
                     json.dump(save_data, f)
 
-                logger.info(
-                    f"Persisted {len(save_data)} chunks to {save_path}")
+                logger.info(f"Persisted {len(save_data)} chunks to {save_path}")
 
         except Exception as e:
             logger.error(f"Error persisting buffer: {e}")
@@ -335,8 +332,7 @@ class StreamBuffer:
 
                 for chunk_index_str, entry_data in save_data.items():
                     chunk_index = int(chunk_index_str)
-                    entry = BufferEntry(
-                        entry_data["data"], entry_data["compressed"])
+                    entry = BufferEntry(entry_data["data"], entry_data["compressed"])
                     self._buffer[chunk_index] = entry
                     self._current_size += entry.size
 
@@ -375,13 +371,13 @@ class ContextBuffer:
             if len(content) > self.window_size * 2:
                 # Keep last window_size characters
                 self._buffer = io.StringIO()
-                self._buffer.write(content[-self.window_size:])
+                self._buffer.write(content[-self.window_size :])
 
     def get_context(self) -> str:
         """Get current context"""
         with self._lock:
             content = self._buffer.getvalue()
-            return content[-self.window_size:] if content else ""
+            return content[-self.window_size :] if content else ""
 
     def clear(self):
         """Clear context buffer"""

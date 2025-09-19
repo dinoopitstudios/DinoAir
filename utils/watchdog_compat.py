@@ -97,8 +97,7 @@ class StreamlinedWatchdog:
 
         except RuntimeError as e:
             logger.error(f"Failed to initialize Qt controller: {e}")
-            raise RuntimeError(
-                f"Qt controller initialization failed: {e}") from e
+            raise RuntimeError(f"Qt controller initialization failed: {e}") from e
 
     def _connect_signals(self):
         """Connect Qt signals to callback functions."""
@@ -166,8 +165,7 @@ class StreamlinedWatchdog:
                     except RuntimeError as e:
                         logger.error(f"Qt event loop error: {e}")
 
-                self._qt_thread = threading.Thread(
-                    target=run_qt_loop, daemon=True)
+                self._qt_thread = threading.Thread(target=run_qt_loop, daemon=True)
                 self._qt_thread.start()
 
             # Start the controller

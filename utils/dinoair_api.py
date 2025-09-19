@@ -101,7 +101,8 @@ class PerformanceMonitor:
             return self._monitor.end_operation(operation_id)
         return None
 
-    def record_custom_metric(self, operation: str, name: str, value: int | float) -> None:
+    @staticmethod
+    def record_custom_metric(operation: str, name: str, value: int | float) -> None:
         """
         Record a custom metric for an operation.
 

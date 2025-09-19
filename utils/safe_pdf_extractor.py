@@ -174,7 +174,8 @@ class SafePDFProcessor:
         except OSError as e:
             raise PDFProcessingError(f"Error reading PDF file: {str(e)}") from e
 
-    def _preprocess_pdf_content(self, file_content: bytes) -> bytes:
+    @staticmethod
+    def _preprocess_pdf_content(file_content: bytes) -> bytes:
         """
         Preprocess PDF content to fix known vulnerabilities before PyPDF2 parsing.
 

@@ -299,8 +299,7 @@ def main():
     parser.add_argument(
         "--fix", action="store_true", help="Suggest fixes for detected circular dependencies"
     )
-    parser.add_argument("--verbose", action="store_true",
-                        help="Enable verbose output")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     args = parser.parse_args()
 
@@ -323,8 +322,7 @@ def main():
         suggestions = detector.suggest_fixes(cycles)
 
     # Output results
-    output = format_output(cycles, suggestions,
-                           args.format, detector.module_paths)
+    output = format_output(cycles, suggestions, args.format, detector.module_paths)
     print(output)
 
     # Exit with appropriate code

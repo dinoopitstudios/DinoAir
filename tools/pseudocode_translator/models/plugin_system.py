@@ -95,8 +95,7 @@ class PluginSystem:
         if not _plugins_enabled() and plugin_dirs is None:
             # Disabled by default unless explicitly enabled
             self.plugin_dirs = []
-            logger.info(
-                "Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
+            logger.info("Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
         # Respect explicit plugin_dirs (including empty list); otherwise use defaults
         elif plugin_dirs is None:
             self.plugin_dirs = self.DEFAULT_PLUGIN_DIRS
@@ -112,8 +111,7 @@ class PluginSystem:
                         plugin_dir.mkdir(parents=True, exist_ok=True)
                         accessible_dirs.append(plugin_dir)
                     except OSError as e:
-                        logger.warning(
-                            f"Cannot create plugin directory {plugin_dir}: {e}")
+                        logger.warning(f"Cannot create plugin directory {plugin_dir}: {e}")
                         # Skip directories we can't create
                         continue
                 else:
@@ -132,8 +130,7 @@ class PluginSystem:
             List of plugin paths
         """
         if not _plugins_enabled():
-            logger.info(
-                "Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
+            logger.info("Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
             return []
 
         discovered_plugins = []
@@ -186,8 +183,7 @@ class PluginSystem:
                 # Cache the plugin
                 self.loaded_plugins[plugin_key] = loaded_plugin
 
-                logger.info(
-                    f"Successfully loaded plugin: {loaded_plugin.metadata.name}")
+                logger.info(f"Successfully loaded plugin: {loaded_plugin.metadata.name}")
                 return loaded_plugin
 
             return None
@@ -204,8 +200,7 @@ class PluginSystem:
             Number of successfully loaded plugins
         """
         if not _plugins_enabled():
-            logger.info(
-                "Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
+            logger.info("Plugin loading disabled (PSEUDOCODE_ENABLE_PLUGINS=0)")
             return 0
 
         plugins = self.discover_plugins()
@@ -409,8 +404,7 @@ class PluginSystem:
 
         # Load the module
         module_path = plugin_path / self.PLUGIN_MODULE
-        spec = importlib.util.spec_from_file_location(
-            f"plugin_{metadata.name}", module_path)
+        spec = importlib.util.spec_from_file_location(f"plugin_{metadata.name}", module_path)
 
         if not spec or not spec.loader:
             logger.error(f"Failed to create module spec for {module_path}")
@@ -428,8 +422,7 @@ class PluginSystem:
         # Get the model class
         model_class = getattr(module, metadata.model_class, None)
         if not model_class:
-            logger.error(
-                f"Model class {metadata.model_class} not found in module")
+            logger.error(f"Model class {metadata.model_class} not found in module")
             return None
 
         # Validate model class
@@ -499,8 +492,7 @@ class PluginSystem:
 
     def _clear_plugin_cache(self, plugin_name: str) -> None:
         """Clear any cached data for a plugin"""
-        keys_to_remove = [
-            key for key in self._plugin_cache if key.startswith(f"{plugin_name}:")]
+        keys_to_remove = [key for key in self._plugin_cache if key.startswith(f"{plugin_name}:")]
         for key in keys_to_remove:
             del self._plugin_cache[key]
 

@@ -317,12 +317,10 @@ class RagService:
         for path in files:
             try:
                 if has_run_single:
-                    res = proc.run_single(
-                        path, force_reprocess=force_reprocess)
+                    res = proc.run_single(path, force_reprocess=force_reprocess)
                 else:
                     # Align with FileProcessor signature to ensure DB storage
-                    res = proc.process_file(
-                        path, force_reprocess=force_reprocess, store_in_db=True)
+                    res = proc.process_file(path, force_reprocess=force_reprocess, store_in_db=True)
 
                 # Normalize and collect minimal stable shape for the response
                 success = bool(res.get("success"))
@@ -348,8 +346,7 @@ class RagService:
                 )
             except (OSError, ValueError, RuntimeError, AttributeError, TypeError) as e:
                 stats["failed"] += 1
-                results.append(
-                    {"file": path, "success": False, "error": str(e)})
+                results.append({"file": path, "success": False, "error": str(e)})
 
         return results, stats
 
@@ -386,8 +383,7 @@ class RagService:
         has_run_single = hasattr(proc, "run_single")
 
         # Process files with reduced branching
-        results, stats = self._process_files(
-            proc, allowed, force_reprocess, has_run_single)
+        results, stats = self._process_files(proc, allowed, force_reprocess, has_run_single)
 
         out: dict[str, Any] = {
             "success": stats["failed"] == 0,

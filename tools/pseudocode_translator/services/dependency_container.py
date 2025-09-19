@@ -76,8 +76,7 @@ class DependencyContainer:
                 logger.debug("Created instance via factory: %s", key)
                 return instance
             except Exception as e:
-                raise DependencyError(
-                    f"Failed to create instance of {key}") from e
+                raise DependencyError(f"Failed to create instance of {key}") from e
 
         raise DependencyError(f"Service not registered: {key}")
 
