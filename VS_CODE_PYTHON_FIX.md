@@ -83,3 +83,4 @@ If you still see conda activation attempts:
 - The workspace file includes all your existing formatting preferences
 - All your development tools (black, ruff, prettier, eslint) are properly configured
 - The `.venv` virtual environment remains untouched and fully functional
+```
