@@ -95,7 +95,7 @@ class SecretManager:
     def _get_from_environment(self, key: str, default: Optional[str] = None) -> Optional[str]:
         """Get secret from environment variables."""
         value = os.environ.get(key, default)
-        if value and len(value) < 8:
+        if value and len(value) < 16:
             warnings.warn(
                 f"Secret '{key}' appears to be too short for production use",
                 SecurityWarning,
