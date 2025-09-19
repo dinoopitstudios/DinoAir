@@ -6,6 +6,15 @@ interface ToggleProps {
   label?: string;
 }
 
+/**
+ * Renders a toggle switch component.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.checked - Indicates if the toggle is on.
+ * @param {(checked: boolean) => void} props.onChange - Callback for state change.
+ * @param {string} [props.label] - Optional label displayed next to the toggle.
+ * @returns {JSX.Element} The rendered Toggle component.
+ */
 export default function Toggle({ checked, onChange, label }: ToggleProps) {
   const id = useId();
 

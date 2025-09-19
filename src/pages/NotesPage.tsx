@@ -13,6 +13,10 @@ import { useResponsive } from '../hooks/useResponsive';
 
 type Note = { id: number; title: string; content: string };
 
+/**
+ * NotesPage component displays and manages a list of notes.
+ * @returns JSX.Element The rendered notes page component.
+ */
 export default function NotesPage() {
   const { isMobile } = useResponsive();
   const { announceSuccess, announceInfo, announceWarning } = useAnnouncement();
@@ -46,6 +50,11 @@ export default function NotesPage() {
 
   const selected = notes.find(n => n.id === selectedId) ?? null;
 
+  /**
+   * Creates a new note with a unique id and default content.
+   * Updates the notes list, selects the new note, and announces success.
+   * @returns void
+   */
   function createNote() {
     const id = notes.length ? Math.max(...notes.map(n => n.id)) + 1 : 1;
     const newNote: Note = {
@@ -60,6 +69,10 @@ export default function NotesPage() {
     setTimeout(() => setSuccessOpen(false), 1000);
   }
 
+  /**
+   * Deletes the currently selected note from the list, clears selection, and announces success.
+   * @returns void
+   */
   function deleteNote() {
     if (!selected) {
       return;

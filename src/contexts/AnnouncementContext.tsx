@@ -45,6 +45,13 @@ interface AnnouncementProviderProps {
   defaultDuration?: number; // Default duration for auto-clear (ms)
 }
 
+/**
+ * AnnouncementProvider component that supplies announcement context to its children.
+ *
+ * @param children - React child components that will have access to announcement context.
+ * @param defaultDuration - Default duration in milliseconds before an announcement is auto-cleared (default is 5000ms).
+ * @returns A context provider component for managing announcements.
+ */
 export const AnnouncementProvider: FC<AnnouncementProviderProps> = ({
   children,
   defaultDuration = 5000, // 5 seconds default

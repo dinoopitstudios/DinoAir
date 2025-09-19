@@ -2,6 +2,14 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * LocalFileRetrievalAndIndexing icon component.
+ *
+ * Renders an SVG icon representing local file retrieval and indexing.
+ *
+ * @param props - SVGProps passed to the svg element.
+ * @returns JSX Element for the icon.
+ */
 const LocalFileRetrievalAndIndexing: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

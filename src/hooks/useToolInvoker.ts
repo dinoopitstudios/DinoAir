@@ -21,6 +21,12 @@ export interface UseToolInvokerOutput {
   pollerTriggerKey: string | null;
 }
 
+/**
+ * Custom hook to manage tool invocations and their state.
+ *
+ * @param input - An object containing handlers for each tool (UseToolInvokerInput).
+ * @returns An object with the current invocation state, an invokeTool function, and a poller trigger key (UseToolInvokerOutput).
+ */
 export function useToolInvoker(input: UseToolInvokerInput): UseToolInvokerOutput {
   const { handlers } = input;
 

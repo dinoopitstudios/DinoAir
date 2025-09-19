@@ -6,6 +6,9 @@
 const express = require('express');
 const { chromium } = require('playwright');
 
+/**
+ * Tracks local API calls in the DinoAir application and serves a dashboard for viewing recent calls.
+ */
 class WorkingAPITracker {
   constructor() {
     this.calls = [];
@@ -14,6 +17,10 @@ class WorkingAPITracker {
     this.page = null;
   }
 
+  /**
+   * Initializes and starts the Express dashboard server to display tracked API calls.
+   * @returns {Promise<void>}
+   */
   async startDashboard() {
     const app = express();
 
@@ -34,6 +41,10 @@ class WorkingAPITracker {
     });
   }
 
+  /**
+   * Starts tracking API calls by launching a browser session and serving the dashboard.
+   * @returns {Promise<void>}
+   */
   async startTracking() {
     console.log('🚀 Starting DinoAir API Tracker...');
 
@@ -125,6 +136,11 @@ class WorkingAPITracker {
     const timestamp = new Date(call.timestamp).toLocaleTimeString();
     console.log(`[${timestamp}] ${type} - ${call.method} ${call.path}`);
 
+  /**
+   * Logs the result of an API call to the console with an appropriate emoji status indicator.
+   * @param {Object} call - The API call object containing status, statusText, and error properties.
+   * @returns {void}
+   */
     if (call.status) {
       const emoji = call.status < 300 ? '✅' : call.status < 500 ? '⚠️' : '❌';
       console.log(`  ${emoji} ${call.status} ${call.statusText}`);
@@ -135,6 +151,10 @@ class WorkingAPITracker {
     }
   }
 
+  /**
+   * Generates the HTML string for the API tracker dashboard page.
+   * @returns {string} HTML content of the dashboard page.
+   */
   generateDashboard() {
     return `
 <!DOCTYPE html>
@@ -185,7 +205,7 @@ class WorkingAPITracker {
         .call-entry {
             background: #21262d;
             margin: 8px 0;
-            padding: 12px;
+            padding: 12px;`
             border-radius: 6px;
             border-left: 4px solid #238636;
             font-family: 'Monaco', 'Menlo', monospace;
@@ -418,6 +438,10 @@ class WorkingAPITracker {
         `;
   }
 
+  /**
+   * Stops the API Tracker by closing the browser instance and logging a message.
+   * @returns {Promise<void>} A promise that resolves when the browser is closed.
+   */
   async stop() {
     if (this.browser) {
       await this.browser.close();

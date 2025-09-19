@@ -7,6 +7,10 @@ import PageContainer from '../components/layout/PageContainer';
 import PageHeader from '../components/layout/PageHeader';
 import { API_BASE_URL, getHealth } from '../lib/api';
 
+/**
+ * HomePage component that displays the home page, including a welcome banner, recent discussion history, and API status.
+ * @returns JSX.Element representing the rendered home page.
+ */
 export default function HomePage() {
   const [history] = useState<{ id: number; title: string }[]>([
     { id: 1, title: 'Project Discussion - Sprint 1' },
@@ -19,6 +23,10 @@ export default function HomePage() {
   const [apiLoading, setApiLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
+  /**
+   * Checks the API health status by calling getHealth and updates component state accordingly.
+   * @returns Promise<void>
+   */
   async function checkApi() {
     setApiLoading(true);
     setApiError(null);

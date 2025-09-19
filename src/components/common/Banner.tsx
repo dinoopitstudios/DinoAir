@@ -7,6 +7,13 @@ interface BannerProps {
   children: ReactNode;
 }
 
+/**
+ * Banner component for displaying notices with different styles based on type.
+ *
+ * @param {BannerType} type - The style type of the banner ('info', 'success', 'warning', 'error'). Defaults to 'info'.
+ * @param {React.ReactNode} children - Content to display inside the banner.
+ * @returns {JSX.Element} The rendered banner element.
+ */
 export default function Banner({ type = 'info', children }: BannerProps) {
   const palette: Record<BannerType, { bg: string; color: string; border: string }> = {
     info: { bg: 'rgba(59,130,246,0.15)', color: '#bfdbfe', border: '#3b82f6' },

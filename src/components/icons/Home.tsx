@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * Renders a home icon as an SVG element.
+ *
+ * @param props - SVG properties to apply to the svg element.
+ * @returns A React functional component rendering a home icon.
+ */
 const Home: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

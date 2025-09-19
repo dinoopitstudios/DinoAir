@@ -7,6 +7,12 @@ import ModelSettingsSystemWatchdog from '../components/icons/ModelSettingsSystem
 import PageContainer from '../components/layout/PageContainer';
 import PageHeader from '../components/layout/PageHeader';
 
+/**
+ * Renders the Model Settings & System Watchdog page, allowing users to select a preferred model
+ * and enable or disable the system watchdog. Displays connection status and relevant metrics.
+ *
+ * @returns JSX.Element The rendered ModelSettingsPage component.
+ */
 export default function ModelSettingsPage() {
   const [model, setModel] = useState('gpt-4o-mini');
   const [watchdogOn, setWatchdogOn] = useState(true);

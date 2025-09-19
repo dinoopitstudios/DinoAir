@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * Projects icon component.
+ *
+ * @param props - SVG props to apply to the Projects icon.
+ * @returns JSX.Element representing the Projects icon.
+ */
 const Projects: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

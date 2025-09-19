@@ -18,6 +18,10 @@ type Project = {
   summary: string;
 };
 
+/**
+ * ProjectsPage component displays a list of projects with search and create functionality.
+ * @returns {JSX.Element} The rendered ProjectsPage component.
+ */
 export default function ProjectsPage() {
   const { isMobile, isBelow } = useResponsive();
   const navigate = useNavigate();
@@ -50,6 +54,10 @@ export default function ProjectsPage() {
     [projects, q]
   );
 
+  /**
+   * Creates a new project if the dialog is open and a name is provided, otherwise opens the create project dialog.
+   * @returns {void}
+   */
   function createProject() {
     if (showCreateDialog && projectName.trim()) {
       const id = projects.length + 1;

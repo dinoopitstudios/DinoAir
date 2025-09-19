@@ -34,6 +34,11 @@ const router = createHashRouter([
   },
 ]);
 
+/**
+ * App component serves as the root component of the application.
+ * It wraps the RouterProvider with AnnouncementProvider to enable announcements and routing.
+ * @returns {JSX.Element} The rendered App component.
+ */
 export default function App() {
   return (
     <AnnouncementProvider>

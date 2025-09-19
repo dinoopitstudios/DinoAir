@@ -17,6 +17,11 @@ interface RagStats {
   total_embeddings: number;
 }
 
+/**
+ * Type guard to determine if the given value conforms to RagStats and is ready for vector search.
+ * @param value - The value to check.
+ * @returns True if the value is an object with a numeric total_embeddings property greater than 0.
+ */
 function isVectorSearchReady(value: unknown): value is RagStats {
   if (typeof value !== 'object' || value === null) {
     return false;
@@ -47,6 +52,12 @@ export function useRagStatsPoller(input: UseRagStatsPollerInput): UseRagStatsPol
     const ac = new AbortController();
     abortRef.current = ac;
 
+    /**
+     * Starts an asynchronous polling loop to check file index statistics until
+     * the vector/hybrid search is ready.
+     *
+     * @returns {Promise<void>} A promise that resolves when polling completes or is aborted.
+     */
     const run = async () => {
       try {
         await backoffPoll(

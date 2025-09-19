@@ -2,6 +2,12 @@ import type { FC, SVGProps } from 'react';
 
 type Props = SVGProps<SVGSVGElement>;
 
+/**
+ * ModelSettingsSystemWatchdog icon component.
+ *
+ * @param {Props} props - SVG properties passed to the icon component.
+ * @returns {JSX.Element} The rendered SVG icon for the system watchdog settings.
+ */
 const ModelSettingsSystemWatchdog: FC<Props> = props => (
   <svg
     viewBox='0 0 24 24'

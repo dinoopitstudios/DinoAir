@@ -12,6 +12,11 @@ import { sendChatMessage, type ChatMessage } from '../lib/api';
 
 type Msg = { role: 'user' | 'assistant'; text: string };
 
+/**
+ * ChatPage component renders a chat interface allowing users to send messages to an AI assistant.
+ *
+ * @returns {JSX.Element} The chat page layout including messages list, input, and send functionality.
+ */
 export default function ChatPage() {
   const { isMobile } = useResponsive();
   const { announceInfo, announceSuccess, announceStatus, announceError } = useAnnouncement();
@@ -30,6 +35,11 @@ export default function ChatPage() {
     });
   }, [messages, typing]);
 
+  /**
+   * Sends the user's input message to the AI assistant API and updates the chat log.
+   *
+   * @returns {Promise<void>} Resolves when the send operation is complete.
+   */
   async function send() {
     const trimmed = input.trim();
     if (!trimmed) {
@@ -88,6 +98,11 @@ export default function ChatPage() {
     }
   }
 
+  /**
+   * Handles keydown events on the chat input.
+   * If 'Enter' is pressed without holding Shift, prevents default behavior and sends the message.
+   * @param e - The keyboard event from the input element.
+   */
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();

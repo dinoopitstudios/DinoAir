@@ -7,6 +7,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
+/**
+ * Button component that renders a styled button with hover and focus states.
+ *
+ * @param {React.ReactNode} children - The content to display inside the button.
+ * @param {ButtonVariant} [variant='primary'] - Color variant for the button.
+ * @param {boolean} [disabled] - Whether the button is disabled.
+ * @param {CSSProperties} [style] - Inline styles to apply to the button.
+ * @param {...any} rest - Additional props passed to the button element.
+ * @returns {JSX.Element} The rendered button element.
+ */
 export default function Button({
   children,
   variant = 'primary',

@@ -7,6 +7,11 @@ import Button from '../components/common/Button';
 import PageContainer from '../components/layout/PageContainer';
 import PageHeader from '../components/layout/PageHeader';
 
+/**
+ * NotFoundPage component displays a 404 error page with navigation back to home.
+ *
+ * @returns {JSX.Element} The NotFoundPage component.
+ */
 export default function NotFoundPage() {
   const navigate = useNavigate();
 

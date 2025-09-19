@@ -6,6 +6,15 @@ interface CheckboxProps {
   label?: string;
 }
 
+/**
+ * Checkbox component for rendering a styled checkbox input with an optional label.
+ *
+ * @param {object} props - The properties object.
+ * @param {boolean} props.checked - Determines if the checkbox is checked.
+ * @param {function} props.onChange - Callback invoked with the new checked state when the checkbox value changes.
+ * @param {string} [props.label] - Optional label text displayed next to the checkbox.
+ * @returns {JSX.Element} The rendered checkbox component.
+ */
 export default function Checkbox({ checked, onChange, label }: CheckboxProps) {
   const id = useId();
 
