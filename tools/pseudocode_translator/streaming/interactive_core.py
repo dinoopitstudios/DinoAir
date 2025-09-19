@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 if TYPE_CHECKING:
     from .streaming_translator import StreamingTranslator
 
+
 def process_interactive_input(
     translator: StreamingTranslator,
     user_input: str,

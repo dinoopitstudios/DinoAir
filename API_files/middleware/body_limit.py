@@ -20,7 +20,6 @@ from utils.asgi import get_header
 if TYPE_CHECKING:
     from ..settings import Settings
 
-
 try:
     # type: ignore[import]
     from core_router.errors import error_response as core_error_response
@@ -98,7 +97,8 @@ class BodySizeLimitMiddleware:
             details=None,
             endpoint=endpoint,
             operationId=None,
-            requestId=(str(trace_id) if isinstance(trace_id, str) and trace_id else None),
+            requestId=(str(trace_id) if isinstance(
+                trace_id, str) and trace_id else None),
         )
         if trace_id:
             with suppress(Exception):
@@ -130,7 +130,8 @@ class BodySizeLimitMiddleware:
                 break
 
             if chunk := (message.get("body") or b""):
-                total, limit_exceeded = self._process_body_chunk(chunk, total, max_bytes, parts)
+                total, limit_exceeded = self._process_body_chunk(
+                    chunk, total, max_bytes, parts)
                 if limit_exceeded:
                     return parts, extra_message, total
 

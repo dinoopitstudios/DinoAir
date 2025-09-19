@@ -25,8 +25,6 @@ def parse_success(parse_result) -> bool:
     return len(getattr(parse_result, "errors", [])) == 0
 
 
-from .translator import StreamingTranslator
-
 def parse_and_translate_blocks(
     translator: StreamingTranslator,
     text: str,
