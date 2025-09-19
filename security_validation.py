@@ -66,11 +66,9 @@ def test_password_security():
                 print(
                     f"   📝 Password '<REDACTED, length={len(pwd)}>' : {'✅' if result == should_pass else '❌'}"
                 )
-
         except Exception:
             print("   ⚠️  Password validation method not found")
             validation_works = False
-
         print("   ✅ User Manager instantiated successfully")
 
         return {"user_manager_created": True, "password_validation": validation_works}
