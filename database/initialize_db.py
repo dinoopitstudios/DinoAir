@@ -448,12 +448,40 @@ def _get_default_user_data_directory() -> Path:
         Path: Default user data directory outside the repository
     """
 
-    # Helper function for path validation
+    # Helper function for path validation (returns True if child is within base)
     def is_path_within(base: Path, child: Path) -> bool:
         try:
             base = base.resolve()
             child = child.resolve()
             return str(child).startswith(str(base) + os.sep)
+        except Exception:
+            return False
+
+    # Helper to get safe fallback for user data root
+    def get_default_root_dir() -> Path:
+        if os.name == "nt":
+            return Path(os.path.expanduser("~/AppData/Local")).expanduser().resolve()
+        else:
+            return Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
+
+    # Helper to determine if the resolved root directory is safe
+    def is_safe_user_root(path: Path) -> bool:
+        # Disallow system directories and root
+        unsafe_windows = ["C:\\Windows", "C:\\", "C:\\ProgramData"]
+        unsafe_unix = ["/", "/etc", "/bin", "/usr", "/tmp", "/var", "/root"]
+        resolved = str(path)
+        if os.name == "nt":
+            for d in unsafe_windows:
+                if resolved.lower() == d.lower() or resolved.lower().startswith(d.lower() + "\\"):
+                    return False
+        else:
+            for d in unsafe_unix:
+                if resolved == d or resolved.startswith(d + "/"):
+                    return False
+        # Require it's inside the user's home directory
+        home = Path.home().resolve()
+        try:
+            return str(path).startswith(str(home) + os.sep)
         except Exception:
             return False
 
@@ -465,6 +493,12 @@ def _get_default_user_data_directory() -> Path:
             .expanduser()
             .resolve()
         )
+        # Validate that the root_dir is safe, else use fallback
+        if not is_safe_user_root(root_dir):
+            logging.warning(
+                f"Rejected LOCALAPPDATA environment var as unsafe. Using default location."
+            )
+            root_dir = get_default_root_dir()
         root_sub = "DinoAir"
     else:
         # Unix/Linux/MacOS
@@ -473,6 +507,11 @@ def _get_default_user_data_directory() -> Path:
             .expanduser()
             .resolve()
         )
+        if not is_safe_user_root(root_dir):
+            logging.warning(
+                f"Rejected XDG_DATA_HOME environment var as unsafe. Using default location."
+            )
+            root_dir = get_default_root_dir()
         root_sub = "dinoair"
     app_root = root_dir / root_sub
 
