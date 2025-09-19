@@ -58,7 +58,7 @@ class DBManagerProtocol(Protocol):
 
     def get_projects_connection(self) -> sqlite3.Connection:
         """Get projects connection.
-        
+
         Returns:
             TODO: Add return description
         """
