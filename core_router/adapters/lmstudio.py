@@ -27,18 +27,17 @@ This adapter is synchronous and does not mutate the provided payload.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from contextlib import suppress
 import os
 import random
 import time
+from collections.abc import Mapping
+from contextlib import suppress
 from typing import Any, cast
 
 import httpx
 
 from ..errors import AdapterError, RetryableError
 from .base import ServiceAdapter
-
 
 __all__ = ["LMStudioAdapter"]
 
@@ -62,12 +61,15 @@ class LMStudioAdapter(ServiceAdapter):
 
         # Resolve configuration with environment fallbacks
         raw = str(
-            cfg.get("base_url") or os.getenv("LMSTUDIO_BASE_URL", "http://127.0.0.1:1234")
+            cfg.get("base_url") or os.getenv(
+                "LMSTUDIO_BASE_URL", "http://127.0.0.1:1234")
         ).strip()
-        model = str(cfg.get("model") or os.getenv("LMSTUDIO_DEFAULT_MODEL", "")).strip()
+        model = str(cfg.get("model") or os.getenv(
+            "LMSTUDIO_DEFAULT_MODEL", "")).strip()
         headers = cfg.get("headers", {})
         # Timeouts (seconds)
-        timeout_s = cfg.get("timeout_s", os.getenv("LMSTUDIO_REQUEST_TIMEOUT_S", 15))
+        timeout_s = cfg.get("timeout_s", os.getenv(
+            "LMSTUDIO_REQUEST_TIMEOUT_S", 15))
         connect_timeout_s = cfg.get("connect_timeout_s")
         read_timeout_s = cfg.get("read_timeout_s")
         write_timeout_s = cfg.get("write_timeout_s")
@@ -94,7 +96,8 @@ class LMStudioAdapter(ServiceAdapter):
         self._headers: dict[str, str] = {}
         if isinstance(headers, Mapping):
             self._headers.update(
-                {str(k): str(v) for k, v in cast("Mapping[str, Any]", headers).items()}
+                {str(k): str(v)
+                 for k, v in cast("Mapping[str, Any]", headers).items()}
             )
         api_key = os.getenv("LMSTUDIO_API_KEY")
         if api_key and "Authorization" not in self._headers:
@@ -144,7 +147,8 @@ class LMStudioAdapter(ServiceAdapter):
 
     def _sleep_backoff(self, attempt: int) -> None:
         # Exponential backoff with jitter: base * 2^(attempt-1) + random[0, base/2], capped.
-        delay = min(self._backoff_cap, self._backoff_base * (2 ** max(0, attempt - 1)))
+        delay = min(self._backoff_cap, self._backoff_base *
+                    (2 ** max(0, attempt - 1)))
         delay += random.uniform(0, self._backoff_base / 2)
         with suppress(Exception):
             time.sleep(delay)
@@ -166,7 +170,8 @@ class LMStudioAdapter(ServiceAdapter):
         out: list[dict[str, str]] = []
         for i, raw in enumerate(seq):
             if not isinstance(raw, Mapping):
-                raise AdapterError(adapter="lmstudio", reason=f"messages[{i}] must be object")
+                raise AdapterError(adapter="lmstudio",
+                                   reason=f"messages[{i}] must be object")
             msg = cast("Mapping[str, Any]", raw)
 
             role_val = msg.get("role")
@@ -223,7 +228,8 @@ class LMStudioAdapter(ServiceAdapter):
         # Optional pass-through generation controls
         if "options" in payload:
             with suppress(Exception):
-                body["options"] = dict(cast("Mapping[str, Any]", payload["options"]))
+                body["options"] = dict(
+                    cast("Mapping[str, Any]", payload["options"]))
 
         return body
 
@@ -260,13 +266,15 @@ class LMStudioAdapter(ServiceAdapter):
                 if attempt < attempts:
                     continue
                 # If we've exhausted retries on a RetryableError, raise as AdapterError
-                raise AdapterError(adapter="lmstudio", reason="max retries exceeded")
+                raise AdapterError(adapter="lmstudio",
+                                   reason="max retries exceeded")
             except httpx.RequestError as exc:
                 last_exc = exc
                 if attempt < attempts:
                     self._sleep_backoff(attempt)
                     continue
-                raise AdapterError(adapter="lmstudio", reason=str(exc)) from exc
+                raise AdapterError(adapter="lmstudio",
+                                   reason=str(exc)) from exc
 
         # Fallback (should not reach)
         self._raise_fallback_error(last_exc)
@@ -313,7 +321,8 @@ class LMStudioAdapter(ServiceAdapter):
         try:
             raw = resp.json()
         except (ValueError, httpx.DecodingError) as exc:
-            raise AdapterError(adapter="lmstudio", reason="invalid JSON response") from exc
+            raise AdapterError(adapter="lmstudio",
+                               reason="invalid JSON response") from exc
 
         if not isinstance(raw, Mapping):
             raise AdapterError(
@@ -342,13 +351,15 @@ class LMStudioAdapter(ServiceAdapter):
         # Check if should retry
         if self._should_retry_status(resp.status_code) and attempt < attempts:
             self._sleep_backoff(attempt)
-            raise RetryableError("Retryable status code")  # Will be caught and retried
+            # Will be caught and retried
+            raise RetryableError("Retryable status code")
 
         # Non-retryable status -> raise
         text = ""
         with suppress(Exception):
             text = (resp.text or "")[:512]
-        raise AdapterError(adapter="lmstudio", reason=f"HTTP {resp.status_code}: {text}")
+        raise AdapterError(adapter="lmstudio",
+                           reason=f"HTTP {resp.status_code}: {text}")
 
     def _raise_network_error(self, exc: Exception) -> None:
         """Raise network-related AdapterError.
@@ -359,7 +370,8 @@ class LMStudioAdapter(ServiceAdapter):
         Raises:
             AdapterError: Always
         """
-        reason = "timeout" if isinstance(exc, httpx.TimeoutException) else "network error"
+        reason = "timeout" if isinstance(
+            exc, httpx.TimeoutException) else "network error"
         raise AdapterError(adapter="lmstudio", reason=reason) from exc
 
     def _raise_fallback_error(self, last_exc: Exception | None) -> None:
@@ -372,5 +384,6 @@ class LMStudioAdapter(ServiceAdapter):
             AdapterError: Always
         """
         if last_exc:
-            raise AdapterError(adapter="lmstudio", reason=str(last_exc)) from last_exc
+            raise AdapterError(adapter="lmstudio",
+                               reason=str(last_exc)) from last_exc
         raise AdapterError(adapter="lmstudio", reason="unknown error")
