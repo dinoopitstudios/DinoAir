@@ -43,15 +43,8 @@ def __getattr__(name):
 def __dir__():
     return sorted(list(globals().keys()) + list(_API_EXPORTS))
 
-
 __all__ = [
     # API
-    "TranslatorAPI",
-    "SimpleTranslator",
-    "translate",
-    "translate_file",
-    "translate_async",
-    "batch_translate",
     # Callbacks
     "TranslationCallback",
     "ProgressCallback",
