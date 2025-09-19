@@ -4,14 +4,14 @@
 
 ✅ **Updated GitHub Actions workflow** - `.github/workflows/codeql-analysis.yml`
 
-### CodeQL Action Version Updates:
+### CodeQL Action Version Updates
 
 - `github/codeql-action/init@v2` → `github/codeql-action/init@v3`
 - `github/codeql-action/autobuild@v2` → `github/codeql-action/autobuild@v3`
 - `github/codeql-action/analyze@v2` → `github/codeql-action/analyze@v3`
 - `github/codeql-action/upload-sarif@v2` → `github/codeql-action/upload-sarif@v3`
 
-### Documentation Updates:
+### Documentation Updates
 
 - Updated `CODEQL_SETUP_COMPLETE.md` to reflect v3 usage
 
