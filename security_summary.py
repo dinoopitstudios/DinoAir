@@ -166,7 +166,7 @@ def generate_security_summary():
     if code_analysis.get("by_severity", {}).get("error", 0) > 0:
         print(f"   1. Fix {code_analysis['by_severity']['error']} high-priority CodeQL errors")
     if secret_analysis.get("total", 0) > 0:
-        print(f"   2. Address {secret_analysis['total']} exposed secrets immediately")
+        print("   2. Address all exposed secrets immediately")
     if dependabot_analysis.get("total", 0) > 0:
         print(f"   3. Update {dependabot_analysis['total']} vulnerable dependencies")
     if total_issues == 0:
