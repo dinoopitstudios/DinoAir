@@ -70,7 +70,8 @@ class PerformanceMonitor:
                 if config:
                     self._monitor.update_config(**config.__dict__)
             except Exception as e:
-                logger.warning(f"Failed to initialize performance monitor: {e}")
+                logger.warning(
+                    f"Failed to initialize performance monitor: {e}")
 
     def start_operation(self, operation: str, **metadata: Any) -> str:
         """
