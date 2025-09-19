@@ -136,60 +136,60 @@ class NetworkSecurityConfig:
     ddos_block_duration: int = 3600  # 1 hour
 
     @classmethod
-    def for_security_level(cls, level: SecurityLevel) -> NetworkSecurityConfig:
+    def for_security_level(cls, security_level: SecurityLevel) -> NetworkSecurityConfig:
         """Create configuration for specific security level."""
 
-        config = cls()
+        network_config = cls()
 
-        if level == SecurityLevel.DEVELOPMENT:
-            config.require_https = False
-            config.allowed_ips = set()  # Allow all
-            config.cors_allow_origins = ["*"]
-            config.ddos_detection_enabled = False
+        if security_level == SecurityLevel.DEVELOPMENT:
+            network_config.require_https = False
+            network_config.allowed_ips = set()  # Allow all
+            network_config.cors_allow_origins = ["*"]
+            network_config.ddos_detection_enabled = False
 
-        elif level == SecurityLevel.SMALL_TEAM:
+        elif security_level == SecurityLevel.SMALL_TEAM:
             # Perfect for 2-5 person teams with relaxed limits
-            config.require_https = False  # Can use HTTP for development
-            config.allowed_ips = set()  # Allow all IPs
-            config.cors_allow_origins = [
+            network_config.require_https = False  # Can use HTTP for development
+            network_config.allowed_ips = set()  # Allow all IPs
+            network_config.cors_allow_origins = [
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "http://localhost:8000",
             ]
-            config.rate_limit_rules = [
+            network_config.rate_limit_rules = [
                 RateLimitRule(requests_per_minute=600,
                               scope=RateLimitScope.PER_IP),  # 10/second
                 RateLimitRule(requests_per_minute=2000,
                               scope=RateLimitScope.GLOBAL),
             ]
-            config.ddos_threshold_requests = 1000
-            config.ddos_block_duration = 300  # 5 minutes
+            network_config.ddos_threshold_requests = 1000
+            network_config.ddos_block_duration = 300  # 5 minutes
 
-        elif level == SecurityLevel.STAGING:
-            config.require_https = True
-            config.cors_allow_origins = [
+        elif security_level == SecurityLevel.STAGING:
+            network_config.require_https = True
+            network_config.cors_allow_origins = [
                 "https://staging.dinoair.com", "http://localhost:3000"]
 
-        elif level == SecurityLevel.PRODUCTION:
-            config.require_https = True
-            config.cors_allow_origins = ["https://dinoair.com"]
-            config.rate_limit_rules = [
+        elif security_level == SecurityLevel.PRODUCTION:
+            network_config.require_https = True
+            network_config.cors_allow_origins = ["https://dinoair.com"]
+            network_config.rate_limit_rules = [
                 RateLimitRule(requests_per_minute=60,
                               scope=RateLimitScope.PER_IP),
                 RateLimitRule(requests_per_minute=1000,
                               scope=RateLimitScope.GLOBAL),
             ]
 
-        elif level == SecurityLevel.CRITICAL:
+        elif security_level == SecurityLevel.CRITICAL:
             # Ambulance/healthcare environment settings - relaxed for small team
-            config.require_https = True
-            config.tls_min_version = "1.3"
-            config.cors_allow_origins = ["https://secure.dinoair.healthcare"]
-            config.allow_private_ips = True  # Allow private IPs for small team
-            config.max_request_size = 5 * 1024 * 1024  # 5MB limit
-            config.request_timeout = 30  # Standard timeout
-            config.rate_limit_rules = [
+            network_config.require_https = True
+            network_config.tls_min_version = "1.3"
+            network_config.cors_allow_origins = ["https://secure.dinoair.healthcare"]
+            network_config.allow_private_ips = True  # Allow private IPs for small team
+            network_config.max_request_size = 5 * 1024 * 1024  # 5MB limit
+            network_config.request_timeout = 30  # Standard timeout
+            network_config.rate_limit_rules = [
                 RateLimitRule(
                     requests_per_minute=300, scope=RateLimitScope.PER_IP
                 ),  # 5 requests/second
@@ -201,11 +201,11 @@ class NetworkSecurityConfig:
                     endpoints=["/api/v1/export", "/api/v1/backup"],
                 ),  # 1 per second for heavy ops
             ]
-            config.ddos_threshold_requests = 500  # Higher threshold for small team
-            config.ddos_block_duration = 1800  # 30 minutes instead of 2 hours
+            network_config.ddos_threshold_requests = 500  # Higher threshold for small team
+            network_config.ddos_block_duration = 1800  # 30 minutes instead of 2 hours
 
             # Enhanced CSP for healthcare
-            config.security_headers.content_security_policy = (
+            network_config.security_headers.content_security_policy = (
                 "default-src 'self'; "
                 "script-src 'self'; "
                 "style-src 'self'; "
@@ -218,7 +218,7 @@ class NetworkSecurityConfig:
                 "upgrade-insecure-requests"
             )
 
-        return config
+        return network_config
 
 
 class RateLimitStore:
@@ -278,12 +278,12 @@ class SecurityMiddleware(BaseHTTPMiddleware):
     """Comprehensive security middleware for FastAPI."""
 
     def __init__(
-        self, app, config: NetworkSecurityConfig, audit_callback: Optional[Callable] = None
+        self, app, security_config: NetworkSecurityConfig, audit_callback: Optional[Callable] = None
     ):
         super().__init__(app)
-        self.config = config
+        self.security_config = security_config
         self.audit_callback = audit_callback
-        self.rate_limiter = RateLimitStore(config.rate_limit_storage_ttl)
+        self.rate_limiter = RateLimitStore(security_config.rate_limit_storage_ttl)
         self.blocked_ips: Dict[str, float] = {}  # IP -> block_until_timestamp
         self.ddos_tracker: Dict[str, deque] = defaultdict(deque)
 
@@ -535,8 +535,8 @@ class SecurityMiddleware(BaseHTTPMiddleware):
 class NetworkSecurityManager:
     """High-level network security management."""
 
-    def __init__(self, config: NetworkSecurityConfig):
-        self.config = config
+    def __init__(self, network_config: NetworkSecurityConfig):
+        self.config = network_config
         self.middleware: Optional[SecurityMiddleware] = None
 
     def create_middleware(self, audit_callback: Optional[Callable] = None) -> SecurityMiddleware:
@@ -576,10 +576,10 @@ class NetworkSecurityManager:
         }
 
 
-def create_security_manager(level: SecurityLevel) -> NetworkSecurityManager:
+def create_security_manager(security_level: SecurityLevel) -> NetworkSecurityManager:
     """Create network security manager for specific security level."""
-    config = NetworkSecurityConfig.for_security_level(level)
-    return NetworkSecurityManager(config)
+    security_config = NetworkSecurityConfig.for_security_level(security_level)
+    return NetworkSecurityManager(security_config)
 
 
 # Healthcare-specific security helpers
@@ -593,29 +593,29 @@ def create_small_team_security_config() -> NetworkSecurityConfig:
     return NetworkSecurityConfig.for_security_level(SecurityLevel.SMALL_TEAM)
 
 
-def validate_healthcare_compliance(config: NetworkSecurityConfig) -> List[str]:
+def validate_healthcare_compliance(network_config: NetworkSecurityConfig) -> List[str]:
     """Validate configuration meets healthcare compliance requirements."""
     issues = []
 
-    if not config.require_https:
+    if not network_config.require_https:
         issues.append("HTTPS is required for healthcare environments")
 
-    if config.tls_min_version not in ["1.2", "1.3"]:
+    if network_config.tls_min_version not in ["1.2", "1.3"]:
         issues.append("TLS 1.2 or higher is required for healthcare")
 
-    if not config.rate_limit_rules:
+    if not network_config.rate_limit_rules:
         issues.append("Rate limiting is required for healthcare environments")
 
-    if config.allow_private_ips and not config.allowed_ips:
+    if network_config.allow_private_ips and not network_config.allowed_ips:
         issues.append(
             "IP allowlist should be configured for healthcare environments")
 
-    if not config.ddos_detection_enabled:
+    if not network_config.ddos_detection_enabled:
         issues.append(
             "DDoS protection is recommended for healthcare environments")
 
     # Check CSP is restrictive enough
-    csp = config.security_headers.content_security_policy
+    csp = network_config.security_headers.content_security_policy
     if "'unsafe-eval'" in csp or "'unsafe-inline'" in csp:
         issues.append(
             "Content Security Policy should not allow unsafe-eval or unsafe-inline in healthcare environments"
