@@ -1,0 +1,1634 @@
+{
+  "repository": "dinoopitstudios/DinoAir",
+  "timestamp": "2025-09-19T17:20:31.540567",
+  "repository_info": {
+    "name": "DinoAir",
+    "full_name": "dinoopitstudios/DinoAir",
+    "private": false,
+    "default_branch": "main",
+    "created_at": "2025-09-18T22:14:21+00:00",
+    "updated_at": "2025-09-19T20:32:44+00:00",
+    "size": 2884,
+    "stargazers_count": 0,
+    "language": "Python",
+    "has_issues": true,
+    "security_and_analysis": {
+      "advanced_security": "unknown",
+      "secret_scanning": "enabled",
+      "secret_scanning_push_protection": "enabled",
+      "dependabot_security_updates": "enabled"
+    }
+  },
+  "security_alerts": {
+    "code_scanning": [
+      {
+        "number": 346,
+        "created_at": "2025-09-19T20:33:00Z",
+        "updated_at": "2025-09-19T20:33:08Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/346",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/346",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unreachable-except",
+          "severity": "error",
+          "description": "Unreachable 'except' block",
+          "name": "py/unreachable-except",
+          "tags": [
+            "error-handling",
+            "external/cwe/cwe-561",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "Handling general exceptions before specific exceptions means that the specific handlers are never executed.",
+          "help": "# Unreachable 'except' block\nWhen handling an exception, Python searches the except blocks in source code order until it finds a matching `except` block for the exception. An except block, `except E:`, specifies a class `E` and will match any exception that is an instance of `E`.\n\nIf a more general except block precedes a more specific except block, then the more general block is always executed and the more specific block is never executed. An except block, `except A:`, is more general than another except block, `except B:`, if `A` is a super class of `B`.\n\nFor example: `except Exception:` is more general than `except Error:` as `Exception` is a super class of `Error`.\n\n\n## Recommendation\nReorganize the `except` blocks so that the more specific `except` is defined first. Alternatively, if the more specific `except` block is no longer required then it should be deleted.\n\n\n## Example\nIn this example the `except Exception:` will handle `AttributeError` preventing the subsequent handler from ever executing.\n\n\n```python\n\n\ndef incorrect_except_order(val):\n    try:\n        val.attr\n    except Exception:\n        print (\"Exception\")\n    except AttributeError:\n        print (\"AttributeError\")\n        \n\n```\n\n## References\n* Python Language Reference: [The try statement](http://docs.python.org/2.7/reference/compound_stmts.html#try), [Exceptions](http://docs.python.org/2.7/reference/executionmodel.html#exceptions).\n* Common Weakness Enumeration: [CWE-561](https://cwe.mitre.org/data/definitions/561.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Except block for Exception is unreachable; the more general except block for Exception will always be executed in preference."
+          },
+          "location": {
+            "path": "utils/network_security.py",
+            "start_line": 357,
+            "end_line": 357,
+            "start_column": 9,
+            "end_column": 31
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/346/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 345,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/345",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/345",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: JSX element 'PageContainer' has no corresponding closing tag."
+          },
+          "location": {
+            "path": "src/pages/SettingsPage.tsx",
+            "start_line": 111,
+            "end_line": 111,
+            "start_column": 6,
+            "end_column": 7
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/345/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 344,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/344",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/344",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: JSX element 'main' has no corresponding closing tag."
+          },
+          "location": {
+            "path": "src/pages/SettingsPage.tsx",
+            "start_line": 114,
+            "end_line": 114,
+            "start_column": 8,
+            "end_column": 9
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/344/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 343,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/343",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/343",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: JSX element 'PageContainer' has no corresponding closing tag."
+          },
+          "location": {
+            "path": "src/pages/ArtifactsPage.tsx",
+            "start_line": 42,
+            "end_line": 42,
+            "start_column": 6,
+            "end_column": 7
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/343/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 342,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/342",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/342",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: JSX element 'section' has no corresponding closing tag."
+          },
+          "location": {
+            "path": "src/pages/ArtifactsPage.tsx",
+            "start_line": 58,
+            "end_line": 58,
+            "start_column": 8,
+            "end_column": 9
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/342/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 341,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/341",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/341",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: Unexpected token. Did you mean `{{'}}'}}` or `&rbrace;`?\nError: '</' expected."
+          },
+          "location": {
+            "path": "src/pages/ArtifactsPage.tsx",
+            "start_line": 113,
+            "end_line": 113,
+            "start_column": 1,
+            "end_column": 2
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/341/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 340,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/340",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/340",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: Expected corresponding JSX closing tag for 'HTMLButtonElement'."
+          },
+          "location": {
+            "path": "src/pages/ArtifactsPage.tsx",
+            "start_line": 111,
+            "end_line": 111,
+            "start_column": 7,
+            "end_column": 8
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/340/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 339,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/339",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/339",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/syntax-error",
+          "severity": "note",
+          "description": "Syntax error",
+          "name": "js/syntax-error",
+          "tags": [
+            "correctness",
+            "language-features",
+            "quality",
+            "reliability"
+          ],
+          "full_description": "A piece of code could not be parsed due to syntax errors.",
+          "help": "# Syntax error\nSyntax errors prevent code from executing correctly. If a piece of code contains syntax errors, this most likely indicates that it is never run and thus is dead code that should be removed.\n\n\n## Recommendation\nFix the syntax error. It may also be worth investigating whether the file containing the erroneous code fragment is ever included from anywhere. If it is not, then it is dead code, which should be removed.\n\n\n## Example\nIn the following example, function `findBox` contains incomplete code: the string literal and its containing block statement are not properly terminated, leading to a syntax error.\n\n\n```javascript\nfunction findBox() {\n  return $(\"box.important\n```\n\n## References\n* Ecma International, *ECMAScript Language Definition*, 5.1 Edition, Section 15.11.6.4. ECMA, 2011.\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Error: Expected corresponding JSX closing tag for 'HTMLButtonElement'."
+          },
+          "location": {
+            "path": "src/pages/ArtifactsPage.tsx",
+            "start_line": 110,
+            "end_line": 110,
+            "start_column": 9,
+            "end_column": 10
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/339/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 338,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/338",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/338",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/unused-local-variable",
+          "severity": "note",
+          "description": "Unused variable, import, function or class",
+          "name": "js/unused-local-variable",
+          "tags": [
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully.",
+          "help": "# Unused variable, import, function or class\nUnused local variables make code hard to read and understand. Any computation used to initialize an unused variable is wasted, which may lead to performance problems.\n\nSimilarly, unused imports and unused functions or classes can be confusing. They may even be a symptom of a bug caused, for example, by an incomplete refactoring.\n\n\n## Recommendation\nRemove the unused program element.\n\n\n## Example\nIn this code, the function `f` initializes a local variable `x` with a call to the function `expensiveComputation`, but later on this variable is never read. Removing `x` would improve code quality and performance.\n\n\n```javascript\nfunction f() {\n\tvar x = expensiveComputation();\n\treturn 23;\n}\n```\nA slightly subtle case is shown below, where a function expression named `f` is assigned to a variable `f`:\n\n\n```javascript\nvar f = function f() {\n  return \"Hi!\";\n};\nf();\n```\nNote that this example involves two distinct variables, both named `f`: the global variable to which the function is assigned, and the variable implicitly declared by the function expression. The call to `f()` refers to the former variable, whereas the latter is unused. Hence the example can be rewritten as follows, eliminating the useless variable:\n\n\n```javascript\nvar f = function () {\n  return \"Hi!\";\n};\nf();\n```\nA similar situation can occur with ECMAScript 2015 module exports, as shown in the following example:\n\n\n```javascript\nexport default function f() {\n  return \"Hi!\";\n};\n```\nAgain, the named function expression implicitly declares a variable `f`, but because the export statement is a default export, this variable is unused and can be eliminated:\n\n\n```javascript\nexport default function () {\n  return \"Hi!\";\n};\n```\n\n## References\n* Coding Horror: [Code Smells](http://blog.codinghorror.com/code-smells/).\n* Mozilla Developer Network: [Named function expressions](https://developer.mozilla.org/en/docs/web/JavaScript/Reference/Operators/function#Named_function_expression).\n* Mozilla Developer Network: [Using the default export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Using_the_default_export).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Unused variable setSearchQuery."
+          },
+          "location": {
+            "path": "src/pages/FilesPage.tsx",
+            "start_line": 51,
+            "end_line": 51,
+            "start_column": 23,
+            "end_column": 37
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/338/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 337,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/337",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/337",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/unused-local-variable",
+          "severity": "note",
+          "description": "Unused variable, import, function or class",
+          "name": "js/unused-local-variable",
+          "tags": [
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully.",
+          "help": "# Unused variable, import, function or class\nUnused local variables make code hard to read and understand. Any computation used to initialize an unused variable is wasted, which may lead to performance problems.\n\nSimilarly, unused imports and unused functions or classes can be confusing. They may even be a symptom of a bug caused, for example, by an incomplete refactoring.\n\n\n## Recommendation\nRemove the unused program element.\n\n\n## Example\nIn this code, the function `f` initializes a local variable `x` with a call to the function `expensiveComputation`, but later on this variable is never read. Removing `x` would improve code quality and performance.\n\n\n```javascript\nfunction f() {\n\tvar x = expensiveComputation();\n\treturn 23;\n}\n```\nA slightly subtle case is shown below, where a function expression named `f` is assigned to a variable `f`:\n\n\n```javascript\nvar f = function f() {\n  return \"Hi!\";\n};\nf();\n```\nNote that this example involves two distinct variables, both named `f`: the global variable to which the function is assigned, and the variable implicitly declared by the function expression. The call to `f()` refers to the former variable, whereas the latter is unused. Hence the example can be rewritten as follows, eliminating the useless variable:\n\n\n```javascript\nvar f = function () {\n  return \"Hi!\";\n};\nf();\n```\nA similar situation can occur with ECMAScript 2015 module exports, as shown in the following example:\n\n\n```javascript\nexport default function f() {\n  return \"Hi!\";\n};\n```\nAgain, the named function expression implicitly declares a variable `f`, but because the export statement is a default export, this variable is unused and can be eliminated:\n\n\n```javascript\nexport default function () {\n  return \"Hi!\";\n};\n```\n\n## References\n* Coding Horror: [Code Smells](http://blog.codinghorror.com/code-smells/).\n* Mozilla Developer Network: [Named function expressions](https://developer.mozilla.org/en/docs/web/JavaScript/Reference/Operators/function#Named_function_expression).\n* Mozilla Developer Network: [Using the default export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Using_the_default_export).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Unused variable setActiveCat."
+          },
+          "location": {
+            "path": "src/pages/FilesPage.tsx",
+            "start_line": 50,
+            "end_line": 50,
+            "start_column": 21,
+            "end_column": 33
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/337/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 336,
+        "created_at": "2025-09-19T20:20:56Z",
+        "updated_at": "2025-09-19T20:20:56Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/336",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/336",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "js/unused-local-variable",
+          "severity": "note",
+          "description": "Unused variable, import, function or class",
+          "name": "js/unused-local-variable",
+          "tags": [
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Unused variables, imports, functions or classes may be a symptom of a bug and should be examined carefully.",
+          "help": "# Unused variable, import, function or class\nUnused local variables make code hard to read and understand. Any computation used to initialize an unused variable is wasted, which may lead to performance problems.\n\nSimilarly, unused imports and unused functions or classes can be confusing. They may even be a symptom of a bug caused, for example, by an incomplete refactoring.\n\n\n## Recommendation\nRemove the unused program element.\n\n\n## Example\nIn this code, the function `f` initializes a local variable `x` with a call to the function `expensiveComputation`, but later on this variable is never read. Removing `x` would improve code quality and performance.\n\n\n```javascript\nfunction f() {\n\tvar x = expensiveComputation();\n\treturn 23;\n}\n```\nA slightly subtle case is shown below, where a function expression named `f` is assigned to a variable `f`:\n\n\n```javascript\nvar f = function f() {\n  return \"Hi!\";\n};\nf();\n```\nNote that this example involves two distinct variables, both named `f`: the global variable to which the function is assigned, and the variable implicitly declared by the function expression. The call to `f()` refers to the former variable, whereas the latter is unused. Hence the example can be rewritten as follows, eliminating the useless variable:\n\n\n```javascript\nvar f = function () {\n  return \"Hi!\";\n};\nf();\n```\nA similar situation can occur with ECMAScript 2015 module exports, as shown in the following example:\n\n\n```javascript\nexport default function f() {\n  return \"Hi!\";\n};\n```\nAgain, the named function expression implicitly declares a variable `f`, but because the export statement is a default export, this variable is unused and can be eliminated:\n\n\n```javascript\nexport default function () {\n  return \"Hi!\";\n};\n```\n\n## References\n* Coding Horror: [Code Smells](http://blog.codinghorror.com/code-smells/).\n* Mozilla Developer Network: [Named function expressions](https://developer.mozilla.org/en/docs/web/JavaScript/Reference/Operators/function#Named_function_expression).\n* Mozilla Developer Network: [Using the default export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Using_the_default_export).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql-analysis.yml:analyze",
+          "environment": "{\"language\":\"javascript\"}",
+          "category": "/language:javascript",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Unused variable announceInfo."
+          },
+          "location": {
+            "path": "src/pages/FilesPage.tsx",
+            "start_line": 48,
+            "end_line": 48,
+            "start_column": 43,
+            "end_column": 55
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/336/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 335,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/335",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/335",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable definition_line is not used."
+          },
+          "location": {
+            "path": "manual_docstring_generator.py",
+            "start_line": 255,
+            "end_line": 255,
+            "start_column": 17,
+            "end_column": 32
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/335/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 334,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/334",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/334",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable anomalies is not used."
+          },
+          "location": {
+            "path": "utils/logging_examples.py",
+            "start_line": 344,
+            "end_line": 344,
+            "start_column": 5,
+            "end_column": 14
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/334/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 333,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/333",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/333",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable summary is not used."
+          },
+          "location": {
+            "path": "utils/logging_examples.py",
+            "start_line": 322,
+            "end_line": 322,
+            "start_column": 9,
+            "end_column": 16
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/333/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 332,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/332",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/332",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable run is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 216,
+            "end_line": 216,
+            "start_column": 13,
+            "end_column": 16
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/332/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 331,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/331",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/331",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable _sanitize is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 211,
+            "end_line": 211,
+            "start_column": 13,
+            "end_column": 22
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/331/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 330,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/330",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/330",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable _validate_input is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 198,
+            "end_line": 198,
+            "start_column": 13,
+            "end_column": 28
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/330/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 329,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/329",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/329",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable _check_rate_limit is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 192,
+            "end_line": 192,
+            "start_column": 13,
+            "end_column": 30
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/329/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 328,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/328",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/328",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable _process_enhanced_security is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 165,
+            "end_line": 165,
+            "start_column": 13,
+            "end_column": 39
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/328/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 327,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/327",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/327",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable _increment_counter is not used."
+          },
+          "location": {
+            "path": "input_processing/input_sanitizer.py",
+            "start_line": 153,
+            "end_line": 153,
+            "start_column": 13,
+            "end_column": 31
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/327/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 326,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/326",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/326",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable value is not used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/config_tool.py",
+            "start_line": 393,
+            "end_line": 393,
+            "start_column": 17,
+            "end_column": 22
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/326/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 325,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/325",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/325",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable info is not used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/config_tool.py",
+            "start_line": 375,
+            "end_line": 375,
+            "start_column": 17,
+            "end_column": 21
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/325/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 324,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/324",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/324",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-local-variable",
+          "severity": "note",
+          "description": "Unused local variable",
+          "name": "py/unused-local-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Local variable is defined but not used",
+          "help": "# Unused local variable\nA local variable is defined (by an assignment) but never used.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to remove only the left hand side of the assignment in line 10.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\ndef write_random():\n    random_no = write_random_to_file()\n    print \"A random number was written to random.txt\"\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/2/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "Variable temperature is not used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/models/codegen.py",
+            "start_line": 152,
+            "end_line": 152,
+            "start_column": 9,
+            "end_column": 20
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/324/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 323,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/323",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/323",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-global-variable",
+          "severity": "note",
+          "description": "Unused global variable",
+          "name": "py/unused-global-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Global variable is defined but not used",
+          "help": "# Unused global variable\nA global (module-level) variable is defined (by an assignment) but never used and is not explicitly made public by inclusion in the `__all__` list.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to only remove the left hand side of the assignment in line 9.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\nrandom_no = write_random_to_file()\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements), [The import statement](http://docs.python.org/reference/simple_stmts.html#the-import-statement).\n* Python Tutorial: [Importing \\* from a package](http://docs.python.org/2/tutorial/modules.html#importing-from-a-package).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "The global variable '_ENUM_SENTINEL_REF' is not used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/translator.py",
+            "start_line": 146,
+            "end_line": 146,
+            "start_column": 1,
+            "end_column": 19
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/323/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 322,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/322",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/322",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-global-variable",
+          "severity": "note",
+          "description": "Unused global variable",
+          "name": "py/unused-global-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Global variable is defined but not used",
+          "help": "# Unused global variable\nA global (module-level) variable is defined (by an assignment) but never used and is not explicitly made public by inclusion in the `__all__` list.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to only remove the left hand side of the assignment in line 9.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\nrandom_no = write_random_to_file()\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements), [The import statement](http://docs.python.org/reference/simple_stmts.html#the-import-statement).\n* Python Tutorial: [Importing \\* from a package](http://docs.python.org/2/tutorial/modules.html#importing-from-a-package).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "The global variable '_engine_error' is not used."
+          },
+          "location": {
+            "path": "API_files/services/search.py",
+            "start_line": 40,
+            "end_line": 40,
+            "start_column": 13,
+            "end_column": 26
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/322/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 321,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/321",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/321",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-global-variable",
+          "severity": "note",
+          "description": "Unused global variable",
+          "name": "py/unused-global-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Global variable is defined but not used",
+          "help": "# Unused global variable\nA global (module-level) variable is defined (by an assignment) but never used and is not explicitly made public by inclusion in the `__all__` list.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to only remove the left hand side of the assignment in line 9.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\nrandom_no = write_random_to_file()\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements), [The import statement](http://docs.python.org/reference/simple_stmts.html#the-import-statement).\n* Python Tutorial: [Importing \\* from a package](http://docs.python.org/2/tutorial/modules.html#importing-from-a-package).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "The global variable 'db_manager' is not used."
+          },
+          "location": {
+            "path": "database/initialize_db.py",
+            "start_line": 1120,
+            "end_line": 1120,
+            "start_column": 9,
+            "end_column": 19
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/321/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 320,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/320",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/320",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-global-variable",
+          "severity": "note",
+          "description": "Unused global variable",
+          "name": "py/unused-global-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Global variable is defined but not used",
+          "help": "# Unused global variable\nA global (module-level) variable is defined (by an assignment) but never used and is not explicitly made public by inclusion in the `__all__` list.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to only remove the left hand side of the assignment in line 9.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\nrandom_no = write_random_to_file()\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements), [The import statement](http://docs.python.org/reference/simple_stmts.html#the-import-statement).\n* Python Tutorial: [Importing \\* from a package](http://docs.python.org/2/tutorial/modules.html#importing-from-a-package).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "The global variable 'res_off' is not used."
+          },
+          "location": {
+            "path": "tools/examples/adaptive_benchmark.py",
+            "start_line": 136,
+            "end_line": 136,
+            "start_column": 5,
+            "end_column": 12
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/320/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 319,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/319",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/319",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/unused-global-variable",
+          "severity": "note",
+          "description": "Unused global variable",
+          "name": "py/unused-global-variable",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Global variable is defined but not used",
+          "help": "# Unused global variable\nA global (module-level) variable is defined (by an assignment) but never used and is not explicitly made public by inclusion in the `__all__` list.\n\nIt is sometimes necessary to have a variable which is not used. These unused variables should have distinctive names, to make it clear to readers of the code that they are deliberately not used. The most common conventions for indicating this are to name the variable `_` or to start the name of the variable with `unused` or `_unused`.\n\nThe query accepts the following names for variables that are intended to be unused:\n\n* Any name consisting entirely of underscores.\n* Any name containing `unused`.\n* The names `dummy` or `empty`.\n* Any \"special\" name of the form `__xxx__`.\nVariables that are defined in a group, for example `x, y = func()` are handled collectively. If they are all unused, then this is reported. Otherwise they are all treated as used.\n\n\n## Recommendation\nIf the variable is included for documentation purposes or is otherwise intentionally unused, then change its name to indicate that it is unused, otherwise delete the assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, the `random_no` variable is never read but its assignment has a side effect. Because of this it is important to only remove the left hand side of the assignment in line 9.\n\n\n```python\nimport random\n\ndef write_random_to_file():\n    no = random.randint(1, 10)\n    with open(\"random.txt\", \"w\") as file:\n        file.write(str(no))\n    return no\n\nrandom_no = write_random_to_file()\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements), [The import statement](http://docs.python.org/reference/simple_stmts.html#the-import-statement).\n* Python Tutorial: [Importing \\* from a package](http://docs.python.org/2/tutorial/modules.html#importing-from-a-package).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "The global variable 'res_on' is not used."
+          },
+          "location": {
+            "path": "tools/examples/adaptive_benchmark.py",
+            "start_line": 135,
+            "end_line": 135,
+            "start_column": 5,
+            "end_column": 11
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/319/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 318,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/318",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/318",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/multiple-definition",
+          "severity": "warning",
+          "description": "Variable defined multiple times",
+          "name": "py/multiple-definition",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Assignment to a variable occurs multiple times without any intermediate use of that variable",
+          "help": "# Variable defined multiple times\nMultiple assignments to a single variable without an intervening usage makes the first assignment redundant. Its value is lost.\n\n\n## Recommendation\nEnsure that the second assignment is in fact correct. Then delete the first assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, `x` is assigned the value of 42 but then the value is changed to 12 before `x` is used. This makes the first assignment useless.\n\n\n```python\nx = 42\nx = 12\nprint x\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "This assignment to '_translate_full_document_async' is unnecessary as it is redefined before this value is used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/streaming/stream_translator.py",
+            "start_line": 274,
+            "end_line": 274,
+            "start_column": 15,
+            "end_column": 45
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/318/instances",
+        "dismissal_approved_by": null
+      },
+      {
+        "number": 317,
+        "created_at": "2025-09-19T20:20:07Z",
+        "updated_at": "2025-09-19T20:20:07Z",
+        "url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/317",
+        "html_url": "https://github.com/dinoopitstudios/DinoAir/security/code-scanning/317",
+        "state": "open",
+        "fixed_at": null,
+        "dismissed_by": null,
+        "dismissed_at": null,
+        "dismissed_reason": null,
+        "dismissed_comment": null,
+        "rule": {
+          "id": "py/multiple-definition",
+          "severity": "warning",
+          "description": "Variable defined multiple times",
+          "name": "py/multiple-definition",
+          "tags": [
+            "external/cwe/cwe-563",
+            "maintainability",
+            "quality",
+            "useless-code"
+          ],
+          "full_description": "Assignment to a variable occurs multiple times without any intermediate use of that variable",
+          "help": "# Variable defined multiple times\nMultiple assignments to a single variable without an intervening usage makes the first assignment redundant. Its value is lost.\n\n\n## Recommendation\nEnsure that the second assignment is in fact correct. Then delete the first assignment (taking care not to delete right hand side if it has side effects).\n\n\n## Example\nIn this example, `x` is assigned the value of 42 but then the value is changed to 12 before `x` is used. This makes the first assignment useless.\n\n\n```python\nx = 42\nx = 12\nprint x\n```\n\n## References\n* Python: [Assignment statements](http://docs.python.org/reference/simple_stmts.html#assignment-statements).\n* Common Weakness Enumeration: [CWE-563](https://cwe.mitre.org/data/definitions/563.html).\n"
+        },
+        "tool": {
+          "name": "CodeQL",
+          "guid": null,
+          "version": "2.23.0"
+        },
+        "most_recent_instance": {
+          "ref": "refs/heads/main",
+          "analysis_key": ".github/workflows/codeql.yml:analyze",
+          "environment": "{\"language\":\"python\"}",
+          "category": "/language:python",
+          "state": "open",
+          "commit_sha": "5bb65cfae3d4476bfde63f92e275c69c181c1100",
+          "message": {
+            "text": "This assignment to '_translate_block_by_block_async' is unnecessary as it is redefined before this value is used."
+          },
+          "location": {
+            "path": "tools/pseudocode_translator/streaming/stream_translator.py",
+            "start_line": 270,
+            "end_line": 270,
+            "start_column": 15,
+            "end_column": 46
+          },
+          "classifications": []
+        },
+        "instances_url": "https://api.github.com/repos/dinoopitstudios/DinoAir/code-scanning/alerts/317/instances",
+        "dismissal_approved_by": null
+      }
+    ],
+    "secret_scanning": [],
+    "dependabot": [],
+    "vulnerability_alerts": [
+      {
+        "type": "vulnerability_alert",
+        "enabled": true,
+        "timestamp": "2025-09-19T17:20:31.540567"
+      }
+    ]
+  },
+  "summary": {
+    "total_code_scanning_alerts": 30,
+    "total_secret_scanning_alerts": 0,
+    "total_dependabot_alerts": 0,
+    "total_vulnerability_alerts": 1,
+    "security_features": {
+      "advanced_security": "unknown",
+      "secret_scanning": "enabled",
+      "secret_scanning_push_protection": "enabled",
+      "dependabot_security_updates": "enabled"
+    }
+  }
+}
