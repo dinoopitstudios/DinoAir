@@ -47,11 +47,9 @@ class ValidationResult:
 
     is_valid: bool
     issues: list[tuple[str, ValidationLevel, str]] = field(
-        default_factory=lambda: cast(
-            "list[tuple[str, ValidationLevel, str]]", [])
+        default_factory=lambda: cast("list[tuple[str, ValidationLevel, str]]", [])
     )
-    corrected_config: dict[str, Any] = field(
-        default_factory=lambda: cast("dict[str, Any]", {}))
+    corrected_config: dict[str, Any] = field(default_factory=lambda: cast("dict[str, Any]", {}))
 
     def add_issue(self, param: str, level: ValidationLevel, message: str):
         """Add a validation issue."""
@@ -294,8 +292,7 @@ class WatchdogConfigValidator:
 
         # Log validation results
         if result.issues:
-            logger.info(
-                f"Configuration validation found {len(result.issues)} issues")
+            logger.info(f"Configuration validation found {len(result.issues)} issues")
             for param, level, message in result.issues:
                 if level == ValidationLevel.ERROR:
                     logger.error(f"Config validation: {message}")
@@ -453,8 +450,7 @@ class WatchdogConfigValidator:
                     value = config[param]
                     if isinstance(value, dict):
                         lines.append(f"  {param}:")
-                        items_dict: dict[str, Any] = cast(
-                            "dict[str, Any]", value)
+                        items_dict: dict[str, Any] = cast("dict[str, Any]", value)
                         for k, v in items_dict.items():
                             lines.append(f"    {k}: {v}")
                     else:

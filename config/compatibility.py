@@ -21,8 +21,7 @@ class ConfigMigrator:
             old_config_path: Path to old configuration file
         """
         base_dir = Path(__file__).parent.parent
-        self.old_config_path = old_config_path or (
-            base_dir / "config" / "app_config.json")
+        self.old_config_path = old_config_path or (base_dir / "config" / "app_config.json")
         self.new_config_path = base_dir / "config" / "app_config.json"
         self.backup_path = base_dir / "config" / "app_config.json.backup"
 
@@ -150,8 +149,7 @@ def get_legacy_defaults() -> dict[str, Any]:
         "SESSION_TIMEOUT": config.get("notes.session_timeout", 3600),
         "MAX_NOTE_SIZE": config.get("notes.max_note_size", 1048576),
         "SUPPORTED_FILE_TYPES": config.get(
-            "notes.supported_file_types", [
-                ".txt", ".md", ".json", ".py", ".js", ".html", ".css"]
+            "notes.supported_file_types", [".txt", ".md", ".json", ".py", ".js", ".html", ".css"]
         ),
         "AI_MAX_TOKENS": config.get("ai.max_tokens", 2000),
         "UI_UPDATE_INTERVAL": config.get("ui.update_interval", 100),
