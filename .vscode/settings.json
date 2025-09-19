@@ -6,6 +6,10 @@
     "source.organizeImports": "explicit",
     "source.fixAll.eslint": "explicit"
   },
+  "python.defaultInterpreterPath": "./.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.condaPath": "",
   "python.formatting.provider": "none",
   "editor.defaultFormatter": null,
   "[python]": {

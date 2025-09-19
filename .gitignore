@@ -150,7 +150,10 @@ dmypy.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Workspace files - exclude user-specific ones but keep project workspace
 *.code-workspace
+!DinoAir.code-workspace
 
 # IntelliJ / PyCharm
 .idea/
@@ -203,23 +206,6 @@ log/
 *.swo
 *.orig
 
-# ---- Test results and coverage ----
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache/
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-test_results.xml
-test-results/
-.testmondata
-
 # ---- Backup files that might contain secrets ----
 *.orig
 *.backup
@@ -227,6 +213,15 @@ config.backup
 .env.backup
 secrets.backup
 database.backup
+
+# ---- Project documentation (KEEP these) ----
+# These documentation files are part of the project and should be committed:
+# !DEEPSOURCE_SETUP_GUIDE.md
+# !VS_CODE_PYTHON_FIX.md
+# !DinoAir-VirtualEnv-Summary.md
+# !API_TRACKER_README.md
+# !SECURITY_POLICY.md
+# !ENHANCED_API_ARCHITECTURE.md
 
 # ---- Node.js (if any frontend components) ----
 node_modules/
@@ -295,11 +290,6 @@ yarn-error.log*
 /test_tag_improvements.py
 
 # ---- Test artifacts and temporary test files ----
-test-*.js
-test-*.cjs
-test_*.py
-*_test.py
-/conftest.py
 test-results/
 playwright-report/
 **/test_report.txt
@@ -308,10 +298,26 @@ playwright-report/
 
 # ---- Project-specific temp/working files ----
 working-*
-test-*
 demo-*
 *.working
 *.draft
+
+# ---- Project utility scripts (KEEP these - they're part of the project) ----
+# These are project setup and maintenance scripts that should be committed
+# !activate-*.ps1
+# !fix-*.ps1
+# !test-*.ps1
+# !remove_test_files.ps1
+
+# ---- Development scripts and utilities ----
+# Exclude general test files but keep our specific project utility scripts
+test-*.js
+test-*.cjs
+test_*.py
+*_test.py
+/conftest.py
+# But keep our specific utility scripts:
+!test-deepsource-config.ps1
 
 # ---- Keep important lockfiles (do NOT ignore) ----
 # Keep uv.lock if present
@@ -341,3 +347,4 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 *.lnk
+test-deepsource-config.ps1
