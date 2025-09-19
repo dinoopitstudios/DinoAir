@@ -733,10 +733,6 @@ class RedTeamTester:
                     pass
 
         return vulnerabilities
-                                    "type": "xss",
-                                    "evidence": response_text[:500],
-                                }
-                            )
 
                     elif injection_type == "command":
                         cmd_indicators = [

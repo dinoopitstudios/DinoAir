@@ -76,7 +76,8 @@ class TestPasswordPolicies:
             pytest.skip("Security modules not available")
         return UserManager(password_policy)
 
-    def test_strong_password_accepted(self, user_manager):
+    @staticmethod
+    def test_strong_password_accepted(user_manager):
         """Test that strong passwords are accepted."""
         strong_password = "MySecur3P@ssw0rd2024!"
 
@@ -92,7 +93,8 @@ class TestPasswordPolicies:
         assert user.password_hash is not None
         assert user.password_hash != strong_password  # Should be hashed
 
-    def test_weak_password_rejected(self, user_manager):
+    @staticmethod
+    def test_weak_password_rejected(user_manager):
         """Test that weak passwords are rejected."""
         weak_passwords = [
             "123456",
@@ -114,7 +116,8 @@ class TestPasswordPolicies:
                     roles=[UserRole.OPERATOR],
                 )
 
-    def test_password_history_enforced(self, user_manager):
+    @staticmethod
+    def test_password_history_enforced(user_manager):
         """Test that password history is enforced."""
         user = user_manager.create_user(
             username="historytest",
@@ -133,7 +136,8 @@ class TestPasswordPolicies:
             user_manager.change_password(
                 user.user_id, "SecondPassword456@", "FirstPassword123!")
 
-    def test_account_lockout(self, user_manager):
+    @staticmethod
+    def test_account_lockout(user_manager):
         """Test account lockout after failed attempts."""
         user = user_manager.create_user(
             username="lockouttest",
@@ -167,7 +171,8 @@ class TestRoleBasedAccessControl:
             pytest.skip("Security modules not available")
         return UserManager()
 
-    def test_clinician_permissions(self, user_manager):
+    @staticmethod
+    def test_clinician_permissions(user_manager):
         """Test that clinicians have appropriate permissions."""
         clinician = user_manager.create_user(
             username="dr_smith",
@@ -187,7 +192,8 @@ class TestRoleBasedAccessControl:
         assert not clinician.has_permission(Permission.SYSTEM_CONFIG)
         assert not clinician.has_permission(Permission.SYSTEM_USERS)
 
-    def test_read_only_permissions(self, user_manager):
+    @staticmethod
+    def test_read_only_permissions(user_manager):
         """Test read-only user permissions."""
         readonly_user = user_manager.create_user(
             username="readonly",
@@ -206,7 +212,8 @@ class TestRoleBasedAccessControl:
         assert not readonly_user.has_permission(Permission.DATA_UPDATE)
         assert not readonly_user.has_permission(Permission.DATA_DELETE)
 
-    def test_emergency_dispatcher_permissions(self, user_manager):
+    @staticmethod
+    def test_emergency_dispatcher_permissions(user_manager):
         """Test emergency dispatcher has appropriate access."""
         dispatcher = user_manager.create_user(
             username="dispatcher1",
@@ -265,8 +272,9 @@ class TestNetworkSecurityMiddleware:
             pytest.skip("Security modules not available")
         return SecurityMiddleware(None, security_config)
 
+    @staticmethod
     def test_rate_limiting_allows_normal_requests(
-        self, security_middleware, mock_request
+        security_middleware, mock_request
     ):
         """Test that normal request rates are allowed."""
         client_ip = "127.0.0.1"
@@ -278,10 +286,9 @@ class TestNetworkSecurityMiddleware:
             if not allowed:
                 raise AssertionError("Normal request rate should be allowed")
 
+    @staticmethod
     def test_rate_limiting_blocks_excessive_requests(
-        self,
-        security_middleware,
-        mock_request,
+        security_middleware, mock_request
     ):
         """Test that excessive requests are blocked."""
         client_ip = "127.0.0.1"
@@ -297,7 +304,8 @@ class TestNetworkSecurityMiddleware:
         if not blocked:
             raise AssertionError("Excessive requests should be blocked")
 
-    def test_ip_allowlist_enforcement(self, security_middleware):
+    @staticmethod
+    def test_ip_allowlist_enforcement(security_middleware):
         """Test IP allowlist enforcement."""
         # Add specific IP to allowlist
         security_middleware.config.allowed_ips.add("192.168.1.100")
@@ -307,11 +315,11 @@ class TestNetworkSecurityMiddleware:
             raise AssertionError
 
         # If allowlist is configured, other IPs should be blocked
-        if security_middleware.config.allowed_ips:
-            if security_middleware.check_ip_allowed("10.0.0.1"):
-                raise AssertionError
+        if security_middleware.config.allowed_ips and security_middleware.check_ip_allowed("10.0.0.1"):
+            raise AssertionError
 
-    def test_ddos_detection(self, security_middleware):
+    @staticmethod
+    def test_ddos_detection(security_middleware):
         """Test DDoS detection."""
         client_ip = "192.168.1.200"
 
@@ -368,7 +376,8 @@ class TestAuditLogging:
         if len(event_id) <= 0:
             raise AssertionError()
 
-    def test_audit_log_integrity(self, audit_logger):
+    @staticmethod
+    def test_audit_log_integrity(audit_logger):
         """Test audit log integrity verification."""
         # Create an audit event
         event_id = audit_logger.audit(
@@ -392,7 +401,8 @@ class TestAuditLogging:
             if "integrity_test" not in log_content:
                 raise AssertionError()
 
-    def test_data_access_logging(self, audit_manager):
+    @staticmethod
+    def test_data_access_logging(audit_manager):
         """Test data access audit logging."""
         event_id = audit_manager.log_data_access(
             action="read",
@@ -404,7 +414,8 @@ class TestAuditLogging:
 
         assert event_id is not None
 
-    def test_security_violation_logging(self, audit_manager):
+    @staticmethod
+    def test_security_violation_logging(audit_manager):
         """Test security violation logging."""
         event_id = audit_manager.log_security_event(
             AuditEventType.SECURITY_VIOLATION,
@@ -415,7 +426,8 @@ class TestAuditLogging:
 
         assert event_id is not None
 
-    def test_api_request_logging(self, audit_manager):
+    @staticmethod
+    def test_api_request_logging(audit_manager):
         """Test API request audit logging."""
         event_id = audit_manager.log_api_request(
             method="POST",
@@ -441,9 +453,9 @@ class TestSecurityConfiguration:
         config = SecurityConfig(compliance_mode=ComplianceMode.HIPAA)
 
         # HIPAA should enforce strong settings
-        if not (config.audit_retention_days >= 2555):  # 7 years
+        if not config.audit_retention_days >= 2555:  # 7 years
             raise AssertionError
-        if not (config.session_timeout_minutes <= 30):
+        if not config.session_timeout_minutes <= 30:
             raise AssertionError
         if not config.password_complexity_enabled:
             raise AssertionError
@@ -461,7 +473,7 @@ class TestSecurityConfiguration:
         # Should have relaxed but secure settings
         if config.require_https:  # Allow HTTP for development
             raise AssertionError
-        if not (len(config.cors_allow_origins) > 1):  # Multiple dev origins
+        if not len(config.cors_allow_origins) > 1:  # Multiple dev origins
             raise AssertionError
         if not any(rule.requests_per_minute >=
                    600 for rule in config.rate_limit_rules):
@@ -495,7 +507,8 @@ class TestSecurityIntegration:
                 "audit_manager": audit_manager,
             }
 
-    def test_user_creation_with_audit(self, integrated_system):
+    @staticmethod
+    def test_user_creation_with_audit(integrated_system):
         """Test user creation triggers audit logging."""
         user_manager = integrated_system["user_manager"]
         audit_manager = integrated_system["audit_manager"]
@@ -522,7 +535,8 @@ class TestSecurityIntegration:
         if audit_id is None:
             raise AssertionError
 
-    def test_authentication_flow_with_security(self, integrated_system):
+    @staticmethod
+    def test_authentication_flow_with_security(integrated_system):
         """Test complete authentication flow with security measures."""
         user_manager = integrated_system["user_manager"]
         audit_manager = integrated_system["audit_manager"]

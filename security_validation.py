@@ -292,7 +292,9 @@ def run_security_validation():
 
     print("\n📊 SECURITY VALIDATION RESULTS")
     print(
-        f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        f"Overall Score: {score:.1f}% "
+        f"({passed_tests}/{total_tests} tests passed)"
+    )
 
     if score >= 90:
         grade = "A (Excellent)"
