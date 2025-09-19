@@ -25,7 +25,7 @@ cffi==2.0.0               # Foreign Function Interface for Python
 pycparser==2.23           # C parser in Python
 
 # System and utility
-psutil==5.9.8             # System and process utilities
+psutil==7.1.0             # System and process utilities
 orjson==3.11.3            # Fast JSON library
 python-dotenv==1.1.1     # Environment variable management
 PyYAML==6.0.2             # YAML parser and emitter
