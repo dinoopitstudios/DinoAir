@@ -43,11 +43,13 @@ else:
         class _DummySignal:
             """Dummy signal class for when Qt is not available."""
 
-            def emit(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def emit(*_: Any, **__: Any) -> None:
                 """Dummy emit method."""
                 return
 
-            def connect(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def connect(*_: Any, **__: Any) -> None:
                 """Dummy connect method."""
                 return
 
@@ -65,15 +67,18 @@ else:
                 """Dummy timeout property."""
                 return _DummySignal()
 
-            def start(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def start(*_: Any, **__: Any) -> None:
                 """Dummy start method."""
                 return
 
-            def stop(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def stop(*_: Any, **__: Any) -> None:
                 """Dummy stop method."""
                 return
 
-            def setInterval(self, *_: Any, **__: Any) -> None:  # pylint: disable=invalid-name
+            @staticmethod
+            def setInterval(*_: Any, **__: Any) -> None:  # pylint: disable=invalid-name
                 """Dummy setInterval method."""
                 return
 

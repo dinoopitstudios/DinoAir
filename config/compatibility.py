@@ -21,11 +21,13 @@ class ConfigMigrator:
             old_config_path: Path to old configuration file
         """
         base_dir = Path(__file__).parent.parent
-        self.old_config_path = old_config_path or (base_dir / "config" / "app_config.json")
+        self.old_config_path = old_config_path or (
+            base_dir / "config" / "app_config.json")
         self.new_config_path = base_dir / "config" / "app_config.json"
         self.backup_path = base_dir / "config" / "app_config.json.backup"
 
-    def needs_migration(self) -> bool:
+    @staticmethod
+    def needs_migration() -> bool:
         """Check if migration is needed"""
         # For now, assume no migration needed since we're starting fresh
         # In the future, this could check for old format files
@@ -82,16 +84,19 @@ class CompatibilityConfigLoader:
         """Save configuration to file (backward compatible)"""
         self._config_manager.save_config_file()
 
-    def load_config(self) -> None:
+    @staticmethod
+    def load_config() -> None:
         """Load configuration (no-op for compatibility)"""
         # The new system loads automatically
 
-    def get_env(self, key: str, default: str = "") -> str:
+    @staticmethod
+    def get_env(key: str, default: str = "") -> str:
         """Get environment variable value (backward compatible)"""
         return os.environ.get(key, default)
 
     # Legacy methods for backward compatibility
-    def create_default_config(self) -> None:
+    @staticmethod
+    def create_default_config() -> None:
         """Create default configuration (no-op for compatibility)"""
 
     async def load_config_async(self) -> None:
@@ -145,7 +150,8 @@ def get_legacy_defaults() -> dict[str, Any]:
         "SESSION_TIMEOUT": config.get("notes.session_timeout", 3600),
         "MAX_NOTE_SIZE": config.get("notes.max_note_size", 1048576),
         "SUPPORTED_FILE_TYPES": config.get(
-            "notes.supported_file_types", [".txt", ".md", ".json", ".py", ".js", ".html", ".css"]
+            "notes.supported_file_types", [
+                ".txt", ".md", ".json", ".py", ".js", ".html", ".css"]
         ),
         "AI_MAX_TOKENS": config.get("ai.max_tokens", 2000),
         "UI_UPDATE_INTERVAL": config.get("ui.update_interval", 100),

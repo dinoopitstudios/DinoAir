@@ -70,7 +70,8 @@ class PerformanceMonitor:
                 if config:
                     self._monitor.update_config(**config.__dict__)
             except Exception as e:
-                logger.warning(f"Failed to initialize performance monitor: {e}")
+                logger.warning(
+                    f"Failed to initialize performance monitor: {e}")
 
     def start_operation(self, operation: str, **metadata: Any) -> str:
         """
@@ -101,7 +102,8 @@ class PerformanceMonitor:
             return self._monitor.end_operation(operation_id)
         return None
 
-    def record_custom_metric(self, operation: str, name: str, value: int | float) -> None:
+    @staticmethod
+    def record_custom_metric(operation: str, name: str, value: int | float) -> None:
         """
         Record a custom metric for an operation.
 

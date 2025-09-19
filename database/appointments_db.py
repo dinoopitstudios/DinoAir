@@ -541,7 +541,8 @@ class AppointmentsDatabase:
                     ),
                 )
 
-    def _row_to_event(self, row) -> CalendarEvent:
+    @staticmethod
+    def _row_to_event(row) -> CalendarEvent:
         """Convert database row to CalendarEvent object"""
         # Normalize tags (stored as CSV TEXT) and metadata (stored as JSON TEXT)
         tags_list = [t for t in (row[17] or "").split(",") if t]

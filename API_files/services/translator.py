@@ -67,7 +67,8 @@ class TranslatorService:
                 10**12
             )  # internal but safe to adjust for v0 needs
 
-    def _create_error_response(self, error: Exception, target_lang: str) -> TranslateResponse:
+    @staticmethod
+    def _create_error_response(error: Exception, target_lang: str) -> TranslateResponse:
         """Create an error response from an exception."""
         return TranslateResponse(
             success=False,
@@ -78,7 +79,8 @@ class TranslatorService:
             metadata={"error_type": type(error).__name__},
         )
 
-    def _normalize_list(self, items: object) -> list[str]:
+    @staticmethod
+    def _normalize_list(items: object) -> list[str]:
         """Normalize and truncate a list of items to strings."""
         if not isinstance(items, list):
             return []
@@ -88,15 +90,17 @@ class TranslatorService:
             out.append(s[:500])
         return out
 
-    def _extract_metadata(self, metadata_raw: object) -> dict[str, Any]:
+    @staticmethod
+    def _extract_metadata(metadata_raw: object) -> dict[str, Any]:
         """Extract and normalize metadata from raw result."""
         if isinstance(metadata_raw, dict):
             md_typed: dict[Any, Any] = cast("dict[Any, Any]", metadata_raw)
             return {str(k): v for k, v in md_typed.items()}
         return {}
 
+    @staticmethod
     def _create_validation_error_response(
-        self, language: str, validation_error: ValidationError
+        language: str, validation_error: ValidationError
     ) -> TranslateResponse:
         """Create a response for validation errors."""
         log.warning(

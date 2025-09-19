@@ -49,10 +49,12 @@ else:
                 pass
 
         class QMutex:  # type: ignore
-            def lock(self) -> None:
+            @staticmethod
+            def lock() -> None:
                 pass
 
-            def unlock(self) -> None:
+            @staticmethod
+            def unlock() -> None:
                 pass
 
         class QMutexLocker:  # type: ignore
@@ -67,20 +69,24 @@ else:
                 self._mutex.unlock()
 
         class QWaitCondition:  # type: ignore
-            def wait(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def wait(*_: Any, **__: Any) -> None:
                 pass
 
-            def wakeAll(self) -> None:
+            @staticmethod
+            def wakeAll() -> None:
                 pass
 
         class QThread:  # type: ignore
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
-            def start(self) -> None:
+            @staticmethod
+            def start() -> None:
                 pass
 
-            def isRunning(self) -> bool:
+            @staticmethod
+            def isRunning() -> bool:
                 return False
 
             def wait(self, *_: Any, **__: Any) -> bool:

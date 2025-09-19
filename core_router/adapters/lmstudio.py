@@ -141,7 +141,8 @@ class LMStudioAdapter(ServiceAdapter):
                     return True
         return False
 
-    def _should_retry_status(self, status_code: int) -> bool:
+    @staticmethod
+    def _should_retry_status(status_code: int) -> bool:
         # Retry 5xx except 501
         return 500 <= status_code < 600 and status_code != 501
 
@@ -153,7 +154,8 @@ class LMStudioAdapter(ServiceAdapter):
         with suppress(Exception):
             time.sleep(delay)
 
-    def _validate_messages(self, items: Any) -> list[dict[str, str]]:
+    @staticmethod
+    def _validate_messages(items: Any) -> list[dict[str, str]]:
         """
         Validate and normalize OpenAI-style messages:
         - Must be a non-empty list
@@ -306,7 +308,8 @@ class LMStudioAdapter(ServiceAdapter):
 
         return self._handle_error_response(resp, attempt, attempts)
 
-    def _parse_successful_response(self, resp: httpx.Response) -> dict[str, Any]:
+    @staticmethod
+    def _parse_successful_response(resp: httpx.Response) -> dict[str, Any]:
         """Parse successful response.
 
         Args:
@@ -361,7 +364,8 @@ class LMStudioAdapter(ServiceAdapter):
         raise AdapterError(adapter="lmstudio",
                            reason=f"HTTP {resp.status_code}: {text}")
 
-    def _raise_network_error(self, exc: Exception) -> None:
+    @staticmethod
+    def _raise_network_error(exc: Exception) -> None:
         """Raise network-related AdapterError.
 
         Args:

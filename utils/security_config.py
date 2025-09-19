@@ -92,7 +92,8 @@ class SecretManager:
         else:
             raise ValueError(f"Unsupported secret provider: {self.provider}")
 
-    def _get_from_environment(self, key: str, default: Optional[str] = None) -> Optional[str]:
+    @staticmethod
+    def _get_from_environment(key: str, default: Optional[str] = None) -> Optional[str]:
         """Get secret from environment variables."""
         value = os.environ.get(key, default)
         if value and len(value) < 16:

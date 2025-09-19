@@ -39,7 +39,8 @@ except ImportError:
                 self._timer: threading.Timer | None = None
                 self._callback: Callable[[], Any] | None = None
 
-            def setSingleShot(self, *_args: Any, **_kwargs: Any) -> None:
+            @staticmethod
+            def setSingleShot(*_args: Any, **_kwargs: Any) -> None:
                 pass
 
             def set_callback(self, callback: Callable[[], Any]) -> None:
@@ -90,17 +91,21 @@ except ImportError:
 if TYPE_CHECKING:
     # pylint: disable=missing-function-docstring,invalid-name
     class _SignalProto(Protocol):
-        def connect(self, cb: Callable[..., Any]) -> Any: ...
+        @staticmethod
+        def connect(cb: Callable[..., Any]) -> Any: ...
 
     class _QTimerProto(Protocol):
-        def setSingleShot(self, singleShot: bool) -> None: ...
+        @staticmethod
+        def setSingleShot(singleShot: bool) -> None: ...
 
         @property
         def timeout(self) -> _SignalProto: ...
 
-        def start(self, ms: int) -> None: ...
+        @staticmethod
+        def start(ms: int) -> None: ...
 
-        def stop(self) -> None: ...
+        @staticmethod
+        def stop() -> None: ...
 
 else:
     _QTimerProto = Any  # type: ignore[assignment, misc]
