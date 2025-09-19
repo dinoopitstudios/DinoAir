@@ -157,56 +157,6 @@ def create_app() -> FastAPI:
         log.exception("Failed to include translate router")
 
     return fastapi_app
-
-    try:
-        from .routes.search import router as search_router
-
-        app.include_router(search_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include search router")
-
-    try:
-        from .routes.config import router as config_router
-
-        app.include_router(config_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include config router")
-
-    # RAG router (new)
-    try:
-        from .routes.rag import router as rag_router
-
-        app.include_router(rag_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include rag router")
-
-    try:
-        from .routes.metrics import router as metrics_router
-
-        app.include_router(metrics_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include metrics router")
-
-    try:
-        from .routes.ai import router as ai_router
-
-        app.include_router(ai_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include ai router")
-
-    try:
-        from .routes.router import router as router_router
-
-        app.include_router(router_router)
-    except Exception:  # pragma: no cover
-        log.exception("Failed to include core router endpoints")
-
-    # Add a root endpoint
-    @app.get("/")
-    async def root():
-        """Root endpoint providing API information."""
-        return {
-            "message": "Welcome to DinoAir API",
             "version": "0.1.0",
             "status": "running",
             "endpoints": {
