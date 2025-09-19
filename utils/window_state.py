@@ -33,10 +33,12 @@ else:
         Qt = _QtFallback()  # type: ignore
 
         class QWidget:  # type: ignore
-            def isMaximized(self) -> bool:
+            @staticmethod
+            def isMaximized() -> bool:
                 return False
 
-            def geometry(self) -> Any:
+            @staticmethod
+            def geometry() -> Any:
                 class _G:
                     def x(self) -> int:
                         return 0
@@ -52,17 +54,21 @@ else:
 
                 return _G()
 
-            def setGeometry(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def setGeometry(*_: Any, **__: Any) -> None:
                 pass
 
-            def showMaximized(self) -> None:
+            @staticmethod
+            def showMaximized() -> None:
                 pass
 
         class QSplitter:  # type: ignore
-            def sizes(self) -> list[int]:
+            @staticmethod
+            def sizes() -> list[int]:
                 return [50, 50]
 
-            def setSizes(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def setSizes(*_: Any, **__: Any) -> None:
                 pass
 
             def orientation(self) -> int:

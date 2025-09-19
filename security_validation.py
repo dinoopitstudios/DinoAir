@@ -67,6 +67,7 @@ def test_password_security():
                     f"   📝 Test password {i + 1} ({'should pass' if should_pass else 'should fail'}): {'✅' if result == should_pass else '❌'}"
                 )
 
+
         except Exception:
             print("   ⚠️  Password validation method not found")
             validation_works = False

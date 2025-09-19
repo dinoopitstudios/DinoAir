@@ -305,7 +305,8 @@ class TelemetryManager:
             if not success:
                 logger.warning(f"Failed to export {len(metrics_to_export)} metrics")
 
-    def _serialize_metric(self, metric: Any) -> dict[str, Any]:
+    @staticmethod
+    def _serialize_metric(metric: Any) -> dict[str, Any]:
         """Serialize a metric for export."""
         if hasattr(metric, "__dict__"):
             # Handle dataclass or object with attributes

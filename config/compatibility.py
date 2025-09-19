@@ -25,7 +25,8 @@ class ConfigMigrator:
         self.new_config_path = base_dir / "config" / "app_config.json"
         self.backup_path = base_dir / "config" / "app_config.json.backup"
 
-    def needs_migration(self) -> bool:
+    @staticmethod
+    def needs_migration() -> bool:
         """Check if migration is needed"""
         # For now, assume no migration needed since we're starting fresh
         # In the future, this could check for old format files
@@ -82,16 +83,19 @@ class CompatibilityConfigLoader:
         """Save configuration to file (backward compatible)"""
         self._config_manager.save_config_file()
 
-    def load_config(self) -> None:
+    @staticmethod
+    def load_config() -> None:
         """Load configuration (no-op for compatibility)"""
         # The new system loads automatically
 
-    def get_env(self, key: str, default: str = "") -> str:
+    @staticmethod
+    def get_env(key: str, default: str = "") -> str:
         """Get environment variable value (backward compatible)"""
         return os.environ.get(key, default)
 
     # Legacy methods for backward compatibility
-    def create_default_config(self) -> None:
+    @staticmethod
+    def create_default_config() -> None:
         """Create default configuration (no-op for compatibility)"""
 
     async def load_config_async(self) -> None:

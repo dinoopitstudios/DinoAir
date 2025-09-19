@@ -488,6 +488,7 @@ def _get_default_user_data_directory() -> Path:
     # Determine platform-specific root for validation.
     if os.name == "nt":
         # Use AppData/Local
+
         root_dir = (
             Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local")))
             .expanduser()
@@ -512,6 +513,7 @@ def _get_default_user_data_directory() -> Path:
                 f"Rejected XDG_DATA_HOME environment var as unsafe. Using default location."
             )
             root_dir = get_default_root_dir()
+
         root_sub = "dinoair"
     app_root = root_dir / root_sub
 

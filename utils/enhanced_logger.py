@@ -619,7 +619,8 @@ class LogAggregator:
         self._lock = threading.RLock()
         self._start_time = time.time()
 
-    def _count_by_field(self, entries: list[dict[str, Any]], field_name: str) -> dict[str, int]:
+    @staticmethod
+    def _count_by_field(entries: list[dict[str, Any]], field_name: str) -> dict[str, int]:
         """Count entries by a specific field value."""
         counts: dict[str, int] = {}
         for entry in entries:

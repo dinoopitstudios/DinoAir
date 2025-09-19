@@ -25,16 +25,20 @@ try:
 except ImportError:
     # Simple fallback logger
     class Logger:
-        def info(self, msg):
+        @staticmethod
+        def info(msg):
             pass
 
-        def warning(self, msg):
+        @staticmethod
+        def warning(msg):
             pass
 
-        def error(self, msg):
+        @staticmethod
+        def error(msg):
             pass
 
-        def debug(self, msg):
+        @staticmethod
+        def debug(msg):
             pass
 
 

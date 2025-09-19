@@ -1016,7 +1016,8 @@ class FileSearchDB:
             self.logger.error(f"Error removing file {file_path}: {str(e)}")
             return {"success": False, "error": f"Failed to remove file: {str(e)}"}
 
-    def _generate_id(self, seed: str) -> str:
+    @staticmethod
+    def _generate_id(seed: str) -> str:
         """
         Generate a unique ID based on a seed string.
 

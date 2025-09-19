@@ -23,10 +23,12 @@ else:
             pass
 
         class _DummySignal:  # type: ignore
-            def emit(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def emit(*_: Any, **__: Any) -> None:
                 pass
 
-            def connect(self, *_: Any, **__: Any) -> None:
+            @staticmethod
+            def connect(*_: Any, **__: Any) -> None:
                 pass
 
             def __get__(self, instance, owner):
@@ -48,13 +50,16 @@ else:
             def instance() -> Optional["QApplication"]:
                 return None
 
-            def font(self) -> "QFont":
+            @staticmethod
+            def font() -> "QFont":
                 return QFont()
 
-            def primaryScreen(self) -> Any:
+            @staticmethod
+            def primaryScreen() -> Any:
                 return None
 
-            def screens(self) -> list[Any]:
+            @staticmethod
+            def screens() -> list[Any]:
                 return []
 
 

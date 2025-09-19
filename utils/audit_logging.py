@@ -248,7 +248,8 @@ class AuditLogger:
         log_line = json.dumps(log_data, separators=(",", ":"))
         self.logger.info(log_line)
 
-    def _encrypt_log_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _encrypt_log_data(data: Dict[str, Any]) -> Dict[str, Any]:
         """Encrypt sensitive log data."""
         # For now, just mark as encrypted - real implementation would use proper encryption
         return {

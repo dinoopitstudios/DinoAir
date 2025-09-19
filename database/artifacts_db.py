@@ -46,7 +46,8 @@ class ArtifactsDatabase:
         storage_path = artifact.get_storage_path(self.username)
         return Path(self.db_manager.base_dir) / storage_path
 
-    def _compute_checksum(self, content: bytes) -> str:
+    @staticmethod
+    def _compute_checksum(content: bytes) -> str:
         """Compute SHA256 checksum of content"""
         return hashlib.sha256(content).hexdigest()
 
@@ -929,7 +930,8 @@ class ArtifactsDatabase:
             (count or 0, total_size or 0, collection_id),
         )
 
-    def _row_to_artifact(self, row) -> Artifact:
+    @staticmethod
+    def _row_to_artifact(row) -> Artifact:
         """Convert database row to Artifact object"""
         return Artifact.from_dict(
             {
@@ -961,7 +963,8 @@ class ArtifactsDatabase:
             }
         )
 
-    def _row_to_collection(self, row) -> ArtifactCollection:
+    @staticmethod
+    def _row_to_collection(row) -> ArtifactCollection:
         """Convert database row to ArtifactCollection object"""
         return ArtifactCollection.from_dict(
             {
@@ -981,7 +984,8 @@ class ArtifactsDatabase:
             }
         )
 
-    def _row_to_version(self, row) -> ArtifactVersion:
+    @staticmethod
+    def _row_to_version(row) -> ArtifactVersion:
         """Convert database row to ArtifactVersion object"""
         return ArtifactVersion.from_dict(
             {

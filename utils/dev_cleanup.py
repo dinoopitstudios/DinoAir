@@ -34,7 +34,8 @@ class UserDataCleanupManager:
         level = logging.DEBUG if verbose else logging.INFO
         logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    def get_user_data_directories(self) -> dict[str, Path]:
+    @staticmethod
+    def get_user_data_directories() -> dict[str, Path]:
         """Get all potential user data directories.
 
         Returns:
@@ -302,7 +303,8 @@ class UserDataCleanupManager:
 
         return results
 
-    def _calculate_directory_size(self, path: Path) -> float:
+    @staticmethod
+    def _calculate_directory_size(path: Path) -> float:
         """Calculate total size of directory in MB."""
         total_size = 0
         try:

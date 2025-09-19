@@ -364,7 +364,8 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             )
             raise
 
-    def _get_client_ip(self, request: Request) -> str:
+    @staticmethod
+    def _get_client_ip(request: Request) -> str:
         """Extract client IP address."""
         # Check forwarded headers (for reverse proxies)
         forwarded_for = request.headers.get("x-forwarded-for")

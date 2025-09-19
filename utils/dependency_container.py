@@ -469,7 +469,8 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
                 del self._scoped_instances[scope_name]
                 logger.debug(f"Disposed scope: {scope_name}")
 
-    def _dispose_instance(self, instance: Any) -> None:
+    @staticmethod
+    def _dispose_instance(instance: Any) -> None:
         """Dispose of an instance if it has disposal methods."""
         try:
             if hasattr(instance, "dispose"):

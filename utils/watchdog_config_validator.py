@@ -16,7 +16,6 @@ from .logger import Logger
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-
 logger = Logger()
 
 
@@ -358,7 +357,8 @@ class WatchdogConfigValidator:
 
         return validated
 
-    def merge_configs(self, *configs: dict[str, Any]) -> dict[str, Any]:
+    @staticmethod
+    def merge_configs(*configs: dict[str, Any]) -> dict[str, Any]:
         """Merge multiple configuration dictionaries.
 
         Later configs override earlier ones. Common parameter name
@@ -412,7 +412,8 @@ class WatchdogConfigValidator:
 
         return defaults
 
-    def create_config_summary(self, config: dict[str, Any]) -> str:
+    @staticmethod
+    def create_config_summary(config: dict[str, Any]) -> str:
         """Create a human-readable configuration summary.
 
         Args:
