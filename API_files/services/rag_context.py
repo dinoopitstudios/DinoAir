@@ -69,7 +69,7 @@ class RagContextService:
         try:
             # pylint: disable=import-outside-toplevel
             from rag import get_context_provider  # type: ignore[attr-defined]
-        except ImportError:
+            pass
             ...
             return None, True
         # type: ignore[assignment]
