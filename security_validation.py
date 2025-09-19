@@ -60,7 +60,7 @@ def test_password_security():
             ]
 
             validation_works = True
-            for i, (pwd, should_pass) in enumerate(test_passwords):
+            for _, (pwd, should_pass) in enumerate(test_passwords):
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
                 print(

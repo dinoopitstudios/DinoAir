@@ -23,7 +23,7 @@ def run_tests(args=None):
     if args:
         cmd += f" {args}"
 
-    success, stdout, stderr = run_command(cmd)
+    success, _, _ = run_command(cmd)
 
     return success
 

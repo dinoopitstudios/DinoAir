@@ -218,16 +218,6 @@ class ParserModule:
             blocks.append(''.join(current_block))
 
         return blocks
-            # Check for transition between English and Python using AST
-            elif i > 0:
-                try:
-                    if self._is_ast_transition(lines[i - 1], line):
-                        is_new_block = True
-                except Exception as e:
-                    # Log warning but continue parsing
-                    self.warnings.append(
-                        f"Line {line_number}: Could not determine transition - {str(e)}"
-                    )
             # Check for match statements (Python 3.10+)
             elif re.match(r"^\s*match\s+.+:", line):
                 is_new_block = True
