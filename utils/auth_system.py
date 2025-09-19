@@ -420,106 +420,99 @@ class UserManager:
             "manual_entry_key": secret,
         }
 
-    def change_password(self, user_id: str, old_password: str, new_password: str) -> None:
-        """Change user password with policy validation."""
+def change_password(self, user_id: str, old_password: str, new_password: str) -> None:
+    """Change user password with policy validation."""
 
-        target_user = self.users.get(user_id)
-        if not target_user:
-            raise ValueError("User not found")
+    target_user = self.users.get(user_id)
+    if not target_user:
+        raise ValueError("User not found")
 
-        # Verify old password
-        if not self._verify_password(old_password, target_user.password_hash):
-            raise ValueError("Current password is incorrect")
+    # Verify old password
+    if not self._verify_password(old_password, target_user.password_hash):
+        raise ValueError("Current password is incorrect")
 
-        # Validate new password
-        self._validate_password(
-            new_password, target_user.username, target_user.email, target_user.full_name)
+    # Validate new password
+    self._validate_password(
+        new_password, target_user.username, target_user.email, target_user.full_name)
 
-        # Check password history
-        new_hash = self._hash_password(new_password)
-        user_history = self.password_history.get(user_id, [])
+    # Check password history
+    new_hash = self._hash_password(new_password)
+    user_history = self.password_history.get(user_id, [])
 
-        for old_hash in user_history[-self.password_policy.password_history_count:]:
-            if self._verify_password(new_password, old_hash):
-                raise ValueError("Password has been used recently")
+    for old_hash in user_history[-self.password_policy.password_history_count:]:
+        if self._verify_password(new_password, old_hash):
+            raise ValueError("Password has been used recently")
 
-        # Update password
-        target_user.password_hash = new_hash
-        target_user.password_changed_at = datetime.now(timezone.utc)
+    # Update password
+    target_user.password_hash = new_hash
+    target_user.password_changed_at = datetime.now(timezone.utc)
 
-        # Update password history
-        user_history.append(new_hash)
-        if len(user_history) > self.password_policy.password_history_count:
-            user_history = user_history[-self.password_policy.password_history_count:]
-        self.password_history[user_id] = user_history
+    # Update password history
+    user_history.append(new_hash)
+    if len(user_history) > self.password_policy.password_history_count:
+        user_history = user_history[-self.password_policy.password_history_count:]
+    self.password_history[user_id] = user_history
 
-        # Invalidate all sessions
-        self._invalidate_user_sessions(user_id)
+    # Invalidate all sessions
+    self._invalidate_user_sessions(user_id)
 
-    def get_user_by_username(self, username: str) -> Optional[User]:
-        """Get user by username."""
-        return next((u for u in self.users.values() if u.username == username), None)
+def get_user_by_username(self, username: str) -> Optional[User]:
+    """Get user by username."""
+    return next((u for u in self.users.values() if u.username == username), None)
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user by email."""
-"""Authentication and user session module.
+def get_user_by_email(self, email: str) -> Optional[User]:
+    """Get user by email."""
+    return next((u for u in self.users.values() if u.email == email), None)
 
-Provides classes and methods for managing user sessions,
-validating passwords against a defined policy, and integrating
-with FastAPI middleware for authentication.
-"""
+def get_session(self, session_id: str) -> Optional[Session]:
+    """Get session by ID, removing it if expired."""
+    found_session = self.sessions.get(session_id)
+    if found_session and found_session.is_expired():
+        del self.sessions[session_id]
+        return None
+    return found_session
 
-        return next((u for u in self.users.values() if u.email == email), None)
+def cleanup_expired_sessions(self) -> None:
+    """Remove expired or idle sessions from storage."""
+    expired_sessions = [
+        sid
+        for sid, session in self.sessions.items()
+        if session.is_expired() or session.is_idle_timeout()
+    ]
 
-    def get_session(self, session_id: str) -> Optional[Session]:
-        """Get session by ID, removing it if expired."""
-        found_session = self.sessions.get(session_id)
-        if found_session and found_session.is_expired():
-            del self.sessions[session_id]
-            return None
-        return found_session
+    for session_id in expired_sessions:
+        del self.sessions[session_id]
 
-    def cleanup_expired_sessions(self) -> None:
-        """Remove expired or idle sessions from storage."""
-        expired_sessions = [
-            sid
-            for sid, session in self.sessions.items()
-            if session.is_expired() or session.is_idle_timeout()
-        ]
+def _create_session(
+    self,
+    user_obj: User,
+    source_ip: str,
+    user_agent: str,
+    mfa_verified: bool = False,
+) -> Session:
+    """Create new user session."""
 
-        for session_id in expired_sessions:
-            del self.sessions[session_id]
+    session_id = secrets.token_urlsafe(32)
+    now = datetime.now(timezone.utc)
 
-    def _create_session(
-        self,
-        user_obj: User,
-        source_ip: str,
-        user_agent: str,
-        mfa_verified: bool = False,
-    ) -> Session:
-        """Create new user session."""
+    session_obj = Session(
+        session_id=session_id,
+        user_id=user_obj.user_id,
+        created_at=now,
+        last_accessed=now,
+        expires_at=now + timedelta(hours=8),  # 8 hour default
+        source_ip=source_ip,
+        user_agent=user_agent,
+        mfa_verified=mfa_verified,
+    )
 
-        session_id = secrets.token_urlsafe(32)
-        now = datetime.now(timezone.utc)
+    self.sessions[session_id] = session_obj
+    return session_obj
 
-        session_obj = Session(
-            session_id=session_id,
-            user_id=user_obj.user_id,
-            created_at=now,
-            last_accessed=now,
-            expires_at=now + timedelta(hours=8),  # 8 hour default
-            source_ip=source_ip,
-            user_agent=user_agent,
-            mfa_verified=mfa_verified,
-        )
-
-        self.sessions[session_id] = session_obj
-        return session_obj
-
-    def _validate_password(self, password: str, username: str, email: str, full_name: str) -> None:
-        """Validate password against policy requirements."""
-        self._validate_length(password)
-        self._validate_character_requirements(password)
+def _validate_password(self, password: str, username: str, email: str, full_name: str) -> None:
+    """Validate password against policy requirements."""
+    self._validate_length(password)
+    self._validate_character_requirements(password)
         self._validate_special_chars(password)
         self._validate_personal_info(password, username, email, full_name)
 

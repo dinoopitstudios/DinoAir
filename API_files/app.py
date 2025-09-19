@@ -157,16 +157,6 @@ def create_app() -> FastAPI:
         log.exception("Failed to include translate router")
 
     return fastapi_app
-            "version": "0.1.0",
-            "status": "running",
-            "endpoints": {
-                "health": "/health",
-                "docs": "/docs" if app.docs_url else "disabled",
-                "openapi": "/openapi.json" if app.openapi_url else "disabled",
-            },
-        }
-
-    return app
 
 
 # Expose an ASGI application instance for servers (e.g., `uvicorn api.app:app`)

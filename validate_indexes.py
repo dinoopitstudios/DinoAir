@@ -59,6 +59,8 @@ def check_database_indexes(db_path: str) -> None:
             for idx in sorted(existing_indexes):
                 # Ensure idx is a safe SQLite identifier (alphanumeric or underscore)
                 if not re.match(r'^[A-Za-z0-9_]+$', idx):
+                    continue
+
                 # Get index details
                 cursor.execute(f"PRAGMA index_info('{idx}')")
                 [row[2] for row in cursor.fetchall()]

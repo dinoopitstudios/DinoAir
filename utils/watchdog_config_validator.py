@@ -289,40 +289,6 @@ class WatchdogConfigValidator:
         for param_name, rule in self.rules.items():
             self._validate_param(param_name, rule, config, result, corrected)
 
-        result.corrected_config = corrected
-        return result
-
-            # Check numeric ranges
-            if isinstance(value, int | float):
-                if rule.min_value is not None and value < rule.min_value:
-                    result.add_issue(
-                        param_name,
-                        ValidationLevel.WARNING,
-                        f"Value {value} for '{param_name}' is below minimum {rule.min_value}",
-                    )
-                    corrected[param_name] = rule.min_value
-
-                elif rule.max_value is not None and value > rule.max_value:
-                    result.add_issue(
-                        param_name,
-                        ValidationLevel.WARNING,
-                        f"Value {value} for '{param_name}' exceeds maximum {rule.max_value}",
-                    )
-                    corrected[param_name] = rule.max_value
-
-            # Check type compatibility
-            elif rule.default_value is not None:
-                expected_type: type[Any] = cast(
-                    "type[Any]", type(cast("object", rule.default_value))
-                )
-                if not isinstance(value, expected_type):
-                    result.add_issue(
-                        param_name,
-                        ValidationLevel.ERROR,
-                        f"Invalid type for '{param_name}': expected {expected_type.__name__}, got {type(value).__name__}",
-                    )
-                    corrected[param_name] = rule.default_value
-
         # Apply corrections
         result.corrected_config = corrected
 

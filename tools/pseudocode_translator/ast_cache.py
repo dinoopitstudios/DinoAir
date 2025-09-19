@@ -87,44 +87,6 @@ def _ast_to_dict(node: ast.AST, max_depth: int = 500) -> dict[str, Any]:
 
     return _convert_node(node, 0)
 
-                return result
-
-            if isinstance(obj, list):
-                # Optimize for empty lists
-                if not obj:
-                    return []
-                return [_convert_node(item, current_depth + 1) for item in obj]
-
-            if isinstance(obj, tuple):
-                # Handle tuples by converting to list
-                return [_convert_node(item, current_depth + 1) for item in obj]
-
-            if isinstance(obj, str | int | float | bool) or obj is None:
-                # Fast path for primitives
-                return obj
-
-            # Enhanced type handling for unknown objects
-            try:
-                # Try to get a meaningful string representation
-                str_repr = str(obj)
-                # Limit string length to prevent excessive memory usage
-                if len(str_repr) > 1000:
-                    str_repr = str_repr[:1000] + "...[truncated]"
-                return {"_unknown_type": type(obj).__name__, "_str_repr": str_repr}
-            except Exception as e:
-                logger.debug(f"Failed to convert unknown type {type(obj)}: {e}")
-                return {"_unknown_type": type(obj).__name__, "_conversion_failed": True}
-
-        except Exception as e:
-            logger.error(f"Unexpected error in _convert_node at depth {current_depth}: {e}")
-            return {"_error": True, "_message": str(e), "_type": type(obj).__name__}
-
-    try:
-        return _convert_node(node, 0)
-    except Exception as e:
-        logger.error(f"Failed to convert AST to dict: {e}")
-        raise ValueError(f"AST conversion failed: {e}") from e
-
 
 def _dict_to_ast(data: dict[str, Any]) -> ast.AST:
     """

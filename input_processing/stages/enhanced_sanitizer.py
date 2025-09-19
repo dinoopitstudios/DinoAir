@@ -170,11 +170,11 @@ class EnhancedInputSanitizer:
             # For plain text, strip all HTML and dangerous content
             sanitized = self.xss_protection.strip_tags(sanitized)
             return sanitized
-        return sanitized
-
         elif context == self.CONTEXT_FILENAME:
             # For filenames, apply strict rules
             sanitized = self._sanitize_filename(sanitized)
+            return sanitized
+        return sanitized
 
         elif context == self.CONTEXT_URL:
             # For URLs, validate and sanitize
