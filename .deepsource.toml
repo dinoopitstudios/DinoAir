@@ -44,7 +44,8 @@ name = "test-coverage"
 name = "python"
 
   [analyzers.meta]
-  runtime_version = "3.x.x"
+  runtime_version = "3.11"
+  max_line_length = 100
 
 [[analyzers]]
 name = "secrets"
@@ -60,12 +61,3 @@ name = "ruff"
 
 [[transformers]]
 name = "prettier"
-
-[[transformers]]
-name = "yapf"
-
-[[transformers]]
-name = "autopep8"
-
-[[transformers]]
-name = "standardjs"
