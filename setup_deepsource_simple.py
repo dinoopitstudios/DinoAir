@@ -7,8 +7,8 @@ Setup coverage reporting without requiring the CLI to be installed fi        els
 """
 
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 

@@ -5,10 +5,10 @@ DeepSource Coverage Setup Script
 Safely configure DeepSource code coverage reporting without exposing secrets.
 """
 
-import os
-import sys
-import subprocess
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 
