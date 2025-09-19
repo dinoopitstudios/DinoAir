@@ -24,7 +24,6 @@ export default function MetricTile({ label, value, icon }: MetricTileProps) {
         alignItems: 'center',
         gap: 10,
         background: '#0f172a',
-        border: '1f172a',
         border: '1px solid #1f2937',
         borderRadius: 10,
         padding: '12px 16px',
