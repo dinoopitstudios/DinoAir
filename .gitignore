@@ -143,6 +143,10 @@ dmypy.json
 .pylint.d/
 .ruff_cache/
 
+# ---- Security Analysis ----
+codeql-databases/
+codeql-results/
+
 # ---- Editor / IDE ----
 # VS Code: ignore all by default but keep common project configs
 .vscode/*
