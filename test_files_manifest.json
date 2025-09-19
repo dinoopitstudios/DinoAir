@@ -1,0 +1,582 @@
+{
+  "archive_created": "2025-09-19T13:35:04.089131",
+  "repository": "dinoopitstudios/DinoAir",
+  "total_files": 115,
+  "files": [
+    {
+      "path": "API_files/pytest.ini",
+      "type": "file",
+      "size_bytes": 94
+    },
+    {
+      "path": "API_files/tests/conftest.py",
+      "type": "file",
+      "size_bytes": 6554
+    },
+    {
+      "path": "API_files/tests/test_app_smoke.py",
+      "type": "file",
+      "size_bytes": 1794
+    },
+    {
+      "path": "API_files/tests/test_endpoints.py",
+      "type": "file",
+      "size_bytes": 11864
+    },
+    {
+      "path": "API_files/tests/test_input_processing_pipeline.py",
+      "type": "file",
+      "size_bytes": 2463
+    },
+    {
+      "path": "API_files/tests/test_input_processing_watchdog_and_strict.py",
+      "type": "file",
+      "size_bytes": 4392
+    },
+    {
+      "path": "API_files/tests/test_rag_endpoints.py",
+      "type": "file",
+      "size_bytes": 9903
+    },
+    {
+      "path": "config/test_config.py",
+      "type": "file",
+      "size_bytes": 19398
+    },
+    {
+      "path": "database/tests/__init__.py",
+      "type": "file",
+      "size_bytes": 81
+    },
+    {
+      "path": "database/tests/conftest.py",
+      "type": "file",
+      "size_bytes": 13379
+    },
+    {
+      "path": "database/tests/pytest.ini",
+      "type": "file",
+      "size_bytes": 1233
+    },
+    {
+      "path": "database/tests/test_appointments_db.py",
+      "type": "file",
+      "size_bytes": 17954
+    },
+    {
+      "path": "database/tests/test_artifacts_db.py",
+      "type": "file",
+      "size_bytes": 6271
+    },
+    {
+      "path": "database/tests/test_database_manager_integration.py",
+      "type": "file",
+      "size_bytes": 3478
+    },
+    {
+      "path": "database/tests/test_file_search_db.py",
+      "type": "file",
+      "size_bytes": 6331
+    },
+    {
+      "path": "database/tests/test_initialize_db.py",
+      "type": "file",
+      "size_bytes": 19727
+    },
+    {
+      "path": "database/tests/test_initialize_db_comprehensive.py",
+      "type": "file",
+      "size_bytes": 11696
+    },
+    {
+      "path": "database/tests/test_migration_loader.py",
+      "type": "file",
+      "size_bytes": 1323
+    },
+    {
+      "path": "database/tests/test_migration_simple.py",
+      "type": "file",
+      "size_bytes": 3225
+    },
+    {
+      "path": "database/tests/test_migrations.py",
+      "type": "file",
+      "size_bytes": 16206
+    },
+    {
+      "path": "database/tests/test_migrations_integration.py",
+      "type": "file",
+      "size_bytes": 8003
+    },
+    {
+      "path": "database/tests/test_notes_database_compat.py",
+      "type": "file",
+      "size_bytes": 7743
+    },
+    {
+      "path": "database/tests/test_notes_repository_real.py",
+      "type": "file",
+      "size_bytes": 10006
+    },
+    {
+      "path": "database/tests/test_notes_repository_schema_and_search.py",
+      "type": "file",
+      "size_bytes": 4657
+    },
+    {
+      "path": "database/tests/test_notes_security_unit.py",
+      "type": "file",
+      "size_bytes": 4361
+    },
+    {
+      "path": "database/tests/test_notes_service_integration_real.py",
+      "type": "file",
+      "size_bytes": 7487
+    },
+    {
+      "path": "database/tests/test_notes_service_unit.py",
+      "type": "file",
+      "size_bytes": 11752
+    },
+    {
+      "path": "database/tests/test_notes_system.py",
+      "type": "file",
+      "size_bytes": 33261
+    },
+    {
+      "path": "database/tests/test_notes_validator_unit.py",
+      "type": "file",
+      "size_bytes": 7150
+    },
+    {
+      "path": "database/tests/test_projects_db.py",
+      "type": "file",
+      "size_bytes": 6978
+    },
+    {
+      "path": "database/tests/test_resilient_db.py",
+      "type": "file",
+      "size_bytes": 14619
+    },
+    {
+      "path": "database/tests/test_schema_indexes.py",
+      "type": "file",
+      "size_bytes": 7686
+    },
+    {
+      "path": "database/tests/test_timers_db.py",
+      "type": "file",
+      "size_bytes": 6492
+    },
+    {
+      "path": "models/tests/test_note_model.py",
+      "type": "file",
+      "size_bytes": 2262
+    },
+    {
+      "path": "models/tests/test_project_and_calendar_event.py",
+      "type": "file",
+      "size_bytes": 4510
+    },
+    {
+      "path": "mypy_test.ini",
+      "type": "file",
+      "size_bytes": 169
+    },
+    {
+      "path": "pytest.ini",
+      "type": "file",
+      "size_bytes": 1454
+    },
+    {
+      "path": "red_team_testing.py",
+      "type": "file",
+      "size_bytes": 40339
+    },
+    {
+      "path": "scripts/test_automation.py",
+      "type": "file",
+      "size_bytes": 14050
+    },
+    {
+      "path": "tests/connection.spec.ts",
+      "type": "file",
+      "size_bytes": 3601
+    },
+    {
+      "path": "tests/diagnostics.spec.ts",
+      "type": "file",
+      "size_bytes": 1067
+    },
+    {
+      "path": "tools/pseudocode_translator/run_tests.py",
+      "type": "file",
+      "size_bytes": 7489
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/conftest.py",
+      "type": "file",
+      "size_bytes": 8352
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/__init__.py",
+      "type": "file",
+      "size_bytes": 6777
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/configs",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/configs/invalid_config.yaml",
+      "type": "file",
+      "size_bytes": 397
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/configs/valid_config.yaml",
+      "type": "file",
+      "size_bytes": 1827
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/error_cases",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/error_cases/runtime_errors.txt",
+      "type": "file",
+      "size_bytes": 1306
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/error_cases/syntax_errors.txt",
+      "type": "file",
+      "size_bytes": 690
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/expected_output",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/expected_output/basic_examples_output.py",
+      "type": "file",
+      "size_bytes": 1655
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/pseudocode",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/pseudocode/advanced_examples.txt",
+      "type": "file",
+      "size_bytes": 2556
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/fixtures/pseudocode/basic_examples.txt",
+      "type": "file",
+      "size_bytes": 958
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_adaptive_chunking.py",
+      "type": "file",
+      "size_bytes": 9383
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_assembler_basic.py",
+      "type": "file",
+      "size_bytes": 1129
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_backpressure.py",
+      "type": "file",
+      "size_bytes": 9597
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_cache_eviction.py",
+      "type": "file",
+      "size_bytes": 7407
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_config_validate.py",
+      "type": "file",
+      "size_bytes": 2822
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_deprecation_warning.py",
+      "type": "file",
+      "size_bytes": 836
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_events_emission.py",
+      "type": "file",
+      "size_bytes": 5085
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_model_selection.py",
+      "type": "file",
+      "size_bytes": 5932
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_new_abstractions.py",
+      "type": "file",
+      "size_bytes": 10762
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_parser_basic.py",
+      "type": "file",
+      "size_bytes": 1639
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_process_pool.py",
+      "type": "file",
+      "size_bytes": 8770
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_stream_characterization.py",
+      "type": "file",
+      "size_bytes": 8272
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_streaming_smoke.py",
+      "type": "file",
+      "size_bytes": 2080
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_translation_invoker.py",
+      "type": "file",
+      "size_bytes": 3530
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_translator_mock.py",
+      "type": "file",
+      "size_bytes": 956
+    },
+    {
+      "path": "tools/pseudocode_translator/tests/test_validator_basics.py",
+      "type": "file",
+      "size_bytes": 1711
+    },
+    {
+      "path": "tools/tests/__init__.py",
+      "type": "file",
+      "size_bytes": 231
+    },
+    {
+      "path": "tools/tests/conftest.py",
+      "type": "file",
+      "size_bytes": 19038
+    },
+    {
+      "path": "tools/tests/helpers",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/tests/helpers/__init__.py",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "tools/tests/helpers/db_stubs.py",
+      "type": "file",
+      "size_bytes": 11472
+    },
+    {
+      "path": "tools/tests/helpers/patching.py",
+      "type": "file",
+      "size_bytes": 3227
+    },
+    {
+      "path": "tools/tests/test_basic_tools_refactor.py",
+      "type": "file",
+      "size_bytes": 6656
+    },
+    {
+      "path": "tools/tests/test_file_search_tool_refactor.py",
+      "type": "file",
+      "size_bytes": 7639
+    },
+    {
+      "path": "tools/tests/test_notes_tool_refactor.py",
+      "type": "file",
+      "size_bytes": 8885
+    },
+    {
+      "path": "tools/tests/test_patching_hooks.py",
+      "type": "file",
+      "size_bytes": 12180
+    },
+    {
+      "path": "tools/tests/test_projects_tool_refactor.py",
+      "type": "file",
+      "size_bytes": 10169
+    },
+    {
+      "path": "tools/tests/test_tool_runtime_smoke.py",
+      "type": "file",
+      "size_bytes": 17293
+    },
+    {
+      "path": "tools/tests/test_tool_setup.py",
+      "type": "file",
+      "size_bytes": 4446
+    },
+    {
+      "path": "tools/tests/test_undefined_names.py",
+      "type": "file",
+      "size_bytes": 4897
+    },
+    {
+      "path": "utils/pytest.ini",
+      "type": "file",
+      "size_bytes": 923
+    },
+    {
+      "path": "utils/run_tests.py",
+      "type": "file",
+      "size_bytes": 1476
+    },
+    {
+      "path": "utils/tests/README.md",
+      "type": "file",
+      "size_bytes": 14648
+    },
+    {
+      "path": "utils/tests/__init__.py",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "utils/tests/test_appointments.py",
+      "type": "file",
+      "size_bytes": 16622
+    },
+    {
+      "path": "utils/tests/test_artifact_encryption.py",
+      "type": "file",
+      "size_bytes": 17277
+    },
+    {
+      "path": "utils/tests/test_colors.py",
+      "type": "file",
+      "size_bytes": 27823
+    },
+    {
+      "path": "utils/tests/test_config_loader.py",
+      "type": "file",
+      "size_bytes": 14755
+    },
+    {
+      "path": "utils/tests/test_dependency_container.py",
+      "type": "file",
+      "size_bytes": 22734
+    },
+    {
+      "path": "utils/tests/test_dinoair_api.py",
+      "type": "file",
+      "size_bytes": 11996
+    },
+    {
+      "path": "utils/tests/test_enhanced_logger.py",
+      "type": "file",
+      "size_bytes": 43961
+    },
+    {
+      "path": "utils/tests/test_enhanced_security.py",
+      "type": "file",
+      "size_bytes": 18137
+    },
+    {
+      "path": "utils/tests/test_enums.py",
+      "type": "file",
+      "size_bytes": 35765
+    },
+    {
+      "path": "utils/tests/test_error_handling.py",
+      "type": "file",
+      "size_bytes": 26378
+    },
+    {
+      "path": "utils/tests/test_health_checker.py",
+      "type": "file",
+      "size_bytes": 43513
+    },
+    {
+      "path": "utils/tests/test_log_sanitizer.py",
+      "type": "file",
+      "size_bytes": 2989
+    },
+    {
+      "path": "utils/tests/test_logger.py",
+      "type": "file",
+      "size_bytes": 7684
+    },
+    {
+      "path": "utils/tests/test_optimization_utils.py",
+      "type": "file",
+      "size_bytes": 26978
+    },
+    {
+      "path": "utils/tests/test_performance_monitor.py",
+      "type": "file",
+      "size_bytes": 23378
+    },
+    {
+      "path": "utils/tests/test_process.py",
+      "type": "file",
+      "size_bytes": 38783
+    },
+    {
+      "path": "utils/tests/test_resource_manager.py",
+      "type": "file",
+      "size_bytes": 31701
+    },
+    {
+      "path": "utils/tests/test_runner.py",
+      "type": "file",
+      "size_bytes": 14306
+    },
+    {
+      "path": "utils/tests/test_safe_expr.py",
+      "type": "file",
+      "size_bytes": 34286
+    },
+    {
+      "path": "utils/tests/test_safe_pdf_extractor.py",
+      "type": "file",
+      "size_bytes": 52844
+    },
+    {
+      "path": "utils/tests/test_safe_pdf_extractor_fuzz.py",
+      "type": "file",
+      "size_bytes": 7431
+    },
+    {
+      "path": "utils/tests/test_scaling.py",
+      "type": "file",
+      "size_bytes": 14857
+    },
+    {
+      "path": "utils/tests/test_sql.py",
+      "type": "file",
+      "size_bytes": 2043
+    },
+    {
+      "path": "utils/tests/test_state_machine.py",
+      "type": "file",
+      "size_bytes": 38089
+    },
+    {
+      "path": "utils/tests/test_window_state.py",
+      "type": "file",
+      "size_bytes": 19786
+    }
+  ]
+}
