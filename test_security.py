@@ -8,30 +8,43 @@ This module provides unit tests for security components including:
 - Security configuration validation
 """
 
-import pytest
 import asyncio
 import json
 import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 # Import our security modules
 try:
+    from utils.audit_logging import (
+        AuditEvent,
+        AuditEventType,
+        AuditLogger,
+        SecurityAuditManager,
+        SeverityLevel,
+    )
     from utils.auth_system import (
-        UserManager, User, UserRole, Permission, PasswordPolicy,
-        AuthenticationMethod
+        AuthenticationMethod,
+        PasswordPolicy,
+        Permission,
+        User,
+        UserManager,
+        UserRole,
     )
     from utils.network_security import (
-        NetworkSecurityConfig, SecurityLevel, RateLimitRule, RateLimitScope,
-        SecurityMiddleware, create_small_team_security_config
+        NetworkSecurityConfig,
+        RateLimitRule,
+        RateLimitScope,
+        SecurityLevel,
+        SecurityMiddleware,
+        create_small_team_security_config,
     )
-    from utils.audit_logging import (
-        AuditLogger, AuditEvent, AuditEventType, SeverityLevel,
-        SecurityAuditManager
-    )
-    from utils.security_config import SecurityConfig, ComplianceMode
+    from utils.security_config import ComplianceMode, SecurityConfig
+
     SECURITY_MODULES_AVAILABLE = True
 except ImportError as e:
     print(f"Security modules not available: {e}")
@@ -40,6 +53,7 @@ except ImportError as e:
 try:
     from fastapi import Request, Response
     from fastapi.testclient import TestClient
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     Request = Response = TestClient = None
@@ -70,7 +84,7 @@ class TestPasswordPolicies:
             email="test@example.com",
             full_name="Test User",
             password=strong_password,
-            roles=[UserRole.OPERATOR]
+            roles=[UserRole.OPERATOR],
         )
 
         assert user.username == "testuser"
@@ -86,7 +100,7 @@ class TestPasswordPolicies:
             "noUPPERCASE123!",
             "NO_LOWERCASE_123!",
             "NoNumbers!",
-            "NoSpecialChars123"
+            "NoSpecialChars123",
         ]
 
         for weak_password in weak_passwords:
@@ -96,7 +110,7 @@ class TestPasswordPolicies:
                     email=f"test_{weak_password}@example.com",
                     full_name="Test User",
                     password=weak_password,
-                    roles=[UserRole.OPERATOR]
+                    roles=[UserRole.OPERATOR],
                 )
 
     def test_password_history_enforced(self, user_manager):
@@ -106,23 +120,17 @@ class TestPasswordPolicies:
             email="history@example.com",
             full_name="History Test",
             password="FirstPassword123!",
-            roles=[UserRole.OPERATOR]
+            roles=[UserRole.OPERATOR],
         )
 
         # Try to change to a new password
         user_manager.change_password(
-            user.user_id,
-            "FirstPassword123!",
-            "SecondPassword456@"
-        )
+            user.user_id, "FirstPassword123!", "SecondPassword456@")
 
         # Try to change back to the first password (should fail)
         with pytest.raises(ValueError, match="Password has been used recently"):
             user_manager.change_password(
-                user.user_id,
-                "SecondPassword456@",
-                "FirstPassword123!"
-            )
+                user.user_id, "SecondPassword456@", "FirstPassword123!")
 
     def test_account_lockout(self, user_manager):
         """Test account lockout after failed attempts."""
@@ -131,17 +139,14 @@ class TestPasswordPolicies:
             email="lockout@example.com",
             full_name="Lockout Test",
             password="CorrectPassword123!",
-            roles=[UserRole.OPERATOR]
+            roles=[UserRole.OPERATOR],
         )
 
         # Simulate failed login attempts
         for _ in range(5):  # Policy allows 3 attempts
             try:
                 user_manager.authenticate_user(
-                    "lockouttest",
-                    "WrongPassword123!",
-                    "127.0.0.1",
-                    "TestAgent"
+                    "lockouttest", "WrongPassword123!", "127.0.0.1", "TestAgent"
                 )
             except Exception:
                 pass  # Expected to fail
@@ -167,7 +172,7 @@ class TestRoleBasedAccessControl:
             email="dr.smith@hospital.com",
             full_name="Dr. Smith",
             password="ClinicianPass123!",
-            roles=[UserRole.CLINICIAN]
+            roles=[UserRole.CLINICIAN],
         )
 
         # Clinicians should have patient data access
@@ -187,7 +192,7 @@ class TestRoleBasedAccessControl:
             email="readonly@company.com",
             full_name="Read Only User",
             password="ReadOnlyPass123!",
-            roles=[UserRole.READ_ONLY]
+            roles=[UserRole.READ_ONLY],
         )
 
         # Should have read permissions
@@ -206,7 +211,7 @@ class TestRoleBasedAccessControl:
             email="dispatch@ambulance.com",
             full_name="Emergency Dispatcher",
             password="DispatchPass123!",
-            roles=[UserRole.DISPATCHER]
+            roles=[UserRole.DISPATCHER],
         )
 
         # Should have emergency access
@@ -256,7 +261,8 @@ class TestNetworkSecurityMiddleware:
 
         # Simulate normal request pattern (under limits)
         for _ in range(5):
-            allowed = security_middleware._check_rate_limits(mock_request, client_ip)
+            allowed = security_middleware._check_rate_limits(
+                mock_request, client_ip)
             assert allowed, "Normal request rate should be allowed"
 
     def test_rate_limiting_blocks_excessive_requests(self, security_middleware, mock_request):
@@ -264,9 +270,11 @@ class TestNetworkSecurityMiddleware:
         client_ip = "127.0.0.1"
 
         # Simulate excessive requests (over 600/minute for small team config)
-        security_middleware.rate_limiter.requests[f"ip:{client_ip}"] = [time.time()] * 700
+        security_middleware.rate_limiter.requests[f"ip:{client_ip}"] = [
+            time.time()] * 700
 
-        blocked = not security_middleware._check_rate_limits(mock_request, client_ip)
+        blocked = not security_middleware._check_rate_limits(
+            mock_request, client_ip)
         assert blocked, "Excessive requests should be blocked"
 
     def test_ip_allowlist_enforcement(self, security_middleware):
@@ -287,7 +295,8 @@ class TestNetworkSecurityMiddleware:
 
         # Simulate DDoS pattern (many requests in short time)
         current_time = time.time()
-        attack_requests = [current_time - i for i in range(1000)]  # 1000 requests in last second
+        # 1000 requests in last second
+        attack_requests = [current_time - i for i in range(1000)]
 
         security_middleware.ddos_tracker[client_ip].extend(attack_requests)
 
@@ -327,7 +336,7 @@ class TestAuditLogging:
             AuditEventType.LOGIN_SUCCESS,
             user_id="test_user",
             source_ip="127.0.0.1",
-            user_agent="TestAgent/1.0"
+            user_agent="TestAgent/1.0",
         )
 
         assert event_id is not None
@@ -341,7 +350,7 @@ class TestAuditLogging:
             user_id="integrity_test",
             source_ip="127.0.0.1",
             resource="test_data",
-            details={"test": "data"}
+            details={"test": "data"},
         )
 
         # Read the log file and verify integrity
@@ -349,7 +358,7 @@ class TestAuditLogging:
         assert log_file.exists()
 
         # Check that log contains the event
-        with open(log_file, 'r') as f:
+        with open(log_file, "r") as f:
             log_content = f.read()
             assert event_id in log_content
             assert "integrity_test" in log_content
@@ -361,7 +370,7 @@ class TestAuditLogging:
             resource="patient_records",
             user_id="dr_test",
             source_ip="192.168.1.100",
-            record_count=5
+            record_count=5,
         )
 
         assert event_id is not None
@@ -372,7 +381,7 @@ class TestAuditLogging:
             AuditEventType.SECURITY_VIOLATION,
             description="Multiple failed login attempts detected",
             source_ip="10.0.0.1",
-            severity=SeverityLevel.CRITICAL
+            severity=SeverityLevel.CRITICAL,
         )
 
         assert event_id is not None
@@ -385,7 +394,7 @@ class TestAuditLogging:
             user_id="api_test_user",
             source_ip="127.0.0.1",
             status_code=201,
-            response_time_ms=150.5
+            response_time_ms=150.5,
         )
 
         assert event_id is not None
@@ -417,7 +426,8 @@ class TestSecurityConfiguration:
         # Should have relaxed but secure settings
         assert not config.require_https  # Allow HTTP for development
         assert len(config.cors_allow_origins) > 1  # Multiple dev origins
-        assert any(rule.requests_per_minute >= 600 for rule in config.rate_limit_rules)
+        assert any(rule.requests_per_minute >=
+                   600 for rule in config.rate_limit_rules)
         assert config.ddos_block_duration <= 300  # Short blocks (5 minutes)
 
 
@@ -442,7 +452,7 @@ class TestSecurityIntegration:
             yield {
                 "user_manager": user_manager,
                 "security_config": security_config,
-                "audit_manager": audit_manager
+                "audit_manager": audit_manager,
             }
 
     def test_user_creation_with_audit(self, integrated_system):
@@ -456,17 +466,15 @@ class TestSecurityIntegration:
             email="integration@test.com",
             full_name="Integration Test User",
             password="IntegrationPass123!",
-            roles=[UserRole.OPERATOR]
+            roles=[UserRole.OPERATOR],
         )
 
         # Log the user creation
         audit_id = audit_manager.audit_logger.audit(
             AuditEventType.USER_CREATE,
             user_id="admin",
-            details={
-                "created_user": user.username,
-                "roles": [role.value for role in user.roles]
-            }
+            details={"created_user": user.username, "roles": [
+                role.value for role in user.roles]},
         )
 
         assert user.username == "integration_test"
@@ -483,7 +491,7 @@ class TestSecurityIntegration:
             email="authflow@test.com",
             full_name="Auth Flow Test",
             password="AuthFlowPass123!",
-            roles=[UserRole.CLINICIAN]
+            roles=[UserRole.CLINICIAN],
         )
 
         # Test successful authentication
@@ -492,7 +500,7 @@ class TestSecurityIntegration:
             password="AuthFlowPass123!",
             source_ip="127.0.0.1",
             user_agent="IntegrationTest/1.0",
-            require_mfa=False
+            require_mfa=False,
         )
 
         # Log the authentication
@@ -500,7 +508,7 @@ class TestSecurityIntegration:
             AuditEventType.LOGIN_SUCCESS,
             user_id=user.user_id,
             source_ip="127.0.0.1",
-            user_agent="IntegrationTest/1.0"
+            user_agent="IntegrationTest/1.0",
         )
 
         assert session is not None
@@ -518,12 +526,7 @@ def run_security_tests():
     print("🧪 Running DinoAir Security Tests...")
 
     # Run tests with pytest
-    test_result = pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--no-header"
-    ])
+    test_result = pytest.main([__file__, "-v", "--tb=short", "--no-header"])
 
     return test_result == 0
 

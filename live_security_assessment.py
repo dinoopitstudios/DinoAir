@@ -4,19 +4,20 @@ DinoAir Live Security Assessment - Rock Solid Security Validation
 Tests the running API server for security vulnerabilities and validates defenses.
 """
 
-import requests
 import json
-import time
 import sys
+import time
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
+import requests
 
 
 class LiveSecurityAssessment:
     """Live security testing against running DinoAir API."""
 
     def __init__(self, base_url: str = "http://127.0.0.1:24801"):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.findings = []
         self.passed_tests = 0
@@ -47,10 +48,10 @@ class LiveSecurityAssessment:
             headers = response.headers
 
             security_headers = [
-                ('X-Content-Type-Options', 'nosniff'),
-                ('X-Frame-Options', ['DENY', 'SAMEORIGIN']),
-                ('X-XSS-Protection', '1; mode=block'),
-                ('Strict-Transport-Security', 'max-age'),
+                ("X-Content-Type-Options", "nosniff"),
+                ("X-Frame-Options", ["DENY", "SAMEORIGIN"]),
+                ("X-XSS-Protection", "1; mode=block"),
+                ("Strict-Transport-Security", "max-age"),
             ]
 
             passed = 0
@@ -61,13 +62,15 @@ class LiveSecurityAssessment:
                             print(f"   ✅ {header}: {headers[header]}")
                             passed += 1
                         else:
-                            print(f"   ⚠️  {header}: {headers[header]} (not optimal)")
+                            print(
+                                f"   ⚠️  {header}: {headers[header]} (not optimal)")
                     else:
                         if expected in headers[header]:
                             print(f"   ✅ {header}: {headers[header]}")
                             passed += 1
                         else:
-                            print(f"   ⚠️  {header}: {headers[header]} (not optimal)")
+                            print(
+                                f"   ⚠️  {header}: {headers[header]} (not optimal)")
                 else:
                     print(f"   ❌ Missing {header}")
 
@@ -89,16 +92,17 @@ class LiveSecurityAssessment:
         try:
             # Test preflight request
             headers = {
-                'Origin': 'https://malicious-site.com',
-                'Access-Control-Request-Method': 'POST',
-                'Access-Control-Request-Headers': 'Content-Type'
+                "Origin": "https://malicious-site.com",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "Content-Type",
             }
 
-            response = self.session.options(f"{self.base_url}/", headers=headers, timeout=5)
+            response = self.session.options(
+                f"{self.base_url}/", headers=headers, timeout=5)
 
-            if 'Access-Control-Allow-Origin' in response.headers:
-                allowed_origin = response.headers['Access-Control-Allow-Origin']
-                if allowed_origin == '*':
+            if "Access-Control-Allow-Origin" in response.headers:
+                allowed_origin = response.headers["Access-Control-Allow-Origin"]
+                if allowed_origin == "*":
                     print("   ❌ CORS allows all origins (*) - security risk!")
                     self.findings.append("CORS policy too permissive")
                 else:
@@ -117,15 +121,12 @@ class LiveSecurityAssessment:
         self.total_tests += 1
         print("\n💉 Testing SQL Injection Protection...")
 
-        sql_payloads = [
-            "' OR '1'='1",
-            "'; DROP TABLE users; --",
-            "' UNION SELECT null,null,null--"
-        ]
+        sql_payloads = ["' OR '1'='1", "'; DROP TABLE users; --",
+                        "' UNION SELECT null,null,null--"]
 
         try:
             # Test various endpoints with SQL injection
-            test_endpoints = ['/health', '/']
+            test_endpoints = ["/health", "/"]
 
             sql_blocked = 0
             for endpoint in test_endpoints:
@@ -133,21 +134,25 @@ class LiveSecurityAssessment:
                     try:
                         # Test as query parameter
                         response = self.session.get(
-                            f"{self.base_url}{endpoint}?search={payload}",
-                            timeout=5
+                            f"{self.base_url}{endpoint}?search={payload}", timeout=5
                         )
 
                         # Check if SQL errors are exposed
                         response_text = response.text.lower()
                         sql_errors = [
-                            'sql syntax', 'mysql_fetch', 'ora-01756',
-                            'postgresql', 'sqlite3.operationalerror',
-                            'database error', 'sqlstate'
+                            "sql syntax",
+                            "mysql_fetch",
+                            "ora-01756",
+                            "postgresql",
+                            "sqlite3.operationalerror",
+                            "database error",
+                            "sqlstate",
                         ]
 
                         if any(error in response_text for error in sql_errors):
                             print(f"   ❌ SQL error exposed at {endpoint}")
-                            self.findings.append(f"SQL error disclosure at {endpoint}")
+                            self.findings.append(
+                                f"SQL error disclosure at {endpoint}")
                         else:
                             sql_blocked += 1
 
@@ -172,7 +177,7 @@ class LiveSecurityAssessment:
         xss_payloads = [
             "<script>alert('XSS')</script>",
             "<img src=x onerror=alert('XSS')>",
-            "javascript:alert('XSS')"
+            "javascript:alert('XSS')",
         ]
 
         try:
@@ -180,9 +185,7 @@ class LiveSecurityAssessment:
             for payload in xss_payloads:
                 try:
                     response = self.session.get(
-                        f"{self.base_url}/?search={payload}",
-                        timeout=5
-                    )
+                        f"{self.base_url}/?search={payload}", timeout=5)
 
                     # Check if payload is reflected unescaped
                     if payload in response.text:
@@ -211,15 +214,18 @@ class LiveSecurityAssessment:
 
         try:
             # Make rapid requests to test rate limiting
-            request_count = 15  # Should trigger rate limit for small team (600/min = 10/sec)
+            # Should trigger rate limit for small team (600/min = 10/sec)
+            request_count = 15
             blocked_count = 0
 
             for i in range(request_count):
                 try:
-                    response = self.session.get(f"{self.base_url}/health", timeout=2)
+                    response = self.session.get(
+                        f"{self.base_url}/health", timeout=2)
                     if response.status_code == 429:  # Too Many Requests
                         blocked_count += 1
-                        print(f"   ✅ Rate limit triggered after {i+1} requests")
+                        print(
+                            f"   ✅ Rate limit triggered after {i + 1} requests")
                         break
                     time.sleep(0.1)  # Small delay between requests
                 except Exception:
@@ -243,18 +249,24 @@ class LiveSecurityAssessment:
 
         try:
             # Test if protected endpoints require authentication
-            protected_endpoints = ['/api/v1/admin', '/admin', '/api/v1/users']
+            protected_endpoints = ["/api/v1/admin", "/admin", "/api/v1/users"]
 
             auth_required = 0
             for endpoint in protected_endpoints:
                 try:
-                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=5)
-                    if response.status_code in [401, 403, 404]:  # Unauthorized, Forbidden, or Not Found
+                    response = self.session.get(
+                        f"{self.base_url}{endpoint}", timeout=5)
+                    if response.status_code in [
+                        401,
+                        403,
+                        404,
+                    ]:  # Unauthorized, Forbidden, or Not Found
                         auth_required += 1
                         print(f"   ✅ {endpoint} requires authentication")
                     elif response.status_code == 200:
                         print(f"   ❌ {endpoint} accessible without auth")
-                        self.findings.append(f"Unprotected endpoint: {endpoint}")
+                        self.findings.append(
+                            f"Unprotected endpoint: {endpoint}")
                 except Exception:
                     pass  # Endpoint might not exist
 
@@ -276,14 +288,20 @@ class LiveSecurityAssessment:
         try:
             # Test for exposed debug/info endpoints
             sensitive_endpoints = [
-                '/debug', '/info', '/status', '/metrics',
-                '/.env', '/config.json', '/backup.sql'
+                "/debug",
+                "/info",
+                "/status",
+                "/metrics",
+                "/.env",
+                "/config.json",
+                "/backup.sql",
             ]
 
             exposed_count = 0
             for endpoint in sensitive_endpoints:
                 try:
-                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=5)
+                    response = self.session.get(
+                        f"{self.base_url}{endpoint}", timeout=5)
                     if response.status_code == 200 and len(response.text) > 50:
                         print(f"   ⚠️  Potentially exposed: {endpoint}")
                         exposed_count += 1
@@ -295,7 +313,8 @@ class LiveSecurityAssessment:
                 print("   ✅ No obvious information disclosure")
             else:
                 print(f"   ❌ {exposed_count} potentially exposed endpoints")
-                self.findings.append(f"{exposed_count} information disclosure risks")
+                self.findings.append(
+                    f"{exposed_count} information disclosure risks")
 
         except Exception as e:
             print(f"   ❌ Information disclosure test failed: {e}")
@@ -303,7 +322,10 @@ class LiveSecurityAssessment:
     def generate_report(self) -> Dict[str, Any]:
         """Generate security assessment report."""
 
-        pass_percentage = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+        pass_percentage = (
+            (self.passed_tests / self.total_tests *
+             100) if self.total_tests > 0 else 0
+        )
 
         if pass_percentage >= 90:
             grade = "A (Excellent)"
@@ -327,7 +349,7 @@ class LiveSecurityAssessment:
             "security_grade": grade,
             "security_level": security_level,
             "findings": self.findings,
-            "recommendations": self._get_recommendations(pass_percentage)
+            "recommendations": self._get_recommendations(pass_percentage),
         }
 
     def _get_recommendations(self, pass_percentage: float) -> List[str]:
@@ -336,25 +358,31 @@ class LiveSecurityAssessment:
         recommendations = []
 
         if pass_percentage < 100:
-            recommendations.extend([
-                "🔧 Address any identified vulnerabilities",
-                "🛡️ Implement additional security headers",
-                "🔍 Regular security assessments"
-            ])
+            recommendations.extend(
+                [
+                    "🔧 Address any identified vulnerabilities",
+                    "🛡️ Implement additional security headers",
+                    "🔍 Regular security assessments",
+                ]
+            )
 
         if pass_percentage >= 80:
-            recommendations.extend([
-                "✨ Excellent security posture maintained",
-                "📊 Continue monitoring and testing",
-                "🔄 Regular penetration testing"
-            ])
+            recommendations.extend(
+                [
+                    "✨ Excellent security posture maintained",
+                    "📊 Continue monitoring and testing",
+                    "🔄 Regular penetration testing",
+                ]
+            )
 
-        recommendations.extend([
-            "🛠️ Complete data encryption at rest",
-            "📝 Maintain security documentation",
-            "👥 Security awareness training",
-            "🚨 Incident response planning"
-        ])
+        recommendations.extend(
+            [
+                "🛠️ Complete data encryption at rest",
+                "📝 Maintain security documentation",
+                "👥 Security awareness training",
+                "🚨 Incident response planning",
+            ]
+        )
 
         return recommendations
 
@@ -390,17 +418,19 @@ def run_live_security_assessment():
     print(f"\n📊 SECURITY ASSESSMENT RESULTS")
     print(f"Security Level: {report['security_level']}")
     print(f"Grade: {report['security_grade']}")
-    print(f"Tests Passed: {report['tests_passed']}/{report['total_tests']} ({report['pass_percentage']}%)")
+    print(
+        f"Tests Passed: {report['tests_passed']}/{report['total_tests']} ({report['pass_percentage']}%)"
+    )
 
-    if report['findings']:
+    if report["findings"]:
         print(f"\n⚠️ SECURITY FINDINGS:")
-        for finding in report['findings']:
+        for finding in report["findings"]:
             print(f"   • {finding}")
     else:
         print(f"\n✅ NO CRITICAL SECURITY ISSUES FOUND")
 
     print(f"\n📋 RECOMMENDATIONS:")
-    for rec in report['recommendations'][:5]:
+    for rec in report["recommendations"][:5]:
         print(f"   {rec}")
 
     # Save report
@@ -416,11 +446,13 @@ if __name__ == "__main__":
     try:
         report = run_live_security_assessment()
 
-        if report and report['pass_percentage'] >= 80:
-            print(f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
+        if report and report["pass_percentage"] >= 80:
+            print(
+                f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
             sys.exit(0)
         elif report:
-            print(f"\n🔧 Security improvements needed - current level: {report['security_level']}")
+            print(
+                f"\n🔧 Security improvements needed - current level: {report['security_level']}")
             sys.exit(1)
         else:
             print(f"\n❌ Assessment could not be completed")

@@ -4,15 +4,16 @@ DinoAir Security Validation Script
 Tests all implemented security components to ensure they're working correctly.
 """
 
-import sys
-import os
-from pathlib import Path
-import traceback
 import json
+import os
+import sys
+import traceback
 from datetime import datetime
+from pathlib import Path
 
 # Add the project root to Python path
 sys.path.append(str(Path(__file__).parent))
+
 
 def test_security_imports():
     """Test that all security modules can be imported."""
@@ -20,10 +21,10 @@ def test_security_imports():
     print("🔍 Testing Security Module Imports...")
 
     modules = [
-        'utils.security_config',
-        'utils.auth_system',
-        'utils.audit_logging',
-        'utils.network_security'
+        "utils.security_config",
+        "utils.auth_system",
+        "utils.audit_logging",
+        "utils.network_security",
     ]
 
     results = {}
@@ -38,6 +39,7 @@ def test_security_imports():
             print(f"   ❌ {module}: {str(e)}")
 
     return results
+
 
 def test_password_security():
     """Test password security implementation."""
@@ -54,14 +56,16 @@ def test_password_security():
             test_passwords = [
                 ("123456", False),  # Should be rejected
                 ("password", False),  # Should be rejected
-                ("DinoAir2024!SecureP@ssw0rd#Healthcare", True)  # Should be accepted
+                # Should be accepted
+                ("DinoAir2024!SecureP@ssw0rd#Healthcare", True),
             ]
 
             validation_works = True
             for pwd, should_pass in test_passwords:
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
-                print(f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
+                print(
+                    f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
 
         except Exception:
             print("   ⚠️  Password validation method not found")
@@ -69,14 +73,12 @@ def test_password_security():
 
         print("   ✅ User Manager instantiated successfully")
 
-        return {
-            "user_manager_created": True,
-            "password_validation": validation_works
-        }
+        return {"user_manager_created": True, "password_validation": validation_works}
 
     except Exception as e:
         print(f"   ❌ Password security test failed: {str(e)}")
         return {"error": str(e)}
+
 
 def test_rbac_system():
     """Test Role-Based Access Control system."""
@@ -89,7 +91,8 @@ def test_rbac_system():
         um = UserManager()
 
         # Test role definitions
-        roles = [UserRole.CLINICIAN, UserRole.NURSE, UserRole.DISPATCHER, UserRole.HEALTHCARE_ADMIN]
+        roles = [UserRole.CLINICIAN, UserRole.NURSE,
+                 UserRole.DISPATCHER, UserRole.HEALTHCARE_ADMIN]
         print(f"   ✅ Healthcare roles defined: {len(roles)} roles")
 
         # List available roles
@@ -106,12 +109,13 @@ def test_rbac_system():
             "roles_defined": len(roles),
             "total_roles": len(all_roles),
             "user_manager_created": True,
-            "rbac_available": True
+            "rbac_available": True,
         }
 
     except Exception as e:
         print(f"   ❌ RBAC test failed: {str(e)}")
         return {"error": str(e)}
+
 
 def test_audit_logging():
     """Test audit logging system."""
@@ -119,17 +123,15 @@ def test_audit_logging():
     print("\n📝 Testing Audit Logging...")
 
     try:
-        from utils.audit_logging import AuditLogger, AuditEventType
         from pathlib import Path
+
+        from utils.audit_logging import AuditEventType, AuditLogger
 
         # Create a test audit logger
         test_log_file = Path("test_audit.log")
         test_secret = "test_secret_key_for_validation"
 
-        logger = AuditLogger(
-            log_file=test_log_file,
-            secret_key=test_secret
-        )
+        logger = AuditLogger(log_file=test_log_file, secret_key=test_secret)
 
         print("   ✅ Audit Logger instantiated successfully")
 
@@ -142,7 +144,7 @@ def test_audit_logging():
             logger.audit(
                 event_type=AuditEventType.USER_LOGIN,
                 user_id="test_user_123",
-                details={"ip": "127.0.0.1", "action": "login_test"}
+                details={"ip": "127.0.0.1", "action": "login_test"},
             )
             print("   ✅ Audit event logged successfully")
             event_logged = True
@@ -160,12 +162,13 @@ def test_audit_logging():
         return {
             "logger_created": True,
             "event_types": len(event_types),
-            "event_logged": event_logged
+            "event_logged": event_logged,
         }
 
     except Exception as e:
         print(f"   ❌ Audit logging test failed: {str(e)}")
         return {"error": str(e)}
+
 
 def test_network_security():
     """Test network security configuration."""
@@ -186,8 +189,9 @@ def test_network_security():
         # Test if small team functions exist
         try:
             from utils.network_security import create_small_team_security_config
+
             small_team_config = create_small_team_security_config()
-            rate_limit = small_team_config.get('rate_limit_per_minute', 600)
+            rate_limit = small_team_config.get("rate_limit_per_minute", 600)
             print(f"   ✅ Small team config: {rate_limit} req/min")
         except ImportError:
             print("   ⚠️  Small team config function not found")
@@ -196,12 +200,13 @@ def test_network_security():
         return {
             "security_levels": len(levels),
             "small_team_rate_limit": rate_limit,
-            "config_available": True
+            "config_available": True,
         }
 
     except Exception as e:
         print(f"   ❌ Network security test failed: {str(e)}")
         return {"error": str(e)}
+
 
 def test_security_configuration():
     """Test overall security configuration."""
@@ -224,7 +229,8 @@ def test_security_configuration():
         config_attrs = []
         if config_created:
             attrs = dir(config)
-            security_attrs = [attr for attr in attrs if not attr.startswith('_')]
+            security_attrs = [
+                attr for attr in attrs if not attr.startswith("_")]
             config_attrs = security_attrs[:5]  # Show first 5
             print(f"   ✅ Config attributes: {', '.join(config_attrs)}")
 
@@ -232,7 +238,7 @@ def test_security_configuration():
         validation_works = False
         if config_created:
             try:
-                if hasattr(config, 'validate_configuration'):
+                if hasattr(config, "validate_configuration"):
                     validation_works = config.validate_configuration()
                     print(f"   ✅ Configuration validation: {validation_works}")
                 else:
@@ -243,12 +249,13 @@ def test_security_configuration():
         return {
             "config_created": config_created,
             "config_attributes": len(config_attrs),
-            "validation_available": validation_works
+            "validation_available": validation_works,
         }
 
     except Exception as e:
         print(f"   ❌ Security configuration test failed: {str(e)}")
         return {"error": str(e)}
+
 
 def run_security_validation():
     """Run complete security validation."""
@@ -256,10 +263,7 @@ def run_security_validation():
     print("🛡️  DinoAir Security Validation")
     print("=" * 50)
 
-    results = {
-        "timestamp": datetime.now().isoformat(),
-        "tests": {}
-    }
+    results = {"timestamp": datetime.now().isoformat(), "tests": {}}
 
     # Run all tests
     results["tests"]["imports"] = test_security_imports()
@@ -277,14 +281,19 @@ def run_security_validation():
         if isinstance(test_results, dict):
             for test_name, test_result in test_results.items():
                 total_tests += 1
-                if test_result and "❌" not in str(test_result) and "error" not in test_name.lower():
+                if (
+                    test_result
+                    and "❌" not in str(test_result)
+                    and "error" not in test_name.lower()
+                ):
                     passed_tests += 1
 
     score = (passed_tests / total_tests * 100) if total_tests > 0 else 0
     results["overall_score"] = score
 
     print(f"\n📊 SECURITY VALIDATION RESULTS")
-    print(f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
+    print(
+        f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
 
     if score >= 90:
         grade = "A (Excellent)"
@@ -319,6 +328,7 @@ def run_security_validation():
     print("   🛠️ Complete data encryption at rest implementation")
 
     return results
+
 
 if __name__ == "__main__":
     try:

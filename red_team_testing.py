@@ -14,27 +14,29 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import concurrent.futures
 import hashlib
 import json
 import random
-import requests
 import secrets
 import string
 import subprocess
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Callable
-import concurrent.futures
-import threading
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import requests
 
 try:
     import httpx
     import pytest
     import sqlparse
+
     HTTP_AVAILABLE = True
 except ImportError:
     httpx = pytest = sqlparse = None
@@ -83,6 +85,7 @@ class AttackType(Enum):
 
 class VulnerabilitySeverity(Enum):
     """Vulnerability severity levels."""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -93,6 +96,7 @@ class VulnerabilitySeverity(Enum):
 @dataclass
 class Vulnerability:
     """Security vulnerability information."""
+
     vuln_id: str
     attack_type: AttackType
     severity: VulnerabilitySeverity
@@ -108,13 +112,15 @@ class Vulnerability:
     cvss_vector: Optional[str] = None
 
     # Timestamps
-    discovered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    discovered_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc))
     verified_at: Optional[datetime] = None
 
 
 @dataclass
 class RedTeamTestResult:
     """Result of a red team test."""
+
     test_id: str
     attack_type: AttackType
     target_url: str
@@ -141,9 +147,9 @@ class RedTeamTester:
         self,
         target_base_url: str = "http://127.0.0.1:24801",
         max_concurrent_tests: int = 5,
-        test_timeout: int = 30
+        test_timeout: int = 30,
     ):
-        self.target_base_url = target_base_url.rstrip('/')
+        self.target_base_url = target_base_url.rstrip("/")
         self.max_concurrent_tests = max_concurrent_tests
         self.test_timeout = test_timeout
         self.session = requests.Session()
@@ -151,11 +157,13 @@ class RedTeamTester:
         self.test_results: List[RedTeamTestResult] = []
 
         # Set up session headers
-        self.session.headers.update({
-            'User-Agent': 'DinoAir-RedTeam/1.0',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "DinoAir-RedTeam/1.0",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            }
+        )
 
     async def run_comprehensive_test_suite(self) -> Dict[str, Any]:
         """Run complete red team testing suite."""
@@ -203,7 +211,7 @@ class RedTeamTester:
             injection_results,
             api_results,
             network_results,
-            data_results
+            data_results,
         )
 
         print(f"\n✅ Red Team Testing Complete! ({execution_time:.2f}s)")
@@ -217,41 +225,56 @@ class RedTeamTester:
             "technologies_identified": [],
             "security_headers": {},
             "ssl_info": {},
-            "errors": []
+            "errors": [],
         }
 
         try:
             # Discover endpoints
             common_endpoints = [
-                '/', '/health', '/docs', '/openapi.json', '/metrics',
-                '/admin', '/api', '/api/v1', '/static', '/uploads',
-                '/backup', '/config', '/.env', '/robots.txt', '/sitemap.xml'
+                "/",
+                "/health",
+                "/docs",
+                "/openapi.json",
+                "/metrics",
+                "/admin",
+                "/api",
+                "/api/v1",
+                "/static",
+                "/uploads",
+                "/backup",
+                "/config",
+                "/.env",
+                "/robots.txt",
+                "/sitemap.xml",
             ]
 
             for endpoint in common_endpoints:
                 try:
                     response = self.session.get(
-                        f"{self.target_base_url}{endpoint}",
-                        timeout=5,
-                        allow_redirects=False
+                        f"{self.target_base_url}{endpoint}", timeout=5, allow_redirects=False
                     )
 
                     if response.status_code < 404:
-                        results["endpoints_discovered"].append({
-                            "path": endpoint,
-                            "status": response.status_code,
-                            "size": len(response.content),
-                            "headers": dict(response.headers)
-                        })
+                        results["endpoints_discovered"].append(
+                            {
+                                "path": endpoint,
+                                "status": response.status_code,
+                                "size": len(response.content),
+                                "headers": dict(response.headers),
+                            }
+                        )
 
                         # Analyze security headers
-                        if endpoint == '/':
-                            results["security_headers"] = self._analyze_security_headers(response.headers)
+                        if endpoint == "/":
+                            results["security_headers"] = self._analyze_security_headers(
+                                response.headers
+                            )
 
                 except Exception as e:
                     results["errors"].append(f"Endpoint {endpoint}: {str(e)}")
 
-            print(f"   📍 Discovered {len(results['endpoints_discovered'])} endpoints")
+            print(
+                f"   📍 Discovered {len(results['endpoints_discovered'])} endpoints")
 
         except Exception as e:
             results["errors"].append(f"Reconnaissance failed: {str(e)}")
@@ -265,7 +288,7 @@ class RedTeamTester:
             "vulnerabilities_found": [],
             "security_misconfigurations": [],
             "outdated_components": [],
-            "errors": []
+            "errors": [],
         }
 
         # Test for common vulnerabilities
@@ -275,14 +298,15 @@ class RedTeamTester:
             self._test_sensitive_data_exposure,
             self._test_xml_external_entities,
             self._test_broken_access_control,
-            self._test_security_logging_failures
+            self._test_security_logging_failures,
         ]
 
         for test_func in vulnerability_tests:
             try:
                 vulnerabilities = await test_func()
                 results["vulnerabilities_found"].extend(vulnerabilities)
-                print(f"   🔍 {test_func.__name__}: {len(vulnerabilities)} issues found")
+                print(
+                    f"   🔍 {test_func.__name__}: {len(vulnerabilities)} issues found")
             except Exception as e:
                 results["errors"].append(f"{test_func.__name__}: {str(e)}")
 
@@ -296,7 +320,7 @@ class RedTeamTester:
             "session_security": {},
             "mfa_bypass_attempts": [],
             "password_policy_compliance": {},
-            "errors": []
+            "errors": [],
         }
 
         try:
@@ -317,7 +341,8 @@ class RedTeamTester:
             results["mfa_bypass_attempts"] = await self._test_mfa_bypass()
 
         except Exception as e:
-            results["errors"].append(f"Authentication testing failed: {str(e)}")
+            results["errors"].append(
+                f"Authentication testing failed: {str(e)}")
 
         return results
 
@@ -329,7 +354,7 @@ class RedTeamTester:
             "xss_vulnerabilities": [],
             "command_injection": [],
             "path_traversal": [],
-            "errors": []
+            "errors": [],
         }
 
         # SQL Injection payloads
@@ -338,7 +363,7 @@ class RedTeamTester:
             "'; DROP TABLE users; --",
             "1' UNION SELECT null,null,null--",
             "admin'--",
-            "' OR 1=1#"
+            "' OR 1=1#",
         ]
 
         # XSS payloads
@@ -346,7 +371,7 @@ class RedTeamTester:
             "<script>alert('XSS')</script>",
             "javascript:alert('XSS')",
             "<img src=x onerror=alert('XSS')>",
-            "';alert('XSS');//"
+            "';alert('XSS');//",
         ]
 
         # Command injection payloads
@@ -355,7 +380,7 @@ class RedTeamTester:
             "| whoami",
             "; cat /etc/passwd",
             "& dir",
-            "; ping -c 1 127.0.0.1"
+            "; ping -c 1 127.0.0.1",
         ]
 
         # Path traversal payloads
@@ -363,15 +388,15 @@ class RedTeamTester:
             "../../../etc/passwd",
             "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts",
             "....//....//....//etc/passwd",
-            "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+            "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
         ]
 
         # Test common endpoints with payloads
         test_endpoints = [
-            '/api/v1/search?q={}',
-            '/api/v1/file?path={}',
-            '/api/v1/user?id={}',
-            '/upload?filename={}'
+            "/api/v1/search?q={}",
+            "/api/v1/file?path={}",
+            "/api/v1/user?id={}",
+            "/upload?filename={}",
         ]
 
         try:
@@ -408,7 +433,7 @@ class RedTeamTester:
             "cors_configuration": {},
             "api_enumeration": [],
             "parameter_pollution": [],
-            "errors": []
+            "errors": [],
         }
 
         try:
@@ -440,7 +465,7 @@ class RedTeamTester:
             "tls_configuration": {},
             "http_security_headers": {},
             "ddos_resistance": {},
-            "errors": []
+            "errors": [],
         }
 
         try:
@@ -457,7 +482,8 @@ class RedTeamTester:
             results["ddos_resistance"] = await self._test_ddos_resistance()
 
         except Exception as e:
-            results["errors"].append(f"Network security testing failed: {str(e)}")
+            results["errors"].append(
+                f"Network security testing failed: {str(e)}")
 
         return results
 
@@ -469,7 +495,7 @@ class RedTeamTester:
             "backup_security": {},
             "log_security": {},
             "file_upload_security": {},
-            "errors": []
+            "errors": [],
         }
 
         try:
@@ -512,7 +538,7 @@ class RedTeamTester:
                     response = self.session.post(
                         f"{self.target_base_url}/auth/login",
                         json={"username": username, "password": password},
-                        timeout=5
+                        timeout=5,
                     )
 
                     if response.status_code == 429:  # Too Many Requests
@@ -537,7 +563,7 @@ class RedTeamTester:
             "secure_cookies": False,
             "httponly_cookies": False,
             "session_timeout": None,
-            "session_fixation_protection": False
+            "session_fixation_protection": False,
         }
 
         try:
@@ -545,14 +571,14 @@ class RedTeamTester:
             response = self.session.post(
                 f"{self.target_base_url}/auth/login",
                 json={"username": "test", "password": "test"},
-                timeout=5
+                timeout=5,
             )
 
             # Analyze cookies
             for cookie in response.cookies:
-                if 'secure' in cookie._rest:
+                if "secure" in cookie._rest:
                     session_info["secure_cookies"] = True
-                if 'httponly' in cookie._rest:
+                if "httponly" in cookie._rest:
                     session_info["httponly_cookies"] = True
 
         except Exception:
@@ -567,16 +593,10 @@ class RedTeamTester:
             "weak_passwords_rejected": False,
             "min_length_enforced": False,
             "complexity_required": False,
-            "common_passwords_blocked": False
+            "common_passwords_blocked": False,
         }
 
-        weak_passwords = [
-            "123456",
-            "password",
-            "admin",
-            "test",
-            "abc123"
-        ]
+        weak_passwords = ["123456", "password", "admin", "test", "abc123"]
 
         try:
             for weak_pwd in weak_passwords:
@@ -585,9 +605,9 @@ class RedTeamTester:
                     json={
                         "username": f"test_{secrets.token_hex(4)}",
                         "password": weak_pwd,
-                        "email": f"test_{secrets.token_hex(4)}@example.com"
+                        "email": f"test_{secrets.token_hex(4)}@example.com",
                     },
-                    timeout=5
+                    timeout=5,
                 )
 
                 if response.status_code == 400:  # Bad Request - password rejected
@@ -609,7 +629,7 @@ class RedTeamTester:
             {"method": "empty_code", "code": ""},
             {"method": "repeated_code", "code": "000000"},
             {"method": "sequential_code", "code": "123456"},
-            {"method": "brute_force_code", "code": "999999"}
+            {"method": "brute_force_code", "code": "999999"},
         ]
 
         for technique in bypass_techniques:
@@ -617,29 +637,27 @@ class RedTeamTester:
                 response = self.session.post(
                     f"{self.target_base_url}/auth/mfa/verify",
                     json={"code": technique["code"]},
-                    timeout=5
+                    timeout=5,
                 )
 
-                bypass_attempts.append({
-                    "technique": technique["method"],
-                    "status_code": response.status_code,
-                    "successful": response.status_code == 200
-                })
+                bypass_attempts.append(
+                    {
+                        "technique": technique["method"],
+                        "status_code": response.status_code,
+                        "successful": response.status_code == 200,
+                    }
+                )
 
             except Exception as e:
-                bypass_attempts.append({
-                    "technique": technique["method"],
-                    "error": str(e),
-                    "successful": False
-                })
+                bypass_attempts.append(
+                    {"technique": technique["method"],
+                        "error": str(e), "successful": False}
+                )
 
         return bypass_attempts
 
     async def _test_injection_payloads(
-        self,
-        endpoints: List[str],
-        payloads: List[str],
-        injection_type: str
+        self, endpoints: List[str], payloads: List[str], injection_type: str
     ) -> List[Dict[str, Any]]:
         """Test injection payloads against endpoints."""
 
@@ -650,64 +668,85 @@ class RedTeamTester:
                 try:
                     # URL encode payload for GET parameters
                     import urllib.parse
+
                     encoded_payload = urllib.parse.quote(payload)
                     endpoint = endpoint_template.format(encoded_payload)
 
                     response = self.session.get(
-                        f"{self.target_base_url}{endpoint}",
-                        timeout=5
-                    )
+                        f"{self.target_base_url}{endpoint}", timeout=5)
 
                     # Look for signs of successful injection
                     response_text = response.text.lower()
 
                     if injection_type == "sql":
                         sql_errors = [
-                            "sql syntax", "mysql_fetch", "ora-", "postgresql",
-                            "sqlite_", "odbc", "jdbc", "database error"
+                            "sql syntax",
+                            "mysql_fetch",
+                            "ora-",
+                            "postgresql",
+                            "sqlite_",
+                            "odbc",
+                            "jdbc",
+                            "database error",
                         ]
                         if any(error in response_text for error in sql_errors):
-                            vulnerabilities.append({
-                                "endpoint": endpoint,
-                                "payload": payload,
-                                "type": "sql_injection",
-                                "evidence": response_text[:500]
-                            })
+                            vulnerabilities.append(
+                                {
+                                    "endpoint": endpoint,
+                                    "payload": payload,
+                                    "type": "sql_injection",
+                                    "evidence": response_text[:500],
+                                }
+                            )
 
                     elif injection_type == "xss":
                         if payload.lower() in response_text or "alert" in response_text:
-                            vulnerabilities.append({
-                                "endpoint": endpoint,
-                                "payload": payload,
-                                "type": "xss",
-                                "evidence": response_text[:500]
-                            })
+                            vulnerabilities.append(
+                                {
+                                    "endpoint": endpoint,
+                                    "payload": payload,
+                                    "type": "xss",
+                                    "evidence": response_text[:500],
+                                }
+                            )
 
                     elif injection_type == "command":
                         cmd_indicators = [
-                            "uid=", "gid=", "groups=", "root:", "administrator",
-                            "volume serial number", "directory of"
+                            "uid=",
+                            "gid=",
+                            "groups=",
+                            "root:",
+                            "administrator",
+                            "volume serial number",
+                            "directory of",
                         ]
                         if any(indicator in response_text for indicator in cmd_indicators):
-                            vulnerabilities.append({
-                                "endpoint": endpoint,
-                                "payload": payload,
-                                "type": "command_injection",
-                                "evidence": response_text[:500]
-                            })
+                            vulnerabilities.append(
+                                {
+                                    "endpoint": endpoint,
+                                    "payload": payload,
+                                    "type": "command_injection",
+                                    "evidence": response_text[:500],
+                                }
+                            )
 
                     elif injection_type == "path":
                         path_indicators = [
-                            "root:x:", "boot loader", "[boot loader]",
-                            "127.0.0.1", "localhost"
+                            "root:x:",
+                            "boot loader",
+                            "[boot loader]",
+                            "127.0.0.1",
+                            "localhost",
                         ]
                         if any(indicator in response_text for indicator in path_indicators):
-                            vulnerabilities.append({
-                                "endpoint": endpoint,
-                                "payload": payload,
-                                "type": "path_traversal",
-                                "evidence": response_text[:500]
-                            })
+                            vulnerabilities.append(
+                                {
+                                    "endpoint": endpoint,
+                                    "payload": payload,
+                                    "type": "path_traversal",
+                                    "evidence": response_text[:500],
+                                }
+                            )
 
                 except Exception:
                     pass
@@ -721,7 +760,7 @@ class RedTeamTester:
             "rate_limiting_enabled": False,
             "requests_until_blocked": 0,
             "block_duration": None,
-            "bypass_possible": False
+            "bypass_possible": False,
         }
 
         try:
@@ -731,9 +770,7 @@ class RedTeamTester:
 
             for i in range(50):  # Send up to 50 requests
                 response = self.session.get(
-                    f"{self.target_base_url}/health",
-                    timeout=5
-                )
+                    f"{self.target_base_url}/health", timeout=5)
 
                 requests_sent += 1
 
@@ -750,8 +787,9 @@ class RedTeamTester:
             # Test bypass techniques
             if blocked:
                 # Try with different User-Agent
-                self.session.headers['User-Agent'] = 'Mozilla/5.0 Bypass'
-                response = self.session.get(f"{self.target_base_url}/health", timeout=5)
+                self.session.headers["User-Agent"] = "Mozilla/5.0 Bypass"
+                response = self.session.get(
+                    f"{self.target_base_url}/health", timeout=5)
 
                 if response.status_code != 429:
                     rate_limit_info["bypass_possible"] = True
@@ -768,24 +806,22 @@ class RedTeamTester:
             "wildcard_origin_allowed": False,
             "credentials_allowed": False,
             "dangerous_headers_allowed": False,
-            "null_origin_allowed": False
+            "null_origin_allowed": False,
         }
 
         dangerous_headers = [
             "Access-Control-Allow-Origin: *",
             "Access-Control-Allow-Credentials: true",
-            "Access-Control-Allow-Headers: *"
+            "Access-Control-Allow-Headers: *",
         ]
 
         try:
             # Test with malicious origin
             response = self.session.options(
                 f"{self.target_base_url}/api/v1/health",
-                headers={
-                    "Origin": "https://evil.com",
-                    "Access-Control-Request-Method": "GET"
-                },
-                timeout=5
+                headers={"Origin": "https://evil.com",
+                         "Access-Control-Request-Method": "GET"},
+                timeout=5,
             )
 
             for header, value in response.headers.items():
@@ -802,9 +838,7 @@ class RedTeamTester:
 
             # Test null origin
             response = self.session.options(
-                f"{self.target_base_url}/api/v1/health",
-                headers={"Origin": "null"},
-                timeout=5
+                f"{self.target_base_url}/api/v1/health", headers={"Origin": "null"}, timeout=5
             )
 
             if "Access-Control-Allow-Origin: null" in str(response.headers):
@@ -826,27 +860,28 @@ class RedTeamTester:
             "/api/v1/orders/{id}",
             "/api/v1/files/{id}",
             "/api/v1/admin/users/{id}",
-            "/api/v1/internal/{resource}"
+            "/api/v1/internal/{resource}",
         ]
 
         for pattern in api_patterns:
             try:
                 # Test with sequential IDs
                 for test_id in [1, 2, 100, 999]:
-                    endpoint = pattern.replace("{id}", str(test_id)).replace("{resource}", "config")
+                    endpoint = pattern.replace("{id}", str(
+                        test_id)).replace("{resource}", "config")
 
                     response = self.session.get(
-                        f"{self.target_base_url}{endpoint}",
-                        timeout=5
-                    )
+                        f"{self.target_base_url}{endpoint}", timeout=5)
 
                     if response.status_code == 200:
-                        enumeration_results.append({
-                            "endpoint": endpoint,
-                            "method": "sequential_id",
-                            "status_code": response.status_code,
-                            "content_length": len(response.content)
-                        })
+                        enumeration_results.append(
+                            {
+                                "endpoint": endpoint,
+                                "method": "sequential_id",
+                                "status_code": response.status_code,
+                                "content_length": len(response.content),
+                            }
+                        )
 
             except Exception:
                 pass
@@ -868,19 +903,23 @@ class RedTeamTester:
         try:
             for params in test_params:
                 # Create URL with duplicate parameters manually
-                param_string = "&".join([f"{k}={v}" for k, values in params.items() for v in values])
-
-                response = self.session.get(
-                    f"{self.target_base_url}/api/v1/user?{param_string}",
-                    timeout=5
+                param_string = "&".join(
+                    [f"{k}={v}" for k, values in params.items()
+                     for v in values]
                 )
 
-                pollution_results.append({
-                    "parameters": params,
-                    "status_code": response.status_code,
-                    "response_length": len(response.content),
-                    "successful": response.status_code == 200
-                })
+                response = self.session.get(
+                    f"{self.target_base_url}/api/v1/user?{param_string}", timeout=5
+                )
+
+                pollution_results.append(
+                    {
+                        "parameters": params,
+                        "status_code": response.status_code,
+                        "response_length": len(response.content),
+                        "successful": response.status_code == 200,
+                    }
+                )
 
         except Exception:
             pass
@@ -950,7 +989,7 @@ class RedTeamTester:
             "X-Frame-Options": headers.get("X-Frame-Options"),
             "X-Content-Type-Options": headers.get("X-Content-Type-Options"),
             "X-XSS-Protection": headers.get("X-XSS-Protection"),
-            "Referrer-Policy": headers.get("Referrer-Policy")
+            "Referrer-Policy": headers.get("Referrer-Policy"),
         }
 
         missing_headers = [k for k, v in security_headers.items() if v is None]
@@ -958,14 +997,10 @@ class RedTeamTester:
         return {
             "present": {k: v for k, v in security_headers.items() if v is not None},
             "missing": missing_headers,
-            "score": (6 - len(missing_headers)) / 6 * 100  # Percentage score
+            "score": (6 - len(missing_headers)) / 6 * 100,  # Percentage score
         }
 
-    def _generate_security_report(
-        self,
-        execution_time: float,
-        *test_results
-    ) -> Dict[str, Any]:
+    def _generate_security_report(self, execution_time: float, *test_results) -> Dict[str, Any]:
         """Generate comprehensive security report."""
 
         total_vulnerabilities = sum(
@@ -995,7 +1030,7 @@ class RedTeamTester:
                 "total_vulnerabilities": total_vulnerabilities,
                 "risk_score": risk_score,
                 "security_grade": grade,
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
             "reconnaissance": test_results[0] if len(test_results) > 0 else {},
             "vulnerability_scanning": test_results[1] if len(test_results) > 1 else {},
@@ -1004,7 +1039,7 @@ class RedTeamTester:
             "api_security": test_results[4] if len(test_results) > 4 else {},
             "network_security": test_results[5] if len(test_results) > 5 else {},
             "data_security": test_results[6] if len(test_results) > 6 else {},
-            "recommendations": self._generate_recommendations(grade, test_results)
+            "recommendations": self._generate_recommendations(grade, test_results),
         }
 
         return report
@@ -1015,37 +1050,47 @@ class RedTeamTester:
         recommendations = []
 
         if grade in ["D", "F"]:
-            recommendations.extend([
-                "🚨 CRITICAL: Implement comprehensive security controls immediately",
-                "🔐 Enable strong authentication with MFA",
-                "🛡️ Implement proper input validation and sanitization",
-                "📊 Set up security monitoring and logging"
-            ])
+            recommendations.extend(
+                [
+                    "🚨 CRITICAL: Implement comprehensive security controls immediately",
+                    "🔐 Enable strong authentication with MFA",
+                    "🛡️ Implement proper input validation and sanitization",
+                    "📊 Set up security monitoring and logging",
+                ]
+            )
 
         elif grade == "C":
-            recommendations.extend([
-                "⚠️ MEDIUM: Address identified vulnerabilities",
-                "🔍 Implement regular security testing",
-                "📋 Review and update security policies"
-            ])
+            recommendations.extend(
+                [
+                    "⚠️ MEDIUM: Address identified vulnerabilities",
+                    "🔍 Implement regular security testing",
+                    "📋 Review and update security policies",
+                ]
+            )
 
         elif grade in ["A", "B"]:
-            recommendations.extend([
-                "✅ GOOD: Maintain current security posture",
-                "🔄 Continue regular security assessments",
-                "📈 Consider advanced security measures"
-            ])
+            recommendations.extend(
+                [
+                    "✅ GOOD: Maintain current security posture",
+                    "🔄 Continue regular security assessments",
+                    "📈 Consider advanced security measures",
+                ]
+            )
 
         # Add specific recommendations based on test results
         for result in test_results:
             if isinstance(result, dict):
                 if result.get("errors"):
-                    recommendations.append("🔧 Fix configuration errors identified during testing")
+                    recommendations.append(
+                        "🔧 Fix configuration errors identified during testing")
 
                 if "brute_force_resistance" in result and not result.get("brute_force_resistance"):
-                    recommendations.append("🔨 Implement account lockout and rate limiting")
+                    recommendations.append(
+                        "🔨 Implement account lockout and rate limiting")
 
-                if "rate_limiting" in result and not result.get("rate_limiting", {}).get("rate_limiting_enabled"):
+                if "rate_limiting" in result and not result.get("rate_limiting", {}).get(
+                    "rate_limiting_enabled"
+                ):
                     recommendations.append("🚦 Enable API rate limiting")
 
         return recommendations
