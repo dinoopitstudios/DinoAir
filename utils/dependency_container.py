@@ -373,7 +373,9 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         try:
             constructor = dependency_info.dependency_type
-            constructor_kwargs = DependencyContainer._get_constructor_kwargs(constructor, resolved_dependencies)
+            constructor_kwargs = DependencyContainer._get_constructor_kwargs(
+                constructor, resolved_dependencies
+            )
             return constructor(**constructor_kwargs)
         except RuntimeError as e:
             raise DependencyResolutionError(

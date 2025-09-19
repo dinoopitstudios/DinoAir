@@ -95,7 +95,9 @@ class RedactionFilter(logging.Filter):
                     if isinstance(v, dict):
                         record.__dict__[k] = self._redact_mapping(cast("dict[str, Any]", v))
                     elif isinstance(v, list | tuple):
-                        record.__dict__[k] = [RedactionFilter._mask_value(x) for x in cast("Iterable[Any]", v)]
+                        record.__dict__[k] = [
+                            RedactionFilter._mask_value(x) for x in cast("Iterable[Any]", v)
+                        ]
                     elif isinstance(v, str) and v in _ENV_SECRET_VALUES:
                         record.__dict__[k] = "***REDACTED***"
         except RuntimeError:
