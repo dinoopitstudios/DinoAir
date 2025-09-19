@@ -64,7 +64,8 @@ def create_router(services_file: str | None = None) -> ServiceRouter:
     # Local imports to avoid cycles
     import os  # local to keep import-time surface minimal
 
-    from .registry import ServiceRegistry as RouterServiceRegistry, auto_register_from_config_and_env  # noqa: WPS433
+    from .registry import ServiceRegistry as RouterServiceRegistry  # noqa: WPS433
+    from .registry import auto_register_from_config_and_env
 
     file_path = services_file or os.getenv("DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
     registry = RouterServiceRegistry()
@@ -256,7 +257,8 @@ class ServiceRouter:
 
         Returns a dict snapshot of the latest health info for the service.
         """
-        from .health import HealthState as AdapterHealthState, ping_with_timing  # Local import to avoid cycles
+        from .health import HealthState as AdapterHealthState  # Local import to avoid cycles
+        from .health import ping_with_timing
 
         started = time.monotonic()
         # Lookup descriptor with dedicated ServiceNotFound handling

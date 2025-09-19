@@ -5,7 +5,6 @@ from typing import Any, cast
 
 from pydantic import BaseModel, Field, field_validator
 
-
 # Shared validation messages
 QUERY_EMPTY_ERROR = "query must not be empty"
 

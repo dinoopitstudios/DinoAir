@@ -7,9 +7,9 @@ This script provides a convenient way to run all tests with various options.
 
 import argparse
 import os
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_command(cmd, cwd=None):
@@ -104,7 +104,9 @@ def add_quality_args(parser):
     """Add code quality check options to the parser."""
     parser.add_argument("--lint", action="store_true", help="Run linting (flake8) before tests")
     parser.add_argument("--mypy", action="store_true", help="Run type checking (mypy) before tests")
-    parser.add_argument("--format", action="store_true", help="Check code formatting (ruff) before tests")
+    parser.add_argument(
+        "--format", action="store_true", help="Check code formatting (ruff) before tests"
+    )
     parser.add_argument(
         "--all-checks",
         action="store_true",

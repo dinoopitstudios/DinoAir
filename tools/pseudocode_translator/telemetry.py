@@ -117,8 +117,7 @@ class TelemetryRecorder:
         self._seq: int = 0  # used by sampling wrapper (set in get_recorder())
 
         # Optional JSON logging flag (checked at construction time, only when enabled)
-        self._do_log: bool = os.getenv(
-            "PSEUDOCODE_TELEMETRY_LOG", "").strip().lower() in _TRUTHY
+        self._do_log: bool = os.getenv("PSEUDOCODE_TELEMETRY_LOG", "").strip().lower() in _TRUTHY
         self._logger = logging.getLogger("pseudocode.telemetry")
 
         # Tiny internal sanity check (best-effort, never raises)
@@ -175,10 +174,8 @@ class TelemetryRecorder:
                 agg["total_ms"] = float(agg.get("total_ms", 0.0)) + d
                 prev_min = agg.get("min_ms")
                 prev_max = agg.get("max_ms")
-                agg["min_ms"] = d if prev_min is None else float(
-                    min(float(prev_min), d))
-                agg["max_ms"] = d if prev_max is None else float(
-                    max(float(prev_max), d))
+                agg["min_ms"] = d if prev_min is None else float(min(float(prev_min), d))
+                agg["max_ms"] = d if prev_max is None else float(max(float(prev_max), d))
 
                 # histogram bucket
                 bucket_key = self._bucket_label(d)
@@ -265,8 +262,7 @@ class TelemetryRecorder:
             tmp = {"counters": {}}
             for delta in [{"a": 1, "b": 2}, {"a": 3}]:
                 for k, v in delta.items():
-                    tmp["counters"][k] = int(
-                        tmp["counters"].get(k, 0)) + int(v)
+                    tmp["counters"][k] = int(tmp["counters"].get(k, 0)) + int(v)
             if tmp["counters"]["a"] != 4:
                 raise AssertionError("Counter 'a' is incorrect")
         except (ValueError, TypeError, KeyError):
@@ -319,8 +315,7 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                 rec = TelemetryRecorder()
 
                 # Configure sampling
-                sample_env = os.getenv(
-                    "PSEUDOCODE_TELEMETRY_SAMPLE", "1").strip()
+                sample_env = os.getenv("PSEUDOCODE_TELEMETRY_SAMPLE", "1").strip()
                 try:
                     sample_rate = int(sample_env)
                     sample_rate = max(sample_rate, 1)

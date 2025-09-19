@@ -63,8 +63,7 @@ class ConfigLoader:
 
     def __init__(self, config_path: Path | None = None):
         self.config_path = (
-            config_path or Path(__file__).parent.parent.parent /
-            "config" / "app_config.json"
+            config_path or Path(__file__).parent.parent.parent / "config" / "app_config.json"
         )
         # DIAGNOSTIC: Log paths for debugging
         Logger().debug(f"ConfigLoader init - config_path: {self.config_path}")
@@ -115,8 +114,7 @@ class ConfigLoader:
                         deep_merge(base[key], value)
                     elif isinstance(base[key], list) and isinstance(value, list):
                         # Merge lists: concatenate and deduplicate, preserving order
-                        merged_list = base[key] + \
-                            [item for item in value if item not in base[key]]
+                        merged_list = base[key] + [item for item in value if item not in base[key]]
                         base[key] = merged_list
                     else:
                         # For non-dict, non-list types, override
@@ -172,8 +170,7 @@ class ConfigLoader:
 
         for env_key, config_key in env_mappings.items():
             if env_key in self.env_vars or env_key in os.environ:
-                raw_value = self.env_vars.get(
-                    env_key, os.environ.get(env_key, ""))
+                raw_value = self.env_vars.get(env_key, os.environ.get(env_key, ""))
                 value: Any = raw_value
                 # Convert string values to appropriate types
                 lv = raw_value.lower()

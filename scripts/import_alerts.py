@@ -24,16 +24,16 @@ Commands:
 """
 
 import argparse
+import json
+import logging
+import os
+import smtplib
+import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import json
-import logging
-import os
 from pathlib import Path
-import smtplib
-import sys
 
 import requests
 

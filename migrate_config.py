@@ -5,9 +5,9 @@ Migrates from old configuration format to new versioned system
 """
 
 import contextlib
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 
 
 def main():

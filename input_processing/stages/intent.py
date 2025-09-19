@@ -4,9 +4,9 @@ Classifies user input into different intent categories to enable
 appropriate handling and response strategies.
 """
 
+import re
 from dataclasses import dataclass
 from enum import Enum
-import re
 from typing import Any
 
 

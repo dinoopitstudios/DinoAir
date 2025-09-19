@@ -15,12 +15,12 @@ Options:
     --report     Generate comprehensive test report
 """
 
-from datetime import datetime
 import json
-from pathlib import Path
 import subprocess
 import sys
 import time
+from datetime import datetime
+from pathlib import Path
 
 
 class AutomationTester:

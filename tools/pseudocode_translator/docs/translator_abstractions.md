@@ -70,41 +70,33 @@ Used by manager wrapper:
 To reduce complexity while preserving behavior, the following helpers were introduced inside the manager:
 
 - Document-level LLM config:
-
   - [TranslationManager.\_build_model_config_for_document()](tools/pseudocode_translator/translator.py:726)
 
 - Per-block LLM config:
-
   - [TranslationManager.\_build_model_config_for_block()](tools/pseudocode_translator/translator.py:714)
 
 - Validate and optionally fix (LLM-first flow):
-
   - [TranslationManager.\_validate_and_optionally_fix()](tools/pseudocode_translator/translator.py:741)
 
 - Offload parse orchestration:
-
   - [TranslationManager.\_parse_input_with_offload()](tools/pseudocode_translator/translator.py:774)
 
 - Translate text with model (per-block):
-
   - [TranslationManager.\_translate_text_with_model()](tools/pseudocode_translator/translator.py:781)
   - Returns (translated_code_or_None, metadata_updates) and preserves error formatting for top-level ENGLISH blocks
 
 - Block processors:
-
   - [TranslationManager.\_process_english_block()](tools/pseudocode_translator/translator.py:904)
   - [TranslationManager.\_process_mixed_block()](tools/pseudocode_translator/translator.py:932)
   - [TranslationManager.\_process_passthrough_block()](tools/pseudocode_translator/translator.py:961)
   - [TranslationManager.\_process_blocks()](tools/pseudocode_translator/translator.py:965) now uses a simple for loop with early-continue guards
 
 - Structured completion orchestration:
-
   - Assemble wrapper: [TranslationManager.\_assemble_or_error()](tools/pseudocode_translator/translator.py:590)
   - Suggestions: [TranslationManager.\_suggest_improvements()](tools/pseudocode_translator/translator.py:628)
   - Completion: [TranslationManager.\_complete_structured_translation()](tools/pseudocode_translator/translator.py:634)
 
 - Mixed block segmentation:
-
   - [TranslationManager.\_separate_mixed_block()](tools/pseudocode_translator/translator.py:1100)
   - Simpler state machine with identical thresholds and outputs
 

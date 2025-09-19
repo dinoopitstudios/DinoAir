@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 from typing import Any, cast
 
 from fastapi import HTTPException
@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from starlette import status
 
 from database.file_search_db import FileSearchDB
+
 from ..schemas import (
     DirectorySettingsResponse,
     FileIndexStatsResponse,
@@ -20,7 +21,6 @@ from ..schemas import (
     VectorSearchRequest,
     VectorSearchResponse,
 )
-
 
 # Lazy import of vector engine to avoid heavy deps (numpy/torch/sentence-transformers) at API startup.
 # We only instantiate it on-demand for vector/hybrid endpoints.

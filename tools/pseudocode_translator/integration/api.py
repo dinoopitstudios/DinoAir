@@ -6,15 +6,14 @@ making it easy to integrate the translator into applications.
 """
 
 import asyncio
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from ..config import ConfigManager, TranslatorConfig
 from ..models.base_model import OutputLanguage
 from ..translator import TranslationManager, TranslationResult
-
 
 logger = logging.getLogger(__name__)
 

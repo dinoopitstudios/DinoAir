@@ -5,20 +5,19 @@ Implements Phase 1 critical performance fixes
 
 from __future__ import annotations
 
-from collections import defaultdict
-from contextlib import contextmanager, suppress
-from dataclasses import dataclass, field
-from enum import Enum
 import importlib
 import logging
 import re
 import threading
 import time
+from collections import defaultdict
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Protocol
 
 # Import new performance monitoring system
 from .performance_monitor import PerformanceMonitor, get_performance_monitor
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable

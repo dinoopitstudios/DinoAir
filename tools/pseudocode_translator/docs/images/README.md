@@ -7,28 +7,23 @@ This directory contains visual assets for the Pseudocode Translator documentatio
 ### Screenshots
 
 1. **gui-main-window.png**
-
    - Main GUI window showing input/output panels
    - Should show example pseudocode and translated Python code
    - Include toolbar with model selector and translate button
 
 2. **gui-translation-progress.png**
-
    - GUI during translation showing progress bar
    - Status messages visible
 
 3. **gui-menu-options.png**
-
    - File menu expanded showing New, Open, Save options
    - Help menu visible
 
 4. **cli-basic-usage.png**
-
    - Terminal showing basic command line usage
    - Example: `pseudocode-translator translate input.txt -o output.py`
 
 5. **cli-help-output.png**
-
    - Output of `pseudocode-translator --help`
    - Shows all available commands and options
 
@@ -39,20 +34,17 @@ This directory contains visual assets for the Pseudocode Translator documentatio
 ### Diagrams
 
 1. **architecture-diagram.png**
-
    - System architecture showing:
      - Parser → LLM Interface → Assembler → Validator
      - Model Manager and available models
      - Configuration system
 
 2. **translation-pipeline.png**
-
    - Flow diagram of translation process:
      - Input → Parse → Translate → Assemble → Validate → Output
      - Show decision points and error handling
 
 3. **streaming-architecture.png**
-
    - How streaming works for large files
    - Chunk processing and memory management
    - Buffer and queue visualization
@@ -64,7 +56,6 @@ This directory contains visual assets for the Pseudocode Translator documentatio
 ### Workflow Diagrams
 
 1. **quick-start-flow.png**
-
    - Visual representation of 5-minute setup
    - Install → First translation → Success
 
@@ -75,7 +66,6 @@ This directory contains visual assets for the Pseudocode Translator documentatio
 ### Configuration Examples
 
 1. **config-wizard.png**
-
    - Configuration wizard interface
    - Step-by-step setup process
 

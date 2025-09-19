@@ -5,13 +5,13 @@ This module provides a streaming pipeline that processes code chunks through
 the translation stages while maintaining context and handling backpressure.
 """
 
+import logging
+import threading
+import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-import logging
 from queue import Queue
-import threading
-import time
 from typing import Any
 
 # Note on imports: to avoid circular imports with translator.py, we avoid
@@ -28,7 +28,6 @@ from ..validator import Validator
 from .adaptive import AdaptiveChunkSizer
 from .buffer import BufferConfig, StreamBuffer
 from .chunker import ChunkConfig, CodeChunk, CodeChunker
-
 
 logger = logging.getLogger(__name__)
 

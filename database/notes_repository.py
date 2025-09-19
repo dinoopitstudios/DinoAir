@@ -3,14 +3,15 @@ NotesRepository - Pure database operations for notes management.
 Handles all SQLite database interactions without business logic.
 """
 
-from dataclasses import dataclass
-from datetime import datetime
 import json
 import sqlite3
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from models.note import Note
 from utils.logger import Logger
+
 from .initialize_db import DatabaseManager
 
 

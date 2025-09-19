@@ -22,7 +22,6 @@ from .base_model import (
 )
 from .model_factory import ModelPriority, register_model
 
-
 try:
     from llama_cpp import Llama
 except ImportError:

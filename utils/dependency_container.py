@@ -4,12 +4,12 @@ Dependency Injection Container for DinoAir 2.0
 Manages dependencies and prevents circular dependency issues
 """
 
-from collections.abc import Callable
 import inspect
 import logging
 import threading
-from typing import Any, TypeVar, cast
 import uuid
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 # Import from new modules
 from .dependency_enums import LifecycleState, Scope
@@ -19,7 +19,6 @@ from .dependency_exceptions import CircularDependencyError, DependencyResolution
 # Note: Avoid importing dependency_globals here to prevent circular imports.
 from .dependency_info import DependencyInfo
 from .dependency_scope import ScopeContext
-
 
 # Import logger with fallback
 try:

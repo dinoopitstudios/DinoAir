@@ -7,18 +7,17 @@ thread-safe where necessary, and integrate with the existing logging system.
 """
 
 import asyncio
-from collections import defaultdict, deque
-from collections.abc import Awaitable, Callable, Generator
-from contextlib import contextmanager
-from dataclasses import dataclass, field
-from enum import Enum
 import functools
 import logging
 import random
 import threading
 import time
+from collections import defaultdict, deque
+from collections.abc import Awaitable, Callable, Generator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, TypeVar
-
 
 T = TypeVar("T")
 

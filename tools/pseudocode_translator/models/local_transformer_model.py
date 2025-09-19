@@ -22,7 +22,6 @@ from .base_model import (
 )
 from .model_factory import ModelPriority, register_model
 
-
 logger = logging.getLogger(__name__)
 
 # Try to import transformers

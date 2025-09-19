@@ -447,25 +447,43 @@ def _get_default_user_data_directory() -> Path:
     Returns:
         Path: Default user data directory outside the repository
     """
+    # Helper function for path validation
+    def is_path_within(base: Path, child: Path) -> bool:
+        try:
+            base = base.resolve()
+            child = child.resolve()
+            return str(child).startswith(str(base) + os.sep)
+        except Exception:
+            return False
+
+    # Determine platform-specific root for validation.
+    if os.name == "nt":
+        # Use AppData/Local
+        root_dir = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~/AppData/Local"))).expanduser().resolve()
+        root_sub = "DinoAir"
+    else:
+        # Unix/Linux/MacOS
+        root_dir = Path(os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))).expanduser().resolve()
+        root_sub = "dinoair"
+    app_root = root_dir / root_sub
+
     # Check for environment variable override
     if user_data_path := os.environ.get("DINOAIR_USER_DATA"):
-        return Path(user_data_path).expanduser().resolve()
+        user_dir = Path(user_data_path).expanduser().resolve()
+        if is_path_within(root_dir, user_dir):
+            return user_dir
+        else:
+            logging.warning(
+                f"Rejected DINOAIR_USER_DATA outside of permitted root '{root_dir}': '{user_dir}'"
+            )
+            # Fall through to default construction
 
     # For tests, always use temp directory
     if os.environ.get("PYTEST_CURRENT_TEST"):
         return Path(tempfile.gettempdir()) / "DinoAirTests"
 
     # Platform-specific default locations outside repository
-    if os.name == "nt":  # Windows
-        # Use AppData/Local for user-specific application data
-        app_data = os.environ.get(
-            "LOCALAPPDATA", os.path.expanduser("~/AppData/Local"))
-        return Path(app_data) / "DinoAir"
-    # Unix/Linux/MacOS
-    # Follow XDG Base Directory Specification
-    xdg_data_home = os.environ.get(
-        "XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-    return Path(xdg_data_home) / "dinoair"
+    return app_root
 
 
 def _validate_user_data_permissions(path: Path) -> None:
@@ -488,13 +506,11 @@ def _validate_user_data_permissions(path: Path) -> None:
             test_file.write_text("test", encoding="utf-8")
             test_file.unlink()  # Clean up test file
         except OSError as e:
-            raise PermissionError(
-                f"No write permission for user data directory {path}: {e}") from e
+            raise PermissionError(f"No write permission for user data directory {path}: {e}") from e
 
         # Test read permissions
         if not os.access(path, os.R_OK):
-            raise PermissionError(
-                f"No read permission for user data directory {path}")
+            raise PermissionError(f"No read permission for user data directory {path}")
 
     except OSError as e:
         raise OSError(f"Cannot access user data directory {path}: {e}") from e
@@ -554,15 +570,13 @@ class DatabaseManager:
             # For tests or when permissions fail, fall back to temp directory
             if os.environ.get("PYTEST_CURRENT_TEST") or "test" in str(self.base_dir).lower():
                 temp_fallback = (
-                    Path(tempfile.gettempdir()) /
-                    "DinoAir_fallback" / f"user_{os.getpid()}"
+                    Path(tempfile.gettempdir()) / "DinoAir_fallback" / f"user_{os.getpid()}"
                 )
                 self.user_feedback(
                     f"Permission issue with {self.base_dir}, using temp fallback: {temp_fallback}"
                 )
                 self.base_dir = temp_fallback
-                _validate_user_data_permissions(
-                    self.base_dir)  # This should work for temp
+                _validate_user_data_permissions(self.base_dir)  # This should work for temp
             else:
                 # For production, raise the error
                 raise e
@@ -654,8 +668,7 @@ class DatabaseManager:
                     f"{', '.join(m.full_name for m in executed)}"
                 )
             else:
-                LOGGER.debug(
-                    "All migrations already applied for notes database")
+                LOGGER.debug("All migrations already applied for notes database")
 
         except (ImportError, AttributeError, OSError, sqlite3.Error) as e:
             # Log error but don't fail initialization
@@ -672,17 +685,14 @@ class DatabaseManager:
         cur = conn.cursor()
         try:
             # Check if table exists
-            tables = cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            tables = cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
             table_names = {t[0] for t in tables}
             if "note_list" in table_names:
                 cur.execute("PRAGMA table_info(note_list)")
                 columns = [row[1] for row in cur.fetchall()]
                 if "project_id" not in columns:
-                    cur.execute(
-                        "ALTER TABLE note_list ADD COLUMN project_id TEXT")
-                    self.user_feedback(
-                        "[OK] Added project_id to existing notes table")
+                    cur.execute("ALTER TABLE note_list ADD COLUMN project_id TEXT")
+                    self.user_feedback("[OK] Added project_id to existing notes table")
                     conn.commit()
         except sqlite3.Error as e:
             # Log but do not fail initialization if PRAGMA queries fail
@@ -696,8 +706,7 @@ class DatabaseManager:
         filename = DB_FILES[db_key]
         db_path = self.user_db_dir / filename
         _ensure_dir(db_path.parent)
-        db = ResilientDB(db_path, lambda c: self._setup_schema(
-            db_key, c), self.user_feedback)
+        db = ResilientDB(db_path, lambda c: self._setup_schema(db_key, c), self.user_feedback)
         conn = db.connect_with_retry()
         self._track_connection(conn)
         return conn
@@ -783,8 +792,7 @@ class DatabaseManager:
                 conn = resilient.connect_with_retry()
                 conn.close()
 
-            self.user_feedback(
-                f"[OK] All databases ready for {self.user_name}")
+            self.user_feedback(f"[OK] All databases ready for {self.user_name}")
         except sqlite3.Error as e:
             self.user_feedback(
                 f"[ERROR] Database error: {str(e)}. Please check database file permissions."
@@ -815,8 +823,7 @@ class DatabaseManager:
                         conn.close()
                         self.user_feedback("[OK] Database connection closed")
                 except Exception as e:
-                    self.user_feedback(
-                        f"[WARNING] Error closing connection: {e}")
+                    self.user_feedback(f"[WARNING] Error closing connection: {e}")
             self._active_connections.clear()
 
     def get_watchdog_metrics_manager(self):
@@ -842,16 +849,13 @@ class DatabaseManager:
                     shutil.copy2(db_path, backup_path)
             self.user_feedback(f"[OK] Backups saved to: {backup_dir}")
         except OSError as e:
-            self.user_feedback(
-                f"[ERROR] Backup failed - file system error: {str(e)}")
+            self.user_feedback(f"[ERROR] Backup failed - file system error: {str(e)}")
             raise
         except sqlite3.Error as e:
-            self.user_feedback(
-                f"[ERROR] Backup failed - database error: {str(e)}")
+            self.user_feedback(f"[ERROR] Backup failed - database error: {str(e)}")
             raise
         except Exception as e:
-            self.user_feedback(
-                f"[ERROR] Backup failed - unexpected error: {str(e)}")
+            self.user_feedback(f"[ERROR] Backup failed - unexpected error: {str(e)}")
             raise
 
     def clean_memory_database(self, watchdog_retention_days: int = 7) -> None:
@@ -865,22 +869,22 @@ class DatabaseManager:
                 cursor = conn.cursor()
 
                 # Remove expired session data
-                cursor.execute(
-                    "DELETE FROM session_data WHERE expires_at < CURRENT_TIMESTAMP")
+                cursor.execute("DELETE FROM session_data WHERE expires_at < CURRENT_TIMESTAMP")
 
                 # Keep only last 100 recent notes
-                cursor.execute("""
+                cursor.execute(
+                    """
                     DELETE FROM recent_notes
                     WHERE note_id NOT IN (
                         SELECT note_id FROM recent_notes
                         ORDER BY accessed_at DESC
                         LIMIT 100
                     )
-                """)
+                """
+                )
 
                 # Clean old watchdog metrics based on retention policy (parameterized)
-                cutoff = (
-                    datetime.now() - timedelta(days=int(watchdog_retention_days))).isoformat()
+                cutoff = (datetime.now() - timedelta(days=int(watchdog_retention_days))).isoformat()
                 cursor.execute(
                     """
                     DELETE FROM watchdog_metrics
@@ -899,11 +903,9 @@ class DatabaseManager:
                     f"[OK] Memory database cleaned (removed {deleted_metrics} old metrics)"
                 )
         except sqlite3.Error as e:
-            self.user_feedback(
-                f"Warning: Database error during cleanup: {str(e)}")
+            self.user_feedback(f"Warning: Database error during cleanup: {str(e)}")
         except Exception as e:
-            self.user_feedback(
-                f"Warning: Could not clean memory database: {str(e)}")
+            self.user_feedback(f"Warning: Could not clean memory database: {str(e)}")
 
     def _cleanup_temp_files(self, stats: dict[str, int]) -> None:
         temp_patterns = ["*.tmp", "*.temp", "*.log", ".temp_*"]
@@ -918,8 +920,7 @@ class DatabaseManager:
                     stats["files_removed"] += 1
                     stats["space_freed_mb"] += size_mb
                     if hasattr(self, "user_feedback"):
-                        self.user_feedback(
-                            f"Removed temp file: {temp_file.name}")
+                        self.user_feedback(f"Removed temp file: {temp_file.name}")
                 except OSError:
                     continue
 
@@ -936,8 +937,7 @@ class DatabaseManager:
                     backup_file.unlink()
                     stats["backups_removed"] += 1
                     if hasattr(self, "user_feedback"):
-                        self.user_feedback(
-                            f"Removed backup file: {backup_file.name}")
+                        self.user_feedback(f"Removed backup file: {backup_file.name}")
                 except OSError:
                     continue
 
@@ -1003,12 +1003,9 @@ class DatabaseManager:
                 )
         except Exception as e:
             if hasattr(self, "user_feedback"):
-                self.user_feedback(
-                    f"Warning: Error during user data cleanup: {str(e)}"
-                )
+                self.user_feedback(f"Warning: Error during user data cleanup: {str(e)}")
 
         return stats
-
 
 
 # For easy initialization when GUI starts

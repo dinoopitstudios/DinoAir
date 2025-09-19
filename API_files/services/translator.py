@@ -7,14 +7,13 @@ ensuring deterministic, non-streaming translation with conservative defaults.
 
 from __future__ import annotations
 
-from contextlib import suppress
 import logging
+from contextlib import suppress
 from typing import Any, Protocol, cast
 
 from pydantic import ValidationError
 
 from ..schemas import TargetLanguageEnum, TranslateRequest, TranslateResponse
-
 
 # Prefer the high-level API but force non-streaming behavior
 try:

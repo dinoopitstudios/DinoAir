@@ -20,7 +20,6 @@ from .core import Validator
 from .result import ValidationErrorParams, ValidationResult
 from .scope import Scope
 
-
 # Export all public classes
 __all__ = [
     "Validator",

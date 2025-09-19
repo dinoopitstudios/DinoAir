@@ -14,11 +14,10 @@ from typing import TYPE_CHECKING, Any
 from ..models.base_model import (
     BaseTranslationModel,
     OutputLanguage,
-    TranslationConfig as ModelTranslationConfig,
 )
+from ..models.base_model import TranslationConfig as ModelTranslationConfig
 from ..models.model_factory import ModelFactory, create_model
 from .error_handler import ErrorCategory, ErrorHandler
-
 
 if TYPE_CHECKING:
     from ..config import TranslatorConfig

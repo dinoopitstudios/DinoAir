@@ -15,9 +15,9 @@ from typing import TYPE_CHECKING, Any
 # Lightweight, internal components (do not pull in heavy ML libs)
 from database.file_search_db import FileSearchDB
 from utils.logger import Logger
+
 from .directory_validator import DirectoryValidator
 from .secure_text_extractor import SecureTextExtractor
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

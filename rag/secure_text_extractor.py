@@ -9,12 +9,11 @@ utilities for various file formats.
 """
 
 import logging
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from utils import SafePDFProcessor
-
 
 logger = logging.getLogger(__name__)
 

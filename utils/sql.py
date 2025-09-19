@@ -38,9 +38,8 @@ Notes:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 import re
-
+from datetime import datetime, timedelta
 
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 

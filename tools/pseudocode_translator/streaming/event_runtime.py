@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import contextlib
 import logging
-from queue import Empty, Queue
 import threading
 import time
+from queue import Empty, Queue
 from typing import TYPE_CHECKING, Any
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable

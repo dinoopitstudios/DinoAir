@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, Any
 
 from ..exceptions import ParsingError, TranslatorError  # type: ignore
 
-
 if TYPE_CHECKING:
-    from collections.abc import Callable
     import logging
+    from collections.abc import Callable
 
     from ..models import CodeBlock
 

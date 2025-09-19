@@ -25,16 +25,15 @@ Commands:
 """
 
 import argparse
-from dataclasses import asdict, dataclass
-from datetime import datetime
 import json
 import logging
-from pathlib import Path
 import subprocess
 import sys
 import time
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from pathlib import Path
 from typing import Any
-
 
 try:
     import matplotlib.pyplot as plt

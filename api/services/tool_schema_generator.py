@@ -4,8 +4,8 @@ This module provides functionality to convert Python tool functions with docstri
 into OpenAI function calling schema format.
 """
 
-from collections.abc import Callable
 import inspect
+from collections.abc import Callable
 from typing import Any, get_type_hints
 
 

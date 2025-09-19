@@ -18,10 +18,10 @@ Options:
 
 import argparse
 import ast
-from collections import defaultdict
 import json
-from pathlib import Path
 import sys
+from collections import defaultdict
+from pathlib import Path
 
 
 class CircularDependencyDetector:

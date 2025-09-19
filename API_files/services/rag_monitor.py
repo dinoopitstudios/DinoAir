@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 
 from .common import guard_imports, resp
 
-
 if TYPE_CHECKING:
     from ..settings import Settings
 

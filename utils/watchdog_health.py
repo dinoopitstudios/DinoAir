@@ -12,7 +12,6 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-
 if TYPE_CHECKING:
     from PySide6.QtCore import QMutex, QMutexLocker, QObject, QTimer, Signal
 else:

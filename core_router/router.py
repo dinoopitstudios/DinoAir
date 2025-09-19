@@ -69,7 +69,8 @@ def create_router(services_file: str | None = None) -> ServiceRouter:
     # Local imports to avoid cycles
     import os  # local to keep import-time surface minimal
 
-    from .registry import ServiceRegistry as LocalServiceRegistry, auto_register_from_config_and_env  # noqa: WPS433
+    from .registry import ServiceRegistry as LocalServiceRegistry  # noqa: WPS433
+    from .registry import auto_register_from_config_and_env
 
     file_path = services_file or os.getenv("DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
     registry = LocalServiceRegistry()

@@ -6,8 +6,8 @@ and usage across different scopes.
 """
 
 import ast
-from collections.abc import Iterable
 import contextlib
+from collections.abc import Iterable
 
 from .scope import Scope
 

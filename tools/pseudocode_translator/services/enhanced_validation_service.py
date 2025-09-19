@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any
 from ..validator import ValidationResult, Validator
 from .error_handler import ErrorCategory, ErrorHandler
 
-
 if TYPE_CHECKING:
     from ..config import TranslatorConfig
 

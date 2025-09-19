@@ -4,11 +4,10 @@ This module provides utilities to generate OpenAI function calling schemas
 from Python functions with properly formatted docstrings.
 """
 
-from collections.abc import Callable
 import inspect
 import re
+from collections.abc import Callable
 from typing import Any
-
 
 """OpenAI Function Calling Schema Generator for DinoAir Tools
 

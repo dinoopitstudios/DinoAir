@@ -4,9 +4,9 @@ Extracts and modularizes watchdog-related command processing
 from the original InputSanitizer implementation.
 """
 
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
-import re
 from typing import Any
 
 

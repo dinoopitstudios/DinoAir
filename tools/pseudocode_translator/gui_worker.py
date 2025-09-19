@@ -5,9 +5,9 @@ This module provides the TranslationWorker class that runs translations
 in a separate thread to keep the GUI responsive.
 """
 
-from dataclasses import dataclass
 import logging
 import traceback
+from dataclasses import dataclass
 from typing import Any
 
 from PySide6.QtCore import QObject, Signal, Slot
@@ -17,7 +17,6 @@ from .config import TranslatorConfig
 from .models import BlockType, CodeBlock, ParseResult
 from .parser import ParserModule
 from .translator import TranslationManager
-
 
 logger = logging.getLogger(__name__)
 

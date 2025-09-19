@@ -6,7 +6,6 @@ from starlette import status
 from ..schemas import DirectorySettingsResponse
 from ..services.search import directory_settings as svc_directory_settings
 
-
 router = APIRouter()
 
 

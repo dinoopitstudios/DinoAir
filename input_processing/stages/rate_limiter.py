@@ -4,12 +4,12 @@ Provides configurable rate limiting with different strategies
 and time windows to prevent abuse while maintaining good UX.
 """
 
+import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from math import isfinite
-import time
 
 
 class RateLimitStrategy(Enum):

@@ -553,19 +553,16 @@ class MyModel(BaseModel):
 ### Common Issues
 
 1. **Model not found in registry**
-
    - Ensure your file is in the `models/` directory
    - Check that you're using the `@register_model` decorator
    - Verify the model name doesn't conflict with existing models
 
 2. **Import errors**
-
    - Make sure all dependencies are installed
    - Use relative imports for model components
    - Check that `__init__.py` isn't blocking your module
 
 3. **Model fails to load**
-
    - Verify the model file exists at the expected path
    - Check file permissions
    - Ensure the file format matches what your code expects

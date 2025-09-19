@@ -13,7 +13,6 @@ from typing import Any
 from .base import BaseModel, ModelCapabilities, ModelFormat, ModelMetadata
 from .registry import register_model
 
-
 logger = logging.getLogger(__name__)
 
 

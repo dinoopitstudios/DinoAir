@@ -9,12 +9,11 @@ Lightweight RAG factory for centralizing provider/engine selection.
 
 from __future__ import annotations
 
-from importlib import import_module
 import inspect
 import logging
 import os
+from importlib import import_module
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 

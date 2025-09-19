@@ -3,8 +3,8 @@ Text chunking module for DinoAir 2.0 RAG File Search system.
 Provides intelligent text chunking with configurable strategies.
 """
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from typing import Any
 
 # Import logging from DinoAir's logger
@@ -519,7 +519,9 @@ class FileChunker:
 
         return final_boundaries
 
-    def _update_string_brace(self, line: str, in_string: bool, string_char: str, brace_count: int) -> tuple[bool, str, int]:
+    def _update_string_brace(
+        self, line: str, in_string: bool, string_char: str, brace_count: int
+    ) -> tuple[bool, str, int]:
         for char in line:
             if not in_string and char in ("'", '"'):
                 in_string = True
@@ -533,7 +535,15 @@ class FileChunker:
                     brace_count -= 1
         return in_string, string_char, brace_count
 
-    def _is_block_end(self, index: int, in_string: bool, brace_count: int, first_line: str, current_indent: int, base_indent: int) -> bool:
+    def _is_block_end(
+        self,
+        index: int,
+        in_string: bool,
+        brace_count: int,
+        first_line: str,
+        current_indent: int,
+        base_indent: int,
+    ) -> bool:
         if "{" in first_line:
             return index > 0 and not in_string and brace_count == 0
         return index > 0 and current_indent <= base_indent
@@ -562,9 +572,13 @@ class FileChunker:
                 continue
 
             current_indent = len(line) - len(line.lstrip())
-            in_string, string_char, brace_count = self._update_string_brace(line, in_string, string_char, brace_count)
+            in_string, string_char, brace_count = self._update_string_brace(
+                line, in_string, string_char, brace_count
+            )
 
-            if self._is_block_end(i, in_string, brace_count, first_line, current_indent, base_indent):
+            if self._is_block_end(
+                i, in_string, brace_count, first_line, current_indent, base_indent
+            ):
                 break
             # For indentation-based languages (like Python)
             if (

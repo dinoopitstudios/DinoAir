@@ -6,13 +6,12 @@ implement, providing a standard interface for multi-language output
 capabilities.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
 from pathlib import Path
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 

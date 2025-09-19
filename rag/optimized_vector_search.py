@@ -4,24 +4,24 @@ Implements performance improvements including result caching, parallel search,
 and efficient similarity calculations.
 """
 
-from collections import defaultdict
 import concurrent.futures
 import heapq
 import json
 import os
 import threading
 import time
+from collections import defaultdict
 from typing import Any
 
 import numpy as np
 
 # Import DinoAir components
 from utils import Logger
+
 from .search_common import compute_cosine_scores, text_similarity  # shared utilities
 
 # Import RAG components
 from .vector_search import SearchResult, VectorSearchEngine
-
 
 # Helpers extracted to reduce cognitive complexity while preserving behavior
 

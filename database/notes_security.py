@@ -3,8 +3,8 @@ NotesSecurity - Security validation for notes operations.
 Handles input validation, sanitization, and security checks.
 """
 
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
 from typing import Any
 
 from utils.logger import Logger

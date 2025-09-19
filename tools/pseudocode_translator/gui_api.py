@@ -19,7 +19,6 @@ from .parser import ParserModule
 from .translator import TranslationManager
 from .validator import Validator
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 import contextlib
-from dataclasses import dataclass, field
 import logging
-from logging.handlers import RotatingFileHandler
 import os
 import sys
 import time
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass, field
+from logging.handlers import RotatingFileHandler
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from starlette.types import Message, Receive, Scope, Send
-
 
 if TYPE_CHECKING:
     from .settings import Settings

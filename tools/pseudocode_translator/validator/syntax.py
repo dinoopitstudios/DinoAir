@@ -6,9 +6,9 @@ syntax error recovery suggestions.
 """
 
 import ast
-from io import StringIO
 import re
 import tokenize
+from io import StringIO
 
 from ..ast_cache import parse_cached
 from ..exceptions import ErrorContext, ValidationError

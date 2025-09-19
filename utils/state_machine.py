@@ -3,17 +3,16 @@ State Machine Implementation for DinoAir 2.0
 Manages application states and transitions with validation and events
 """
 
+import threading
+import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import threading
-import time
 from typing import Any
 
 from .logger import Logger
-
 
 logger = Logger()
 

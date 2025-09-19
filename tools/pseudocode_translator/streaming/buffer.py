@@ -5,16 +5,15 @@ This module provides efficient buffer management for streaming translations,
 including memory-efficient storage, compression, and retrieval of chunks.
 """
 
-from collections import OrderedDict
-from dataclasses import dataclass
 import gzip
 import io
 import json
 import logging
 import sys
 import threading
+from collections import OrderedDict
+from dataclasses import dataclass
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 

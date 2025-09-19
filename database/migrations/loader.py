@@ -8,7 +8,6 @@ from pathlib import Path
 
 from .base import BaseMigration
 
-
 LOGGER = logging.getLogger(__name__)
 
 

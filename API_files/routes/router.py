@@ -11,10 +11,10 @@ from core_router.errors import (
     AdapterError,
     NoHealthyService,
     ServiceNotFound,
-    ValidationError as CoreValidationError,
 )
-from ..services import router_client
+from core_router.errors import ValidationError as CoreValidationError
 
+from ..services import router_client
 
 router = APIRouter()
 

@@ -6,8 +6,8 @@ and user experience.
 
 from __future__ import annotations
 
-from difflib import SequenceMatcher
 import re
+from difflib import SequenceMatcher
 from typing import Any
 
 

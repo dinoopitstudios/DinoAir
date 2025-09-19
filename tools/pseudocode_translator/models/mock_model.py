@@ -6,9 +6,9 @@ translation system without requiring actual model resources.
 """
 
 import logging
-from pathlib import Path
 import random
 import time
+from pathlib import Path
 from typing import Any
 
 from .base_model import (
@@ -21,7 +21,6 @@ from .base_model import (
     validate_instruction,
 )
 from .model_factory import ModelPriority, register_model
-
 
 logger = logging.getLogger(__name__)
 

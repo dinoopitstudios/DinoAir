@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping, Sequence
 from contextlib import suppress
-import os
 from typing import Any, cast
 
 from core_router.config import load_services_from_file
 from core_router.registry import ServiceRegistry
 from core_router.router import ServiceRouter
-from ..settings import Settings, get_lmstudio_env
 
+from ..settings import Settings, get_lmstudio_env
 
 _router_singleton: ServiceRouter | None = None
 

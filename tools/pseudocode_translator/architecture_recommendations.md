@@ -445,13 +445,11 @@ class TranslatorTestCase:
 #### Phase 1: Foundation (High Priority)
 
 1. **Model Abstraction Layer**
-
    - Create abstract model interface
    - Implement model registry
    - Migrate existing Qwen implementation
 
 2. **Configuration System**
-
    - Implement Pydantic schemas
    - Add validation layer
    - Create migration system
@@ -464,13 +462,11 @@ class TranslatorTestCase:
 #### Phase 2: Core Improvements (Medium Priority)
 
 1. **Plugin System**
-
    - Implement plugin loader
    - Create plugin template
    - Add CodeLlama plugin example
 
 2. **Streaming Support**
-
    - Add streaming to model interface
    - Implement chunk processor
    - Update translation pipeline
@@ -483,13 +479,11 @@ class TranslatorTestCase:
 #### Phase 3: Advanced Features (Lower Priority)
 
 1. **Model Auto-Download**
-
    - Add download manager
    - Implement progress tracking
    - Add model verification
 
 2. **Advanced Validation**
-
    - Implement undefined variable checker
    - Add type inference
    - Create validation plugins

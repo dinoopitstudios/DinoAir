@@ -3,8 +3,8 @@ Embedding generation module for DinoAir 2.0 RAG File Search system.
 Provides local vector embedding generation using sentence-transformers.
 """
 
-from functools import lru_cache
 import os
+from functools import lru_cache
 from typing import Any
 
 import numpy as np

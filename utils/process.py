@@ -45,15 +45,14 @@ from __future__ import annotations
 import contextlib
 import json
 import logging
-from pathlib import Path
 import platform
 import re
 import subprocess
-from typing import TYPE_CHECKING, Any
 import warnings
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from .performance_monitor import performance_monitor
-
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

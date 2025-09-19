@@ -27,7 +27,8 @@ class TagTableFallbackMigration(BaseMigration):
 
         try:
             # Create normalized tag table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS note_tags (
                     note_id TEXT NOT NULL,
                     tag TEXT NOT NULL,
@@ -35,15 +36,20 @@ class TagTableFallbackMigration(BaseMigration):
                     PRIMARY KEY (note_id, tag),
                     FOREIGN KEY (note_id) REFERENCES note_list(id) ON DELETE CASCADE
                 )
-            """)
+            """
+            )
 
             # Create indexes for efficient tag queries
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_note_tags_tag ON note_tags(tag)
-            """)
-            cursor.execute("""
+            """
+            )
+            cursor.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_note_tags_note_id ON note_tags(note_id)
-            """)
+            """
+            )
 
             # Populate tag table from existing JSON data
             self._populate_tag_table(cursor)
@@ -52,16 +58,14 @@ class TagTableFallbackMigration(BaseMigration):
 
         except Exception as e:
             conn.rollback()
-            raise MigrationError(
-                f"Failed to create tag table fallback: {e}") from e
+            raise MigrationError(f"Failed to create tag table fallback: {e}") from e
 
     def _populate_tag_table(self, cursor: sqlite3.Cursor) -> None:
         """Populate tag table from existing JSON tag data"""
         import json
 
         # Get all notes with tags
-        cursor.execute(
-            "SELECT id, tags FROM note_list WHERE tags IS NOT NULL AND tags != ''")
+        cursor.execute("SELECT id, tags FROM note_list WHERE tags IS NOT NULL AND tags != ''")
 
         tag_insertions = []
         for row in cursor.fetchall():
@@ -74,8 +78,7 @@ class TagTableFallbackMigration(BaseMigration):
                             if isinstance(tag, str) and tag.strip():
                                 # Normalize tag to lowercase
                                 normalized_tag = tag.lower().strip()
-                                tag_insertions.append(
-                                    (note_id, normalized_tag))
+                                tag_insertions.append((note_id, normalized_tag))
                 except (json.JSONDecodeError, TypeError):
                     # Skip malformed tag data
                     continue
@@ -111,13 +114,11 @@ class TagTableHelper:
             cursor = conn.cursor()
 
             # Remove existing tags for the note
-            cursor.execute(
-                "DELETE FROM note_tags WHERE note_id = ?", (note_id,))
+            cursor.execute("DELETE FROM note_tags WHERE note_id = ?", (note_id,))
 
             # Insert new tags
             if tags:
-                normalized_tags = [(note_id, tag.lower().strip())
-                                   for tag in tags if tag.strip()]
+                normalized_tags = [(note_id, tag.lower().strip()) for tag in tags if tag.strip()]
                 cursor.executemany(
                     "INSERT INTO note_tags (note_id, tag) VALUES (?, ?)", normalized_tags
                 )
@@ -148,14 +149,16 @@ class TagTableHelper:
         """Get all tags with counts using normalized tag table"""
         with self.db_manager.get_notes_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT nt.tag, COUNT(*) as count
                 FROM note_tags nt
                 INNER JOIN note_list n ON nt.note_id = n.id
                 WHERE n.is_deleted = 0
                 GROUP BY nt.tag
                 ORDER BY count DESC, nt.tag
-            """)
+            """
+            )
 
             return cursor.fetchall()
 

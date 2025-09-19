@@ -14,7 +14,6 @@ from .result import ValidationResult
 from .syntax import SyntaxValidator
 from .utils import ValidationCache, get_cache_key
 
-
 logger = logging.getLogger(__name__)
 
 
