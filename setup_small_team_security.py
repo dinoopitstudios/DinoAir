@@ -4,8 +4,9 @@ DinoAir Security Configuration Example for Small Teams
 This shows how to set up relaxed security settings for a 2-person company.
 """
 
-from utils.network_security import create_small_team_security_config, NetworkSecurityManager
 from utils.auth_system import create_healthcare_user_manager
+from utils.network_security import NetworkSecurityManager, create_small_team_security_config
+
 
 def setup_small_team_security():
     """Set up security for a small team (you and your partner)."""
@@ -24,13 +25,14 @@ def setup_small_team_security():
 
     return security_manager
 
+
 def integrate_with_fastapi():
     """Show how to integrate with your FastAPI app."""
 
     security_manager = setup_small_team_security()
 
     # Example FastAPI integration
-    example_code = '''
+    example_code = """
 # In your API_files/app.py or wherever you configure FastAPI:
 
 from utils.network_security import create_small_team_security_config, NetworkSecurityManager
@@ -48,10 +50,11 @@ def create_app():
 
     # Your existing routes...
     return app
-'''
+"""
 
     print("\n📝 FastAPI Integration Code:")
     print(example_code)
+
 
 if __name__ == "__main__":
     print("🏢 DinoAir Small Team Security Setup")

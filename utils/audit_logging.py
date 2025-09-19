@@ -14,16 +14,16 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-import time
-import uuid
-from datetime import datetime, timezone
-from dataclasses import dataclass, asdict
-from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 import logging
 import logging.handlers
 import sys
+import time
+import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 
 class AuditEventType(Enum):
@@ -77,6 +77,7 @@ class AuditEventType(Enum):
 
 class SeverityLevel(Enum):
     """Severity levels for audit events."""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -110,7 +111,7 @@ class AuditEvent:
     def __post_init__(self):
         """Set default values for mutable fields."""
         if self.details is None:
-            object.__setattr__(self, 'details', {})
+            object.__setattr__(self, "details", {})
 
 
 class AuditLogger:
@@ -122,10 +123,11 @@ class AuditLogger:
         secret_key: str,
         max_file_size: int = 100 * 1024 * 1024,  # 100MB
         backup_count: int = 100,
-        encrypt_logs: bool = True
+        encrypt_logs: bool = True,
     ):
         self.log_file = Path(log_file)
-        self.secret_key = secret_key.encode() if isinstance(secret_key, str) else secret_key
+        self.secret_key = secret_key.encode() if isinstance(
+            secret_key, str) else secret_key
         self.encrypt_logs = encrypt_logs
 
         # Ensure log directory exists
@@ -140,14 +142,11 @@ class AuditLogger:
 
         # Create rotating file handler
         handler = logging.handlers.RotatingFileHandler(
-            self.log_file,
-            maxBytes=max_file_size,
-            backupCount=backup_count,
-            encoding='utf-8'
+            self.log_file, maxBytes=max_file_size, backupCount=backup_count, encoding="utf-8"
         )
 
         # Use JSON formatter for structured logging
-        formatter = logging.Formatter('%(message)s')
+        formatter = logging.Formatter("%(message)s")
         handler.setFormatter(formatter)
 
         self.logger.addHandler(handler)
@@ -165,7 +164,7 @@ class AuditLogger:
         outcome: str = "success",
         severity: SeverityLevel = SeverityLevel.INFO,
         details: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Create and log an audit event."""
 
@@ -189,7 +188,7 @@ class AuditLogger:
             resource=resource,
             action=action,
             outcome=outcome,
-            details=event_details
+            details=event_details,
         )
 
         # Add integrity check
@@ -205,33 +204,31 @@ class AuditLogger:
 
         # Create serializable dict (excluding checksum and signature)
         event_dict = asdict(event)
-        event_dict.pop('checksum', None)
-        event_dict.pop('signature', None)
+        event_dict.pop("checksum", None)
+        event_dict.pop("signature", None)
 
         # Convert enum values to strings for JSON serialization
-        event_dict['event_type'] = event.event_type.value
-        event_dict['severity'] = event.severity.value
+        event_dict["event_type"] = event.event_type.value
+        event_dict["severity"] = event.severity.value
 
         # Create canonical JSON representation
-        canonical_json = json.dumps(event_dict, sort_keys=True, separators=(',', ':'))
+        canonical_json = json.dumps(
+            event_dict, sort_keys=True, separators=(",", ":"))
 
         # Calculate checksum
         checksum = hashlib.sha256(canonical_json.encode()).hexdigest()
 
         # Create HMAC signature
         signature = hmac.new(
-            self.secret_key,
-            canonical_json.encode(),
-            hashlib.sha256
-        ).hexdigest()
+            self.secret_key, canonical_json.encode(), hashlib.sha256).hexdigest()
 
         # Return new event with integrity fields
         return AuditEvent(
             **event_dict,
             event_type=event.event_type,  # Keep original enum
-            severity=event.severity,      # Keep original enum
+            severity=event.severity,  # Keep original enum
             checksum=checksum,
-            signature=signature
+            signature=signature,
         )
 
     def _write_audit_log(self, event: AuditEvent) -> None:
@@ -239,52 +236,52 @@ class AuditLogger:
 
         # Convert to dict for JSON serialization
         log_data = asdict(event)
-        log_data['event_type'] = event.event_type.value
-        log_data['severity'] = event.severity.value
+        log_data["event_type"] = event.event_type.value
+        log_data["severity"] = event.severity.value
 
         # Add metadata
-        log_data['_audit_version'] = '1.0'
-        log_data['_log_time'] = time.time()
+        log_data["_audit_version"] = "1.0"
+        log_data["_log_time"] = time.time()
 
         # Encrypt if enabled
         if self.encrypt_logs:
             log_data = self._encrypt_log_data(log_data)
 
         # Write to log
-        log_line = json.dumps(log_data, separators=(',', ':'))
+        log_line = json.dumps(log_data, separators=(",", ":"))
         self.logger.info(log_line)
 
     def _encrypt_log_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Encrypt sensitive log data."""
         # For now, just mark as encrypted - real implementation would use proper encryption
         return {
-            '_encrypted': True,
-            '_cipher': 'AES-256-GCM',
-            'data': data  # In reality, this would be encrypted
+            "_encrypted": True,
+            "_cipher": "AES-256-GCM",
+            "data": data,  # In reality, this would be encrypted
         }
 
     def verify_integrity(self, event_data: Dict[str, Any]) -> bool:
         """Verify the integrity of an audit event."""
         try:
-            stored_signature = event_data.pop('signature', None)
-            stored_checksum = event_data.pop('checksum', None)
+            stored_signature = event_data.pop("signature", None)
+            stored_checksum = event_data.pop("checksum", None)
 
             if not stored_signature or not stored_checksum:
                 return False
 
             # Recreate canonical JSON
-            canonical_json = json.dumps(event_data, sort_keys=True, separators=(',', ':'))
+            canonical_json = json.dumps(
+                event_data, sort_keys=True, separators=(",", ":"))
 
             # Verify checksum
-            calculated_checksum = hashlib.sha256(canonical_json.encode()).hexdigest()
+            calculated_checksum = hashlib.sha256(
+                canonical_json.encode()).hexdigest()
             if calculated_checksum != stored_checksum:
                 return False
 
             # Verify signature
             calculated_signature = hmac.new(
-                self.secret_key,
-                canonical_json.encode(),
-                hashlib.sha256
+                self.secret_key, canonical_json.encode(), hashlib.sha256
             ).hexdigest()
 
             return hmac.compare_digest(calculated_signature, stored_signature)
@@ -306,13 +303,13 @@ class SecurityAuditManager:
         source_ip: Optional[str],
         user_agent: Optional[str] = None,
         reason: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Log authentication-related events."""
-        details = {'reason': reason} if reason else {}
+        details = {"reason": reason} if reason else {}
         details.update(kwargs)
 
-        severity = SeverityLevel.WARNING if 'failure' in event_type.value else SeverityLevel.INFO
+        severity = SeverityLevel.WARNING if "failure" in event_type.value else SeverityLevel.INFO
 
         return self.audit_logger.audit(
             event_type=event_type,
@@ -320,7 +317,7 @@ class SecurityAuditManager:
             source_ip=source_ip,
             user_agent=user_agent,
             severity=severity,
-            details=details
+            details=details,
         )
 
     def log_data_access(
@@ -332,24 +329,25 @@ class SecurityAuditManager:
         source_ip: Optional[str] = None,
         outcome: str = "success",
         record_count: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Log data access events."""
         details = {}
         if record_count is not None:
-            details['record_count'] = record_count
+            details["record_count"] = record_count
         details.update(kwargs)
 
         event_type_map = {
-            'read': AuditEventType.DATA_READ,
-            'create': AuditEventType.DATA_CREATE,
-            'update': AuditEventType.DATA_UPDATE,
-            'delete': AuditEventType.DATA_DELETE,
-            'export': AuditEventType.DATA_EXPORT,
-            'import': AuditEventType.DATA_IMPORT,
+            "read": AuditEventType.DATA_READ,
+            "create": AuditEventType.DATA_CREATE,
+            "update": AuditEventType.DATA_UPDATE,
+            "delete": AuditEventType.DATA_DELETE,
+            "export": AuditEventType.DATA_EXPORT,
+            "import": AuditEventType.DATA_IMPORT,
         }
 
-        event_type = event_type_map.get(action.lower(), AuditEventType.DATA_READ)
+        event_type = event_type_map.get(
+            action.lower(), AuditEventType.DATA_READ)
         severity = SeverityLevel.ERROR if outcome == "failure" else SeverityLevel.INFO
 
         return self.audit_logger.audit(
@@ -361,7 +359,7 @@ class SecurityAuditManager:
             action=action,
             outcome=outcome,
             severity=severity,
-            details=details
+            details=details,
         )
 
     def log_security_event(
@@ -371,10 +369,10 @@ class SecurityAuditManager:
         user_id: Optional[str] = None,
         source_ip: Optional[str] = None,
         severity: SeverityLevel = SeverityLevel.WARNING,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Log security-related events."""
-        details = {'description': description}
+        details = {"description": description}
         details.update(kwargs)
 
         return self.audit_logger.audit(
@@ -382,7 +380,7 @@ class SecurityAuditManager:
             user_id=user_id,
             source_ip=source_ip,
             severity=severity,
-            details=details
+            details=details,
         )
 
     def log_api_request(
@@ -395,14 +393,14 @@ class SecurityAuditManager:
         user_agent: Optional[str] = None,
         status_code: Optional[int] = None,
         response_time_ms: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> str:
         """Log API request events."""
         details = {
-            'method': method,
-            'endpoint': endpoint,
-            'status_code': status_code,
-            'response_time_ms': response_time_ms
+            "method": method,
+            "endpoint": endpoint,
+            "status_code": status_code,
+            "response_time_ms": response_time_ms,
         }
         details.update(kwargs)
 
@@ -422,18 +420,18 @@ class SecurityAuditManager:
             action=method,
             outcome=outcome,
             severity=severity,
-            details=details
+            details=details,
         )
 
 
 def create_audit_logger(
-    log_dir: Union[str, Path] = "logs/audit",
-    secret_key: Optional[str] = None
+    log_dir: Union[str, Path] = "logs/audit", secret_key: Optional[str] = None
 ) -> AuditLogger:
     """Create and configure an audit logger."""
 
     if secret_key is None:
         import os
+
         secret_key = os.environ.get("DINOAIR_AUDIT_SECRET")
         if not secret_key:
             raise ValueError(
@@ -442,14 +440,12 @@ def create_audit_logger(
 
     log_file = Path(log_dir) / "dinoair_audit.log"
 
-    return AuditLogger(
-        log_file=log_file,
-        secret_key=secret_key,
-        encrypt_logs=True
-    )
+    return AuditLogger(log_file=log_file, secret_key=secret_key, encrypt_logs=True)
 
 
-def create_security_audit_manager(audit_logger: Optional[AuditLogger] = None) -> SecurityAuditManager:
+def create_security_audit_manager(
+    audit_logger: Optional[AuditLogger] = None,
+) -> SecurityAuditManager:
     """Create a security audit manager."""
     if audit_logger is None:
         audit_logger = create_audit_logger()
@@ -492,8 +488,7 @@ def audit_data_access(action: str, resource: str, user_id: str, **kwargs) -> str
 def audit_security_violation(description: str, **kwargs) -> str:
     """Audit security violation."""
     return get_audit_manager().log_security_event(
-        AuditEventType.SECURITY_VIOLATION, description,
-        severity=SeverityLevel.CRITICAL, **kwargs
+        AuditEventType.SECURITY_VIOLATION, description, severity=SeverityLevel.CRITICAL, **kwargs
     )
 
 
@@ -508,17 +503,12 @@ if __name__ == "__main__":
     # Test various audit events
     print("✅ Testing authentication events...")
     manager.log_authentication(
-        AuditEventType.LOGIN_SUCCESS,
-        user_id="test_user",
-        source_ip="192.168.1.100"
+        AuditEventType.LOGIN_SUCCESS, user_id="test_user", source_ip="192.168.1.100"
     )
 
     print("✅ Testing data access events...")
     manager.log_data_access(
-        action="read",
-        resource="patient_records",
-        user_id="test_user",
-        record_count=5
+        action="read", resource="patient_records", user_id="test_user", record_count=5
     )
 
     print("✅ Testing security events...")
@@ -526,7 +516,7 @@ if __name__ == "__main__":
         AuditEventType.SUSPICIOUS_ACTIVITY,
         description="Multiple failed login attempts",
         source_ip="192.168.1.200",
-        severity=SeverityLevel.WARNING
+        severity=SeverityLevel.WARNING,
     )
 
     print("✅ Audit logging test complete!")

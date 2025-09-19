@@ -13,20 +13,20 @@ This module implements enterprise-grade network security measures including:
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
 import ipaddress
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Set, Union, Callable, Any
 from pathlib import Path
-import hashlib
-import hmac
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 try:
-    from fastapi import Request, HTTPException, status
-    from fastapi.responses import JSONResponse
+    from fastapi import HTTPException, Request, status
     from fastapi.middleware.base import BaseHTTPMiddleware
+    from fastapi.responses import JSONResponse
     from starlette.middleware.base import RequestResponseEndpoint
     from starlette.responses import Response
 except ImportError:
@@ -37,8 +37,9 @@ except ImportError:
 
 class SecurityLevel(Enum):
     """Security levels for different environments."""
+
     DEVELOPMENT = "development"
-    SMALL_TEAM = "small_team"      # For small teams (2-5 people)
+    SMALL_TEAM = "small_team"  # For small teams (2-5 people)
     STAGING = "staging"
     PRODUCTION = "production"
     CRITICAL = "critical"  # For ambulance/healthcare environments
@@ -46,6 +47,7 @@ class SecurityLevel(Enum):
 
 class RateLimitScope(Enum):
     """Rate limiting scopes."""
+
     GLOBAL = "global"
     PER_IP = "per_ip"
     PER_USER = "per_user"
@@ -55,6 +57,7 @@ class RateLimitScope(Enum):
 @dataclass
 class RateLimitRule:
     """Rate limiting rule configuration."""
+
     requests_per_minute: int
     burst_capacity: int = 0  # Allow burst above rate limit
     scope: RateLimitScope = RateLimitScope.PER_IP
@@ -63,12 +66,14 @@ class RateLimitRule:
 
     def __post_init__(self):
         if self.burst_capacity == 0:
-            self.burst_capacity = max(10, self.requests_per_minute // 6)  # 10 second burst
+            self.burst_capacity = max(
+                10, self.requests_per_minute // 6)  # 10 second burst
 
 
 @dataclass
 class SecurityHeaders:
     """Security headers configuration."""
+
     strict_transport_security: str = "max-age=63072000; includeSubDomains; preload"
     content_security_policy: str = (
         "default-src 'self'; "
@@ -110,8 +115,10 @@ class NetworkSecurityConfig:
     allow_private_ips: bool = True
 
     # CORS Configuration
-    cors_allow_origins: List[str] = field(default_factory=lambda: ["http://localhost:3000"])
-    cors_allow_methods: List[str] = field(default_factory=lambda: ["GET", "POST", "PUT", "DELETE"])
+    cors_allow_origins: List[str] = field(
+        default_factory=lambda: ["http://localhost:3000"])
+    cors_allow_methods: List[str] = field(
+        default_factory=lambda: ["GET", "POST", "PUT", "DELETE"])
     cors_allow_headers: List[str] = field(default_factory=lambda: ["*"])
     cors_allow_credentials: bool = True
 
@@ -146,12 +153,16 @@ class NetworkSecurityConfig:
             config.require_https = False  # Can use HTTP for development
             config.allowed_ips = set()  # Allow all IPs
             config.cors_allow_origins = [
-                "http://localhost:3000", "http://localhost:5173",
-                "http://localhost:5174", "http://localhost:8000"
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:8000",
             ]
             config.rate_limit_rules = [
-                RateLimitRule(requests_per_minute=600, scope=RateLimitScope.PER_IP),  # 10/second
-                RateLimitRule(requests_per_minute=2000, scope=RateLimitScope.GLOBAL)
+                RateLimitRule(requests_per_minute=600,
+                              scope=RateLimitScope.PER_IP),  # 10/second
+                RateLimitRule(requests_per_minute=2000,
+                              scope=RateLimitScope.GLOBAL),
             ]
             config.ddos_threshold_requests = 1000
             config.ddos_block_duration = 300  # 5 minutes
@@ -159,16 +170,16 @@ class NetworkSecurityConfig:
         elif level == SecurityLevel.STAGING:
             config.require_https = True
             config.cors_allow_origins = [
-                "https://staging.dinoair.com",
-                "http://localhost:3000"
-            ]
+                "https://staging.dinoair.com", "http://localhost:3000"]
 
         elif level == SecurityLevel.PRODUCTION:
             config.require_https = True
             config.cors_allow_origins = ["https://dinoair.com"]
             config.rate_limit_rules = [
-                RateLimitRule(requests_per_minute=60, scope=RateLimitScope.PER_IP),
-                RateLimitRule(requests_per_minute=1000, scope=RateLimitScope.GLOBAL)
+                RateLimitRule(requests_per_minute=60,
+                              scope=RateLimitScope.PER_IP),
+                RateLimitRule(requests_per_minute=1000,
+                              scope=RateLimitScope.GLOBAL),
             ]
 
         elif level == SecurityLevel.CRITICAL:
@@ -180,10 +191,16 @@ class NetworkSecurityConfig:
             config.max_request_size = 5 * 1024 * 1024  # 5MB limit
             config.request_timeout = 30  # Standard timeout
             config.rate_limit_rules = [
-                RateLimitRule(requests_per_minute=300, scope=RateLimitScope.PER_IP),  # 5 requests/second
-                RateLimitRule(requests_per_minute=1000, scope=RateLimitScope.GLOBAL),
-                RateLimitRule(requests_per_minute=60, scope=RateLimitScope.PER_ENDPOINT,
-                             endpoints=["/api/v1/export", "/api/v1/backup"])  # 1 per second for heavy ops
+                RateLimitRule(
+                    requests_per_minute=300, scope=RateLimitScope.PER_IP
+                ),  # 5 requests/second
+                RateLimitRule(requests_per_minute=1000,
+                              scope=RateLimitScope.GLOBAL),
+                RateLimitRule(
+                    requests_per_minute=60,
+                    scope=RateLimitScope.PER_ENDPOINT,
+                    endpoints=["/api/v1/export", "/api/v1/backup"],
+                ),  # 1 per second for heavy ops
             ]
             config.ddos_threshold_requests = 500  # Higher threshold for small team
             config.ddos_block_duration = 1800  # 30 minutes instead of 2 hours
@@ -262,10 +279,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
     """Comprehensive security middleware for FastAPI."""
 
     def __init__(
-        self,
-        app,
-        config: NetworkSecurityConfig,
-        audit_callback: Optional[Callable] = None
+        self, app, config: NetworkSecurityConfig, audit_callback: Optional[Callable] = None
     ):
         super().__init__(app)
         self.config = config
@@ -287,18 +301,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     "ip_blocked", client_ip, {"reason": "IP not in allowlist"}
                 )
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Access denied"
-                )
+                    status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
             # 2. Check blocked IPs
             if self._is_ip_blocked(client_ip):
                 await self._audit_security_event(
-                    "blocked_ip_attempt", client_ip, {"reason": "IP temporarily blocked"}
+                    "blocked_ip_attempt", client_ip, {
+                        "reason": "IP temporarily blocked"}
                 )
                 raise HTTPException(
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail="Too many requests"
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests"
                 )
 
             # 3. DDoS Detection
@@ -309,17 +321,13 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                         "ddos_detected", client_ip, {"action": "ip_blocked"}
                     )
                     raise HTTPException(
-                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                        detail="Rate limit exceeded"
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
                     )
 
             # 4. HTTPS Enforcement
             if self.config.require_https and request.url.scheme != "https":
                 https_url = request.url.replace(scheme="https")
-                return Response(
-                    status_code=301,
-                    headers={"Location": str(https_url)}
-                )
+                return Response(status_code=301, headers={"Location": str(https_url)})
 
             # 5. Request Size Validation
             content_length = request.headers.get("content-length")
@@ -328,18 +336,17 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     "request_too_large", client_ip, {"size": content_length}
                 )
                 raise HTTPException(
-                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                    detail="Request too large"
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Request too large"
                 )
 
             # 6. Rate Limiting
             if not self._check_rate_limits(request, client_ip):
                 await self._audit_security_event(
-                    "rate_limit_exceeded", client_ip, {"endpoint": str(request.url.path)}
+                    "rate_limit_exceeded", client_ip, {
+                        "endpoint": str(request.url.path)}
                 )
                 raise HTTPException(
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail="Rate limit exceeded"
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
                 )
 
             # Process request
@@ -493,35 +500,37 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = headers.permissions_policy
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
 
-    async def _audit_security_event(self, event_type: str, ip: str, details: Dict[str, Any]) -> None:
+    async def _audit_security_event(
+        self, event_type: str, ip: str, details: Dict[str, Any]
+    ) -> None:
         """Audit security events."""
         if self.audit_callback:
-            await self.audit_callback({
-                "event_type": f"security.{event_type}",
-                "source_ip": ip,
-                "timestamp": time.time(),
-                "details": details
-            })
+            await self.audit_callback(
+                {
+                    "event_type": f"security.{event_type}",
+                    "source_ip": ip,
+                    "timestamp": time.time(),
+                    "details": details,
+                }
+            )
 
     async def _audit_api_request(
-        self,
-        request: Request,
-        ip: str,
-        status_code: int,
-        response_time: Optional[float]
+        self, request: Request, ip: str, status_code: int, response_time: Optional[float]
     ) -> None:
         """Audit API requests."""
         if self.audit_callback:
-            await self.audit_callback({
-                "event_type": "api.request",
-                "source_ip": ip,
-                "method": request.method,
-                "endpoint": str(request.url.path),
-                "status_code": status_code,
-                "response_time_ms": response_time,
-                "user_agent": request.headers.get("user-agent"),
-                "timestamp": time.time()
-            })
+            await self.audit_callback(
+                {
+                    "event_type": "api.request",
+                    "source_ip": ip,
+                    "method": request.method,
+                    "endpoint": str(request.url.path),
+                    "status_code": status_code,
+                    "response_time_ms": response_time,
+                    "user_agent": request.headers.get("user-agent"),
+                    "timestamp": time.time(),
+                }
+            )
 
 
 class NetworkSecurityManager:
@@ -564,7 +573,7 @@ class NetworkSecurityManager:
             "blocked_ips_count": len(self.config.blocked_ips),
             "rate_limit_rules": len(self.config.rate_limit_rules),
             "ddos_protection": self.config.ddos_detection_enabled,
-            "cors_origins": self.config.cors_allow_origins
+            "cors_origins": self.config.cors_allow_origins,
         }
 
 
@@ -599,15 +608,19 @@ def validate_healthcare_compliance(config: NetworkSecurityConfig) -> List[str]:
         issues.append("Rate limiting is required for healthcare environments")
 
     if config.allow_private_ips and not config.allowed_ips:
-        issues.append("IP allowlist should be configured for healthcare environments")
+        issues.append(
+            "IP allowlist should be configured for healthcare environments")
 
     if not config.ddos_detection_enabled:
-        issues.append("DDoS protection is recommended for healthcare environments")
+        issues.append(
+            "DDoS protection is recommended for healthcare environments")
 
     # Check CSP is restrictive enough
     csp = config.security_headers.content_security_policy
     if "'unsafe-eval'" in csp or "'unsafe-inline'" in csp:
-        issues.append("Content Security Policy should not allow unsafe-eval or unsafe-inline in healthcare environments")
+        issues.append(
+            "Content Security Policy should not allow unsafe-eval or unsafe-inline in healthcare environments"
+        )
 
     return issues
 

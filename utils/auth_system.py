@@ -18,21 +18,22 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Dict, List, Optional, Set, Union, Any
 from pathlib import Path
-import re
+from typing import Any, Dict, List, Optional, Set, Union
 
 try:
     import bcrypt
     import pyotp
     import qrcode
     from PIL import Image
+
     CRYPTO_AVAILABLE = True
 except ImportError:
     # Graceful fallback
@@ -40,8 +41,9 @@ except ImportError:
     CRYPTO_AVAILABLE = False
 
 try:
-    from fastapi import HTTPException, status, Depends, Request
-    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from fastapi import Depends, HTTPException, Request, status
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     HTTPException = status = Depends = Request = None
@@ -53,24 +55,24 @@ class UserRole(Enum):
     """User roles with healthcare-specific permissions."""
 
     # Administrative Roles
-    SYSTEM_ADMIN = "system_admin"          # Full system access
-    SECURITY_ADMIN = "security_admin"      # Security configuration
-    AUDIT_ADMIN = "audit_admin"           # Audit log access
+    SYSTEM_ADMIN = "system_admin"  # Full system access
+    SECURITY_ADMIN = "security_admin"  # Security configuration
+    AUDIT_ADMIN = "audit_admin"  # Audit log access
 
     # Healthcare Roles
     HEALTHCARE_ADMIN = "healthcare_admin"  # Healthcare data admin
-    CLINICIAN = "clinician"               # Medical professional
-    NURSE = "nurse"                       # Nursing staff
-    TECHNICIAN = "technician"             # Technical support
+    CLINICIAN = "clinician"  # Medical professional
+    NURSE = "nurse"  # Nursing staff
+    TECHNICIAN = "technician"  # Technical support
 
     # Operational Roles
-    DISPATCHER = "dispatcher"             # Emergency dispatch
-    SUPERVISOR = "supervisor"             # Team supervision
-    OPERATOR = "operator"                 # Standard operations
+    DISPATCHER = "dispatcher"  # Emergency dispatch
+    SUPERVISOR = "supervisor"  # Team supervision
+    OPERATOR = "operator"  # Standard operations
 
     # Access Levels
-    READ_ONLY = "read_only"              # View-only access
-    GUEST = "guest"                      # Limited guest access
+    READ_ONLY = "read_only"  # View-only access
+    GUEST = "guest"  # Limited guest access
 
 
 class Permission(Enum):
@@ -104,6 +106,7 @@ class Permission(Enum):
 
 class AuthenticationMethod(Enum):
     """Supported authentication methods."""
+
     PASSWORD = "password"
     MFA_TOTP = "mfa_totp"
     MFA_SMS = "mfa_sms"
@@ -115,6 +118,7 @@ class AuthenticationMethod(Enum):
 @dataclass
 class PasswordPolicy:
     """Password policy configuration."""
+
     min_length: int = 12
     max_length: int = 128
     require_uppercase: bool = True
@@ -132,17 +136,13 @@ class PasswordPolicy:
     @classmethod
     def hipaa_compliant(cls) -> PasswordPolicy:
         """Create HIPAA-compliant password policy."""
-        return cls(
-            min_length=14,
-            max_age_days=60,
-            lockout_attempts=3,
-            lockout_duration_minutes=60
-        )
+        return cls(min_length=14, max_age_days=60, lockout_attempts=3, lockout_duration_minutes=60)
 
 
 @dataclass
 class User:
     """User account information."""
+
     user_id: str
     username: str
     email: str
@@ -165,9 +165,11 @@ class User:
     password_changed_at: Optional[datetime] = None
 
     # Audit Fields
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc))
     updated_by: Optional[str] = None
 
     # Healthcare Fields
@@ -215,6 +217,7 @@ class User:
 @dataclass
 class Session:
     """User session information."""
+
     session_id: str
     user_id: str
     created_at: datetime
@@ -233,12 +236,14 @@ class Session:
 
     def is_idle_timeout(self, idle_timeout_minutes: int = 30) -> bool:
         """Check if session has exceeded idle timeout."""
-        idle_cutoff = datetime.now(timezone.utc) - timedelta(minutes=idle_timeout_minutes)
+        idle_cutoff = datetime.now(timezone.utc) - \
+            timedelta(minutes=idle_timeout_minutes)
         return self.last_accessed < idle_cutoff
 
     def extend_session(self, duration_hours: int = 8) -> None:
         """Extend session expiration."""
-        self.expires_at = datetime.now(timezone.utc) + timedelta(hours=duration_hours)
+        self.expires_at = datetime.now(
+            timezone.utc) + timedelta(hours=duration_hours)
         self.last_accessed = datetime.now(timezone.utc)
 
 
@@ -252,7 +257,8 @@ class UserManager:
         self.password_history: Dict[str, List[str]] = {}
 
         if not CRYPTO_AVAILABLE:
-            raise ImportError("bcrypt and pyotp are required for authentication")
+            raise ImportError(
+                "bcrypt and pyotp are required for authentication")
 
     def create_user(
         self,
@@ -262,7 +268,7 @@ class UserManager:
         password: str,
         roles: List[UserRole],
         created_by: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> User:
         """Create a new user account."""
 
@@ -289,7 +295,7 @@ class UserManager:
             password_hash=password_hash,
             password_changed_at=datetime.now(timezone.utc),
             created_by=created_by,
-            **kwargs
+            **kwargs,
         )
 
         # Set role-based permissions
@@ -309,7 +315,7 @@ class UserManager:
         password: str,
         source_ip: str,
         user_agent: str = "",
-        require_mfa: bool = True
+        require_mfa: bool = True,
     ) -> Optional[Session]:
         """Authenticate user and create session."""
 
@@ -320,15 +326,11 @@ class UserManager:
         # Check account status
         if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account is disabled"
-            )
+                status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
 
         if user.is_account_locked():
             raise HTTPException(
-                status_code=status.HTTP_423_LOCKED,
-                detail="Account is locked"
-            )
+                status_code=status.HTTP_423_LOCKED, detail="Account is locked")
 
         # Verify password
         if not self._verify_password(password, user.password_hash):
@@ -342,8 +344,7 @@ class UserManager:
                 )
 
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
             )
 
         # Reset failed attempts on successful password
@@ -356,7 +357,8 @@ class UserManager:
             mfa_verified = False  # Will need separate MFA verification
 
         # Create session
-        session = self._create_session(user, source_ip, user_agent, mfa_verified)
+        session = self._create_session(
+            user, source_ip, user_agent, mfa_verified)
 
         return session
 
@@ -404,9 +406,7 @@ class UserManager:
         # Generate QR code
         totp = pyotp.TOTP(secret)
         qr_url = totp.provisioning_uri(
-            name=user.email,
-            issuer_name="DinoAir Healthcare"
-        )
+            name=user.email, issuer_name="DinoAir Healthcare")
 
         # Create QR code image
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -417,7 +417,7 @@ class UserManager:
             "secret": secret,
             "qr_url": qr_url,
             "backup_codes": backup_codes,
-            "manual_entry_key": secret
+            "manual_entry_key": secret,
         }
 
     def change_password(self, user_id: str, old_password: str, new_password: str) -> None:
@@ -432,7 +432,8 @@ class UserManager:
             raise ValueError("Current password is incorrect")
 
         # Validate new password
-        self._validate_password(new_password, user.username, user.email, user.full_name)
+        self._validate_password(
+            new_password, user.username, user.email, user.full_name)
 
         # Check password history
         new_hash = self._hash_password(new_password)
@@ -474,7 +475,8 @@ class UserManager:
     def cleanup_expired_sessions(self) -> None:
         """Remove expired sessions."""
         expired_sessions = [
-            sid for sid, session in self.sessions.items()
+            sid
+            for sid, session in self.sessions.items()
             if session.is_expired() or session.is_idle_timeout()
         ]
 
@@ -482,11 +484,7 @@ class UserManager:
             del self.sessions[session_id]
 
     def _create_session(
-        self,
-        user: User,
-        source_ip: str,
-        user_agent: str,
-        mfa_verified: bool = False
+        self, user: User, source_ip: str, user_agent: str, mfa_verified: bool = False
     ) -> Session:
         """Create new user session."""
 
@@ -501,7 +499,7 @@ class UserManager:
             expires_at=now + timedelta(hours=8),  # 8 hour default
             source_ip=source_ip,
             user_agent=user_agent,
-            mfa_verified=mfa_verified
+            mfa_verified=mfa_verified,
         )
 
         self.sessions[session_id] = session
@@ -512,43 +510,48 @@ class UserManager:
         policy = self.password_policy
 
         if len(password) < policy.min_length:
-            raise ValueError(f"Password must be at least {policy.min_length} characters")
+            raise ValueError(
+                f"Password must be at least {policy.min_length} characters")
 
         if len(password) > policy.max_length:
-            raise ValueError(f"Password must be no more than {policy.max_length} characters")
+            raise ValueError(
+                f"Password must be no more than {policy.max_length} characters")
 
-        if policy.require_uppercase and not re.search(r'[A-Z]', password):
+        if policy.require_uppercase and not re.search(r"[A-Z]", password):
             raise ValueError("Password must contain uppercase letters")
 
-        if policy.require_lowercase and not re.search(r'[a-z]', password):
+        if policy.require_lowercase and not re.search(r"[a-z]", password):
             raise ValueError("Password must contain lowercase letters")
 
-        if policy.require_digits and not re.search(r'\d', password):
+        if policy.require_digits and not re.search(r"\d", password):
             raise ValueError("Password must contain digits")
 
         if policy.require_special_chars:
-            special_pattern = f'[{re.escape(policy.special_chars)}]'
+            special_pattern = f"[{re.escape(policy.special_chars)}]"
             if not re.search(special_pattern, password):
-                raise ValueError(f"Password must contain special characters: {policy.special_chars}")
+                raise ValueError(
+                    f"Password must contain special characters: {policy.special_chars}"
+                )
 
         # Check for personal information
         if policy.disallow_personal_info:
-            personal_info = [username.lower(), email.split('@')[0].lower()]
+            personal_info = [username.lower(), email.split("@")[0].lower()]
             if full_name:
                 personal_info.extend(full_name.lower().split())
 
             for info in personal_info:
                 if len(info) >= 4 and info in password.lower():
-                    raise ValueError("Password cannot contain personal information")
+                    raise ValueError(
+                        "Password cannot contain personal information")
 
     def _hash_password(self, password: str) -> str:
         """Hash password using bcrypt."""
         salt = bcrypt.gensalt(rounds=12)
-        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+        return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
     def _verify_password(self, password: str, password_hash: str) -> bool:
         """Verify password against hash."""
-        return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
 
     def _calculate_permissions(self, roles: Set[UserRole]) -> Set[Permission]:
         """Calculate permissions based on roles."""
@@ -563,8 +566,7 @@ class UserManager:
     def _invalidate_user_sessions(self, user_id: str) -> None:
         """Invalidate all sessions for a user."""
         sessions_to_remove = [
-            sid for sid, session in self.sessions.items()
-            if session.user_id == user_id
+            sid for sid, session in self.sessions.items() if session.user_id == user_id
         ]
 
         for session_id in sessions_to_remove:
@@ -583,22 +585,18 @@ class AuthenticationMiddleware:
 
         if not credentials:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
             )
 
         session = self.user_manager.get_session(credentials.credentials)
         if not session:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid session"
-            )
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session")
 
         user = self.user_manager.users.get(session.user_id)
         if not user or not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found or inactive"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive"
             )
 
         # Update last accessed
@@ -612,8 +610,7 @@ class AuthenticationMiddleware:
         def permission_checker(user: User = Depends(self.get_current_user)) -> User:
             if not user.has_permission(permission):
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Insufficient permissions"
+                    status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
                 )
             return user
 
@@ -625,8 +622,7 @@ class AuthenticationMiddleware:
         def role_checker(user: User = Depends(self.get_current_user)) -> User:
             if role not in user.roles:
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Insufficient role"
+                    status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient role"
                 )
             return user
 
@@ -639,68 +635,73 @@ def get_role_permissions() -> Dict[UserRole, Set[Permission]]:
     return {
         # Administrative Roles
         UserRole.SYSTEM_ADMIN: {
-            Permission.SYSTEM_CONFIG, Permission.SYSTEM_USERS, Permission.SYSTEM_AUDIT,
-            Permission.SYSTEM_BACKUP, Permission.DATA_READ, Permission.DATA_CREATE,
-            Permission.DATA_UPDATE, Permission.DATA_DELETE, Permission.DATA_EXPORT,
-            Permission.DATA_IMPORT, Permission.API_ADMIN
+            Permission.SYSTEM_CONFIG,
+            Permission.SYSTEM_USERS,
+            Permission.SYSTEM_AUDIT,
+            Permission.SYSTEM_BACKUP,
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.DATA_DELETE,
+            Permission.DATA_EXPORT,
+            Permission.DATA_IMPORT,
+            Permission.API_ADMIN,
         },
-
         UserRole.SECURITY_ADMIN: {
-            Permission.SYSTEM_CONFIG, Permission.SYSTEM_AUDIT, Permission.DATA_READ,
-            Permission.API_READ
+            Permission.SYSTEM_CONFIG,
+            Permission.SYSTEM_AUDIT,
+            Permission.DATA_READ,
+            Permission.API_READ,
         },
-
-        UserRole.AUDIT_ADMIN: {
-            Permission.SYSTEM_AUDIT, Permission.DATA_READ, Permission.API_READ
-        },
-
+        UserRole.AUDIT_ADMIN: {Permission.SYSTEM_AUDIT, Permission.DATA_READ, Permission.API_READ},
         # Healthcare Roles
         UserRole.HEALTHCARE_ADMIN: {
-            Permission.PATIENT_DATA_READ, Permission.PATIENT_DATA_WRITE,
-            Permission.MEDICAL_RECORDS, Permission.DATA_READ, Permission.DATA_CREATE,
-            Permission.DATA_UPDATE, Permission.DATA_EXPORT, Permission.API_WRITE
+            Permission.PATIENT_DATA_READ,
+            Permission.PATIENT_DATA_WRITE,
+            Permission.MEDICAL_RECORDS,
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.DATA_EXPORT,
+            Permission.API_WRITE,
         },
-
         UserRole.CLINICIAN: {
-            Permission.PATIENT_DATA_READ, Permission.PATIENT_DATA_WRITE,
-            Permission.MEDICAL_RECORDS, Permission.EMERGENCY_ACCESS,
-            Permission.DATA_READ, Permission.DATA_CREATE, Permission.DATA_UPDATE,
-            Permission.API_WRITE
+            Permission.PATIENT_DATA_READ,
+            Permission.PATIENT_DATA_WRITE,
+            Permission.MEDICAL_RECORDS,
+            Permission.EMERGENCY_ACCESS,
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.API_WRITE,
         },
-
         UserRole.NURSE: {
-            Permission.PATIENT_DATA_READ, Permission.PATIENT_DATA_WRITE,
-            Permission.DATA_READ, Permission.DATA_CREATE, Permission.DATA_UPDATE,
-            Permission.API_WRITE
+            Permission.PATIENT_DATA_READ,
+            Permission.PATIENT_DATA_WRITE,
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.API_WRITE,
         },
-
-        UserRole.TECHNICIAN: {
-            Permission.DATA_READ, Permission.API_READ
-        },
-
+        UserRole.TECHNICIAN: {Permission.DATA_READ, Permission.API_READ},
         # Operational Roles
         UserRole.DISPATCHER: {
-            Permission.EMERGENCY_ACCESS, Permission.DATA_READ, Permission.DATA_CREATE,
-            Permission.DATA_UPDATE, Permission.API_WRITE
+            Permission.EMERGENCY_ACCESS,
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.API_WRITE,
         },
-
         UserRole.SUPERVISOR: {
-            Permission.DATA_READ, Permission.DATA_CREATE, Permission.DATA_UPDATE,
-            Permission.API_WRITE
+            Permission.DATA_READ,
+            Permission.DATA_CREATE,
+            Permission.DATA_UPDATE,
+            Permission.API_WRITE,
         },
-
-        UserRole.OPERATOR: {
-            Permission.DATA_READ, Permission.DATA_CREATE, Permission.API_WRITE
-        },
-
+        UserRole.OPERATOR: {Permission.DATA_READ, Permission.DATA_CREATE, Permission.API_WRITE},
         # Access Levels
-        UserRole.READ_ONLY: {
-            Permission.DATA_READ, Permission.API_READ
-        },
-
-        UserRole.GUEST: {
-            Permission.API_READ
-        }
+        UserRole.READ_ONLY: {Permission.DATA_READ, Permission.API_READ},
+        UserRole.GUEST: {Permission.API_READ},
     }
 
 
@@ -731,7 +732,7 @@ if __name__ == "__main__":
             password="SecurePass123!@#",
             roles=[UserRole.CLINICIAN],
             department="Emergency Medicine",
-            license_number="MD123456"
+            license_number="MD123456",
         )
         print(f"   Created user: {user.full_name}")
         print(f"   Permissions: {len(user.permissions)}")
@@ -745,7 +746,7 @@ if __name__ == "__main__":
             username="dr_smith",
             password="SecurePass123!@#",
             source_ip="192.168.1.100",
-            require_mfa=False
+            require_mfa=False,
         )
         print(f"   Session created: {session.session_id[:8]}...")
     except Exception as e:

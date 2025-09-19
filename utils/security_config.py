@@ -12,10 +12,10 @@ from __future__ import annotations
 
 import os
 import sys
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import warnings
 
 
 @dataclass(frozen=True)
@@ -99,31 +99,33 @@ class SecretManager:
             warnings.warn(
                 f"Secret '{key}' appears to be too short for production use",
                 SecurityWarning,
-                stacklevel=3
+                stacklevel=3,
             )
         return value
 
     def _get_from_azure_kv(self, key: str, default: Optional[str] = None) -> Optional[str]:
         """Get secret from Azure Key Vault."""
         try:
-            from azure.keyvault.secrets import SecretClient
             from azure.identity import DefaultAzureCredential
+            from azure.keyvault.secrets import SecretClient
 
             if not self.vault_url:
                 raise ValueError("Azure Key Vault URL not configured")
 
             credential = DefaultAzureCredential()
-            client = SecretClient(vault_url=self.vault_url, credential=credential)
+            client = SecretClient(
+                vault_url=self.vault_url, credential=credential)
             secret = client.get_secret(key)
             return secret.value
         except ImportError:
             warnings.warn(
                 "Azure Key Vault dependencies not installed. Using environment fallback.",
-                RuntimeWarning
+                RuntimeWarning,
             )
             return self._get_from_environment(key, default)
         except Exception as e:
-            warnings.warn(f"Failed to get secret from Azure Key Vault: {e}", RuntimeWarning)
+            warnings.warn(
+                f"Failed to get secret from Azure Key Vault: {e}", RuntimeWarning)
             return self._get_from_environment(key, default)
 
     def _get_from_aws_secrets(self, key: str, default: Optional[str] = None) -> Optional[str]:
@@ -131,22 +133,22 @@ class SecretManager:
         try:
             import boto3
 
-            client = boto3.client('secretsmanager')
+            client = boto3.client("secretsmanager")
             response = client.get_secret_value(SecretId=key)
-            return response['SecretString']
+            return response["SecretString"]
         except ImportError:
             warnings.warn(
-                "AWS SDK not installed. Using environment fallback.",
-                RuntimeWarning
-            )
+                "AWS SDK not installed. Using environment fallback.", RuntimeWarning)
             return self._get_from_environment(key, default)
         except Exception as e:
-            warnings.warn(f"Failed to get secret from AWS Secrets Manager: {e}", RuntimeWarning)
+            warnings.warn(
+                f"Failed to get secret from AWS Secrets Manager: {e}", RuntimeWarning)
             return self._get_from_environment(key, default)
 
 
 class SecurityWarning(UserWarning):
     """Warning for security-related issues."""
+
     pass
 
 
@@ -155,50 +157,54 @@ def get_security_config() -> SecurityConfig:
     return SecurityConfig(
         # Encryption
         encryption_enabled=_get_bool_env("DINOAIR_ENCRYPTION_ENABLED", True),
-        encryption_algorithm=os.environ.get("DINOAIR_ENCRYPTION_ALGORITHM", "AES-256-GCM"),
+        encryption_algorithm=os.environ.get(
+            "DINOAIR_ENCRYPTION_ALGORITHM", "AES-256-GCM"),
         key_rotation_days=_get_int_env("DINOAIR_KEY_ROTATION_DAYS", 90),
-
         # Database
         database_encryption=_get_bool_env("DINOAIR_DB_ENCRYPTION", True),
-        database_backup_encryption=_get_bool_env("DINOAIR_DB_BACKUP_ENCRYPTION", True),
-        database_connection_encryption=_get_bool_env("DINOAIR_DB_CONNECTION_ENCRYPTION", True),
-
+        database_backup_encryption=_get_bool_env(
+            "DINOAIR_DB_BACKUP_ENCRYPTION", True),
+        database_connection_encryption=_get_bool_env(
+            "DINOAIR_DB_CONNECTION_ENCRYPTION", True),
         # Audit
         audit_logging_enabled=_get_bool_env("DINOAIR_AUDIT_LOGGING", True),
         audit_log_encryption=_get_bool_env("DINOAIR_AUDIT_ENCRYPTION", True),
-        audit_retention_days=_get_int_env("DINOAIR_AUDIT_RETENTION_DAYS", 2555),
-        audit_log_integrity_check=_get_bool_env("DINOAIR_AUDIT_INTEGRITY_CHECK", True),
-
+        audit_retention_days=_get_int_env(
+            "DINOAIR_AUDIT_RETENTION_DAYS", 2555),
+        audit_log_integrity_check=_get_bool_env(
+            "DINOAIR_AUDIT_INTEGRITY_CHECK", True),
         # Authentication
         require_mfa=_get_bool_env("DINOAIR_REQUIRE_MFA", True),
-        session_timeout_minutes=_get_int_env("DINOAIR_SESSION_TIMEOUT_MINUTES", 15),
+        session_timeout_minutes=_get_int_env(
+            "DINOAIR_SESSION_TIMEOUT_MINUTES", 15),
         max_login_attempts=_get_int_env("DINOAIR_MAX_LOGIN_ATTEMPTS", 3),
         password_min_length=_get_int_env("DINOAIR_PASSWORD_MIN_LENGTH", 14),
-        password_require_complexity=_get_bool_env("DINOAIR_PASSWORD_COMPLEXITY", True),
-
+        password_require_complexity=_get_bool_env(
+            "DINOAIR_PASSWORD_COMPLEXITY", True),
         # Network
         require_tls=_get_bool_env("DINOAIR_REQUIRE_TLS", True),
         tls_min_version=os.environ.get("DINOAIR_TLS_MIN_VERSION", "1.3"),
-        rate_limit_requests_per_minute=_get_int_env("DINOAIR_RATE_LIMIT_RPM", 100),
+        rate_limit_requests_per_minute=_get_int_env(
+            "DINOAIR_RATE_LIMIT_RPM", 100),
         cors_strict_mode=_get_bool_env("DINOAIR_CORS_STRICT", True),
-
         # Privacy
         pii_detection_enabled=_get_bool_env("DINOAIR_PII_DETECTION", True),
         data_masking_enabled=_get_bool_env("DINOAIR_DATA_MASKING", True),
         secure_delete_enabled=_get_bool_env("DINOAIR_SECURE_DELETE", True),
-
         # Monitoring
-        security_monitoring_enabled=_get_bool_env("DINOAIR_SECURITY_MONITORING", True),
-        vulnerability_scanning_enabled=_get_bool_env("DINOAIR_VULN_SCANNING", True),
-        intrusion_detection_enabled=_get_bool_env("DINOAIR_INTRUSION_DETECTION", True),
-
+        security_monitoring_enabled=_get_bool_env(
+            "DINOAIR_SECURITY_MONITORING", True),
+        vulnerability_scanning_enabled=_get_bool_env(
+            "DINOAIR_VULN_SCANNING", True),
+        intrusion_detection_enabled=_get_bool_env(
+            "DINOAIR_INTRUSION_DETECTION", True),
         # Compliance
         hipaa_compliance_mode=_get_bool_env("DINOAIR_HIPAA_COMPLIANCE", True),
         soc2_compliance_mode=_get_bool_env("DINOAIR_SOC2_COMPLIANCE", True),
-
         # Secrets
         secret_rotation_enabled=_get_bool_env("DINOAIR_SECRET_ROTATION", True),
-        secret_vault_provider=os.environ.get("DINOAIR_SECRET_PROVIDER", "environment"),
+        secret_vault_provider=os.environ.get(
+            "DINOAIR_SECRET_PROVIDER", "environment"),
     )
 
 
@@ -217,22 +223,30 @@ def validate_security_config(config: SecurityConfig) -> List[str]:
 
     # Check for production security requirements
     if not config.encryption_enabled:
-        warnings.append("❌ CRITICAL: Encryption is disabled - required for HIPAA compliance")
+        warnings.append(
+            "❌ CRITICAL: Encryption is disabled - required for HIPAA compliance")
 
     if not config.database_encryption:
-        warnings.append("❌ CRITICAL: Database encryption is disabled - required for PHI protection")
+        warnings.append(
+            "❌ CRITICAL: Database encryption is disabled - required for PHI protection"
+        )
 
     if not config.audit_logging_enabled:
-        warnings.append("❌ CRITICAL: Audit logging is disabled - required for compliance")
+        warnings.append(
+            "❌ CRITICAL: Audit logging is disabled - required for compliance")
 
     if not config.require_mfa:
-        warnings.append("⚠️  WARNING: MFA is disabled - strongly recommended for healthcare environments")
+        warnings.append(
+            "⚠️  WARNING: MFA is disabled - strongly recommended for healthcare environments"
+        )
 
     if config.session_timeout_minutes > 30:
-        warnings.append("⚠️  WARNING: Session timeout is longer than 30 minutes")
+        warnings.append(
+            "⚠️  WARNING: Session timeout is longer than 30 minutes")
 
     if not config.require_tls:
-        warnings.append("❌ CRITICAL: TLS is disabled - required for data in transit protection")
+        warnings.append(
+            "❌ CRITICAL: TLS is disabled - required for data in transit protection")
 
     if config.tls_min_version not in ["1.2", "1.3"]:
         warnings.append("⚠️  WARNING: TLS version should be 1.2 or 1.3")
@@ -241,11 +255,13 @@ def validate_security_config(config: SecurityConfig) -> List[str]:
         warnings.append("⚠️  WARNING: PII detection is disabled")
 
     if config.audit_retention_days < 2555:  # 7 years
-        warnings.append("⚠️  WARNING: Audit retention is less than 7 years (HIPAA requirement)")
+        warnings.append(
+            "⚠️  WARNING: Audit retention is less than 7 years (HIPAA requirement)")
 
     # Check for development overrides in production
     if config.security_overrides and _is_production():
-        warnings.append("❌ CRITICAL: Security overrides detected in production environment")
+        warnings.append(
+            "❌ CRITICAL: Security overrides detected in production environment")
 
     return warnings
 
@@ -284,33 +300,47 @@ def print_security_status() -> None:
     print("🔒 DinoAir Security Configuration Status")
     print("=" * 60)
 
-    print(f"Environment: {os.environ.get('DINOAIR_ENVIRONMENT', 'development')}")
-    print(f"HIPAA Compliance Mode: {'✅ Enabled' if config.hipaa_compliance_mode else '❌ Disabled'}")
-    print(f"SOC2 Compliance Mode: {'✅ Enabled' if config.soc2_compliance_mode else '❌ Disabled'}")
+    print(
+        f"Environment: {os.environ.get('DINOAIR_ENVIRONMENT', 'development')}")
+    print(
+        f"HIPAA Compliance Mode: {'✅ Enabled' if config.hipaa_compliance_mode else '❌ Disabled'}"
+    )
+    print(
+        f"SOC2 Compliance Mode: {'✅ Enabled' if config.soc2_compliance_mode else '❌ Disabled'}")
     print()
 
     print("🔐 Encryption:")
-    print(f"  Data at Rest: {'✅ Enabled' if config.database_encryption else '❌ Disabled'}")
-    print(f"  Data in Transit: {'✅ Enabled' if config.require_tls else '❌ Disabled'}")
+    print(
+        f"  Data at Rest: {'✅ Enabled' if config.database_encryption else '❌ Disabled'}")
+    print(
+        f"  Data in Transit: {'✅ Enabled' if config.require_tls else '❌ Disabled'}")
     print(f"  Algorithm: {config.encryption_algorithm}")
     print()
 
     print("🔍 Audit & Monitoring:")
-    print(f"  Audit Logging: {'✅ Enabled' if config.audit_logging_enabled else '❌ Disabled'}")
-    print(f"  Security Monitoring: {'✅ Enabled' if config.security_monitoring_enabled else '❌ Disabled'}")
+    print(
+        f"  Audit Logging: {'✅ Enabled' if config.audit_logging_enabled else '❌ Disabled'}")
+    print(
+        f"  Security Monitoring: {'✅ Enabled' if config.security_monitoring_enabled else '❌ Disabled'}"
+    )
     print(f"  Retention: {config.audit_retention_days} days")
     print()
 
     print("🔑 Authentication:")
-    print(f"  Multi-Factor Auth: {'✅ Required' if config.require_mfa else '❌ Optional'}")
+    print(
+        f"  Multi-Factor Auth: {'✅ Required' if config.require_mfa else '❌ Optional'}")
     print(f"  Session Timeout: {config.session_timeout_minutes} minutes")
-    print(f"  Password Length: {config.password_min_length} characters minimum")
+    print(
+        f"  Password Length: {config.password_min_length} characters minimum")
     print()
 
     print("🛡️  Privacy & Protection:")
-    print(f"  PII Detection: {'✅ Enabled' if config.pii_detection_enabled else '❌ Disabled'}")
-    print(f"  Data Masking: {'✅ Enabled' if config.data_masking_enabled else '❌ Disabled'}")
-    print(f"  Secure Delete: {'✅ Enabled' if config.secure_delete_enabled else '❌ Disabled'}")
+    print(
+        f"  PII Detection: {'✅ Enabled' if config.pii_detection_enabled else '❌ Disabled'}")
+    print(
+        f"  Data Masking: {'✅ Enabled' if config.data_masking_enabled else '❌ Disabled'}")
+    print(
+        f"  Secure Delete: {'✅ Enabled' if config.secure_delete_enabled else '❌ Disabled'}")
     print()
 
     if warnings:
