@@ -23,6 +23,8 @@ try:
 except Exception:  # pragma: no cover
     # fallback for environments without symbol export
     class BrokenProcessPool(Exception):
+        """Custom exception indicating the process pool is broken or unavailable."""
+
         pass
 
 
@@ -48,6 +50,8 @@ def worker_validate(ast_obj) -> ValidationResult:
 
 @dataclass
 class _TaskSpec:
+    """Specifies the type, function, and arguments for a processing task."""
+
     kind: str  # "parse" | "validate"
     func: Callable[..., Any]
     args: tuple
@@ -207,6 +211,8 @@ class ParseValidateExecutor:
     # ----- internal Future-like wrapper with retry/timeout -----
 
     class _TaskHandle:
+        """Internal Future-like wrapper for managing process pool tasks with retry, timeout, and metrics."""
+
         def __init__(self, parent: ParseValidateExecutor, spec: _TaskSpec, fut: cf.Future):
             self._p = parent
             self._spec = spec

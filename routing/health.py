@@ -11,6 +11,10 @@ from typing import Protocol
 
 
 class SupportsPing(Protocol):
+    """Protocol for objects that provide a ping() method.
+    The ping() method returns True if the target is reachable, else False.
+    """
+
     def ping(self) -> bool: ...
 
 

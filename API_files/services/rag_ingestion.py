@@ -13,6 +13,13 @@ RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
 
 class RagIngestionService:
+    """
+    Service responsible for ingesting documents from a directory using RAG components.
+
+    This class handles directory validation, optimized file processing, and embedding
+    generation to support retrieval-augmented generation workflows.
+    """
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 

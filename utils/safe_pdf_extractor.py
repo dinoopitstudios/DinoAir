@@ -80,6 +80,8 @@ class SafePDFProcessor:
         """Context manager that implements timeout for PDF processing"""
 
         class TimeoutThread:
+            """Monitors processing time and raises PDFProcessingTimeout if the specified timeout is exceeded."""
+
             def __init__(self, timeout: int) -> None:
                 self.timeout = timeout
                 self.start_time = time.time()

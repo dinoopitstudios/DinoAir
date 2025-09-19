@@ -7,6 +7,11 @@ from typing import Any
 
 @dataclass
 class CalendarEvent:
+    """
+    Represents a calendar event with details such as title, description, event timing,
+    participants, and additional metadata.
+    """
+
     id: str
     title: str
     description: str = ""

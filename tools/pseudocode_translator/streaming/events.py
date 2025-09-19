@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class StreamingMode(Enum):
+    """Defines the modes available for streaming translation processing."""
+
     LINE_BY_LINE = "line_by_line"
     BLOCK_BY_BLOCK = "block_by_block"
     FULL_DOCUMENT = "full_document"
@@ -17,6 +19,8 @@ class StreamingMode(Enum):
 
 
 class StreamingEvent(Enum):
+    """Defines the types of events emitted during the streaming process."""
+
     STARTED = "started"
     CHUNK_STARTED = "chunk_started"
     CHUNK_COMPLETED = "chunk_completed"
@@ -31,6 +35,8 @@ class StreamingEvent(Enum):
 
 @dataclass
 class StreamingEventData:
+    """Container for data related to a streaming event, including timing, progress, and payload."""
+
     event: StreamingEvent
     timestamp: float = field(default_factory=time.time)
     chunk_index: int | None = None
@@ -42,6 +48,8 @@ class StreamingEventData:
 
 @dataclass
 class TranslationUpdate:
+    """Represents an update of translated content for a specific chunk and block."""
+
     chunk_index: int
     block_index: int
     original_content: str
