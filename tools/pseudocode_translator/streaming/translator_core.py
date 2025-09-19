@@ -6,14 +6,11 @@ Core translation helper functions extracted from StreamingTranslator
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from ..models import BlockType, CodeBlock
 from .events import StreamingEvent, StreamingEventData, TranslationUpdate
 from .translator import StreamingTranslator
-
-if TYPE_CHECKING:
-    from .translator import StreamingTranslator
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +59,6 @@ def parse_and_translate_blocks(
             )
         )
         return []
-
 
 def translate_chunk_blocks(
     translator: StreamingTranslator,

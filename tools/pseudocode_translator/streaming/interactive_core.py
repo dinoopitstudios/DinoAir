@@ -5,8 +5,7 @@ Interactive translation helpers extracted from StreamingTranslator.
 from __future__ import annotations
 
 import asyncio
-import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, AsyncIterator
 
 from ..models import BlockType
 from ..models.base_model import TranslationResult as ModelTranslationResult
@@ -16,9 +15,9 @@ from .streaming_translator import StreamingTranslator
 if TYPE_CHECKING:
     from .translator import StreamingTranslator
 
-if TYPE_CHECKING:
-    from .streaming_translator import StreamingTranslator
 
+import logging
+from typing import Callable
 
 def process_interactive_input(
     translator: StreamingTranslator,
@@ -79,7 +78,7 @@ def process_interactive_input(
                 )
         return "\n".join(translations)
     except Exception as e:
-        logger.error(f"Error in interactive translation: {e}")
+        logging.error(f"Error in interactive translation: {e}")
         return f"Error: {str(e)}"
 
 
