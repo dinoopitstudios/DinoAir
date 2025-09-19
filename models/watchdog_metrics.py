@@ -10,6 +10,7 @@ from typing import Any
 @dataclass
 class WatchdogMetric:
     """Data class representing a single watchdog metric sample, including resource usage and process counts."""
+
     id: str
     timestamp: str
     vram_used_mb: float | None = None
@@ -25,6 +26,7 @@ class WatchdogMetric:
 
 class WatchdogMetricsManager:
     """Manager for recording and retrieving WatchdogMetric entries in a database."""
+
     def __init__(self, conn: Any):
         # conn: sqlite3.Connection-compatible (execute, executemany, commit)
         self.conn = conn

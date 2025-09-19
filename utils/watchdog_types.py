@@ -15,6 +15,7 @@ class SystemMetricsProto(Protocol):
     Protocol defining the system metrics attributes for Watchdog.
     Includes VRAM, CPU, and RAM usage statistics, process counts, and uptime.
     """
+
     vram_used_mb: float
     vram_total_mb: float
     vram_percent: float

@@ -225,6 +225,7 @@ class StreamlinedWatchdog:
 
                 Instances provide default zero values for all metric attributes.
                 """
+
                 def __init__(self):
                     self.vram_percent = 0
                     self.ram_percent = 0

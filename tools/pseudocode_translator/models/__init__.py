@@ -12,6 +12,7 @@ from typing import Any
 
 class BlockType(Enum):
     """Represents the type of block in the pseudocode translator (English, Python, Mixed, or Comment)."""
+
     ENGLISH = "english"
     PYTHON = "python"
     MIXED = "mixed"
@@ -21,6 +22,7 @@ class BlockType(Enum):
 @dataclass
 class CodeBlock:
     """Data class representing a segment of code or text with type, content, line numbers, metadata, and optional context."""
+
     type: BlockType
     content: str
     line_numbers: tuple[int, int]
@@ -31,6 +33,7 @@ class CodeBlock:
 @dataclass
 class ParseError:
     """Data class representing an error encountered during parsing, including message, line number, block content, and suggestion."""
+
     message: str
     line_number: int | None = None
     block_content: str | None = None
@@ -40,6 +43,7 @@ class ParseError:
 @dataclass
 class ParseResult:
     """Data class representing the outcome of parsing, containing blocks, errors, and warnings."""
+
     blocks: list[CodeBlock]
     errors: list[ParseError]
     warnings: list[str]

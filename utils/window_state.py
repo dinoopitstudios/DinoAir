@@ -23,13 +23,16 @@ else:
 
         class QRect:  # type: ignore
             """Fallback QRect class for geometry representation when PySide6 is unavailable."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
         class _QtFallback:  # type: ignore
             """Fallback Qt namespace providing Qt constants when PySide6 is unavailable."""
+
             class Orientation:
                 """Wrapper for Qt Orientation constants."""
+
                 Horizontal = 1
                 Vertical = 2
 
@@ -37,6 +40,7 @@ else:
 
         class QWidget:  # type: ignore
             """Fallback QWidget class providing basic widget functionality when PySide6 is unavailable."""
+
             @staticmethod
             def isMaximized() -> bool:
                 return False
@@ -45,6 +49,7 @@ else:
             def geometry() -> Any:
                 class _G:
                     """Helper class representing geometry properties of a widget."""
+
                     def x(self) -> int:
                         return 0
 
@@ -69,6 +74,7 @@ else:
 
         class QSplitter:  # type: ignore
             """Fallback QSplitter class providing basic splitter functionality when PySide6 is unavailable."""
+
             @staticmethod
             def sizes() -> list[int]:
                 return [50, 50]

@@ -760,6 +760,7 @@ def create_stream_handler(
         # It's already a file-like object
         class WrapperStreamHandler(StreamHandler):
             """Wraps a file-like object to conform to the StreamHandler interface."""
+
             def __init__(self, file_obj, config):
                 super().__init__(config)
                 self.file_obj = file_obj

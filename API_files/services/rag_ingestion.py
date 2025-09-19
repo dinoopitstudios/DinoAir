@@ -19,6 +19,7 @@ class RagIngestionService:
     This class handles directory validation, optimized file processing, and embedding
     generation to support retrieval-augmented generation workflows.
     """
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 

@@ -90,6 +90,7 @@ class ErrorResponse(BaseModel):
     human-readable message, optional details, requestId, endpoint, operationId,
     and RFC3339 timestamp.
     """
+
     # Short, human category (e.g. "Not Implemented", "Validation Error", "Not Found")
     error: str = Field(...)
     # HTTP status code

@@ -36,6 +36,7 @@ except ImportError:
         # pylint: disable=missing-function-docstring,invalid-name
         class _DummyQTimer:
             """Dummy implementation of QTimer for non-Qt environments."""
+
             def __init__(self) -> None:
                 self._timer: threading.Timer | None = None
                 self._callback: Callable[[], Any] | None = None
@@ -52,6 +53,7 @@ except ImportError:
             def timeout(self) -> Any:
                 class _Signal:
                     """Signal interface to connect callbacks for DummyQTimer."""
+
                     def __init__(self, outer: _DummyQTimer) -> None:
                         self._outer = outer
 
@@ -94,11 +96,13 @@ if TYPE_CHECKING:
     # pylint: disable=missing-function-docstring,invalid-name
     class _SignalProto(Protocol):
         """Protocol for signal-like objects with connect method."""
+
         @staticmethod
         def connect(cb: Callable[..., Any]) -> Any: ...
 
     class _QTimerProto(Protocol):
         """Protocol defining the interface for QTimer-like objects."""
+
         @staticmethod
         def setSingleShot(singleShot: bool) -> None: ...
 

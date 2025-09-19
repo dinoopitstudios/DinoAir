@@ -207,6 +207,7 @@ class LogicValidator:
 
         class UnusedVariableFinder(ast.NodeVisitor):
             """Visitor that tracks assigned variables and identifies unused ones in the AST."""
+
             def __init__(self):
                 self.assigned = set()
                 self.used = set()

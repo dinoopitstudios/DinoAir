@@ -54,6 +54,7 @@ except Exception:  # pragma: no cover
 
     class _FallbackBrokenProcessPool(Exception):
         """Fallback exception used when the concurrent.futures BrokenProcessPool import fails."""
+
         pass
 
     # type: ignore[misc,assignment]
@@ -83,6 +84,7 @@ class ModelConfig(TypedDict, total=False):
         temperature: sampling temperature for generation
         max_tokens: maximum number of tokens to generate
     """
+
     model_name: str | None
     model_path: str | None
     temperature: float | None
@@ -97,6 +99,7 @@ class ParseResult(TypedDict):
         blocks: list of parsed code blocks
         meta: additional metadata from parsing
     """
+
     code: str | None
     blocks: list[Block]
     meta: dict[str, Any]
@@ -123,6 +126,7 @@ class Block(Protocol):
     context: Any
 
     def to_source(self) -> str: ...
+
 
 # Validation result adapter alias
 TimedSection = AbstractContextManager[None]

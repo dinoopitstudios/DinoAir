@@ -171,6 +171,7 @@ class Project:
 @dataclass
 class ProjectSummary:
     """Data class representing a concise summary of a project, including its ID, name, and recent activity metrics."""
+
     project_id: str
     project_name: str
     recent_activity_count: int = 0
@@ -187,6 +188,7 @@ class ProjectSummary:
 @dataclass
 class ProjectStatistics:
     """Data class representing detailed statistics of a project, including counts of notes, artifacts, calendar events, child projects, and activity metrics such as last activity date and completion percentage."""
+
     project_id: str
     project_name: str
     total_notes: int = 0

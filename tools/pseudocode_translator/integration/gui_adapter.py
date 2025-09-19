@@ -406,9 +406,7 @@ def create_result_handler(
 Example Usage:
 
     # Basic GUI adapter usage
-    from pseudocode_translator.integration.gui_adapter import (
-        GUITranslatorAdapter
-    )
+    from pseudocode_translator.integration.gui_adapter import GUITranslatorAdapter
 
     class MyGUI:
         def __init__(self):
@@ -427,9 +425,7 @@ Example Usage:
 
     # Qt integration
     if HAS_QT:
-        from pseudocode_translator.integration.gui_adapter import (
-            QtTranslatorWidget
-        )
+        from pseudocode_translator.integration.gui_adapter import QtTranslatorWidget
 
         class MainWindow(QMainWindow):
             def __init__(self):

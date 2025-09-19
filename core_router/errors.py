@@ -88,6 +88,7 @@ class ErrorResponse(BaseModel):
 
     Contains fields for error category, HTTP status, error code, message, and optional details.
     """
+
     # Short, human category (e.g. "Not Implemented", "Validation Error", "Not Found")
     error: str = Field(...)
     # HTTP status code

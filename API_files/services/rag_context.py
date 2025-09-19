@@ -19,6 +19,7 @@ class RagContextService:
     """
     Service for retrieving context for queries using RAG (Retrieval-Augmented Generation) providers.
     """
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 

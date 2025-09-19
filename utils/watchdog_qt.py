@@ -46,11 +46,13 @@ else:
 
         class QObject:  # type: ignore
             """A dummy Qt QObject fallback with no functionality for environments without PySide6."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
         class QMutex:  # type: ignore
             """A dummy Qt QMutex fallback with lock/unlock methods that do nothing."""
+
             @staticmethod
             def lock() -> None:
                 pass
@@ -61,6 +63,7 @@ else:
 
         class QMutexLocker:  # type: ignore
             """Context manager for dummy QMutex that locks on entry and unlocks on exit."""
+
             def __init__(self, mutex: "QMutex"):
                 self._mutex = mutex
 
@@ -73,6 +76,7 @@ else:
 
         class QWaitCondition:  # type: ignore
             """A dummy Qt QWaitCondition fallback providing wait and wakeAll methods."""
+
             @staticmethod
             def wait(*_: Any, **__: Any) -> None:
                 pass
@@ -83,6 +87,7 @@ else:
 
         class QThread:  # type: ignore
             """A dummy Qt QThread fallback with basic thread interface methods that do nothing."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
@@ -112,8 +117,10 @@ else:
 
         class QTimer:  # type: ignore
             """A dummy Qt QTimer fallback with a timeout signal and start/stop methods."""
+
             class _Signal:  # type: ignore
                 """Dummy signal class for QTimer timeout signal handling."""
+
                 def connect(self, *_: Any, **__: Any) -> None:
                     pass
 
@@ -128,14 +135,17 @@ else:
 
         class _QtFallback:  # type: ignore
             """Fallback container for Qt enums and constants when PySide6 is unavailable."""
+
             class ConnectionType:
                 """Dummy Qt ConnectionType enum for queued connections."""
+
                 QueuedConnection = 0
 
         Qt = _QtFallback()  # type: ignore
 
         class _DummySignal:  # type: ignore
             """Fallback Signal class with connect and emit methods that do nothing."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
@@ -158,11 +168,13 @@ if TYPE_CHECKING:
         # Fallback classes for type checking when Watchdog not available
         class AlertLevel:  # type: ignore
             """Enum-like class for alert levels when Watchdog module is unavailable during type checking."""
+
             WARNING = "warning"
             CRITICAL = "critical"
 
         class SystemMetrics:  # type: ignore
             """Dummy SystemMetrics class for type checking fallback representing system metrics."""
+
             def __init__(
                 self,
                 vram_used_mb: float,
@@ -192,12 +204,14 @@ else:
 
         class AlertLevel(Enum):  # type: ignore
             """Enum for alert levels when Watchdog module is unavailable, indicating warning and critical states."""
+
             WARNING = "warning"
             CRITICAL = "critical"
 
         @dataclass
         class SystemMetrics:  # type: ignore
             """Dataclass representing system metrics such as memory and CPU usage for fallback when Watchdog module is unavailable."""
+
             vram_used_mb: float
             vram_total_mb: float
             vram_percent: float
@@ -220,6 +234,7 @@ class ComponentHealth(Enum):
     FAILED = "failed"
     RECOVERING = "recovering"
     UNKNOWN = "unknown"
+
 
 @dataclass
 class MetricsFallback:
@@ -530,6 +545,7 @@ class WatchdogThread(QThread):
             # Minimal stub for dev environments without Watchdog module
             class SystemWatchdog:  # type: ignore
                 """Stub SystemWatchdog class providing fallback methods for metrics collection in development environments where the native Watchdog module is unavailable."""
+
                 def get_vram_info(self) -> tuple[float, float, float]:
                     return (0.0, 8192.0, 0.0)
 

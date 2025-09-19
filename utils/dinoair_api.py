@@ -35,11 +35,13 @@ else:
     # Stub classes if performance monitor not available
     class PerformanceConfig:
         """Stub configuration class for performance monitoring when the performance monitor is unavailable."""
+
         def __init__(self, **kwargs):
             pass
 
     class PerformanceMetrics:
         """Stub metrics class for performance monitoring results when the performance monitor is unavailable."""
+
         def __init__(self, **kwargs):
             pass
 
@@ -50,6 +52,7 @@ else:
     # Stub class if telemetry not available
     class TelemetryConfig:
         """Stub configuration class for telemetry when the internal telemetry module is unavailable."""
+
         def __init__(self, **kwargs):
             pass
 
