@@ -1,0 +1,66 @@
+# CodeQL Configuration for DinoAir
+
+# CodeQL configuration file
+# This file specifies how CodeQL should analyze the DinoAir project
+
+name: "DinoAir Security Analysis"
+
+# Disable default queries and specify custom ones
+disable-default-queries: false
+
+# Query paths and packs to use
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Path filters - which files to include/exclude
+paths:
+  # Include these paths in analysis
+  - "API_files/**"
+  - "core_router/**"
+  - "database/**"
+  - "GUI/**"
+  - "input_processing/**"
+  - "models/**"
+  - "monitoring/**"
+  - "rag/**"
+  - "routing/**"
+  - "scripts/**"
+  - "src/**"
+  - "tools/**"
+  - "utils/**"
+  - "*.py"
+
+# Paths to exclude from analysis
+paths-ignore:
+  - ".venv/**"
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - "**/__pycache__/**"
+  - "*.egg-info/**"
+  - "docs/_build/**"
+  - "*.min.js"
+  - "*.min.css"
+  - "dinoair_test_files_archive.zip"
+  - "**/tests/**/*.py"  # Exclude test files from security analysis
+
+# Custom query filters
+query-filters:
+  # Exclude specific queries that might be too noisy
+  - exclude:
+      id: py/path-injection
+      # Only if it causes too many false positives
+
+# Language-specific configurations
+languages:
+  python:
+    # Python-specific settings
+    queries:
+      - security-extended
+      - security-and-quality
+
+  javascript:
+    # JavaScript/TypeScript settings
+    queries:
+      - security-extended
