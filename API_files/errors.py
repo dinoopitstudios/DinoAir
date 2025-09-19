@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, cast
 
