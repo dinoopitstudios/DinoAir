@@ -269,9 +269,7 @@ def test_conditional_autouse_concept():
 
     # Test that other tests might be excluded (future enhancement)
     # For now, we include the hooks test as well since it tests the infrastructure
-    if (
-        should_apply_patches("tools.tests.test_patching_hooks") is not False
-    ):
+    if should_apply_patches("tools.tests.test_patching_hooks") is not False:
         raise AssertionError
 
 

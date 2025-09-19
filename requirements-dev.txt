@@ -5,7 +5,7 @@
 # Testing framework and plugins
 pytest==7.4.4             # Testing framework
 pytest-asyncio==0.23.8    # Async test support
-pytest-cov==4.1.0         # Coverage reporting
+pytest-cov==7.0.0         # Coverage reporting
 pytest-mock==3.15.1       # Mock objects for testing
 pytest-timeout==2.4.0     # Test timeout handling
 coverage==7.10.6          # Code coverage measurement
@@ -13,20 +13,20 @@ coverage==7.10.6          # Code coverage measurement
 # Code quality and formatting
 black==24.3.0            # Code formatter
 ruff==0.13.0              # Fast linter and formatter
-isort==5.13.2             # Import statement sorter
-mypy==1.18.1              # Static type checker
+isort==6.0.1             # Import statement sorter
+mypy==1.18.2              # Static type checker
 mypy-extensions==1.1.0    # Extensions for mypy
 
 # Security and safety analysis
 bandit==1.8.6             # Security linter
-safety==2.3.4             # Dependency vulnerability scanner
+safety==3.6.1             # Dependency vulnerability scanner
 
 # Performance and profiling
 memory-profiler==0.61.0   # Memory usage profiling
 py-spy==0.4.1             # Sampling profiler
 
 # Documentation generation
-sphinx-autodoc-typehints==1.25.3 # Type hints in Sphinx docs
+sphinx-autodoc-typehints==3.2.0 # Type hints in Sphinx docs
 sphinx-rtd-theme==1.3.0   # Read the Docs Sphinx theme
 sphinxcontrib-applehelp==2.0.0    # Apple Help output
 sphinxcontrib-devhelp==2.0.0      # HTML Help output

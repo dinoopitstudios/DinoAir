@@ -3,9 +3,9 @@ Real database tests for NotesRepository covering CRUD, tags, projects, soft dele
 Uses the real DatabaseManager fixture (db_manager) and real Note model.
 """
 
+import uuid
 from datetime import datetime
 from unittest.mock import patch
-import uuid
 
 import pytest
 

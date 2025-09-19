@@ -7,11 +7,9 @@ from database.notes_security import FallbackSecurity, NotesSecurity, SecurityPol
 from database.notes_service import NotesService, OperationResult
 from database.notes_validator import NotesValidator, ValidationResult
 
-
 pytestmark = pytest.mark.skip(
     reason="Deprecated mock-heavy system tests; superseded by real integration tests hitting SQLite."
 )
-
 """
 Tests for Notes System components
 Covers NotesService, NotesRepository, NotesSecurity, and NotesValidator

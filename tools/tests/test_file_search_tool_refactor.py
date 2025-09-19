@@ -138,7 +138,8 @@ def test_manage_search_directories_invalid_action(fsdb_stub: FSDBStub) -> None:
     if resp["success"] is not False:
         raise AssertionError
     if (
-        resp["error"] != "Invalid action. Must be one of: ['add_allowed', 'remove_allowed', 'add_excluded', 'remove_excluded', 'get_settings']"
+        resp["error"]
+        != "Invalid action. Must be one of: ['add_allowed', 'remove_allowed', 'add_excluded', 'remove_excluded', 'get_settings']"
     ):
         raise AssertionError
     if resp["message"] != "Invalid action 'bogus' specified":

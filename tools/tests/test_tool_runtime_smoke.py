@@ -1,12 +1,11 @@
 import importlib.machinery
 import importlib.util
-from pathlib import Path
 import sys
 import tempfile
 import types
-from types import SimpleNamespace
 import unittest
-
+from pathlib import Path
+from types import SimpleNamespace
 
 TOOLS_ROOT = Path(__file__).resolve().parent.parent
 REPO_ROOT = TOOLS_ROOT.parent

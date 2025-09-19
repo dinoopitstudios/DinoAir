@@ -19,14 +19,12 @@ import pytest
 
 from utils.safe_pdf_extractor import SafePDFProcessor
 
-
 # Skip entire module if hypothesis is not available
 hypothesis = pytest.importorskip("hypothesis")
 HealthCheck = hypothesis.HealthCheck
 given = hypothesis.given
 settings = hypothesis.settings
 st = hypothesis.strategies
-
 
 try:
     # Only used to build well-formed PDFs in-memory

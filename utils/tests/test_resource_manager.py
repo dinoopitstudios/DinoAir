@@ -3,9 +3,9 @@ Unit tests for resource_manager.py module.
 Tests resource lifecycle management, shutdown sequencing, and thread safety.
 """
 
-from datetime import datetime
 import threading
 import time
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 from ..resource_manager import (

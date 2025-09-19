@@ -4,9 +4,9 @@ These tests focus on increasing coverage for the less-tested paths in initialize
 """
 
 import contextlib
-from datetime import datetime
 import shutil
 import sqlite3
+from datetime import datetime
 
 import pytest
 
@@ -28,12 +28,10 @@ class TestDatabaseMigrations:
             cursor = conn.cursor()
 
             # Verify migration tracking table exists
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='schema_migrations'
-            """
-            )
+            """)
             if cursor.fetchone() is None:
                 raise AssertionError
 
@@ -62,12 +60,10 @@ class TestDatabaseMigrations:
         # Create a database with some data
         with manager.get_notes_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                """
+            cursor.execute("""
                 INSERT INTO note_list (id, title, content, tags)
                 VALUES ('test-1', 'Test Note', 'Content', '["test"]')
-            """
-            )
+            """)
             conn.commit()
 
             # Verify data exists
@@ -242,12 +238,10 @@ class TestDatabaseManagerEdgeCases:
                     cursor = conn.cursor()
 
                     # Simulate some work
-                    cursor.execute(
-                        f"""
+                    cursor.execute(f"""
                         INSERT INTO notes (id, title, content, tags)
                         VALUES ('thread-{thread_id}', 'Thread {thread_id}', 'Content', '["test"]')
-                    """
-                    )
+                    """)
                     conn.commit()
 
                     # Read back the data

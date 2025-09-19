@@ -20,16 +20,13 @@ from ..performance_monitor import (
     performance_monitor_decorator,
 )
 
-
 # Prefer public API if available; fall back to legacy-compatible shims
 try:
     from ..performance_monitor import end_timer, performance_timer, start_timer
 except ImportError:  # Backwards compatibility with private names
-    from ..performance_monitor import (
-        _end_timer as end_timer,
-        _performance_timer as performance_timer,
-        _start_timer as start_timer,
-    )
+    from ..performance_monitor import _end_timer as end_timer
+    from ..performance_monitor import _performance_timer as performance_timer
+    from ..performance_monitor import _start_timer as start_timer
 
 
 class TestPerformanceMetrics:

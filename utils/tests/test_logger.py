@@ -8,6 +8,7 @@ import tempfile
 from unittest.mock import MagicMock, patch
 
 import utils.logger
+
 from ..logger import Logger, log_critical, log_debug, log_error, log_info, log_warning
 
 

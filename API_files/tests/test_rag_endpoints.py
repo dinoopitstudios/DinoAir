@@ -4,12 +4,11 @@ import os
 import sys
 from typing import Any
 
-from api.app import create_app  # noqa: E402
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
+from api.app import create_app  # noqa: E402
 from api.services import router_client  # noqa: E402
-
 
 # Ensure dev/docs and auth are consistently set for this test module
 os.environ.setdefault("DINOAIR_ENV", "dev")
@@ -21,7 +20,6 @@ os.environ.setdefault("DINOAIR_RAG_ENABLED", "false")
 # Ensure router can locate the services config via documented precedence
 # get_router() checks DINO_SERVICES_FILE first, then Settings().services_config_path (DINOAIR_SERVICES_FILE), then default.
 os.environ.setdefault("DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
-
 
 GOOD_AUTH = {"X-DinoAir-Auth": "test-token"}
 

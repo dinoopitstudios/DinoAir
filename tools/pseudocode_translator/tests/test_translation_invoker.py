@@ -1,10 +1,10 @@
+import pytest
 from pseudocode_translator.models.base_model import (
     OutputLanguage,
-    TranslationResult as ModelTranslationResult,
 )
+from pseudocode_translator.models.base_model import TranslationResult as ModelTranslationResult
 from pseudocode_translator.streaming.buffer import ContextBuffer
 from pseudocode_translator.streaming.translation_invoker import TranslationInvoker
-import pytest
 
 
 def _collect_events():
