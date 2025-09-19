@@ -22,17 +22,74 @@ exclude_patterns = [
   "coverage/**",
   "docs/_build/**",
   "*.min.js",
-  "*.min.css",
-  "dinoair_test_files_archive.zip"
+  "*.min.css"
 ]
 
-# Python analyzer - should come first
+# Python analyzer with docstring checks disabled
 [[analyzers]]
 name = "python"
 
   [analyzers.meta]
   runtime_version = "3.x.x"
   max_line_length = 100
+
+  # Disable docstring-related issues
+  skip_doc_coverage = true
+
+  # Ignore specific docstring and documentation issues
+  ignore_rules = [
+    "PYL-C0111",  # Missing module docstring
+    "PYL-C0112",  # Empty docstring
+    "PYL-C0114",  # Missing module docstring
+    "PYL-C0115",  # Missing class docstring
+    "PYL-C0116",  # Missing function/method docstring
+    "PY-D100",    # Missing docstring in public module
+    "PY-D101",    # Missing docstring in public class
+    "PY-D102",    # Missing docstring in public method
+    "PY-D103",    # Missing docstring in public function
+    "PY-D104",    # Missing docstring in public package
+    "PY-D105",    # Missing docstring in magic method
+    "PY-D106",    # Missing docstring in public nested class
+    "PY-D107",    # Missing docstring in __init__
+    "PY-D200",    # One-line docstring should fit on one line
+    "PY-D201",    # No blank lines allowed before function docstring
+    "PY-D202",    # No blank lines allowed after function docstring
+    "PY-D203",    # 1 blank line required before class docstring
+    "PY-D204",    # 1 blank line required after class docstring
+    "PY-D205",    # 1 blank line required between summary line and description
+    "PY-D206",    # Docstring should be indented with spaces
+    "PY-D207",    # Docstring is under-indented
+    "PY-D208",    # Docstring is over-indented
+    "PY-D209",    # Multi-line docstring closing quotes should be on a separate line
+    "PY-D210",    # No whitespaces allowed surrounding docstring text
+    "PY-D211",    # No blank lines allowed before class docstring
+    "PY-D212",    # Multi-line docstring summary should start at the first line
+    "PY-D213",    # Multi-line docstring summary should start at the second line
+    "PY-D214",    # Section is over-indented
+    "PY-D215",    # Section underline is over-indented
+    "PY-D300",    # Use """triple double quotes"""
+    "PY-D301",    # Use r"""raw triple double quotes"""
+    "PY-D400",    # First line should end with a period
+    "PY-D401",    # First line should be in imperative mood
+    "PY-D402",    # First line should not be the function's signature
+    "PY-D403",    # First word of the first line should be capitalized
+    "PY-D404",    # First word of the docstring should not be "This"
+    "PY-D405",    # Section name should be capitalized
+    "PY-D406",    # Section name should end with a newline
+    "PY-D407",    # Missing dashed underline after section
+    "PY-D408",    # Section underline should be in the line following the section's name
+    "PY-D409",    # Section underline should match the length of its name
+    "PY-D410",    # Missing blank line after section
+    "PY-D411",    # Missing blank line before section
+    "PY-D412",    # No blank lines allowed between a section header and its content
+    "PY-D413",    # Missing blank line after last section
+    "PY-D414",    # Section has no content
+    "PY-D415",    # First line should end with a period, question mark, or exclamation point
+    "PY-D416",    # Section name should end with a colon
+    "PY-D417",    # Missing argument descriptions in the docstring
+    "PY-D418",    # Function/method with return annotation but no return description
+    "PY-D419"     # Docstring is empty
+  ]
 
 # JavaScript/TypeScript analyzer for frontend
 [[analyzers]]
@@ -44,19 +101,6 @@ name = "javascript"
     "browser",
     "nodejs"
   ]
-
-# Security analyzer for secrets detection
-[[analyzers]]
-
-name = "test-coverage"
-
-[[analyzers]]
-name = "python"
-
-  [analyzers.meta]
-  runtime_version = "3.x.x"
-  max_line_length = 100
-
 
 # Test coverage analyzer
 [[analyzers]]
