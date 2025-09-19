@@ -11,12 +11,13 @@ from typing import TYPE_CHECKING
 from ..models import BlockType
 from ..models.base_model import TranslationResult as ModelTranslationResult
 from .events import TranslationUpdate
+from .streaming_translator import StreamingTranslator
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterator
+    from .translator import StreamingTranslator
 
-logger = logging.getLogger(__name__)
-
+if TYPE_CHECKING:
+    from .streaming_translator import StreamingTranslator
 
 def process_interactive_input(
     translator: StreamingTranslator,

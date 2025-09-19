@@ -36,14 +36,14 @@ except ImportError:  # pragma: no cover
         _endpoint: str | None,
         _operationId: str | None,
         _requestId: str | None,
-    ) -> _JSONResponse:
+    ) -> JSONResponse:
         payload = {
             "detail": message,
             "code": code,
             "message": message,
             "error": error,
         }
-        return _JSONResponse(status_code=status, content=payload)
+        return JSONResponse(status_code=status, content=payload)
 
 
 # Local alias to avoid linter/editor false positives on starlette.types.ASGIApp

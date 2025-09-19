@@ -6,6 +6,7 @@ tag queries for SQLite installations that don't support the JSON1 extension.
 """
 
 import sqlite3
+import re
 
 from database.migrations.base import BaseMigration, MigrationError
 
