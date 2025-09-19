@@ -6,22 +6,24 @@ Your project is now configured for **100 characters**, which is the modern Pytho
 
 ## 📏 **Line Length Standards Comparison**
 
-| Standard | Length | Used By | Pros | Cons |
-|----------|--------|---------|------|------|
-| **PEP 8 Classic** | 79 | Old Python projects | Maximum compatibility | Too restrictive for modern screens |
-| **Black Default** | 88 | Many modern projects | Good balance | Slightly cramped |
-| **Modern Standard** | 100 | Your project, Django, FastAPI | Practical for today's screens | May not fit on small terminals |
-| **Liberal** | 120+ | Some teams | Very spacious | Can encourage overly complex lines |
+| Standard            | Length | Used By                       | Pros                          | Cons                               |
+| ------------------- | ------ | ----------------------------- | ----------------------------- | ---------------------------------- |
+| **PEP 8 Classic**   | 79     | Old Python projects           | Maximum compatibility         | Too restrictive for modern screens |
+| **Black Default**   | 88     | Many modern projects          | Good balance                  | Slightly cramped                   |
+| **Modern Standard** | 100    | Your project, Django, FastAPI | Practical for today's screens | May not fit on small terminals     |
+| **Liberal**         | 120+   | Some teams                    | Very spacious                 | Can encourage overly complex lines |
 
 ## ✅ **Why 100 Characters is Recommended**
 
 ### **Modern Development Reality:**
+
 - **Screen sizes:** Most developers have wide monitors
 - **Code review tools:** GitHub, GitLab handle 100+ characters well
 - **IDE support:** Modern editors handle longer lines effectively
 - **Team productivity:** Less time spent on artificial line breaks
 
 ### **Popular Projects Using 100+ Characters:**
+
 - **Django:** 119 characters
 - **FastAPI:** 100 characters
 - **Pandas:** 100 characters
@@ -30,6 +32,7 @@ Your project is now configured for **100 characters**, which is the modern Pytho
 ## 🔧 **Current Project Configuration**
 
 ### **DeepSource (`.deepsource.toml`)**
+
 ```toml
 [[analyzers]]
 name = "python"
@@ -39,6 +42,7 @@ name = "python"
 ```
 
 ### **Black (`.pyproject.toml`)**
+
 ```toml
 [tool.black]
 line-length = 100
@@ -46,6 +50,7 @@ target-version = ['py312']
 ```
 
 ### **Ruff (`.pyproject.toml`)**
+
 ```toml
 [tool.ruff]
 line-length = 100
@@ -53,6 +58,7 @@ target-version = "py312"
 ```
 
 ### **Prettier (`.prettierrc.json`)**
+
 ```json
 {
   "printWidth": 100
@@ -62,6 +68,7 @@ target-version = "py312"
 ## 🚀 **Implementation Status**
 
 ### **✅ Fixed Issues:**
+
 1. **DeepSource Configuration:** Updated to use 100 characters instead of 79
 2. **Transformer Conflicts:** Removed conflicting formatters (yapf, autopep8)
 3. **Runtime Version:** Set to Python 3.11 to match your environment
@@ -70,12 +77,14 @@ target-version = "py312"
 ### **🔄 Before/After Comparison:**
 
 **Before (Causing Errors):**
+
 - DeepSource: 79 characters (default)
 - Black: 100 characters
 - Ruff: 100 characters
 - **Result:** Constant line length violations
 
 **After (Consistent):**
+
 - DeepSource: 100 characters ✅
 - Black: 100 characters ✅
 - Ruff: 100 characters ✅
@@ -84,6 +93,7 @@ target-version = "py312"
 ## 🛠️ **Alternative Configurations**
 
 ### **If You Want 88 Characters (Black Default):**
+
 ```toml
 # In pyproject.toml
 [tool.black]
@@ -98,6 +108,7 @@ max_line_length = 88
 ```
 
 ### **If You Must Use 79 Characters:**
+
 ```toml
 # In pyproject.toml
 [tool.black]
@@ -114,6 +125,7 @@ line-length = 79
 ### **When to Break Lines (Even with 100 character limit):**
 
 1. **Function signatures with many parameters:**
+
    ```python
    def complex_function(
        param1: str,
@@ -123,6 +135,7 @@ line-length = 79
    ```
 
 2. **Long import statements:**
+
    ```python
    from some.very.long.module.name import (
        first_function,
@@ -143,11 +156,13 @@ line-length = 79
 ### **Tools to Help:**
 
 1. **Black:** Automatically formats to 100 characters
+
    ```bash
    black .
    ```
 
 2. **Ruff:** Checks and fixes line length issues
+
    ```bash
    ruff check . --fix
    ```
@@ -171,12 +186,14 @@ Your DeepSource analysis should now show **significantly fewer line length error
 ## 🔄 **Next Steps**
 
 1. **Commit the updated configuration:**
+
    ```bash
    git add .deepsource.toml
    git commit -m "Fix DeepSource line length configuration to 100 characters"
    ```
 
 2. **Reformat your codebase:**
+
    ```bash
    black .
    ruff check . --fix
