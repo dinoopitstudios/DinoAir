@@ -445,48 +445,58 @@ class ModelFactory:
             return None
 
         desired_lang = (language or "python").lower()
-
         candidates: list[tuple[int, int, float, str]] = []
-        # tuple is (streaming_match, quality_score, tps_score, model_name)
-        quality_rank = {"pro": 3, "base": 2, "mock": 1}
 
         for name, reg in cls._registry.items():
-            try:
-                temp = reg.model_class({})
-                caps = temp.get_capabilities() or {}
-                supports_stream = bool(caps.get("supports_streaming", False))
-                langs = [str(l).lower()
-                         for l in caps.get("supported_languages", [])]
-
-                # Language filter (case-insensitive)
-                if desired_lang and langs and desired_lang not in langs:
-                    continue
-
-                # Streaming filter if required
-                if require_streaming is True and not supports_stream:
-                    continue
-
-                streaming_match = 1 if (
-                    require_streaming and supports_stream) else 0
-                quality = str(caps.get("quality", "")).lower()
-                quality_score = quality_rank.get(quality, 0)
-
-                tps = caps.get("tokens_per_second")
-                tps_max = 0.0
-                if isinstance(tps, list | tuple) and len(tps) >= 2:
-                    try:
-                        tps_max = float(max(tps[0], tps[1]))
-                    except Exception:
-                        tps_max = 0.0
-                elif isinstance(tps, int | float):
-                    tps_max = float(tps)
-
-                candidates.append(
-                    (streaming_match, quality_score, tps_max, name))
-            except Exception as e:
-                logger.warning(
-                    f"Error reading capabilities for model '{name}': {e}")
+            caps = cls._extract_capabilities(reg)
+            if not cls._matches_language(caps, desired_lang):
                 continue
+            if require_streaming and not cls._supports_streaming(caps):
+                continue
+
+            streaming_match = 1 if (require_streaming and cls._supports_streaming(caps)) else 0
+            quality_score = cls._get_quality_score(caps)
+            tps_max = cls._get_tps_max(caps)
+
+            candidates.append((streaming_match, quality_score, tps_max, name))
+
+        if candidates:
+            return max(candidates)[3]
+        return None
+
+    @classmethod
+    def _extract_capabilities(cls, reg) -> dict:
+        temp = reg.model_class({})
+        return temp.get_capabilities() or {}
+
+    @classmethod
+    def _supports_streaming(cls, caps: dict) -> bool:
+        return bool(caps.get("supports_streaming", False))
+
+    @classmethod
+    def _matches_language(cls, caps: dict, desired_lang: str) -> bool:
+        if not desired_lang:
+            return True
+        langs = [str(l).lower() for l in caps.get("supported_languages", [])]
+        return not langs or desired_lang in langs
+
+    @classmethod
+    def _get_quality_score(cls, caps: dict) -> int:
+        quality_rank = {"pro": 3, "base": 2, "mock": 1}
+        quality = str(caps.get("quality", "")).lower()
+        return quality_rank.get(quality, 0)
+
+    @classmethod
+    def _get_tps_max(cls, caps: dict) -> float:
+        tps = caps.get("tokens_per_second")
+        if isinstance(tps, (list, tuple)) and len(tps) >= 2:
+            try:
+                return float(max(tps[0], tps[1]))
+            except Exception:
+                return 0.0
+        if isinstance(tps, (int, float)):
+            return float(tps)
+        return 0.0
 
         if not candidates:
             return None

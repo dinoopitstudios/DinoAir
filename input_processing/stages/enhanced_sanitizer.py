@@ -120,37 +120,57 @@ class EnhancedInputSanitizer:
         if self.logger:
             self.logger.debug(f"Sanitizing input (context={context}, length={len(user_input)})")
 
-        # Step 1: Unicode normalization (always first!)
+        # Apply Unicode normalization and attack checks
+        sanitized = self._apply_unicode_protection(
+            user_input, allow_unicode, max_length, strict_mode
+        )
+
+        # Apply context-specific sanitization
+        sanitized = self._sanitize_by_context(sanitized, context, strict_mode)
+
+        return sanitized
+
+    def _apply_unicode_protection(
+        self,
+        user_input: str,
+        allow_unicode: bool,
+        max_length: int | None,
+        strict_mode: bool,
+    ) -> str:
+        """Handle Unicode normalization and attacks."""
         sanitized = self.unicode_protection.sanitize(
             user_input, allow_unicode=allow_unicode, max_length=max_length
         )
-
-        # Check for Unicode attacks
         if self.unicode_protection.detect_unicode_attack(user_input):
             self.security_monitor.log_attack_attempt("Unicode", user_input)
             if strict_mode:
-                # In strict mode, convert to ASCII
                 sanitized = self.unicode_protection.to_ascii_safe(sanitized)
+        return sanitized
 
-        # Step 2: Context-specific sanitization
+    def _sanitize_by_context(
+        self,
+        sanitized: str,
+        context: str,
+        strict_mode: bool,
+    ) -> str:
+        """Dispatch to context-specific sanitizers."""
         if context == self.CONTEXT_HTML:
-            # For HTML context, sanitize but allow some tags
             if self.xss_protection.detect_xss_attempt(sanitized):
                 self.security_monitor.log_attack_attempt("XSS", sanitized)
-            sanitized = self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
-
+            return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
         elif context == self.CONTEXT_SQL:
-            # For SQL context, check for injection
             if self.sql_protection.detect_sql_injection(sanitized):
                 self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
                 if strict_mode:
                     # In strict mode, reject SQL injection attempts
                     raise ValueError("SQL injection attempt detected")
             sanitized = self.sql_protection.sanitize_sql_input(sanitized)
-
+            return sanitized
         elif context == self.CONTEXT_PLAIN:
             # For plain text, strip all HTML and dangerous content
             sanitized = self.xss_protection.strip_tags(sanitized)
+            return sanitized
+        return sanitized
 
         elif context == self.CONTEXT_FILENAME:
             # For filenames, apply strict rules

@@ -154,14 +154,14 @@ class WatchdogConfigValidator:
                 min_value=1,
                 max_value=1000,
                 default_value=10,
-                description="Number of metrics to buffer",
+                description="Size of the metrics buffer",
             ),
             # CPU threshold
             "cpu_threshold": ValidationRule(
                 name="cpu_threshold",
                 min_value=50.0,
                 max_value=100.0,
-                default_value=80.0,
+                default_value=90.0,
                 description="CPU usage percentage threshold for warnings",
             ),
             # RAM threshold
@@ -176,36 +176,104 @@ class WatchdogConfigValidator:
             "response_time_threshold": ValidationRule(
                 name="response_time_threshold",
                 min_value=0.1,
-                max_value=30.0,
-                default_value=5.0,
-                description="Maximum acceptable response time in seconds",
+                max_value=10.0,
+                default_value=2.0,
+                description="Maximum allowed response time in seconds",
             ),
-            # Retry configuration
+            # Max retries
             "max_retries": ValidationRule(
                 name="max_retries",
                 min_value=0,
                 max_value=10,
                 default_value=3,
-                description="Maximum retry attempts for operations",
+                description="Maximum number of retries for failed operations",
             ),
-            # Fallback configuration
+            # Auto fallback
             "auto_fallback": ValidationRule(
                 name="auto_fallback",
                 allowed_values=[True, False],
                 default_value=True,
-                description="Whether to automatically fallback on errors",
+                description="Enable automatic fallback on failure",
             ),
+            # Fallback delay
             "fallback_delay": ValidationRule(
                 name="fallback_delay",
-                min_value=0.0,
-                max_value=60.0,
-                default_value=5.0,
+                min_value=0,
+                max_value=300,
+                default_value=10,
                 description="Seconds to wait before fallback",
             ),
         }
 
-    def validate(self, config: dict[str, Any]) -> ValidationResult:  # noqa: C901
-        """Validate watchdog configuration.
+    def _check_unknown_params(self, config: dict[str, Any], result: ValidationResult) -> None:
+        known_params = set(self.rules.keys())
+        for param in config:
+            if param not in known_params:
+                result.add_issue(
+                    param,
+                    ValidationLevel.WARNING,
+                    f"Unknown configuration parameter '{param}'",
+                )
+
+    def _validate_param(
+        self,
+        param_name: str,
+        rule: ValidationRule,
+        config: dict[str, Any],
+        result: ValidationResult,
+        corrected: dict[str, Any],
+    ) -> None:
+        value = config.get(param_name)
+
+        if rule.required and value is None:
+            result.add_issue(
+                param_name,
+                ValidationLevel.ERROR,
+                f"Required parameter '{param_name}' is missing",
+            )
+            corrected[param_name] = rule.default_value
+            return
+
+        if value is None:
+            return
+
+        if rule.validator:
+            validated_value = rule.validator(value, result, param_name)
+            if validated_value != value:
+                corrected[param_name] = validated_value
+            return
+
+        if rule.allowed_values is not None and value not in rule.allowed_values:
+            result.add_issue(
+                param_name,
+                ValidationLevel.ERROR,
+                f"Invalid value '{value}' for parameter '{param_name}'; "
+                f"allowed values are {rule.allowed_values}",
+            )
+            corrected[param_name] = rule.default_value
+            return
+
+        if rule.min_value is not None and value < rule.min_value:
+            result.add_issue(
+                param_name,
+                ValidationLevel.ERROR,
+                f"Value {value} for '{param_name}' is below minimum {rule.min_value}",
+            )
+            corrected[param_name] = rule.default_value
+            return
+
+        if rule.max_value is not None and value > rule.max_value:
+            result.add_issue(
+                param_name,
+                ValidationLevel.ERROR,
+                f"Value {value} for '{param_name}' exceeds maximum {rule.max_value}",
+            )
+            corrected[param_name] = rule.default_value
+            return
+
+    def validate(self, config: dict[str, Any]) -> ValidationResult:
+        """
+        Validate watchdog configuration.
 
         Args:
             config: Configuration dictionary to validate
@@ -216,51 +284,13 @@ class WatchdogConfigValidator:
         result = ValidationResult(is_valid=True)
         corrected = config.copy()
 
-        # Check for unknown parameters
-        known_params = set(self.rules.keys())
-        for param in config:
-            if param not in known_params:
-                result.add_issue(
-                    param,
-                    ValidationLevel.WARNING,
-                    f"Unknown configuration parameter '{param}'",
-                )
+        self._check_unknown_params(config, result)
 
-        # Validate each known parameter
         for param_name, rule in self.rules.items():
-            value = config.get(param_name)
+            self._validate_param(param_name, rule, config, result, corrected)
 
-            # Check required parameters
-            if rule.required and value is None:
-                result.add_issue(
-                    param_name,
-                    ValidationLevel.ERROR,
-                    f"Required parameter '{param_name}' is missing",
-                )
-                corrected[param_name] = rule.default_value
-                continue
-
-            # Skip optional parameters that aren't provided
-            if value is None:
-                continue
-
-            # Apply custom validator if provided
-            if rule.validator:
-                validated_value = rule.validator(value, result, param_name)
-                if validated_value != value:
-                    corrected[param_name] = validated_value
-                continue
-
-            # Check allowed values
-            if rule.allowed_values is not None:
-                if value not in rule.allowed_values:
-                    result.add_issue(
-                        param_name,
-                        ValidationLevel.ERROR,
-                        f"Invalid value '{value}' for '{param_name}'. Allowed values: {rule.allowed_values}",
-                    )
-                    corrected[param_name] = rule.default_value
-                    continue
+        result.corrected_config = corrected
+        return result
 
             # Check numeric ranges
             if isinstance(value, int | float):

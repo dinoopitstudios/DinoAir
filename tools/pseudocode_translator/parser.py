@@ -169,49 +169,56 @@ class ParserModule:
         Returns:
             List of block strings
         """
-        blocks = []
-        current_block = []
+        blocks: list[str] = []
+        current_block: list[str] = []
         lines = text.splitlines(keepends=True)
 
-        # Track state
         prev_indent = 0
         in_multiline = False
         multiline_delimiter = None
-        line_number = 0
 
-        for i, line in enumerate(lines):
-            line_number = i + 1
-            stripped = line.strip()
-
-            # Check for multiline strings
+        def _update_multiline(stripped_line: str, full_line: str) -> None:
+            nonlocal in_multiline, multiline_delimiter
             if not in_multiline:
-                if stripped.startswith(('"""', "'''")):
+                if stripped_line.startswith(('"""', "''"")):
                     in_multiline = True
-                    multiline_delimiter = stripped[:3]
-            elif multiline_delimiter and multiline_delimiter in line:
+                    multiline_delimiter = stripped_line[:3]
+            elif multiline_delimiter and multiline_delimiter in full_line:
                 in_multiline = False
                 multiline_delimiter = None
 
-            # Get current indentation
+        def _is_new_block(line: str, stripped_line: str, current_indent: int) -> bool:
+            if in_multiline:
+                return False
+            if self._DEF_RE.match(line) or self._CLASS_RE.match(line) or (
+                self._IMPORT_RE.match(line) and current_indent == 0
+            ):
+                return True
+            if current_indent == 0 and prev_indent > 0:
+                return True
+            if current_indent < prev_indent - 4:
+                return True
+            return False
+
+        for line in lines:
+            stripped = line.strip()
+            _update_multiline(stripped, line)
+
             indent_match = self._INDENT_PATTERN_RE.match(line)
             current_indent = len(indent_match.group(0)) if indent_match else 0
 
-            # Determine if this starts a new block
-            is_new_block = False
+            if _is_new_block(line, stripped, current_indent):
+                if current_block:
+                    blocks.append(''.join(current_block))
+                    current_block = []
 
-            # Check for function/class definitions
-            if (
-                self._DEF_RE.match(line)
-                or self._CLASS_RE.match(line)
-                or self._IMPORT_RE.match(line)
-                and current_indent == 0
-                or current_indent == 0
-                and prev_indent > 0
-                and not in_multiline
-                or current_indent < prev_indent - 4
-                and not in_multiline
-            ):
-                is_new_block = True
+            current_block.append(line)
+            prev_indent = current_indent
+
+        if current_block:
+            blocks.append(''.join(current_block))
+
+        return blocks
             # Check for transition between English and Python using AST
             elif i > 0:
                 try:
@@ -239,7 +246,6 @@ class ParserModule:
             blocks.append("".join(current_block))
 
         return blocks
-
     def _classify_block(self, block: str) -> BlockType:
         """
         Determine the type of a code block
@@ -316,29 +322,50 @@ class ParserModule:
         max_indent = 0
 
         for line in lines:
-            # Check for imports
-            if self._IMPORT_RE.match(line):
-                metadata["has_imports"] = True
+            max_indent = self._process_line_metadata(line, metadata, indent_chars, max_indent)
 
-            # Check for functions
-            if self._DEF_RE.match(line):
-                metadata["has_functions"] = True
+        metadata["max_indent_level"] = max_indent
+        if indent_chars:
+            metadata["indentation_type"] = "tabs" if "\t" in indent_chars else "spaces"
 
-            # Check for classes
-            if self._CLASS_RE.match(line):
-                metadata["has_classes"] = True
+        self._finalize_metadata(metadata, block)
+        return metadata
 
-            # Check for comments
-            if self._COMMENT_PATTERN_RE.match(line):
-                metadata["has_comments"] = True
+    def _process_line_metadata(self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int) -> int:
+        # Check for imports
+        if self._IMPORT_RE.match(line):
+            metadata["has_imports"] = True
 
-            # Check indentation
-            indent_match = self._INDENT_EXTRACT_RE.match(line)
-            if indent_match:
-                indent = indent_match.group(1)
-                if indent:
-                    indent_chars.update(indent)
-                    max_indent = max(max_indent, len(indent))
+        # Check for functions
+        if self._DEF_RE.match(line):
+            metadata["has_functions"] = True
+
+        # Check for classes
+        if self._CLASS_RE.match(line):
+            metadata["has_classes"] = True
+
+        # Check for comments
+        if self._COMMENT_PATTERN_RE.match(line):
+            metadata["has_comments"] = True
+
+        # Check indentation
+        indent_match = self._INDENT_EXTRACT_RE.match(line)
+        if indent_match:
+            indent = indent_match.group(1)
+            if indent:
+                indent_chars.update(indent)
+                current_max_indent = max(current_max_indent, len(indent))
+
+        return current_max_indent
+
+    def _finalize_metadata(self, metadata: dict[str, Any], block: str) -> None:
+        # Check for docstring
+        if self._DOCSTRING_RE.search(block):
+            metadata["has_docstring"] = True
+
+        # Determine completeness
+        if not block.strip().endswith(":"):
+            metadata["likely_complete"] = False
 
         # Determine indentation type
         if " " in indent_chars and "\t" not in indent_chars:

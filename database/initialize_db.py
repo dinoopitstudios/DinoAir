@@ -905,6 +905,42 @@ class DatabaseManager:
             self.user_feedback(
                 f"Warning: Could not clean memory database: {str(e)}")
 
+    def _cleanup_temp_files(self, stats: dict[str, int]) -> None:
+        temp_patterns = ["*.tmp", "*.temp", "*.log", ".temp_*"]
+        base_dir = self.user_db_dir.parent
+        for pattern in temp_patterns:
+            for temp_file in base_dir.glob(f"**/{pattern}"):
+                try:
+                    if not temp_file.is_file():
+                        continue
+                    size_mb = temp_file.stat().st_size / (1024 * 1024)
+                    temp_file.unlink()
+                    stats["files_removed"] += 1
+                    stats["space_freed_mb"] += size_mb
+                    if hasattr(self, "user_feedback"):
+                        self.user_feedback(
+                            f"Removed temp file: {temp_file.name}")
+                except OSError:
+                    continue
+
+    def _cleanup_old_backups(self, stats: dict[str, int], max_backup_age_days: int) -> None:
+        cutoff_time = time.time() - (max_backup_age_days * 24 * 3600)
+        backup_patterns = ["*backup*", "*.bak", "*_old*"]
+        base_dir = self.user_db_dir.parent
+        for pattern in backup_patterns:
+            for backup_file in base_dir.glob(f"**/{pattern}"):
+                try:
+                    if not backup_file.is_file() or backup_file.stat().st_mtime >= cutoff_time:
+                        continue
+                    size_mb = backup_file.stat().st_size / (1024 * 1024)
+                    backup_file.unlink()
+                    stats["backups_removed"] += 1
+                    if hasattr(self, "user_feedback"):
+                        self.user_feedback(
+                            f"Removed backup file: {backup_file.name}")
+                except OSError:
+                    continue
+
     def cleanup_user_data(
         self,
         cleanup_temp_files: bool = True,
@@ -929,39 +965,11 @@ class DatabaseManager:
 
             # 2. Clean temporary files in user directory
             if cleanup_temp_files:
-                temp_patterns = ["*.tmp", "*.temp", "*.log", ".temp_*"]
-                for pattern in temp_patterns:
-                    for temp_file in self.user_db_dir.parent.glob(f"**/{pattern}"):
-                        try:
-                            if temp_file.is_file():
-                                size_mb = temp_file.stat().st_size / (1024 * 1024)
-                                temp_file.unlink()
-                                stats["files_removed"] += 1
-                                stats["space_freed_mb"] += size_mb
-                                if hasattr(self, "user_feedback"):
-                                    self.user_feedback(
-                                        f"Removed temp file: {temp_file.name}")
-                        except OSError:
-                            pass
+                self._cleanup_temp_files(stats)
 
             # 3. Clean old backup files
             if cleanup_old_backups:
-                cutoff_time = time.time() - (max_backup_age_days * 24 * 3600)
-                backup_patterns = ["*backup*", "*.bak", "*_old*"]
-
-                for pattern in backup_patterns:
-                    for backup_file in self.user_db_dir.parent.glob(f"**/{pattern}"):
-                        try:
-                            if backup_file.is_file() and backup_file.stat().st_mtime < cutoff_time:
-                                size_mb = backup_file.stat().st_size / (1024 * 1024)
-                                backup_file.unlink()
-                                stats["backups_removed"] += 1
-                                stats["space_freed_mb"] += size_mb
-                                if hasattr(self, "user_feedback"):
-                                    self.user_feedback(
-                                        f"Removed old backup: {backup_file.name}")
-                        except OSError:
-                            pass
+                self._cleanup_old_backups(stats, max_backup_age_days)
 
             # 4. Vacuum all databases to reclaim space
             db_connections = [
@@ -993,13 +1001,14 @@ class DatabaseManager:
                     f"{stats['backups_removed']} old backups removed, "
                     f"{stats['space_freed_mb']} MB freed"
                 )
-
         except Exception as e:
             if hasattr(self, "user_feedback"):
                 self.user_feedback(
-                    f"Warning: Error during user data cleanup: {str(e)}")
+                    f"Warning: Error during user data cleanup: {str(e)}"
+                )
 
         return stats
+
 
 
 # For easy initialization when GUI starts

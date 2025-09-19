@@ -180,80 +180,133 @@ class FormatterConfig:
     date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
+"""
+Module providing an enhanced JSON log formatter with context, exception, and extra fields support.
+"""
+
 class EnhancedJsonFormatter(logging.Formatter):
     """Enhanced JSON formatter with context support."""
 
     def __init__(self, config: FormatterConfig):
+        """Initialize the EnhancedJsonFormatter with the given configuration.
+
+        Args:
+            config (FormatterConfig): Configuration for formatting options.
+        """
         super().__init__()
         self.config = config
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format a LogRecord into a JSON string including standard, context, exception, and extra fields.
+
+        Args:
+            record (logging.LogRecord): The log record to format.
+
+        Returns:
+            str: A JSON string representation of the log record.
+        """
         # Get current context
         context = _context_manager.get_context()
 
         # Build log entry
         log_entry = {}
-
-        if self.config.include_timestamp:
-            log_entry["timestamp"] = self.formatTime(record, self.config.date_format)
-
-        if self.config.include_level:
-            log_entry["level"] = record.levelname
-
-        if self.config.include_logger:
-            log_entry["logger"] = record.name
-
-        if self.config.include_module:
-            log_entry["module"] = record.module
-
-        if self.config.include_function:
-            log_entry["function"] = record.funcName
-
+        self._add_standard_fields(record, log_entry)
         log_entry["message"] = record.getMessage()
 
         # Add context information
-        if self.config.include_context and (context_dict := context.to_dict()):
-            log_entry["context"] = context_dict
-        # Add exception info if present
-        if record.exc_info:
-            if record.exc_info is True:
-                # Handle the case where exc_info is True by getting current exception
-                import sys
+        self._add_context(context, log_entry)
 
-                exc_info = sys.exc_info()
-                if exc_info and exc_info[0] is not None:
-                    log_entry["exception"] = self.formatException(exc_info)
-            elif isinstance(record.exc_info, tuple) and len(record.exc_info) == 3:
-                log_entry["exception"] = self.formatException(record.exc_info)
+        # Add exception info if present
+        self._add_exception_info(record, log_entry)
 
         # Add any extra fields from record
-        for key, value in record.__dict__.items():
-            if key not in (
-                "name",
-                "msg",
-                "args",
-                "levelname",
-                "levelno",
-                "pathname",
-                "filename",
-                "module",
-                "exc_info",
-                "exc_text",
-                "stack_info",
-                "lineno",
-                "funcName",
-                "created",
-                "msecs",
-                "relativeCreated",
-                "thread",
-                "threadName",
-                "processName",
-                "process",
-                "getMessage",
-            ):
-                log_entry[key] = value
+        self._add_extra_fields(record, log_entry)
 
         return json.dumps(log_entry, ensure_ascii=False, default=str)
+
+    def _add_standard_fields(self, record: logging.LogRecord, log_entry: dict) -> None:
+        """Add standard log fields to the log entry based on formatter configuration.
+
+        Args:
+            record (logging.LogRecord): The log record to extract fields from.
+            log_entry (dict): The dictionary to populate with standard fields.
+        """
+        fields = [
+            ("include_timestamp", "timestamp", lambda rec: self.formatTime(rec, self.config.date_format)),
+            ("include_level", "level", lambda rec: rec.levelname),
+            ("include_logger", "logger", lambda rec: rec.name),
+            ("include_module", "module", lambda rec: rec.module),
+            ("include_function", "function", lambda rec: rec.funcName),
+        ]
+        for config_attr, key, func in fields:
+            if getattr(self.config, config_attr):
+                log_entry[key] = func(record)
+
+    def _add_context(self, context: Any, log_entry: dict) -> None:
+        """Add context information to the log entry if enabled and present.
+
+        Args:
+            context (Any): The context object containing contextual data.
+            log_entry (dict): The dictionary to populate with context data.
+        """
+        if self.config.include_context:
+            context_dict = context.to_dict()
+            if context_dict:
+                log_entry["context"] = context_dict
+
+    def _add_exception_info(self, record: logging.LogRecord, log_entry: dict) -> None:
+        """Add exception information to the log entry if present in the record.
+
+        Args:
+            record (logging.LogRecord): The log record that may contain exception info.
+            log_entry (dict): The dictionary to populate with exception details.
+        """
+        if not record.exc_info:
+            return
+        if record.exc_info is True:
+            import sys
+
+            exc_info = sys.exc_info()
+            if exc_info and exc_info[0] is not None:
+                log_entry["exception"] = self.formatException(exc_info)
+        elif isinstance(record.exc_info, tuple) and len(record.exc_info) == 3:
+            log_entry["exception"] = self.formatException(record.exc_info)
+
+    @staticmethod
+    def _add_extra_fields(record: logging.LogRecord, log_entry: dict) -> None:
+        """Add any additional fields from the log record to the log entry,
+        excluding standard attributes.
+
+        Args:
+            record (logging.LogRecord): The log record to extract extra fields from.
+            log_entry (dict): The dictionary to populate with extra fields.
+        """
+        excluded = {
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_info",
+            "exc_text",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "getMessage",
+        }
+        for key, value in record.__dict__.items():
+            if key not in excluded:
+                log_entry[key] = value
 
 
 class AsyncLogHandler(logging.Handler):

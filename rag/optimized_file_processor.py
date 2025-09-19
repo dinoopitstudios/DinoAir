@@ -136,6 +136,35 @@ class OptimizedFileProcessor(FileProcessor):
             f"OptimizedFileProcessor initialized with {self.max_workers} workers, caching={'enabled' if enable_caching else 'disabled'}"
         )
 
+    def _gather_file_stats(self, file_path: str) -> tuple[int, datetime, str]:
+        stat = os.stat(file_path)
+        size = int(stat.st_size)
+        modified_dt = datetime.fromtimestamp(stat.st_mtime)
+        file_type = (os.path.splitext(file_path)[1] or "").lstrip(".").lower() or "unknown"
+        return size, modified_dt, file_type
+
+    def _should_skip(self, existing: dict[str, Any] | None, size: int, file_hash: str, force_reprocess: bool) -> dict[str, Any] | None:
+        if existing and not force_reprocess:
+            try:
+                existing_size = int(existing.get("size") or 0)
+                existing_hash = str(existing.get("file_hash") or "")
+                if existing_size == size and existing_hash == file_hash:
+                    return {
+                        "success": True,
+                        "file_id": existing.get("id"),
+                        "chunks": [],
+                        "stats": {"action": "skipped"},
+                        "message": "Unchanged file; skipped",
+                    }
+        except (OSError, ValueError, TypeError):
+            pass
+        return None
+
+    def _read_file_text(self, file_path: str) -> str:
+        with open(file_path, "rb") as f:
+            raw = f.read()
+        return raw.decode("utf-8", errors="ignore")
+
     def process_file(self, file_path: str, **kwargs) -> dict[str, Any]:
         """
         Minimal concrete file processing:
@@ -143,108 +172,85 @@ class OptimizedFileProcessor(FileProcessor):
         - Chunks by characters using configured chunk_size/overlap
         - Stores file, chunks, and embeddings (when enabled) in DB
         """
+        force_reprocess: bool = bool(kwargs.get("force_reprocess", False))
+        _store_in_db: bool = bool(kwargs.get("store_in_db", True))
+        if not os.path.isfile(file_path):
+            return {"success": False, "error": f"File not found: {file_path}"}
+
+        size, modified_dt, file_type = self._gather_file_stats(file_path)
+        file_hash = self._calculate_file_hash(
+            file_path, chunk_size=getattr(self, "chunk_size", 65536)
+        )
+        existing = self.db.get_file_by_path(os.path.normpath(file_path))
+        skip_resp = self._should_skip(existing, size, file_hash, force_reprocess)
+        if skip_resp:
+            return skip_resp
+
         try:
-            force_reprocess: bool = bool(kwargs.get("force_reprocess", False))
-            _store_in_db: bool = bool(kwargs.get("store_in_db", True))
-            if not os.path.isfile(file_path):
-                return {"success": False, "error": f"File not found: {file_path}"}
+            text = self._read_file_text(file_path)
+        except Exception as e:
+            return {"success": False, "error": f"Unable to read file: {str(e)}"}
 
-            # Gather file stats
-            stat = os.stat(file_path)
-            size = int(stat.st_size)
-            modified_dt = datetime.fromtimestamp(stat.st_mtime)
-            file_type = (os.path.splitext(file_path)[1] or "").lstrip(".").lower() or "unknown"
+        # Index file record
+        add_file_resp = self.db.add_indexed_file(
+            file_path=os.path.normpath(file_path),
+            file_hash=file_hash,
+            size=size,
+            modified_date=modified_dt,
+            file_type=file_type,
+            metadata={"source": "optimized_processor"},
+        )
+        if not add_file_resp.get("success"):
+            return {
+                "success": False,
+                "error": add_file_resp.get("error") or "Failed to index file",
+            }
 
-            # Compute file hash and check for reprocessing needs (basic heuristic)
-            file_hash = self._calculate_file_hash(
-                file_path, chunk_size=getattr(self, "chunk_size", 65536)
-            )
-            existing = self.db.get_file_by_path(os.path.normpath(file_path))
-            if existing and not force_reprocess:
-                # If basic invariants haven't changed, skip
-                try:
-                    existing_size = int(existing.get("size") or 0)
-                    existing_hash = str(existing.get("file_hash") or "")
-                    if existing_size == size and existing_hash == file_hash:
-                        return {
-                            "success": True,
-                            "file_id": existing.get("id"),
-                            "chunks": [],
-                            "stats": {"action": "skipped"},
-                            "message": "Unchanged file; skipped",
-                        }
-                except (OSError, ValueError, TypeError):
-                    # On any parsing issue, fall through to process
-                    pass
+        file_id = add_file_resp.get("file_id")
+        if not file_id:
+            return {"success": False, "error": "No file_id returned from DB"}
 
-            # Read file content (simple text path for md/txt)
-            try:
-                with open(file_path, "rb") as f:
-                    raw = f.read()
-                text = raw.decode("utf-8", errors="ignore")
-            except Exception as e:
-                return {"success": False, "error": f"Unable to read file: {str(e)}"}
+        # Chunk content
+        cs = self.chunk_size or 1000
+        ov = self.chunk_overlap or 200
+        cs = max(100, int(cs))
+        ov = max(0, min(int(ov), cs - 1))
 
-            # Index file record
-            add_file_resp = self.db.add_indexed_file(
-                file_path=os.path.normpath(file_path),
-                file_hash=file_hash,
-                size=size,
-                modified_date=modified_dt,
-                file_type=file_type,
-                metadata={"source": "optimized_processor"},
-            )
-            if not add_file_resp.get("success"):
-                return {
-                    "success": False,
-                    "error": add_file_resp.get("error") or "Failed to index file",
+        chunks: list[dict[str, Any]] = []
+        start = 0
+        n = len(text)
+        idx = 0
+        while start < n:
+            end = min(n, start + cs)
+            chunk_text = text[start:end]
+            chunks.append(
+                {
+                    "chunk_index": idx,
+                    "content": chunk_text,
+                    "start_pos": start,
+                    "end_pos": end,
                 }
+            )
+            if end >= n:
+                break
+            start = end - ov
+            idx += 1
 
-            file_id = add_file_resp.get("file_id")
-            if not file_id:
-                return {"success": False, "error": "No file_id returned from DB"}
-
-            # Chunk content
-            cs = self.chunk_size or 1000
-            ov = self.chunk_overlap or 200
-            cs = max(100, int(cs))
-            ov = max(0, min(int(ov), cs - 1))
-
-            chunks: list[dict[str, Any]] = []
-            start = 0
-            n = len(text)
-            idx = 0
-            while start < n:
-                end = min(n, start + cs)
-                chunk_text = text[start:end]
-                chunks.append(
-                    {
-                        "chunk_index": idx,
-                        "content": chunk_text,
-                        "start_pos": start,
-                        "end_pos": end,
-                    }
-                )
-                if end >= n:
-                    break
-                start = end - ov
-                idx += 1
-
-            # Store chunks
-            chunk_ids: list[str] = []
-            for c in chunks:
-                add_chunk_resp = self.db.add_chunk(
-                    file_id=file_id,
-                    chunk_index=c["chunk_index"],
-                    content=c["content"],
-                    start_pos=c["start_pos"],
-                    end_pos=c["end_pos"],
-                    metadata={"file_type": file_type},
-                )
-                if add_chunk_resp.get("success"):
-                    cid = add_chunk_resp.get("chunk_id")
-                    if isinstance(cid, str):
-                        chunk_ids.append(cid)
+        # Store chunks
+        chunk_ids: list[str] = []
+        for c in chunks:
+            add_chunk_resp = self.db.add_chunk(
+                file_id=file_id,
+                chunk_index=c["chunk_index"],
+                content=c["content"],
+                start_pos=c["start_pos"],
+                end_pos=c["end_pos"],
+                metadata={"file_type": file_type},
+            )
+            if add_chunk_resp.get("success"):
+                cid = add_chunk_resp.get("chunk_id")
+                if isinstance(cid, str):
+                    chunk_ids.append(cid)
                     else:
                         self.logger.error(
                             f"Chunk ID missing or invalid for file {file_path}, index {c['chunk_index']}"
@@ -574,45 +580,72 @@ class OptimizedFileProcessor(FileProcessor):
         if not self.generate_embeddings or not self._embedding_generator:
             return 0
 
-        try:
-            total_chunks = len(chunk_ids)
-            embeddings_stored = 0
-            embeddings_to_generate = []
-            cached_embeddings = []
+        total_chunks = len(chunk_ids)
+        embeddings_to_generate, cached_embeddings = self._partition_embeddings(chunk_ids, chunk_texts)
 
-            # Check cache for existing embeddings
-            if self.enable_caching:
-                for i, (chunk_id, chunk_text) in enumerate(
-                    zip(chunk_ids, chunk_texts, strict=False)
-                ):
-                    cached = self.embedding_cache.get(chunk_id)
-                    if cached:
-                        cached_embeddings.append((i, chunk_id, cached))
-                    else:
-                        embeddings_to_generate.append((i, chunk_id, chunk_text))
-            else:
-                embeddings_to_generate = [
-                    (i, chunk_id, chunk_text)
-                    for i, (chunk_id, chunk_text) in enumerate(
-                        zip(chunk_ids, chunk_texts, strict=False)
+        new_embeddings = self._generate_batches(
+            embeddings_to_generate, cached_embeddings, total_chunks, progress_callback
+        )
+        return self._store_embeddings(new_embeddings, cached_embeddings)
+
+    def _partition_embeddings(
+        self,
+        chunk_ids: list[str],
+        chunk_texts: list[str]
+    ) -> tuple[list[tuple[int, str, str]], list[tuple[int, str, Any]]]:
+        embeddings_to_generate: list[tuple[int, str, str]] = []
+        cached_embeddings: list[tuple[int, str, Any]] = []
+        if self.enable_caching:
+            for i, (chunk_id, chunk_text) in enumerate(zip(chunk_ids, chunk_texts, strict=False)):
+                cached = self.embedding_cache.get(chunk_id)
+                if cached:
+                    cached_embeddings.append((i, chunk_id, cached))
+                else:
+                    embeddings_to_generate.append((i, chunk_id, chunk_text))
+        else:
+            embeddings_to_generate = [
+                (i, chunk_id, chunk_text)
+                for i, (chunk_id, chunk_text) in enumerate(zip(chunk_ids, chunk_texts, strict=False))
+            ]
+        return embeddings_to_generate, cached_embeddings
+
+    def _generate_batches(
+        self,
+        embeddings_to_generate: list[tuple[int, str, str]],
+        cached_embeddings: list[tuple[int, str, Any]],
+        total_chunks: int,
+        progress_callback: Callable[[str, int, int], None] | None
+    ) -> list[tuple[int, str, Any]]:
+        new_embeddings: list[tuple[int, str, Any]] = []
+        if embeddings_to_generate:
+            batch_size = self.embedding_batch_size
+            for start in range(0, len(embeddings_to_generate), batch_size):
+                end = min(start + batch_size, len(embeddings_to_generate))
+                batch = embeddings_to_generate[start:end]
+                if progress_callback:
+                    progress_callback(
+                        f"Generating embeddings ({end}/{len(embeddings_to_generate)} new, {len(cached_embeddings)} cached)",
+                        end + len(cached_embeddings),
+                        total_chunks,
                     )
-                ]
+                texts = [text for _, _, text in batch]
+                results = self._embedding_generator.generate(texts)
+                for (i, chunk_id, _), embedding in zip(batch, results):
+                    new_embeddings.append((i, chunk_id, embedding))
+        return new_embeddings
 
-            # Generate new embeddings in batches
-            new_embeddings = []
-            if embeddings_to_generate:
-                batch_size = self.embedding_batch_size
-
-                for batch_start in range(0, len(embeddings_to_generate), batch_size):
-                    batch_end = min(batch_start + batch_size, len(embeddings_to_generate))
-                    batch = embeddings_to_generate[batch_start:batch_end]
-
-                    # Update progress
-                    if progress_callback:
-                        progress_callback(
-                            f"Generating embeddings ({batch_end}/{len(embeddings_to_generate)} new, {len(cached_embeddings)} cached)",
-                            batch_end + len(cached_embeddings),
-                            total_chunks,
+    def _store_embeddings(
+        self,
+        new_embeddings: list[tuple[int, str, Any]],
+        cached_embeddings: list[tuple[int, str, Any]]
+    ) -> int:
+        count = 0
+        for i, chunk_id, embedding in new_embeddings + cached_embeddings:
+            if self.enable_caching:
+                self.embedding_cache.put(chunk_id, embedding)
+            self._save_embedding(chunk_id, embedding)
+            count += 1
+        return count
                         )
 
                     # Generate batch embeddings

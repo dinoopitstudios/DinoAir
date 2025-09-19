@@ -421,6 +421,22 @@ class DependencyMonitor:
         return report
 
 
+def handle_monitor(monitor: DependencyMonitor, continuous: bool, interval: int):
+    if continuous:
+        print(f"Starting continuous monitoring (interval: {interval}s)")
+        try:
+            while True:
+                report = monitor.run_monitoring_cycle()
+                if report["critical_alerts"] > 0:
+                    print(report)
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            pass
+    else:
+        report = monitor.run_monitoring_cycle()
+        print(report)
+
+
 def main():
     """Main entry point for dependency monitoring."""
     parser = argparse.ArgumentParser(
@@ -467,15 +483,7 @@ def main():
 
     if args.command == "monitor":
         if args.continuous:
-            print(f"Starting continuous monitoring (interval: {args.interval}s)")
-            try:
-                while True:
-                    report = monitor.run_monitoring_cycle()
-                    if report["critical_alerts"] > 0:
-                        print(f"🚨 {report['critical_alerts']} critical alerts detected!")
-                    time.sleep(args.interval)
-            except KeyboardInterrupt:
-                print("\nMonitoring stopped by user")
+            handle_monitor(monitor, args.continuous, args.interval)
         else:
             report = monitor.run_monitoring_cycle()
             print(json.dumps(report, indent=2))

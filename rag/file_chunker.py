@@ -519,6 +519,25 @@ class FileChunker:
 
         return final_boundaries
 
+    def _update_string_brace(self, line: str, in_string: bool, string_char: str, brace_count: int) -> tuple[bool, str, int]:
+        for char in line:
+            if not in_string and char in ("'", '"'):
+                in_string = True
+                string_char = char
+            elif in_string and char == string_char:
+                in_string = False
+            elif not in_string:
+                if char == "{":
+                    brace_count += 1
+                elif char == "}":
+                    brace_count -= 1
+        return in_string, string_char, brace_count
+
+    def _is_block_end(self, index: int, in_string: bool, brace_count: int, first_line: str, current_indent: int, base_indent: int) -> bool:
+        if "{" in first_line:
+            return index > 0 and not in_string and brace_count == 0
+        return index > 0 and current_indent <= base_indent
+
     def _find_code_block_end(self, code: str, start: int, language: str) -> int:
         """
         Find the end of a code block starting at the given position.
@@ -530,54 +549,31 @@ class FileChunker:
         if not lines:
             return start
 
-        # Get indentation of first line
         first_line = lines[0]
         base_indent = len(first_line) - len(first_line.lstrip())
-
-        # Count braces for languages that use them
         brace_count = 0
         in_string = False
         string_char = None
-
         end_pos = start
 
         for i, line in enumerate(lines):
-            # Update position
             end_pos += len(line) + 1  # +1 for newline
-
-            # Skip empty lines
             if not line.strip():
                 continue
 
-            # Check indentation
             current_indent = len(line) - len(line.lstrip())
+            in_string, string_char, brace_count = self._update_string_brace(line, in_string, string_char, brace_count)
 
-            # Simple string detection (not perfect but good enough)
-            for char in line:
-                if not in_string and char in ['"', "'"]:
-                    in_string = True
-                    string_char = char
-                elif in_string and char == string_char:
-                    in_string = False
-                elif not in_string:
-                    if char == "{":
-                        brace_count += 1
-                    elif char == "}":
-                        brace_count -= 1
-
-            # Check if we've returned to base level
-            if i > 0 and not in_string:
-                # For brace languages
-                if brace_count == 0 and "{" in first_line:
-                    break
-                # For indentation-based languages (like Python)
-                if (
-                    current_indent <= base_indent
-                    and line.strip()
-                    and not line.strip().startswith(("else", "elif", "except", "finally"))
-                ):
-                    end_pos -= len(line) + 1  # Don't include this line
-                    break
+            if self._is_block_end(i, in_string, brace_count, first_line, current_indent, base_indent):
+                break
+            # For indentation-based languages (like Python)
+            if (
+                current_indent <= base_indent
+                and line.strip()
+                and not line.strip().startswith(("else", "elif", "except", "finally"))
+            ):
+                end_pos -= len(line) + 1  # Don't include this line
+                break
 
         return min(end_pos, start + len(code[start:]))
 

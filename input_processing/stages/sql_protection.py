@@ -56,124 +56,150 @@ class SQLInjectionProtection:
         "/*",
         "*/",
         "@@",
-        "@",
-        "CHAR(",
-        "NCHAR(",
-        "VARCHAR(",
-        "NVARCHAR(",
-        "EXEC(",
-        "EXECUTE(",
-        "CAST(",
-        "CONVERT(",
-        "0x",
-        "\\x",
-        "PASSWORD(",
-        "ENCRYPT(",
-        "CONCAT(",
-        "SUBSTRING(",
-        "LENGTH(",
-        "ASCII(",
-        "MD5(",
-        "SHA1(",
-        "SHA2(",
-        "ENCODE(",
-        "DECODE(",
-        "BENCHMARK(",
-        "SLEEP(",
-        "WAITFOR",
-    }
+    """
+    SQL Injection Protection Module.
 
-    # Common SQL injection patterns
-    SQL_PATTERNS: list[str] = [
-        r"('\s*OR\s*'?\d*'?\s*=\s*'?\d*'?)",  # ' OR '1'='1' variations
-        r"('\s*OR\s+\d+\s*=\s*\d+)",  # ' OR 1=1
-        r"(;\s*DROP\s+TABLE\s+\w+)",  # ; DROP TABLE
-        r"(;\s*DELETE\s+FROM\s+\w+)",  # ; DELETE FROM
-        r"('\s*;\s*--)",  # '; --
-        r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
-        r"(UNION\s+SELECT)",  # UNION SELECT
-        r"(INTO\s+OUTFILE)",  # INTO OUTFILE
-        r"(LOAD_FILE\s*\()",  # LOAD_FILE(
-        r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
-        r"('\s*AND\s*SLEEP\s*\()",  # Time-based injection
-        r"('\s*AND\s*BENCHMARK\s*\()",  # Benchmark injection
-        r"(INFORMATION_SCHEMA)",  # Information schema access
-        r"(sys\.databases)",  # System tables
-        r"(xp_cmdshell)",  # Command execution
-        r"('\s*HAVING\s+\d+\s*=\s*\d+)",  # HAVING clause injection
-        r"('\s*GROUP\s+BY\s+\w+\s*--)",  # GROUP BY injection
-        r"('\s*ORDER\s+BY\s+\d+\s*--)",  # ORDER BY injection
-    ]
+    This module provides detection and sanitization methods for identifying and mitigating SQL injection attempts in user-provided input.
+    """
 
-    @staticmethod
-    def detect_sql_injection(text: str) -> bool:
-        """Detect potential SQL injection attempts."""
-        if not text:
-            return False
-
-        text_upper = text.upper()
-
-        # Check for SQL comments
-        if "--" in text or "/*" in text or "*/" in text:
-            return True
-
-        # Check for multiple SQL keywords in suspicious context
-        keyword_count = 0
-        for keyword in SQLInjectionProtection.SQL_KEYWORDS:
-            if f" {keyword} " in f" {text_upper} ":
-                keyword_count += 1
-                if keyword_count >= 2:  # Multiple SQL keywords
-                    return True
-
-        # Check for SQL operators
-        for operator in SQLInjectionProtection.SQL_OPERATORS:
-            if operator.upper() in text_upper:
-                return True
-
-        # Check for specific injection patterns
-        for pattern in SQLInjectionProtection.SQL_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
-                return True
-
-        # Check for hex-encoded SQL
-        if re.search(r"0x[0-9a-fA-F]+", text):
-            # Could be hex-encoded SQL
-            return True
-
-        # Check for string concatenation attempts
-        if any(op in text for op in ["||", "CONCAT", "+", "CHR("]):
-            # Check if it's in SQL context
-            if any(kw in text_upper for kw in ["SELECT", "WHERE", "AND", "OR"]):
-                return True
-
-        return False
-
-    @staticmethod
-    def sanitize_sql_input(text: str) -> str:
-        """Sanitize input for SQL queries."""
-        if not text:
-            return text
-
-        # Remove SQL comments
-        text = re.sub(r"--.*$", "", text, flags=re.MULTILINE)
-        text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
-
-        # Escape single quotes (double them for SQL)
-        text = text.replace("'", "''")
-
-        # Remove/escape other dangerous characters
-        dangerous_chars = {
-            ";": "",  # Remove semicolons
-            "\\": "\\\\",  # Escape backslashes
-            "\x00": "",  # Remove null bytes
-            "\n": " ",  # Replace newlines with spaces
-            "\r": " ",  # Replace carriage returns
-            "\x1a": "",  # Remove SUB character
-            '"': '""',  # Escape double quotes
+            "@",
+            "CHAR(",
+            "NCHAR(",
+            "VARCHAR(",
+            "NVARCHAR(",
+            "EXEC(",
+            "EXECUTE(",
+            "CAST(",
+            "CONVERT(",
+            "0x",
+            "\\x",
+            "PASSWORD(",
+            "ENCRYPT(",
+            "CONCAT(",
+            "SUBSTRING(",
+            "LENGTH(",
+            "ASCII(",
+            "MD5(",
+            "SHA1(",
+            "SHA2(",
+            "ENCODE(",
+            "DECODE(",
+            "BENCHMARK(",
+            "SLEEP(",
+            "WAITFOR",
         }
 
-        for char, replacement in dangerous_chars.items():
-            text = text.replace(char, replacement)
+        # Common SQL injection patterns
+        SQL_PATTERNS: list[str] = [
+            r"('\s*OR\s*'?\d*'?\s*=\s*'?\d*'?)",  # ' OR '1'='1' variations
+            r"('\s*OR\s+\d+\s*=\s*\d+)",  # ' OR 1=1
+            r"(;\s*DROP\s+TABLE\s+\w+)",  # ; DROP TABLE
+            r"(;\s*DELETE\s+FROM\s+\w+)",  # ; DELETE FROM
+            r"('\s*;\s*--)",  # '; --
+            r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
+            r"(UNION\s+SELECT)",  # UNION SELECT
+            r"(INTO\s+OUTFILE)",  # INTO OUTFILE
+            r"(LOAD_FILE\s*\()",  # LOAD_FILE(
+            r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
+            r"('\s*AND\s*SLEEP\s*\(),",  # Time-based injection
+            r"('\s*AND\s*BENCHMARK\s*\(),",  # Benchmark injection
+            r"(INFORMATION_SCHEMA)",  # Information schema access
+            r"(sys\.databases)",  # System tables
+            r"(xp_cmdshell)",  # Command execution
+            r"('\s*HAVING\s+\d+\s*=\s*\d+)",  # HAVING clause injection
+            r"('\s*GROUP\s+BY\s+\w+\s*--)",  # GROUP BY injection
+            r"('\s*ORDER\s+BY\s+\d+\s*--)",  # ORDER BY injection
+        ]
+
+        @staticmethod
+        def _has_sql_comments(text: str) -> bool:
+                """Return True if the text contains SQL comment markers ('--', '/*', or '*/')."""
+                return "--" in text or "/*" in text or "*/" in text
+
+        @staticmethod
+        def _excessive_sql_keywords(text: str) -> bool:
+                """Return True if the text contains two or more SQL keywords indicating potential injection."""
+                text_upper = text.upper()
+                count = sum(1 for kw in SQLInjectionProtection.SQL_KEYWORDS if f" {kw} " in f" {text_upper} ")
+                return count >= 2
+
+        @staticmethod
+        def _contains_sql_operator(text: str) -> bool:
+                """Return True if the text contains any SQL operator
+                from the predefined list."""
+                text_upper = text.upper()
+                return any(
+                    op.upper() in text_upper
+                    for op in SQLInjectionProtection.SQL_OPERATORS
+                )
+
+        @staticmethod
+        def _matches_sql_patterns(text: str) -> bool:
+                """Return True if the text matches any common SQL injection regex pattern."""
+                return any(
+                    re.search(pattern, text, re.IGNORECASE)
+                    for pattern in SQLInjectionProtection.SQL_PATTERNS
+                )
+                """
+                Return True if the text contains hex-encoded SQL patterns
+                (e.g., starting with 0x).
+                """
+                return bool(re.search(r"0x[0-9a-fA-F]+", text))
+
+        @staticmethod
+        def _has_string_concat_in_sql_context(text: str) -> bool:
+                """Return True if the text uses string concatenation operators in a SQL context (e.g., SELECT, WHERE)."""
+                if any(op in text for op in ["||", "CONCAT", "+", "CHR("]):
+                    text_upper = text.upper()
+                    return any(kw in text_upper for kw in ["SELECT", "WHERE", "AND", "OR"])
+                return False
+
+        @staticmethod
+        def detect_sql_injection(text: str) -> bool:
+            """Detect potential SQL injection attempts in the provided text."""
+            if not text:
+                return False
+            if SQLInjectionProtection._has_sql_comments(text):
+                return True
+            if SQLInjectionProtection._excessive_sql_keywords(text):
+                return True
+            if SQLInjectionProtection._contains_sql_operator(text):
+                return True
+            if SQLInjectionProtection._matches_sql_patterns(text):
+                return True
+            if SQLInjectionProtection._contains_hex_encoded_sql(text):
+                return True
+            if SQLInjectionProtection._has_string_concat_in_sql_context(text):
+                return True
+            return False
+
+        @staticmethod
+        def sanitize_sql_input(text: str) -> str:
+            """Sanitize input text to mitigate SQL injection by removing comments, escaping quotes, and filtering dangerous characters."""
+            if not text:
+                return text
+
+            # Remove SQL comments
+            text = re.sub(r"--.*$", "", text, flags=re.MULTILINE)
+            text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
+            # Escape single quotes (double them for SQL)
+            text = text.replace("'", "''")
+
+            # Remove/escape other dangerous characters
+            dangerous_chars = {
+                ";": "",  # Remove semicolons
+                "\\": "\\\\",  # Escape backslashes
+                "\x00": "",  # Remove null bytes
+                "\n": " ",  # Replace newlines with spaces
+                "\r": " ",  # Replace carriage returns
+                "\x1a": "",  # Remove SUB character
+                '"': '""',  # Escape double quotes
+            }
+
+            for char, replacement in dangerous_chars.items():
+                text = text.replace(char, replacement)
+            return text
 
         # Remove any remaining control characters
         text = re.sub(r"[\x00-\x1f\x7f]", "", text)

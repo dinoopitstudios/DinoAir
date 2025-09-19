@@ -100,133 +100,144 @@ class InputPipeline:
                 components.
             enable_enhanced_security: Enable comprehensive XSS, SQL injection,
                 and Unicode protection.
-        """
-        self.gui_feedback = gui_feedback_hook
-        self.skip_empty_feedback = skip_empty_feedback
+    """Module for input sanitization providing security checks, validation, enhanced security processing, and rate limiting for user inputs."""
+            """
+            self.gui_feedback = gui_feedback_hook
+            self.skip_empty_feedback = skip_empty_feedback
 
-        # Initialize modular components
-        self.validator = InputValidator()
-        self.escaper = TextEscaper(model_type)
-        self.pattern_normalizer = PatternNormalizer()
-        self.profanity_filter = ProfanityFilter()
-        self.intent_classifier = IntentClassifier()
+            # Initialize modular components
+            self.validator = InputValidator()
+            self.escaper = TextEscaper(model_type)
+            self.pattern_normalizer = PatternNormalizer()
+            self.profanity_filter = ProfanityFilter()
+            self.intent_classifier = IntentClassifier()
 
-        # Initialize enhanced security if enabled
-        self.enable_enhanced_security = enable_enhanced_security
-        if enable_enhanced_security:
-            logger = Logger() if watchdog_ref else None
-            self.enhanced_sanitizer = EnhancedInputSanitizer(logger)
-        else:
-            self.enhanced_sanitizer = None
-
-        # Configure rate limiter
-        rate_config = RateLimitConfig(
-            max_requests=60,
-            window_seconds=60,
-            strategy=RateLimitStrategy.SLIDING_WINDOW,
-        )
-        self.rate_limiter = RateLimiter(rate_config)
-
-        # Initialize context manager (kept from original)
-        self.context = ContextManager()
-
-        # Initialize watchdog command handler
-        self.watchdog_handler = WatchdogCommandHandler(
-            watchdog=watchdog_ref, chat_callback=gui_feedback_hook
-        )
-
-        # Store references for legacy compatibility
-        self.watchdog_ref = watchdog_ref
-        self.main_window_ref = main_window_ref
-
-        # Store alerts history for legacy compatibility
-        self.watchdog_alerts_history: list[tuple[str, str, datetime]] = []
-        # Security outcome counters (basic metrics)
-        self.security_counters: dict[str, int] = {
-            "attacks_blocked": 0,
-            "rejections": 0,
-        }
-
-        # User identifier for rate limiting
-        self.user_id = "default_user"  # Could use actual user ID
-
-    def run(self, raw: str) -> tuple[str, IntentType]:
-        """Process raw input through the sanitization pipeline.
-
-        Args:
-            raw: Raw user input string.
-
-        Returns:
-            A tuple containing:
-                - Sanitized text string ready for LLM processing
-                - Classified intent enum value
-
-        Raises:
-            InputPipelineError: If any stage of the pipeline fails.
-        """
-        try:
-            # Stage 0: Rate limiting check
-            rate_status = self.rate_limiter.check_rate_limit(self.user_id, action="default")
-            if not rate_status.allowed:
-                self.gui_feedback(f"⏱️ {rate_status.message}")
-                raise InputPipelineError(rate_status.message)
-
-            # Stage 1: Enhanced security processing (if enabled)
-            if self.enable_enhanced_security and self.enhanced_sanitizer:
-                try:
-                    # Apply comprehensive security sanitization
-                    text = self.enhanced_sanitizer.sanitize_input(
-                        raw, context="general", allow_unicode=True, strict_mode=False
-                    )
-
-                    # Check security summary for attacks
-                    security_summary = self.enhanced_sanitizer.get_security_summary()
-                    total_attacks = security_summary.get("total_attacks", 0)
-                    if total_attacks > 0:
-                        # Increment basic security counter for attacks blocked
-                        try:
-                            self.security_counters["attacks_blocked"] += int(total_attacks)
-                        except Exception:
-                            self.security_counters["attacks_blocked"] = self.security_counters.get(
-                                "attacks_blocked", 0
-                            ) + int(total_attacks)
-                        self.gui_feedback(f"🛡️ Security: Blocked {total_attacks} attack(s)")
-                except ValueError as e:
-                    # Strict mode rejection
-                    try:
-                        self.security_counters["rejections"] += 1
-                    except Exception:
-                        self.security_counters["rejections"] = (
-                            self.security_counters.get("rejections", 0) + 1
-                        )
-                    self.gui_feedback(f"🚨 Security: {str(e)}")
-                    raise InputPipelineError(str(e))
+            # Initialize enhanced security if enabled
+            self.enable_enhanced_security = enable_enhanced_security
+            if enable_enhanced_security:
+                logger = Logger() if watchdog_ref else None
+                self.enhanced_sanitizer = EnhancedInputSanitizer(logger)
             else:
-                # Original validation path
-                validation_result = self.validator.validate(raw)
+                self.enhanced_sanitizer = None
 
-                if not validation_result.is_valid:
-                    # Create message from issues
-                    issues = validation_result.issues
-                    message = "; ".join(issues) if issues else "Invalid input"
+            # Configure rate limiter
+            rate_config = RateLimitConfig(
+                max_requests=60,
+                window_seconds=60,
+                strategy=RateLimitStrategy.SLIDING_WINDOW,
+            )
+            self.rate_limiter = RateLimiter(rate_config)
 
-                    # Handle validation failures based on threat level
-                    if validation_result.threat_level == ThreatLevel.HIGH:
-                        self.gui_feedback(f"🚨 {message}")
-                        raise InputPipelineError(message)
-                    if validation_result.threat_level == ThreatLevel.MEDIUM:
-                        self.gui_feedback(f"⚠️ {message}")
-                        # Continue with sanitized text
-                    else:
-                        self.gui_feedback(f"ℹ️ {message}")
+            # Initialize context manager (kept from original)
+            self.context = ContextManager()
 
-                text = validation_result.cleaned_text
+            # Initialize watchdog command handler
+            self.watchdog_handler = WatchdogCommandHandler(
+                watchdog=watchdog_ref, chat_callback=gui_feedback_hook
+            )
 
-            # Handle empty input gracefully
-            if not text:
-                if not self.skip_empty_feedback:
-                    self.gui_feedback("Empty input - please enter a message")
-                return "", IntentType.UNCLEAR
+            # Store references for legacy compatibility
+            self.watchdog_ref = watchdog_ref
+            self.main_window_ref = main_window_ref
+
+            # Store alerts history for legacy compatibility
+            self.watchdog_alerts_history: list[tuple[str, str, datetime]] = []
+            # Security outcome counters (basic metrics)
+            self.security_counters: dict[str, int] = {
+                "attacks_blocked": 0,
+                "rejections": 0,
+            }
+
+            # User identifier for rate limiting
+            self.user_id = "default_user"  # Could use actual user ID
+
+        def _increment_counter(self, key: str, value: int = 1) -> None:
+            """Increment the security counter for the given key by the specified value.
+
+            Args:
+                key: The name of the counter to increment.
+                value: The amount to add to the counter. Default is 1.
+            """
+            try:
+                self.security_counters[key] += value
+            except KeyError:
+                self.security_counters[key] = value
+
+        def _process_enhanced_security(self, text: str) -> str:
+            """Process security enhancements on the input text, performing sanitization and updating counters.
+
+            Args:
+                text: The input text to sanitize.
+
+            Returns:
+                The sanitized text string.
+
+            Raises:
+                InputPipelineError: If sanitization fails due to a strict mode violation.
+            """
+            try:
+                sanitized = self.enhanced_sanitizer.sanitize_input(
+                    text, context="general", allow_unicode=True, strict_mode=False
+                )
+                summary = self.enhanced_sanitizer.get_security_summary()
+                attacks = summary.get("total_attacks", 0)
+                if attacks > 0:
+                    self._increment_counter("attacks_blocked", int(attacks))
+                    self.gui_feedback(f"🛡️ Security: Blocked {attacks} attack(s)")
+                return sanitized
+            except ValueError as e:
+                self._increment_counter("rejections", 1)
+                self.gui_feedback(f"🚨 Security: {str(e)}")
+                raise InputPipelineError(str(e))
+
+        def _check_rate_limit(self) -> None:
+            status = self.rate_limiter.check_rate_limit(self.user_id, action="default")
+            if not status.allowed:
+                self.gui_feedback(f"⏱️ {status.message}")
+                raise InputPipelineError(status.message)
+
+        def _validate_input(self, raw: str) -> str:
+            result = self.validator.validate(raw)
+            message = "; ".join(result.issues) if result.issues else "Invalid input"
+            icons = {
+                ThreatLevel.HIGH: "🚨",
+                ThreatLevel.MEDIUM: "⚠️",
+            }
+            icon = icons.get(result.threat_level, "ℹ️")
+            self.gui_feedback(f"{icon} {message}")
+            if result.threat_level == ThreatLevel.HIGH:
+                raise InputPipelineError(message)
+            return result.cleaned_text
+
+        def _sanitize(self, raw: str) -> str:
+            if self.enable_enhanced_security and self.enhanced_sanitizer:
+                return self._process_enhanced_security(raw)
+            return self._validate_input(raw)
+
+        def run(self, raw: str) -> tuple[str, IntentType]:
+            """Process raw input through the sanitization pipeline.
+
+            Args:
+                raw: Raw user input string.
+
+            Returns:
+                A tuple containing:
+                    - Sanitized text string ready for LLM processing
+                    - Classified intent enum value
+
+            Raises:
+                InputPipelineError: If any stage of the pipeline fails.
+            """
+            try:
+                self._check_rate_limit()
+                text = self._sanitize(raw)
+
+                if not text:
+                    if not self.skip_empty_feedback:
+                        self.gui_feedback("Empty input - please enter a message")
+                    return "", IntentType.UNCLEAR
+
+                # Continue with further processing...
 
             # Stage 2: Pattern normalization
             text, pattern_metadata = self.pattern_normalizer.normalize(text)

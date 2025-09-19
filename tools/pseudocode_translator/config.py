@@ -251,6 +251,13 @@ class LLMConfig:
                 model_path=cast("str | None", getattr(
                     model_config, "model_path", None)),
                 temperature=cast("float", getattr(
+"""Streaming configuration module.
+
+This module provides the StreamingConfig dataclass for configuring streaming
+options and includes validation methods to ensure configuration parameters
+fall within acceptable ranges.
+"""
+
                     model_config, "temperature", 0.3)),
                 max_tokens=cast("int", getattr(
                     model_config, "max_tokens", 1024)),
@@ -301,60 +308,83 @@ class StreamingConfig:
         if hasattr(self, "enable_streaming"):
             self.enabled = self.enable_streaming
 
+    @staticmethod
+    def _validate_range(
+        value: int | float,
+        name: str,
+        error_threshold: int | float,
+        warn_range: tuple[int | float, int | float],
+        errors: list[str],
+        warnings: list[str],
+    ) -> None:
+        """
+        Validate that 'value' is greater than 'error_threshold' and within 'warn_range'.
+        Append error messages to 'errors' or warnings to 'warnings' as appropriate.
+        """
+        if value <= error_threshold:
+            errors.append(f"{name} must be > {error_threshold}, got {value}")
+        elif not warn_range[0] <= value <= warn_range[1]:
+            warnings.append(
+                f"{name} should be between {warn_range[0]} and "
+                f"{warn_range[1]}, got {value}"
+            )
+
+    @staticmethod
+    def _validate_min(
+        name: str,
+        value: int | float,
+        min_value: int | float,
+        errors: list[str],
+    ) -> None:
+        """
+        Ensure that 'value' is at least 'min_value'.
+        Append an error message to 'errors' if the value is below the minimum.
+        """
+        if value < min_value:
+            errors.append(f"{name} must be >= {min_value}, got {value}")
+
     def validate(self, strict: bool = False) -> dict[str, list[str]] | list[str]:
         """Validate streaming configuration with warnings and errors."""
         errors: list[str] = []
         warnings: list[str] = []
 
-        # Critical numeric ranges
-        if self.chunk_size <= 0:
-            errors.append(f"chunk_size must be > 0, got {self.chunk_size}")
-        elif not 512 <= self.chunk_size <= 65536:
-            warnings.append(
-                f"chunk_size should be between 512 and 65536, got {self.chunk_size}")
+        self._validate_range(
+            self.chunk_size,
+            "chunk_size",
+            0,
+            (512, 65536),
+            errors,
+            warnings,
+        )
+        self._validate_range(
+            self.max_memory_mb,
+            "max_memory_mb",
+            0,
+            (10, 1000),
+            errors,
+            warnings,
+        )
 
-        if self.max_memory_mb <= 0:
-            errors.append(
-                f"max_memory_mb must be > 0, got {self.max_memory_mb}")
-        elif not 10 <= self.max_memory_mb <= 1000:
-            warnings.append(
-                f"max_memory_mb should be between 10 and 1000, got {self.max_memory_mb}"
-            )
+        self._validate_min("max_concurrent_chunks", self.max_concurrent_chunks, 1, errors)
+        self._validate_min("max_queue_size", self.max_queue_size, 0, errors)
+        self._validate_min("chunk_timeout", self.chunk_timeout, 0, errors)
+        self._validate_min("progress_callback_interval", self.progress_callback_interval, 0, errors)
+        self._validate_min("context_window_size", self.context_window_size, 0, errors)
 
-        if self.max_concurrent_chunks < 1:
-            errors.append(
-                f"max_concurrent_chunks must be >= 1, got {self.max_concurrent_chunks}")
-
-        if self.max_queue_size < 0:
-            errors.append(
-                f"max_queue_size must be >= 0, got {self.max_queue_size}")
-
-        if self.chunk_timeout < 0:
-            errors.append(
-                f"chunk_timeout must be >= 0, got {self.chunk_timeout}")
-
-        if self.progress_callback_interval < 0:
-            errors.append(
-                f"progress_callback_interval must be >= 0, got {self.progress_callback_interval}"
-            )
-
-        if self.context_window_size < 0:
-            errors.append(
-                f"context_window_size must be >= 0, got {self.context_window_size}")
-
-        # Known/allowed values for enums/strategies (lightweight check)
         allowed_evictions = {"lru", "fifo", "none"}
         if self.eviction_policy not in allowed_evictions:
             errors.append(
-                f"eviction_policy must be one of {sorted(allowed_evictions)}, got '{self.eviction_policy}'"
+                f"eviction_policy must be one of {sorted(allowed_evictions)}, "
+                f"got '{self.eviction_policy}'"
             )
 
-        # Adaptive chunking validation (feature is behind a flag; still validate fields)
         if self.adaptive_min_chunk_size <= 0:
             errors.append("adaptive_min_chunk_size must be > 0")
+
         if self.adaptive_max_chunk_size < self.adaptive_min_chunk_size:
             errors.append(
-                "adaptive_max_chunk_size must be >= adaptive_min_chunk_size")
+                "adaptive_max_chunk_size must be >= adaptive_min_chunk_size"
+            )
         if self.adaptive_target_latency_ms <= 0:
             errors.append("adaptive_target_latency_ms must be > 0")
         if not (0.0 < self.adaptive_smoothing_alpha <= 1.0):
@@ -367,7 +397,8 @@ class StreamingConfig:
         # Warnings (non-fatal)
         if self.adaptive_hysteresis_pct > 0.5:
             warnings.append(
-                "adaptive_hysteresis_pct is high (> 0.5); may reduce responsiveness")
+                "adaptive_hysteresis_pct is high (> 0.5); may reduce responsiveness"
+            )
         if self.adaptive_initial_chunk_size is not None:
             if not (
                 self.adaptive_min_chunk_size
@@ -375,7 +406,8 @@ class StreamingConfig:
                 <= self.adaptive_max_chunk_size
             ):
                 warnings.append(
-                    "adaptive_initial_chunk_size will be clamped to [adaptive_min_chunk_size, adaptive_max_chunk_size] at runtime"
+                    "adaptive_initial_chunk_size will be clamped to "
+                    "[adaptive_min_chunk_size, adaptive_max_chunk_size] at runtime"
                 )
 
         result = {"errors": errors, "warnings": warnings}
@@ -385,7 +417,8 @@ class StreamingConfig:
             from .exceptions import ConfigurationError
 
             raise ConfigurationError(
-                f"Invalid streaming configuration: {preview}")
+                f"Invalid streaming configuration: {preview}"
+            )
 
         # Backward-compatible behavior (legacy callers expect list[str] of errors)
         return result if strict else errors

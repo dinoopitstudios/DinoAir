@@ -1,3 +1,9 @@
+"""
+Provides DependencyAnalysisGateway for annotating code blocks with dependency information.
+
+This module encapsulates logic to resolve and annotate dependencies for code blocks,
+either using an external DependencyResolver or falling back to in-process AST parsing.
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -37,91 +43,145 @@ class DependencyAnalysisGateway:
         defined_names: set[str] = set()
         required_imports: set[str] = set()
 
-        # Try the resolver path first
-        resolver = None
+        resolver = self._get_resolver()
+        if resolver is not None:
+            analyses = self._safe_analyze_blocks(resolver, blocks)
+            self._annotate_resolver_blocks(
+                blocks,
+                analyses,
+                defined_names,
+                required_imports,
+            )
+            return
+
+    @staticmethod
+    def _get_resolver() -> Any:
+        """Attempt to import and return a DependencyResolver instance, or None if unavailable."""
         try:
             from ..translator_support.dependency_resolver import DependencyResolver  # type: ignore
 
-            resolver = DependencyResolver(use_cache=True)
+            return DependencyResolver(use_cache=True)
         except ImportError:
-            resolver = None
+            return None
 
-        if resolver is not None:
-            try:
-                analyses: list[dict[str, list[str]]] = resolver.analyze_blocks(blocks)
-            except (AttributeError, ValueError, TypeError):
-                analyses = []
+    @staticmethod
+    def _safe_analyze_blocks(
+        resolver: Any,
+        blocks: list[Any],
+    ) -> list[dict[str, list[str]]]:
+        """Safely analyze blocks with the resolver, returning analysis or an empty list on failure."""
+        try:
+            return resolver.analyze_blocks(blocks)
+        except (AttributeError, ValueError, TypeError):
+            return []
 
-            for i, block in enumerate(blocks):
-                try:
-                    # Only PYTHON blocks receive dependency metadata (preserve behavior)
-                    block_type = getattr(block, "type", None)
-                    if str(getattr(block_type, "value", block_type)).lower() != "python":
-                        continue
+    def _annotate_resolver_blocks(
+        self,
+        blocks: list[Any],
+        analyses: list[dict[str, list[str]]],
+        defined_names: set[str],
+        required_imports: set[str],
+    ) -> None:
+        """Annotate blocks with resolver analysis results, updating defined_names and required_imports metadata.
 
-                    result = (
-                        analyses[i]
-                        if i < len(analyses)
-                        else {"defined_names": [], "required_imports": []}
-                    )
-                    dn = result.get("defined_names", []) or []
-                    ri = result.get("required_imports", []) or []
-                    if dn or ri:
-                        defined_names.update(dn)
-                        required_imports.update(ri)
-                        block.metadata["defined_names"] = list(defined_names)
-                        block.metadata["required_imports"] = list(required_imports)
-                    else:
-                        block.metadata["defined_names"] = []
-                        block.metadata["required_imports"] = []
-                except (AttributeError, ValueError, TypeError, KeyError):
-                    # Never raise; default empty metadata for this block
-                    try:
-                        block.metadata["defined_names"] = []
-                        block.metadata["required_imports"] = []
-                    except (AttributeError, TypeError):
-                        pass
-            return
+        Processes each block for Python content, applies analysis results, and falls back to AST parsing if needed.
+        """
+        for i, block in enumerate(blocks):
+            self._apply_analysis_block(block, analyses, i, defined_names, required_imports)
 
         # Fallback: in-process AST walk with parse_cached
+        self._fallback_ast_parse(blocks, defined_names, required_imports)
+
+    def _apply_analysis_block(
+        self,
+        block,
+        analyses,
+        idx,
+        defined_names: set[str],
+        required_imports: set[str],
+    ) -> None:
+        try:
+            if not self._is_python_block(block):
+                return
+
+            result = (
+                analyses[idx]
+                if idx < len(analyses)
+                else {"defined_names": [], "required_imports": []}
+            )
+            dn = result.get("defined_names", []) or []
+            ri = result.get("required_imports", []) or []
+
+            if dn or ri:
+                defined_names.update(dn)
+                required_imports.update(ri)
+                block.metadata["defined_names"] = list(defined_names)
+                block.metadata["required_imports"] = list(required_imports)
+            else:
+                block.metadata["defined_names"] = []
+                block.metadata["required_imports"] = []
+        except (AttributeError, ValueError, TypeError, KeyError):
+            self._reset_block_metadata(block)
+
+    def _fallback_ast_parse(
+        self,
+        blocks: list[Any],
+        defined_names: set[str],
+        required_imports: set[str],
+    ) -> None:
         import ast
 
         for i, block in enumerate(blocks):
             try:
-                block_type = getattr(block, "type", None)
-                if str(getattr(block_type, "value", block_type)).lower() != "python":
+                if not self._is_python_block(block):
                     continue
 
                 try:
                     tree = self._parse_cached(block.content)
                 except SyntaxError:
-                    self._logger.warning(f"Could not parse block {i} for dependency analysis")
-                    block.metadata["defined_names"] = []
-                    block.metadata["required_imports"] = []
+                    self._logger.warning(
+                        f"Could not parse block {i} for dependency analysis"
+                    )
+                    self._reset_block_metadata(block)
                     continue
 
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef | ast.ClassDef):
-                        defined_names.add(node.name)
-                    elif isinstance(node, ast.Assign):
-                        for target in node.targets:
-                            if isinstance(target, ast.Name):
-                                defined_names.add(target.id)
-                    elif isinstance(node, ast.Import):
-                        for alias in node.names:
-                            required_imports.add(f"import {alias.name}")
-                    elif isinstance(node, ast.ImportFrom):
-                        module = node.module or ""
-                        for alias in node.names:
-                            required_imports.add(f"from {module} import {alias.name}")
-
+                self._walk_ast(tree, defined_names, required_imports)
                 block.metadata["defined_names"] = list(defined_names)
                 block.metadata["required_imports"] = list(required_imports)
 
             except (ValueError, TypeError, AttributeError, SyntaxError):
-                # Never raise; ensure metadata keys exist
-                try:
-                    block.metadata["defined_names"] = []
-                    block.metadata["required_imports"] = []
-                except (AttributeError, TypeError):
-                    pass
+                self._reset_block_metadata(block)
+
+    def _walk_ast(
+        self,
+        tree,
+        defined_names: set[str],
+        required_imports: set[str],
+    ) -> None:
+        import ast
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                defined_names.add(node.name)
+            elif isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        defined_names.add(target.id)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    required_imports.add(f"import {alias.name}")
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                for alias in node.names:
+                    required_imports.add(f"from {module} import {alias.name}")
+
+    def _is_python_block(self, block) -> bool:
+        block_type = getattr(block, "type", None)
+        return str(getattr(block_type, "value", block_type)).lower() == "python"
+
+    def _reset_block_metadata(self, block) -> None:
+        try:
+            block.metadata["defined_names"] = []
+            block.metadata["required_imports"] = []
+        except (AttributeError, TypeError):
+            pass
