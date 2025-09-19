@@ -514,13 +514,16 @@ def _get_default_user_data_directory() -> Path:
             abs_env_path = os.path.abspath(norm_env_path)
             try:
                 # Accept only if abs_env_path is strictly inside user_home
-                user_home_str = str(user_home)
-                # Make sure user_home_str ends with os.sep for safe prefix check
-                if not user_home_str.endswith(os.sep):
-                    user_home_str += os.sep
-                safe_env = abs_env_path.startswith(user_home_str)
+                # Canonicalize both paths and use is_relative_to for robust containment check
+                candidate = Path(abs_env_path).resolve()
+                home_canon = user_home
+                try:
+                    # Python 3.9+: use Path.is_relative_to
+                    safe_env = candidate.is_relative_to(home_canon)
+                except AttributeError:
+                    # Python <3.9: implement manually
+                    safe_env = str(home_canon) in [str(p) for p in candidate.parents]
                 if safe_env:
-                    candidate = Path(abs_env_path).resolve()
                     root_dir = candidate
                 else:
                     logging.warning(
