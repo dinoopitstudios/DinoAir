@@ -401,7 +401,6 @@ def create_result_handler(
 
 
 # Example usage
-"""
 """Example Usage:
 
     # Basic GUI adapter usage
