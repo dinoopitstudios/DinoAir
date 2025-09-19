@@ -24,7 +24,6 @@ from .safe_pdf_extractor import SafePDFProcessor, extract_pdf_text_safe
 from .sql import enforce_limit, normalize_like_pattern
 from .state_machine import StateMachine
 
-
 __all__ = [
     "ConfigLoader",
     "Logger",
@@ -45,7 +44,6 @@ __all__ = [
     "resolve",
     "resolve_type",
 ]
-
 
 # Type-checker-only import to provide symbol visibility without runtime side effects
 if TYPE_CHECKING:

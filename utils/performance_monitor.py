@@ -13,20 +13,18 @@ Provides comprehensive performance tracking including:
 
 from __future__ import annotations
 
-from collections import defaultdict, deque
-from contextlib import contextmanager
-from dataclasses import dataclass, field
 import functools
 import logging
 import random
 import threading
 import time
+from collections import defaultdict, deque
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
-
 
 try:
     import psutil
@@ -130,7 +128,8 @@ class PerformanceMonitor:
                         "Custom collector '%s' failed: %s",
                         name,
                         e,
-                        extra={"collector_name": name, "error_type": type(e).__name__},
+                        extra={"collector_name": name,
+                               "error_type": type(e).__name__},
                     )
                 else:
                     logger.warning("Custom collector '%s' failed: %s", name, e)
@@ -244,7 +243,8 @@ class PerformanceMonitor:
 
         if alerts:
             alert_msg = f"Performance alert for {metric.operation}: {'; '.join(alerts)}"
-            log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
+            log_level = getattr(
+                logging, self.config.log_level.upper(), logging.INFO)
 
             if enhanced_logging_available:
                 # Use enhanced logging with context
@@ -295,8 +295,10 @@ class PerformanceMonitor:
                     return {}
 
                 durations = [m.duration for m in metrics]
-                memory_usages = [m.memory_usage for m in metrics if m.memory_usage is not None]
-                cpu_usages = [m.cpu_usage for m in metrics if m.cpu_usage is not None]
+                memory_usages = [
+                    m.memory_usage for m in metrics if m.memory_usage is not None]
+                cpu_usages = [
+                    m.cpu_usage for m in metrics if m.cpu_usage is not None]
 
                 result = {
                     "count": len(metrics),

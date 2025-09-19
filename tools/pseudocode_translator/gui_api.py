@@ -19,7 +19,6 @@ from .parser import ParserModule
 from .translator import TranslationManager
 from .validator import Validator
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -119,7 +118,8 @@ class PseudocodeTranslatorAPI(QObject):
 
             # Emit status for GUI parity
             self.translation_status.emit(
-                TranslationStatus(phase="parsing", progress=10, message="Parsing pseudocode...")
+                TranslationStatus(phase="parsing", progress=10,
+                                  message="Parsing pseudocode...")
             )
             parse_result = self.parser.get_parse_result(pseudocode)
 
@@ -146,10 +146,12 @@ class PseudocodeTranslatorAPI(QObject):
             if not validation.is_valid:
                 errors.extend(validation.errors)
 
-            warnings = list(set(mgr_result.warnings + getattr(parse_result, "warnings", [])))
+            warnings = list(
+                set(mgr_result.warnings + getattr(parse_result, "warnings", [])))
 
             result = TranslationResult(
-                success=(validation.is_valid and mgr_result.success and bool(final_code.strip())),
+                success=(validation.is_valid and mgr_result.success and bool(
+                    final_code.strip())),
                 code=final_code if final_code.strip() else None,
                 errors=errors,
                 warnings=warnings,
@@ -344,7 +346,8 @@ class PseudocodeTranslatorAPI(QObject):
                         }
                     except Exception:
                         # If manager provides dict already
-                        progress_info = progress_obj if isinstance(progress_obj, dict) else {}
+                        progress_info = progress_obj if isinstance(
+                            progress_obj, dict) else {}
                     self.streaming_progress.emit(progress_info)
 
                 final_code: str | None = None
@@ -357,7 +360,8 @@ class PseudocodeTranslatorAPI(QObject):
                         chunk_index = res.metadata.get("chunk_index")
                         if res.code and chunk_index is not None:
                             with contextlib.suppress(Exception):
-                                self.streaming_chunk_processed.emit(int(chunk_index), res.code)
+                                self.streaming_chunk_processed.emit(
+                                    int(chunk_index), res.code)
                     if res.code:
                         final_code = res.code
 
@@ -425,7 +429,8 @@ class PseudocodeTranslatorAPI(QObject):
                 self.model_status_changed.emit("Model ready")
                 self.model_initialized.emit()
             except Exception as e:
-                self.model_status_changed.emit(f"Model initialization failed: {e}")
+                self.model_status_changed.emit(
+                    f"Model initialization failed: {e}")
                 self.translation_error.emit(f"Failed to initialize model: {e}")
 
         thread = QThread()

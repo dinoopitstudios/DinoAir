@@ -18,7 +18,6 @@ from .stages import (
     ThreatLevel,
 )
 
-
 __all__ = [
     "InputSanitizer",
     "InputPipeline",

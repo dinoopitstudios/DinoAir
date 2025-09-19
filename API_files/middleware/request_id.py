@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 import uuid
+from collections.abc import Awaitable, Callable
 
 from starlette.types import Message, Receive, Scope, Send
-
 
 # Local alias to avoid linter/editor false positives on starlette.types.ASGIApp
 ASGIApp = Callable[[Scope, Receive, Send], Awaitable[None]]

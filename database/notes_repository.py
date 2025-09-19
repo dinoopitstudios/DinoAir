@@ -3,14 +3,15 @@ NotesRepository - Pure database operations for notes management.
 Handles all SQLite database interactions without business logic.
 """
 
-from dataclasses import dataclass
-from datetime import datetime
 import json
 import sqlite3
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from models.note import Note
 from utils.logger import Logger
+
 from .initialize_db import DatabaseManager
 
 
@@ -188,14 +189,12 @@ class NotesRepository:
         try:
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    f"""
+                cursor.execute(f"""
                     SELECT id, title, content, content_html, tags, created_at, updated_at, project_id
                     FROM {self.table_name}
                     WHERE is_deleted = 0
                     ORDER BY updated_at DESC
-                    """
-                )
+                    """)
 
                 notes = [self._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} notes")
@@ -223,7 +222,8 @@ class NotesRepository:
                 update_fields.append(sql_template)
                 if field == "tags":
                     # Normalize tags before storage
-                    normalized_tags = self._normalize_tags(updates[field]) if updates[field] else []
+                    normalized_tags = self._normalize_tags(
+                        updates[field]) if updates[field] else []
                     params.append(json.dumps(normalized_tags))
                 else:
                     params.append(updates[field])
@@ -292,14 +292,12 @@ class NotesRepository:
         try:
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    f"""
+                cursor.execute(f"""
                     SELECT id, title, content, content_html, tags, created_at, updated_at, project_id
                     FROM {self.table_name}
                     WHERE is_deleted = 1
                     ORDER BY updated_at DESC
-                    """
-                )
+                    """)
 
                 notes = [self._row_to_note(row) for row in cursor.fetchall()]
                 self.logger.info(f"Retrieved {len(notes)} deleted notes")
@@ -348,7 +346,8 @@ class NotesRepository:
                 cursor.execute(full_query, params)
                 notes = [self._row_to_note(row) for row in cursor.fetchall()]
 
-            self.logger.info(f"Search found {len(notes)} notes for query: '{query}'")
+            self.logger.info(
+                f"Search found {len(notes)} notes for query: '{query}'")
             return QueryResult(success=True, data=notes)
 
         except Exception as e:
@@ -381,7 +380,8 @@ class NotesRepository:
                         (normalized_tag,),
                     )
 
-                    notes = [self._row_to_note(row) for row in cursor.fetchall()]
+                    notes = [self._row_to_note(row)
+                             for row in cursor.fetchall()]
             else:
                 # Fallback to LIKE query with post-filtering for systems without JSON1
                 tag_pattern = f'%"{normalized_tag}"%'
@@ -422,7 +422,8 @@ class NotesRepository:
 
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT tags FROM note_list WHERE is_deleted = 0")
+                cursor.execute(
+                    "SELECT tags FROM note_list WHERE is_deleted = 0")
 
                 tag_counts = {}
                 for row in cursor.fetchall():
@@ -433,10 +434,12 @@ class NotesRepository:
                             if tag_lower in tag_counts:
                                 tag_counts[tag_lower]["count"] += 1
                             else:
-                                tag_counts[tag_lower] = {"tag": tag, "count": 1}
+                                tag_counts[tag_lower] = {
+                                    "tag": tag, "count": 1}
 
             # Convert to simple dict preserving original case
-            result = {data["tag"]: data["count"] for data in tag_counts.values()}
+            result = {data["tag"]: data["count"]
+                      for data in tag_counts.values()}
             self.logger.info(f"Retrieved {len(result)} unique tags")
             return QueryResult(success=True, data=result)
 
@@ -460,7 +463,8 @@ class NotesRepository:
 
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT id, tags FROM note_list WHERE is_deleted = 0")
+                cursor.execute(
+                    "SELECT id, tags FROM note_list WHERE is_deleted = 0")
 
                 affected_notes = 0
                 for row in cursor.fetchall():
@@ -485,12 +489,14 @@ class NotesRepository:
 
                         update_result = self._execute_write(
                             "UPDATE note_list SET tags = ?, updated_at = ? WHERE id = ?",
-                            (json.dumps(updated_tags), datetime.now().isoformat(), note_id),
+                            (json.dumps(updated_tags),
+                             datetime.now().isoformat(), note_id),
                         )
                         if update_result.success:
                             affected_notes += 1
 
-            self.logger.info(f"Renamed tag '{old_tag}' to '{new_tag}' in {affected_notes} notes")
+            self.logger.info(
+                f"Renamed tag '{old_tag}' to '{new_tag}' in {affected_notes} notes")
             return QueryResult(success=True, data={"affected_notes": affected_notes})
 
         except Exception as e:
@@ -511,7 +517,8 @@ class NotesRepository:
 
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT id, tags FROM note_list WHERE is_deleted = 0")
+                cursor.execute(
+                    "SELECT id, tags FROM note_list WHERE is_deleted = 0")
 
                 affected_notes = 0
                 for row in cursor.fetchall():
@@ -534,12 +541,14 @@ class NotesRepository:
 
                         update_result = self._execute_write(
                             "UPDATE note_list SET tags = ?, updated_at = ? WHERE id = ?",
-                            (json.dumps(updated_tags), datetime.now().isoformat(), note_id),
+                            (json.dumps(updated_tags),
+                             datetime.now().isoformat(), note_id),
                         )
                         if update_result.success:
                             affected_notes += 1
 
-            self.logger.info(f"Deleted tag '{tag_to_remove}' from {affected_notes} notes")
+            self.logger.info(
+                f"Deleted tag '{tag_to_remove}' from {affected_notes} notes")
             return QueryResult(success=True, data={"affected_notes": affected_notes})
 
         except Exception as e:
@@ -562,11 +571,13 @@ class NotesRepository:
                 )
 
                 notes = [self._row_to_note(row) for row in cursor.fetchall()]
-                self.logger.info(f"Retrieved {len(notes)} notes for project: {project_id}")
+                self.logger.info(
+                    f"Retrieved {len(notes)} notes for project: {project_id}")
                 return QueryResult(success=True, data=notes)
 
         except Exception as e:
-            self.logger.error(f"Error retrieving notes for project {project_id}: {str(e)}")
+            self.logger.error(
+                f"Error retrieving notes for project {project_id}: {str(e)}")
             return QueryResult(success=False, error=str(e))
 
     def get_notes_without_project(self) -> QueryResult:
@@ -574,21 +585,21 @@ class NotesRepository:
         try:
             with self.db_manager.get_notes_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    f"""
+                cursor.execute(f"""
                     SELECT id, title, content, content_html, tags, created_at, updated_at, project_id
                     FROM {self.table_name}
                     WHERE is_deleted = 0 AND (project_id IS NULL OR project_id = '')
                     ORDER BY updated_at DESC
-                    """
-                )
+                    """)
 
                 notes = [self._row_to_note(row) for row in cursor.fetchall()]
-                self.logger.info(f"Retrieved {len(notes)} notes without project association")
+                self.logger.info(
+                    f"Retrieved {len(notes)} notes without project association")
                 return QueryResult(success=True, data=notes)
 
         except Exception as e:
-            self.logger.error(f"Error retrieving notes without project: {str(e)}")
+            self.logger.error(
+                f"Error retrieving notes without project: {str(e)}")
             return QueryResult(success=False, error=str(e))
 
     def bulk_update_project(self, note_ids: list[str], project_id: str | None) -> QueryResult:
@@ -598,7 +609,8 @@ class NotesRepository:
                 return QueryResult(success=False, error="No note IDs provided")
 
             placeholders = ",".join(["?"] * len(note_ids))
-            params: list[Any] = [project_id, datetime.now().isoformat()] + note_ids
+            params: list[Any] = [project_id,
+                                 datetime.now().isoformat()] + note_ids
 
             query = f"""
                 UPDATE {self.table_name}
@@ -609,7 +621,8 @@ class NotesRepository:
             result = self._execute_write(query, tuple(params))
             if result.success:
                 action = "assigned to" if project_id else "removed from"
-                self.logger.info(f"{result.affected_rows} notes {action} project {project_id}")
+                self.logger.info(
+                    f"{result.affected_rows} notes {action} project {project_id}")
             return result
 
         except Exception as e:
@@ -634,5 +647,6 @@ class NotesRepository:
                 return QueryResult(success=True, data=count)
 
         except Exception as e:
-            self.logger.error(f"Error counting notes for project {project_id}: {str(e)}")
+            self.logger.error(
+                f"Error counting notes for project {project_id}: {str(e)}")
             return QueryResult(success=False, error=str(e))

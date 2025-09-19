@@ -64,9 +64,7 @@ def test_password_security():
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
                 print(
-                    f"   📝 Password '{pwd[:10]}...': "
-                    f"{'✅' if result == should_pass else '❌'}"
-                )
+                    f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
 
         except Exception:
             print("   ⚠️  Password validation method not found")
@@ -292,9 +290,7 @@ def run_security_validation():
 
     print("\n📊 SECURITY VALIDATION RESULTS")
     print(
-        f"Overall Score: {score:.1f}% "
-        f"({passed_tests}/{total_tests} tests passed)"
-    )
+        f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
 
     if score >= 90:
         grade = "A (Excellent)"

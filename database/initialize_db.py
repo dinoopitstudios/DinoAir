@@ -447,25 +447,54 @@ def _get_default_user_data_directory() -> Path:
     Returns:
         Path: Default user data directory outside the repository
     """
+
+    # Helper function for path validation
+    def is_path_within(base: Path, child: Path) -> bool:
+        try:
+            base = base.resolve()
+            child = child.resolve()
+            return str(child).startswith(str(base) + os.sep)
+        except Exception:
+            return False
+
+    # Determine platform-specific root for validation.
+    if os.name == "nt":
+        # Use AppData/Local
+        root_dir = (
+            Path(os.environ.get("LOCALAPPDATA",
+                 os.path.expanduser("~/AppData/Local")))
+            .expanduser()
+            .resolve()
+        )
+        root_sub = "DinoAir"
+    else:
+        # Unix/Linux/MacOS
+        root_dir = (
+            Path(os.environ.get("XDG_DATA_HOME",
+                 os.path.expanduser("~/.local/share")))
+            .expanduser()
+            .resolve()
+        )
+        root_sub = "dinoair"
+    app_root = root_dir / root_sub
+
     # Check for environment variable override
     if user_data_path := os.environ.get("DINOAIR_USER_DATA"):
-        return Path(user_data_path).expanduser().resolve()
+        user_dir = Path(user_data_path).expanduser().resolve()
+        if is_path_within(root_dir, user_dir):
+            return user_dir
+        else:
+            logging.warning(
+                f"Rejected DINOAIR_USER_DATA outside of permitted root '{root_dir}': '{user_dir}'"
+            )
+            # Fall through to default construction
 
     # For tests, always use temp directory
     if os.environ.get("PYTEST_CURRENT_TEST"):
         return Path(tempfile.gettempdir()) / "DinoAirTests"
 
     # Platform-specific default locations outside repository
-    if os.name == "nt":  # Windows
-        # Use AppData/Local for user-specific application data
-        app_data = os.environ.get(
-            "LOCALAPPDATA", os.path.expanduser("~/AppData/Local"))
-        return Path(app_data) / "DinoAir"
-    # Unix/Linux/MacOS
-    # Follow XDG Base Directory Specification
-    xdg_data_home = os.environ.get(
-        "XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-    return Path(xdg_data_home) / "dinoair"
+    return app_root
 
 
 def _validate_user_data_permissions(path: Path) -> None:
@@ -1004,11 +1033,9 @@ class DatabaseManager:
         except Exception as e:
             if hasattr(self, "user_feedback"):
                 self.user_feedback(
-                    f"Warning: Error during user data cleanup: {str(e)}"
-                )
+                    f"Warning: Error during user data cleanup: {str(e)}")
 
         return stats
-
 
 
 # For easy initialization when GUI starts

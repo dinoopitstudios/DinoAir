@@ -102,7 +102,6 @@ docker run -it -v $(pwd):/workspace pseudocode-translator
    ```
 
 2. **Install Visual C++ Redistributables**:
-
    - Download from [Microsoft](https://aka.ms/vs/17/release/vc_redist.x64.exe)
    - Required for llama-cpp-python
 

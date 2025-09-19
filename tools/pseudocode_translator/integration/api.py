@@ -6,15 +6,14 @@ making it easy to integrate the translator into applications.
 """
 
 import asyncio
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from ..config import ConfigManager, TranslatorConfig
 from ..models.base_model import OutputLanguage
 from ..translator import TranslationManager, TranslationResult
-
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +100,8 @@ class TranslatorAPI:
                 )
             else:
                 # Regular translation
-                result = self._translator.translate_pseudocode(pseudocode, target_lang)
+                result = self._translator.translate_pseudocode(
+                    pseudocode, target_lang)
 
             # Convert to dictionary
             return {
@@ -219,7 +219,8 @@ class TranslatorAPI:
 
             # Progress callback
             if progress_callback:
-                progress_callback(i, total, f"Translating item {i + 1}/{total}")
+                progress_callback(
+                    i, total, f"Translating item {i + 1}/{total}")
 
             # Translate
             result = self.translate(code, item_lang, **item_options)

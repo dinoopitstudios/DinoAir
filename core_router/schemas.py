@@ -16,20 +16,21 @@ Exports:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import contextlib
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import (
     BaseModel,
-    Field as PydField,
-    ValidationError as PydanticValidationError,
+)
+from pydantic import Field as PydField
+from pydantic import ValidationError as PydanticValidationError
+from pydantic import (
     create_model,
 )
 from pydantic.config import ConfigDict
 
 from .errors import ValidationError
-
 
 if TYPE_CHECKING:
     from .registry import ServiceDescriptor
@@ -94,7 +95,8 @@ def _map_json_type(
             it = items.get("type")
             if isinstance(it, str):
                 inner_items = (
-                    items.get("items") if isinstance(items.get("items"), Mapping) else None
+                    items.get("items") if isinstance(
+                        items.get("items"), Mapping) else None
                 )
                 item_type = _map_json_type(it, inner_items)
         return list[item_type]  # PEP 585
@@ -110,7 +112,8 @@ def _coerce_nonneg_int(raw: Any) -> int | None:
     val: int | None = None
     try:
         if isinstance(raw, int | float | str) and (
-            isinstance(raw, float) and raw.is_integer() or not isinstance(raw, float)
+            isinstance(raw, float) and raw.is_integer(
+            ) or not isinstance(raw, float)
         ):
             val = int(raw)
     except Exception:
@@ -119,7 +122,8 @@ def _coerce_nonneg_int(raw: Any) -> int | None:
 
 
 def _array_type_from_prop(prop: Mapping[str, Any]) -> Any:
-    items = prop.get("items") if isinstance(prop.get("items"), Mapping) else None
+    items = prop.get("items") if isinstance(
+        prop.get("items"), Mapping) else None
     return _map_json_type("array", items)
 
 
@@ -186,7 +190,8 @@ def _build_model_from_schema(
         # Non-object roots are out of scope; wrap as single-field 'value'
         py_type = _map_json_type(
             stype,
-            schema.get("items") if isinstance(schema.get("items"), Mapping) else None,
+            schema.get("items") if isinstance(
+                schema.get("items"), Mapping) else None,
         )
         cm = cast("Any", create_model)
         return cm(
@@ -201,7 +206,8 @@ def _build_model_from_schema(
     else:
         props = None
     req_raw = schema.get("required")
-    required_list: list[str] = cast("list[str]", req_raw) if isinstance(req_raw, list) else []
+    required_list: list[str] = cast(
+        "list[str]", req_raw) if isinstance(req_raw, list) else []
 
     field_defs: dict[str, tuple[Any, Any]] = {}
 

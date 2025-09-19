@@ -4,14 +4,13 @@ Provides DependencyAnalysisGateway for annotating code blocks with dependency in
 This module encapsulates logic to resolve and annotate dependencies for code blocks,
 either using an external DependencyResolver or falling back to in-process AST parsing.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-
 if TYPE_CHECKING:
     import logging
-
 
 # Keep this module free of translator.py imports to avoid cycles.
 
@@ -87,7 +86,8 @@ class DependencyAnalysisGateway:
         Processes each block for Python content, applies analysis results, and falls back to AST parsing if needed.
         """
         for i, block in enumerate(blocks):
-            self._apply_analysis_block(block, analyses, i, defined_names, required_imports)
+            self._apply_analysis_block(
+                block, analyses, i, defined_names, required_imports)
 
         # Fallback: in-process AST walk with parse_cached
         self._fallback_ast_parse(blocks, defined_names, required_imports)
@@ -140,8 +140,7 @@ class DependencyAnalysisGateway:
                     tree = self._parse_cached(block.content)
                 except SyntaxError:
                     self._logger.warning(
-                        f"Could not parse block {i} for dependency analysis"
-                    )
+                        f"Could not parse block {i} for dependency analysis")
                     self._reset_block_metadata(block)
                     continue
 

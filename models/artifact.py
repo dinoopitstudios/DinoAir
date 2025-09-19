@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any, Union
-
 
 JsonLike = Union[dict[str, Any], list[Any], str]
 
@@ -130,7 +129,8 @@ class Artifact:
             collection_id=data.get("collection_id"),
             parent_id=data.get("parent_id"),
             version=int(data.get("version") or 1),
-            is_latest=bool(data.get("is_latest") if data.get("is_latest") is not None else True),
+            is_latest=bool(data.get("is_latest") if data.get(
+                "is_latest") is not None else True),
             encrypted_fields=_load_json_list(data.get("encrypted_fields")),
             encryption_key_id=data.get("encryption_key_id"),
             project_id=data.get("project_id"),
@@ -147,7 +147,8 @@ class Artifact:
     def get_storage_path(self, username: str) -> Path:
         # Use created_at if available and ISO-like; fallback to current UTC
         try:
-            dt = datetime.fromisoformat((self.created_at or "").replace("Z", "+00:00"))
+            dt = datetime.fromisoformat(
+                (self.created_at or "").replace("Z", "+00:00"))
         except (ValueError, TypeError):
             dt = datetime.utcnow()
         return Path("user_data") / username / "artifacts" / f"{dt:%Y}" / f"{dt:%m}" / self.id
@@ -225,7 +226,8 @@ class ArtifactVersion:
             "change_summary": self.change_summary,
             "changed_by": self.changed_by,
             "changed_fields": _dump_json_if_needed(
-                self.changed_fields if isinstance(self.changed_fields, list) else None
+                self.changed_fields if isinstance(
+                    self.changed_fields, list) else None
             ),
             "created_at": self.created_at,
         }

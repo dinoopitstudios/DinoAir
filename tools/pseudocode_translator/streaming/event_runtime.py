@@ -2,17 +2,15 @@ from __future__ import annotations
 
 import contextlib
 import logging
-from queue import Empty, Queue
 import threading
 import time
+from queue import Empty, Queue
 from typing import TYPE_CHECKING, Any
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from .events import StreamingEventData
-
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +54,8 @@ class EventRuntime:
 
         # Start worker if not already running
         if self._worker is None or not self._worker.is_alive():
-            self._worker = threading.Thread(target=self._worker_loop, daemon=True)
+            self._worker = threading.Thread(
+                target=self._worker_loop, daemon=True)
             self._worker.start()
 
     def stop(self, final_progress, cancelled: bool) -> None:

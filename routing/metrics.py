@@ -38,12 +38,11 @@ top-level per-service entries:
 
 from __future__ import annotations
 
+import time
 from collections import deque
 from copy import deepcopy
 from threading import Lock
-import time
 from typing import Any, cast
-
 
 __all__ = [
     "record_success",
@@ -170,7 +169,8 @@ class _Metrics:
 
             for name, stats in self._services.items():
                 avg, p50, p95 = stats.calc_stats()
-                last_value: int | None = int(stats.last_ms) if stats.last_ms is not None else None
+                last_value: int | None = int(
+                    stats.last_ms) if stats.last_ms is not None else None
                 services_block[name] = {
                     "calls": int(stats.calls),
                     "errors": int(stats.errors),

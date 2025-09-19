@@ -40,7 +40,6 @@ from .schemas import validate_input, validate_output
 if TYPE_CHECKING:
     pass
 
-
 # Type alias for adapter factory to keep signatures short
 AdapterFactory = Callable[[ServiceDescriptor], ServiceAdapter]
 
@@ -69,9 +68,11 @@ def create_router(services_file: str | None = None) -> ServiceRouter:
     # Local imports to avoid cycles
     import os  # local to keep import-time surface minimal
 
-    from .registry import ServiceRegistry as LocalServiceRegistry, auto_register_from_config_and_env  # noqa: WPS433
+    from .registry import ServiceRegistry as LocalServiceRegistry  # noqa: WPS433
+    from .registry import auto_register_from_config_and_env
 
-    file_path = services_file or os.getenv("DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
+    file_path = services_file or os.getenv(
+        "DINO_SERVICES_FILE", "config/services.lmstudio.yaml")
     registry = LocalServiceRegistry()
     auto_register_from_config_and_env(registry, file_path)
     return ServiceRouter(registry=registry)
@@ -148,7 +149,8 @@ class ServiceRouter:
         """
         self._registry: ServiceRegistry = registry
         self._adapter_factory = adapter_factory
-        self._logger: logging.Logger = logger or logging.getLogger("core_router.router")
+        self._logger: logging.Logger = logger or logging.getLogger(
+            "core_router.router")
 
         # Thread-safety for limiter state and RR pointers
         self._lock = threading.Lock()
@@ -183,11 +185,13 @@ class ServiceRouter:
         try:
             desc = self._registry.get_by_name(service_name)
         except ServiceNotFound as exc:
-            self._extracted_from_check_health_19(started, service_name, "execute", exc)
+            self._extracted_from_check_health_19(
+                started, service_name, "execute", exc)
         try:
             kind = self._resolve_adapter_kind(desc)
             if not kind:
-                raise ValidationError(f"missing adapter kind for service '{desc.name}'")
+                raise ValidationError(
+                    f"missing adapter kind for service '{desc.name}'")
 
             if (rpm := self._resolve_rpm(desc)) is not None and rpm > 0:
                 self._enforce_rate_limit(desc.name, rpm)
@@ -244,7 +248,8 @@ class ServiceRouter:
     ) -> NoReturn:
         result = int(round((time.monotonic() - started) * 1000))
         record_error(desc.name, result, str(exc))
-        self._registry.update_health(desc.name, HealthState.DOWN, latency_ms=result, error=str(exc))
+        self._registry.update_health(
+            desc.name, HealthState.DOWN, latency_ms=result, error=str(exc))
         self._log_event(
             service=desc.name,
             event="execute",
@@ -268,10 +273,12 @@ class ServiceRouter:
         try:
             desc = self._registry.get_by_name(service_name)
         except ServiceNotFound as exc:
-            self._extracted_from_check_health_19(started, service_name, "check_health", exc)
+            self._extracted_from_check_health_19(
+                started, service_name, "check_health", exc)
         kind = self._resolve_adapter_kind(desc)
         if not kind:
-            raise ValidationError(f"missing adapter kind for service '{desc.name}'")
+            raise ValidationError(
+                f"missing adapter kind for service '{desc.name}'")
 
         factory: AdapterFactory = self._adapter_factory or (
             lambda _d: _typed_make_adapter(kind, desc.adapter_config)
@@ -432,7 +439,8 @@ class ServiceRouter:
         """Sliding-window limiter over the last 60 seconds."""
         now = time.monotonic()
         with self._lock:
-            dq: deque[float] = self._rate_windows.setdefault(service_name, deque())
+            dq: deque[float] = self._rate_windows.setdefault(
+                service_name, deque())
 
             cutoff = now - 60.0
             while dq and dq[0] <= cutoff:

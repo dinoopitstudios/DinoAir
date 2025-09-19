@@ -5,20 +5,19 @@ This module provides handlers for different stream types including files,
 sockets, pipes, and other I/O sources with buffering strategies.
 """
 
-from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterator
 import contextlib
-from dataclasses import dataclass
 import io
 import logging
 import os
-from pathlib import Path
 import select
 import socket
 import threading
 import time
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from pathlib import Path
 from typing import BinaryIO, TextIO
-
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,8 @@ class FileStreamHandler(StreamHandler):
                 self._file = open(
                     self.filepath,
                     self.mode,
-                    encoding=(self.config.encoding if "b" not in self.mode else None),
+                    encoding=(
+                        self.config.encoding if "b" not in self.mode else None),
                     buffering=self.config.buffer_size,
                 )
                 return
@@ -321,10 +321,12 @@ class PipeStreamHandler(StreamHandler):
 
         # Create file objects from descriptors
         self.read_file = (
-            os.fdopen(self.read_fd, "r", encoding=self.config.encoding) if self.read_fd else None
+            os.fdopen(self.read_fd, "r",
+                      encoding=self.config.encoding) if self.read_fd else None
         )
         self.write_file = (
-            os.fdopen(self.write_fd, "w", encoding=self.config.encoding) if self.write_fd else None
+            os.fdopen(self.write_fd, "w",
+                      encoding=self.config.encoding) if self.write_fd else None
         )
 
     def read(self, size: int = -1) -> str:

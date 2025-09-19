@@ -7,7 +7,6 @@ This script shows the key concepts without complex imports.
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # Type aliases
 TagList = list[str]
 
@@ -84,7 +83,8 @@ def main():
     # Show the pattern handles both input formats
 
     # From model format (array)
-    SimpleNote.from_dict({"title": "From Model", "tags": ["tag1", "tag2", "tag3"]})
+    SimpleNote.from_dict(
+        {"title": "From Model", "tags": ["tag1", "tag2", "tag3"]})
 
     # From repository format (string)
     SimpleNote.from_dict({"title": "From DB", "tags": "tag1,tag2,tag3"})

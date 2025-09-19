@@ -5,21 +5,19 @@ This module provides functionality to download language models from various
 sources with progress tracking, checksum verification, and resume capability.
 """
 
-from collections.abc import Callable
 import hashlib
 import logging
 import os
-from pathlib import Path
 import shutil
 import time
+from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import requests
-from tqdm import tqdm
-
 from pseudocode_translator.exceptions import ConfigurationError
-
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +96,8 @@ class ModelDownloader:
                 raise ConfigurationError(
                     f"Checksum required for downloads unless force=True; refusing unverified download: {url}"
                 )
-            logger.warning(f"Proceeding without checksum verification (force=True) for: {url}")
+            logger.warning(
+                f"Proceeding without checksum verification (force=True) for: {url}")
 
         # Determine file path
         model_dir = self.download_dir / model_name
@@ -202,14 +201,17 @@ class ModelDownloader:
         response = None
         for attempt in range(self.max_retries):
             try:
-                response = self.session.get(url, headers=headers, stream=True, timeout=self.timeout)
+                response = self.session.get(
+                    url, headers=headers, stream=True, timeout=self.timeout)
 
                 # Check if server supports resume
                 if resume_pos > 0 and response.status_code != 206:
-                    logger.warning("Server doesn't support resume, starting over")
+                    logger.warning(
+                        "Server doesn't support resume, starting over")
                     resume_pos = 0
                     mode = "wb"
-                    response = self.session.get(url, stream=True, timeout=self.timeout)
+                    response = self.session.get(
+                        url, stream=True, timeout=self.timeout)
 
                 response.raise_for_status()
                 break

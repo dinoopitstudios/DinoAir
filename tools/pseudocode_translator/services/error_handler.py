@@ -7,14 +7,13 @@ mechanisms throughout the translation pipeline.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import traceback
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 from ..exceptions import ErrorContext, TranslatorError
-
 
 logger = logging.getLogger(__name__)
 
@@ -120,12 +119,14 @@ class ErrorHandler:
         # Add stack trace for debugging if needed
         if severity in (ErrorSeverity.HIGH, ErrorSeverity.CRITICAL):
             metadata["stack_trace"] = "".join(
-                traceback.format_exception(type(exception), exception, exception.__traceback__)
+                traceback.format_exception(
+                    type(exception), exception, exception.__traceback__)
             )
 
         # Track error frequency
         error_key = f"{category.value}_{type(exception).__name__}"
-        self._error_counts[error_key] = self._error_counts.get(error_key, 0) + 1
+        self._error_counts[error_key] = self._error_counts.get(
+            error_key, 0) + 1
         metadata["occurrence_count"] = self._error_counts[error_key]
 
         error_info = ErrorInfo(
@@ -178,7 +179,8 @@ class ErrorHandler:
 
         # Add cause details if available
         if error_info.cause:
-            parts.append(f"Caused by: {type(error_info.cause).__name__}: {error_info.cause}")
+            parts.append(
+                f"Caused by: {type(error_info.cause).__name__}: {error_info.cause}")
 
         return "\n".join(parts)
 
@@ -247,7 +249,8 @@ class ErrorHandler:
         # Category-specific suggestions
         if category == ErrorCategory.TRANSLATION:
             suggestions.extend(
-                ["Simplify input text", "Check model configuration", "Verify translation context"]
+                ["Simplify input text", "Check model configuration",
+                    "Verify translation context"]
             )
         elif category == ErrorCategory.VALIDATION:
             suggestions.extend(
@@ -258,10 +261,12 @@ class ErrorHandler:
                 ]
             )
         elif category == ErrorCategory.PARSING:
-            suggestions.extend(["Check input format", "Verify encoding", "Review parsing rules"])
+            suggestions.extend(
+                ["Check input format", "Verify encoding", "Review parsing rules"])
         elif category == ErrorCategory.MODEL:
             suggestions.extend(
-                ["Check model availability", "Verify API credentials", "Review model parameters"]
+                ["Check model availability", "Verify API credentials",
+                    "Review model parameters"]
             )
 
         return suggestions

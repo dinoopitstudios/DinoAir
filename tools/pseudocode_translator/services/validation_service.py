@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-
 if TYPE_CHECKING:
-    from collections.abc import Callable
     import logging
-
+    from collections.abc import Callable
 
 # Intentionally avoid importing ValidationResult to prevent type resolution issues in editors.
 # Use 'Any' for callback typing to keep this module decoupled from translator/validator internals.

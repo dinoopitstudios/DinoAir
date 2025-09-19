@@ -454,7 +454,8 @@ class ModelFactory:
             if require_streaming and not cls._supports_streaming(caps):
                 continue
 
-            streaming_match = 1 if (require_streaming and cls._supports_streaming(caps)) else 0
+            streaming_match = 1 if (
+                require_streaming and cls._supports_streaming(caps)) else 0
             quality_score = cls._get_quality_score(caps)
             tps_max = cls._get_tps_max(caps)
 

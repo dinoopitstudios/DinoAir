@@ -9,9 +9,9 @@ deps at import time (pylint: import-outside-toplevel is disabled inline where us
 
 from __future__ import annotations
 
-from functools import lru_cache
 import inspect
 import logging
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 from ..settings import Settings
@@ -20,7 +20,6 @@ from .rag_context import RagContextService
 from .rag_embeddings import RagEmbeddingMaintenanceService
 from .rag_ingestion import RagIngestionService
 from .rag_monitor import RagMonitorService
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -33,7 +32,6 @@ else:  # pragma: no cover - runtime fallback
             from typing import NotRequired  # type: ignore
         except Exception:
             NotRequired = object  # type: ignore
-
 
 log = logging.getLogger("api.services.rag")
 
@@ -319,10 +317,12 @@ class RagService:
         for path in files:
             try:
                 if has_run_single:
-                    res = proc.run_single(path, force_reprocess=force_reprocess)
+                    res = proc.run_single(
+                        path, force_reprocess=force_reprocess)
                 else:
                     # Align with FileProcessor signature to ensure DB storage
-                    res = proc.process_file(path, force_reprocess=force_reprocess, store_in_db=True)
+                    res = proc.process_file(
+                        path, force_reprocess=force_reprocess, store_in_db=True)
 
                 # Normalize and collect minimal stable shape for the response
                 success = bool(res.get("success"))
@@ -348,7 +348,8 @@ class RagService:
                 )
             except (OSError, ValueError, RuntimeError, AttributeError, TypeError) as e:
                 stats["failed"] += 1
-                results.append({"file": path, "success": False, "error": str(e)})
+                results.append(
+                    {"file": path, "success": False, "error": str(e)})
 
         return results, stats
 
@@ -385,7 +386,8 @@ class RagService:
         has_run_single = hasattr(proc, "run_single")
 
         # Process files with reduced branching
-        results, stats = self._process_files(proc, allowed, force_reprocess, has_run_single)
+        results, stats = self._process_files(
+            proc, allowed, force_reprocess, has_run_single)
 
         out: dict[str, Any] = {
             "success": stats["failed"] == 0,
@@ -411,7 +413,8 @@ class RagService:
             from rag import get_context_provider  # type: ignore[attr-defined]
         except ImportError:
             return None, True
-        provider_factory: Callable[..., Any] = get_context_provider  # type: ignore[assignment]
+        # type: ignore[assignment]
+        provider_factory: Callable[..., Any] = get_context_provider
         prov = provider_factory(user_name="default_user", enhanced=None)
         method = getattr(prov, "get_context_for_query", None)
         return (method if callable(method) else None), False

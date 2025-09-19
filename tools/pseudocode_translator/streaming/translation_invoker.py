@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any
 
 from ..models.base_model import TranslationResult as ModelTranslationResult
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

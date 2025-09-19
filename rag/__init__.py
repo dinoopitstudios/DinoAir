@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any
 # Public factory functions (lightweight import)
 from .factory import get_context_provider, get_search_engine
 
-
 # Type-only sentinel for linters; resolved lazily via __getattr__
 DefaultContextProvider: Any
 

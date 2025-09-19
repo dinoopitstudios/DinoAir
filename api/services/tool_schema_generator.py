@@ -4,8 +4,8 @@ This module provides functionality to convert Python tool functions with docstri
 into OpenAI function calling schema format.
 """
 
-from collections.abc import Callable
 import inspect
+from collections.abc import Callable
 from typing import Any, get_type_hints
 
 
@@ -45,7 +45,8 @@ def generate_schema(func: Callable) -> dict[str, Any]:
             elif param_type == bool:
                 schema_type = "boolean"
 
-        properties[param_name] = {"type": schema_type, "description": f"Parameter {param_name}"}
+        properties[param_name] = {"type": schema_type,
+                                  "description": f"Parameter {param_name}"}
 
     return {
         "type": "function",

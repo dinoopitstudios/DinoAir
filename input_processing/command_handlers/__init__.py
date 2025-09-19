@@ -2,5 +2,4 @@
 
 from .watchdog_commands import WatchdogCommandHandler
 
-
 __all__ = ["WatchdogCommandHandler"]

@@ -7,11 +7,10 @@ in the middle during streaming processing.
 """
 
 import ast
+import logging
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-import logging
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +101,8 @@ class CodeChunker:
             try:
                 return self._chunk_by_ast(code, filename)
             except SyntaxError as e:
-                logger.warning(f"AST parsing failed, falling back to line-based chunking: {e}")
+                logger.warning(
+                    f"AST parsing failed, falling back to line-based chunking: {e}")
 
         # Fall back to line-based chunking
         return self._chunk_by_lines(code)
@@ -158,7 +158,8 @@ class CodeChunker:
                 and current_size >= self.config.min_chunk_size
             ):
                 # Create chunk from current nodes
-                chunk = self._create_chunk_from_boundaries(current_chunk_nodes, lines, len(chunks))
+                chunk = self._create_chunk_from_boundaries(
+                    current_chunk_nodes, lines, len(chunks))
                 chunks.append(chunk)
 
                 # Start new chunk
@@ -171,7 +172,8 @@ class CodeChunker:
 
         # Don't forget the last chunk
         if current_chunk_nodes:
-            chunk = self._create_chunk_from_boundaries(current_chunk_nodes, lines, len(chunks))
+            chunk = self._create_chunk_from_boundaries(
+                current_chunk_nodes, lines, len(chunks))
             chunks.append(chunk)
 
         # Add overlap between chunks if configured
@@ -310,7 +312,8 @@ class CodeChunker:
         content = "".join(chunk_lines)
 
         # Calculate byte positions
-        start_byte = sum(len(line.encode("utf-8")) for line in lines[:start_line])
+        start_byte = sum(len(line.encode("utf-8"))
+                         for line in lines[:start_line])
         end_byte = start_byte + len(content.encode("utf-8"))
 
         # Build metadata
@@ -361,11 +364,13 @@ class CodeChunker:
             ):
                 # Try to find a good split point
                 if self.config.respect_boundaries:
-                    split_point = self._find_line_split_point(current_chunk_lines)
+                    split_point = self._find_line_split_point(
+                        current_chunk_lines)
                     if split_point < len(current_chunk_lines) - 1:
                         # Split at the found point
-                        chunk_content = "".join(current_chunk_lines[: split_point + 1])
-                        remaining_lines = current_chunk_lines[split_point + 1 :]
+                        chunk_content = "".join(
+                            current_chunk_lines[: split_point + 1])
+                        remaining_lines = current_chunk_lines[split_point + 1:]
 
                         chunks.append(
                             CodeChunk(
@@ -373,7 +378,8 @@ class CodeChunker:
                                 start_line=chunk_start_line + 1,
                                 end_line=chunk_start_line + split_point + 1,
                                 start_byte=chunk_start_byte,
-                                end_byte=chunk_start_byte + len(chunk_content.encode("utf-8")),
+                                end_byte=chunk_start_byte +
+                                len(chunk_content.encode("utf-8")),
                                 chunk_index=len(chunks),
                                 metadata={"line_based": True},
                             )
@@ -396,7 +402,8 @@ class CodeChunker:
                         start_line=chunk_start_line + 1,
                         end_line=chunk_start_line + len(current_chunk_lines),
                         start_byte=chunk_start_byte,
-                        end_byte=chunk_start_byte + len(chunk_content.encode("utf-8")),
+                        end_byte=chunk_start_byte +
+                        len(chunk_content.encode("utf-8")),
                         chunk_index=len(chunks),
                         metadata={"line_based": True},
                     )
@@ -421,7 +428,8 @@ class CodeChunker:
                     start_line=chunk_start_line + 1,
                     end_line=chunk_start_line + len(current_chunk_lines),
                     start_byte=chunk_start_byte,
-                    end_byte=chunk_start_byte + len(chunk_content.encode("utf-8")),
+                    end_byte=chunk_start_byte +
+                    len(chunk_content.encode("utf-8")),
                     chunk_index=len(chunks),
                     metadata={"line_based": True},
                 )
@@ -490,14 +498,16 @@ class CodeChunker:
             if i > 0:
                 prev_chunk = chunks[i - 1]
                 overlap_lines = prev_chunk.content.splitlines(keepends=True)[
-                    -self.config.overlap_size :
+                    -self.config.overlap_size:
                 ]
                 if overlap_lines:
                     new_content = "".join(overlap_lines) + new_content
-                    new_start_line = max(1, chunk.start_line - len(overlap_lines))
+                    new_start_line = max(
+                        1, chunk.start_line - len(overlap_lines))
                     new_start_byte = max(
                         0,
-                        chunk.start_byte - sum(len(line.encode("utf-8")) for line in overlap_lines),
+                        chunk.start_byte - sum(len(line.encode("utf-8"))
+                                               for line in overlap_lines),
                     )
 
             overlapped_chunks.append(

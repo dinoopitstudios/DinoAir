@@ -15,7 +15,6 @@ Behavior-preservation constraints:
 import ast
 from typing import Any
 
-
 try:
     # Prefer absolute import path to avoid relative ambiguity when used externally.
     from ..ast_cache import parse_cached  # type: ignore

@@ -26,7 +26,6 @@ from typing import Any
 from ..errors import AdapterError
 from .base import ServiceAdapter
 
-
 __all__ = ["LocalPythonAdapter"]
 
 

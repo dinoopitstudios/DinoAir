@@ -21,7 +21,6 @@ from .base_model import (
 )
 from .model_factory import ModelPriority, register_model
 
-
 logger = logging.getLogger(__name__)
 
 # Try to import OpenAI
@@ -57,7 +56,8 @@ class OpenAIModel(BaseTranslationModel):
         super().__init__(config)
 
         if not OPENAI_AVAILABLE:
-            raise ImportError("openai package is required. Install with: pip install openai")
+            raise ImportError(
+                "openai package is required. Install with: pip install openai")
 
         # Set default configuration
         self.config.setdefault("model_name", "gpt-3.5-turbo")

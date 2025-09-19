@@ -6,21 +6,21 @@ from . import router_client as router_client
 # Search service (safe/lightweight)
 from .search import (
     SearchService,
-    directory_settings as get_directory_settings,
-    get_search_service,
-    hybrid as hybrid_search,
-    index_stats as get_index_stats,
-    keyword as keyword_search,
-    vector as vector_search,
 )
-
+from .search import directory_settings as get_directory_settings
+from .search import (
+    get_search_service,
+)
+from .search import hybrid as hybrid_search
+from .search import index_stats as get_index_stats
+from .search import keyword as keyword_search
+from .search import vector as vector_search
 
 # NOTE:
 # Keep this package lightweight at import time.
 # Importing heavy/optional modules (e.g., pseudocode_translator) here breaks route imports
 # because `from api.services.router_client import get_router` first executes this __init__.
 # Export search-only re-exports and provide access to router_client without importing translator.
-
 
 # Do NOT import translator module here to avoid optional dependency import at package import time.
 # Callers should import api.services.translator directly if needed.

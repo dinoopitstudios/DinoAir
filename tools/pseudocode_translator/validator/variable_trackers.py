@@ -6,8 +6,8 @@ and usage across different scopes.
 """
 
 import ast
-from collections.abc import Iterable
 import contextlib
+from collections.abc import Iterable
 
 from .scope import Scope
 
@@ -20,7 +20,8 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         # Stable reference to the module scope
         self.module_scope: Scope = self.current_scope
         # We will append (name, line) or (name, line, col)
-        self.undefined_names: list[tuple[str, int] | tuple[str, int, int | None]] = []
+        self.undefined_names: list[tuple[str, int]
+                                   | tuple[str, int, int | None]] = []
         self.defined_names: set[str] = set()
         self.in_annotation = False
         # Suppression counters and state
@@ -381,7 +382,8 @@ class UndefinedVariableChecker(ast.NodeVisitor):
                 self.visit(gen.iter)
                 # bind target and evaluate ifs in the comprehension scope
                 self.current_scope = comp_scope
-                self._define_names(gen.target, line_no, target_scope=comp_scope)
+                self._define_names(gen.target, line_no,
+                                   target_scope=comp_scope)
                 for if_clause in gen.ifs:
                     self.visit(if_clause)
             # visit the body in the comprehension scope
@@ -392,10 +394,12 @@ class UndefinedVariableChecker(ast.NodeVisitor):
             self._inside_comprehension -= 1
 
     def visit_ListComp(self, node: ast.ListComp):
-        self._visit_comprehension(node.generators, lambda: self.visit(node.elt), node.lineno)
+        self._visit_comprehension(
+            node.generators, lambda: self.visit(node.elt), node.lineno)
 
     def visit_SetComp(self, node: ast.SetComp):
-        self._visit_comprehension(node.generators, lambda: self.visit(node.elt), node.lineno)
+        self._visit_comprehension(
+            node.generators, lambda: self.visit(node.elt), node.lineno)
 
     def visit_DictComp(self, node: ast.DictComp):
         self._visit_comprehension(
@@ -405,7 +409,8 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         )
 
     def visit_GeneratorExp(self, node: ast.GeneratorExp):
-        self._visit_comprehension(node.generators, lambda: self.visit(node.elt), node.lineno)
+        self._visit_comprehension(
+            node.generators, lambda: self.visit(node.elt), node.lineno)
 
     def visit_NamedExpr(self, node: ast.NamedExpr):
         """Walrus operator: visit value, then bind target in current (possibly comp) scope."""

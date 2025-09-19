@@ -10,10 +10,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
-
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +76,8 @@ class DependencyContainer:
                 logger.debug("Created instance via factory: %s", key)
                 return instance
             except Exception as e:
-                raise DependencyError(f"Failed to create instance of {key}") from e
+                raise DependencyError(
+                    f"Failed to create instance of {key}") from e
 
         raise DependencyError(f"Service not registered: {key}")
 

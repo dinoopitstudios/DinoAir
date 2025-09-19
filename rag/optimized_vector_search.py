@@ -4,24 +4,24 @@ Implements performance improvements including result caching, parallel search,
 and efficient similarity calculations.
 """
 
-from collections import defaultdict
 import concurrent.futures
 import heapq
 import json
 import os
 import threading
 import time
+from collections import defaultdict
 from typing import Any
 
 import numpy as np
 
 # Import DinoAir components
 from utils import Logger
+
 from .search_common import compute_cosine_scores, text_similarity  # shared utilities
 
 # Import RAG components
 from .vector_search import SearchResult, VectorSearchEngine
-
 
 # Helpers extracted to reduce cognitive complexity while preserving behavior
 
@@ -57,7 +57,8 @@ def _compute_cosine_chunk_scores(
     filter by threshold, and return (score, emb_data) pairs.
     """
     # Convert query to list[float] deterministically
-    query_list = [float(x) for x in np.asarray(query_embedding, dtype=np.float64).tolist()]
+    query_list = [float(x) for x in np.asarray(
+        query_embedding, dtype=np.float64).tolist()]
     scores = compute_cosine_scores(query_list, docs_list, mode="auto")
     results: list[tuple[float, dict[str, Any]]] = [
         (float(sim), emb_data)
@@ -212,7 +213,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
                     return cached_results
 
             # Generate query embedding
-            query_embedding = self.embedding_generator.generate_embedding(query, normalize=True)
+            query_embedding = self.embedding_generator.generate_embedding(
+                query, normalize=True)
 
             # Get embeddings (with caching)
             all_embeddings = self._get_cached_embeddings(file_types)
@@ -278,7 +280,7 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
         # Split embeddings for parallel processing
         chunk_size = max(100, len(all_embeddings) // self.max_workers)
         chunks = [
-            all_embeddings[i : i + chunk_size] for i in range(0, len(all_embeddings), chunk_size)
+            all_embeddings[i: i + chunk_size] for i in range(0, len(all_embeddings), chunk_size)
         ]
 
         # Process chunks in parallel
@@ -419,7 +421,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
                     file_types,
                 )
 
-                keyword_future = executor.submit(self.keyword_search, query, top_k * 2, file_types)
+                keyword_future = executor.submit(
+                    self.keyword_search, query, top_k * 2, file_types)
 
                 # Get results
                 vector_results = vector_future.result()
@@ -432,7 +435,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
 
             # Rerank if requested
             if rerank and merged_results:
-                merged_results = self.rerank_results(query, merged_results, top_k=top_k)
+                merged_results = self.rerank_results(
+                    query, merged_results, top_k=top_k)
             else:
                 merged_results = merged_results[:top_k]
 
@@ -440,7 +444,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
             if self.enable_caching:
                 self.search_cache.put(query, cache_params, merged_results)
 
-            self.logger.info("Hybrid search returned %d results", len(merged_results))
+            self.logger.info(
+                "Hybrid search returned %d results", len(merged_results))
 
             return merged_results
 
@@ -484,7 +489,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
                 try:
                     results[query] = future.result()
                 except Exception as e:
-                    self.logger.error("Error searching for '%s': %s", query, str(e))
+                    self.logger.error(
+                        "Error searching for '%s': %s", query, str(e))
                     results[query] = []
 
         return results
@@ -528,7 +534,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
             self.logger.warning("Cache warmup called but caching is disabled")
             return
 
-        self.logger.info("Warming up cache with %d queries", len(common_queries))
+        self.logger.info("Warming up cache with %d queries",
+                         len(common_queries))
 
         # Load embeddings into cache
         self._get_cached_embeddings()
@@ -538,7 +545,8 @@ class OptimizedVectorSearchEngine(VectorSearchEngine):
             try:
                 self.hybrid_search(query, **search_params)
             except Exception as e:
-                self.logger.error("Error warming cache for '%s': %s", query, str(e))
+                self.logger.error(
+                    "Error warming cache for '%s': %s", query, str(e))
 
         self.logger.info("Cache warmup complete")
 
@@ -621,7 +629,8 @@ class SearchOptimizer:
 
         for abbr, expansion in abbreviations.items():
             if f" {abbr} " in f" {query_lower} ":
-                query_lower = query_lower.replace(f" {abbr} ", f" {expansion} ")
+                query_lower = query_lower.replace(
+                    f" {abbr} ", f" {expansion} ")
 
         return query_lower.strip()
 
@@ -639,7 +648,8 @@ class SearchOptimizer:
         words = query.lower().split()
 
         # Remove stop words and short words
-        key_terms = [word for word in words if word not in self.stop_words and len(word) > 2]
+        key_terms = [
+            word for word in words if word not in self.stop_words and len(word) > 2]
 
         # Add bigrams for better context
         bigrams = []
@@ -702,8 +712,9 @@ class SearchOptimizer:
 
                 # Check content similarity
                 if (
-                    text_similarity(result.content, kept_result.content)  # shared utility
-                    > similarity_threshold
+                    # shared utility
+                    text_similarity(
+                        result.content, kept_result.content) > similarity_threshold
                 ):
                     is_duplicate = True
                     break

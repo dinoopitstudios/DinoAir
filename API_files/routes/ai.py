@@ -57,12 +57,12 @@ def _get_tool_schemas_from_params(extra_params: Mapping | None) -> list[dict[str
         registry = get_tool_registry()
         requested_tools = _extract_list_param(extra_params, "tools")
         tool_schemas = registry.get_tool_schemas(requested_tools)
-        logger.info("Function calling enabled with %d tools", len(tool_schemas))
+        logger.info("Function calling enabled with %d tools",
+                    len(tool_schemas))
         return tool_schemas
     except Exception as e:
         logger.warning(
-            "Failed to load tools for function calling, continuing without tools: %s", e
-        )
+            "Failed to load tools for function calling, continuing without tools: %s", e)
         return []
 
 
@@ -121,7 +121,8 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
       which are mapped to LM Studio's 'options' payload.
     - Function calling: Set extra_params.enable_tools=true to enable function calling.
     """
-    mapping_params = req.extra_params if isinstance(req.extra_params, Mapping) else None
+    mapping_params = req.extra_params if isinstance(
+        req.extra_params, Mapping) else None
 
     messages: list[dict[str, str]] = [
         {"role": m.role.value, "content": m.content} for m in req.messages
@@ -143,7 +144,12 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
 
     # Handle function calls if present
     function_call_results = []
-    if mapping_params and mapping_params.get("enable_tools") and result_dict and _has_function_calls(result_dict):
+    if (
+        mapping_params
+        and mapping_params.get("enable_tools")
+        and result_dict
+        and _has_function_calls(result_dict)
+    ):
         function_call_results = await _handle_function_calls(result_dict)
 
         # If functions were called, we might want to continue the conversation

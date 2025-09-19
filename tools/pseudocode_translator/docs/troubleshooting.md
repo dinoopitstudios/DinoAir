@@ -403,7 +403,6 @@ pip install pseudocode-translator
    ```
 
 2. **Update graphics drivers**:
-
    - Windows: Update via Device Manager
    - Linux: `sudo apt install mesa-utils`
    - macOS: Update system

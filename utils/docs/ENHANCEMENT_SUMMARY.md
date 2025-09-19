@@ -16,21 +16,18 @@ Successfully implemented comprehensive performance monitoring and telemetry capa
 ### New Files
 
 1. **`utils/telemetry.py`** (479 lines)
-
    - TelemetryManager class with memory bounds
    - Multiple export formats (JSON, Prometheus, HTTP)
    - Configurable exporters with graceful error handling
    - Background export threads with cleanup mechanisms
 
 2. **`utils/dinoair_api.py`** (377 lines)
-
    - Stable public API facade
    - Clean abstractions for PerformanceMonitor and TelemetryManager
    - Global convenience functions
    - Graceful degradation when backends unavailable
 
 3. **`utils/tests/test_dinoair_api.py`** (386 lines)
-
    - Comprehensive test suite using only public APIs
    - Tests for performance monitoring, telemetry, and integration
    - Memory management and configuration testing

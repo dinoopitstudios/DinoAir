@@ -3,8 +3,8 @@ Embedding generation module for DinoAir 2.0 RAG File Search system.
 Provides local vector embedding generation using sentence-transformers.
 """
 
-from functools import lru_cache
 import os
+from functools import lru_cache
 from typing import Any
 
 import numpy as np
@@ -26,7 +26,8 @@ class EmbeddingGenerator:
     DEFAULT_BATCH_SIZE = 32  # Default batch size for processing
 
     # Model cache directory
-    MODEL_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".dinoair", "models", "embeddings")
+    MODEL_CACHE_DIR = os.path.join(os.path.expanduser(
+        "~"), ".dinoair", "models", "embeddings")
 
     def __init__(
         self,
@@ -102,7 +103,8 @@ class EmbeddingGenerator:
 
             # Get model info
             embedding_dim = self._model.get_sentence_embedding_dimension()
-            self.logger.info(f"Model loaded successfully. Embedding dimension: {embedding_dim}")
+            self.logger.info(
+                f"Model loaded successfully. Embedding dimension: {embedding_dim}")
 
         except Exception as e:
             self.logger.error("Error loading embedding model: %s", str(e))

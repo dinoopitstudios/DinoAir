@@ -6,13 +6,12 @@ implement, providing a standard interface for multi-language output
 capabilities.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
 from pathlib import Path
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 
@@ -254,16 +253,19 @@ class BaseTranslationModel(ABC):
 
         for i, instruction in enumerate(instructions):
             if show_progress:
-                logger.info("Processing %d/%d: %s...", i + 1, total, instruction[:50])
+                logger.info("Processing %d/%d: %s...",
+                            i + 1, total, instruction[:50])
 
             try:
                 result = self.translate(instruction, config)
                 results.append(result)
             except Exception as e:
-                logger.error("Failed to translate instruction %d: %s", i + 1, e)
+                logger.error(
+                    "Failed to translate instruction %d: %s", i + 1, e)
                 language = config.target_language if config else OutputLanguage.PYTHON
                 results.append(
-                    TranslationResult(success=False, code=None, language=language, errors=[str(e)])
+                    TranslationResult(success=False, code=None,
+                                      language=language, errors=[str(e)])
                 )
 
         return results
@@ -303,7 +305,8 @@ class BaseTranslationModel(ABC):
             True if language is supported, False otherwise
         """
         if not self.metadata.supports_language(language):
-            logger.warning(f"Language {language.value} not supported by {self.metadata.name}")
+            logger.warning(
+                f"Language {language.value} not supported by {self.metadata.name}")
             return False
 
         return True
@@ -363,10 +366,12 @@ class BaseTranslationModel(ABC):
 
         # Validate parameters
         if not 0 <= config.temperature <= 2:
-            issues.append(f"Temperature {config.temperature} out of range [0, 2]")
+            issues.append(
+                f"Temperature {config.temperature} out of range [0, 2]")
 
         if config.max_tokens < 1:
-            issues.append(f"max_tokens must be positive, got {config.max_tokens}")
+            issues.append(
+                f"max_tokens must be positive, got {config.max_tokens}")
 
         if not 0 <= config.top_p <= 1:
             issues.append(f"top_p {config.top_p} out of range [0, 1]")

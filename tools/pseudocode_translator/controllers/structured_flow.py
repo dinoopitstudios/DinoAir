@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, Any
 
 from ..exceptions import ParsingError, TranslatorError  # type: ignore
 
-
 if TYPE_CHECKING:
-    from collections.abc import Callable
     import logging
+    from collections.abc import Callable
 
     from ..models import CodeBlock
 
@@ -32,7 +31,8 @@ class StructuredParsingController:
         events: Any,
         logger: logging.Logger,
         maybe_offload_parse: Callable[[str], Any],
-        maybe_offload_validate: Callable[[Any], Any],  # kept for parity; used by ValidationService
+        # kept for parity; used by ValidationService
+        maybe_offload_validate: Callable[[Any], Any],
         *,
         # Callbacks to preserve behavior without importing translator.py
         process_blocks_fn: Callable[[list[CodeBlock]], list[CodeBlock]],
@@ -72,7 +72,8 @@ class StructuredParsingController:
         Execute structured parsing flow and return TranslationResult (manager's dataclass instance).
         """
         logger = self._logger
-        logger.debug(f"Translation #{translation_id}: Using structured parsing approach")
+        logger.debug(
+            f"Translation #{translation_id}: Using structured parsing approach")
         errors: list[str] = []
         local_warnings = warnings.copy()
 
@@ -105,7 +106,8 @@ class StructuredParsingController:
                         code=None,
                         errors=errors,
                         warnings=local_warnings,
-                        metadata=self._create_metadata(start_time, 0, 0, 0, 0, False),
+                        metadata=self._create_metadata(
+                            start_time, 0, 0, 0, 0, False),
                     )
             except Exception as e:
                 error = ParsingError(
@@ -119,7 +121,8 @@ class StructuredParsingController:
                     code=None,
                     errors=[error.format_error()],
                     warnings=local_warnings,
-                    metadata=self._create_metadata(start_time, 0, 0, 0, 0, False),
+                    metadata=self._create_metadata(
+                        start_time, 0, 0, 0, 0, False),
                 )
 
             local_warnings.extend(parse_result.warnings)
@@ -133,7 +136,8 @@ class StructuredParsingController:
                 self._dep.analyze_and_annotate(processed_blocks)
             except Exception as e:
                 logger.warning("Error handling dependencies: %s", e)
-                local_warnings.append(f"Could not analyze dependencies: {str(e)}")
+                local_warnings.append(
+                    f"Could not analyze dependencies: {str(e)}")
 
             # Continue with completion logic (assembly + validation)
             return self._complete_structured_translation(
@@ -147,7 +151,8 @@ class StructuredParsingController:
         except Exception as e:
             logger.error("Structured parsing translation failed: %s", str(e))
 
-            terr = TranslatorError("Structured parsing translation failed", cause=e)
+            terr = TranslatorError(
+                "Structured parsing translation failed", cause=e)
             terr.add_suggestion("Check the input format")
             terr.add_suggestion("Review any error messages above")
             terr.add_suggestion("Try using simpler pseudocode")
@@ -173,7 +178,8 @@ class StructuredParsingController:
         errors: list[str] = []
 
         # Assemble or return early with identically formatted error
-        ok, assembled_code, assembly_error = self._assemble_or_error(processed_blocks)
+        ok, assembled_code, assembly_error = self._assemble_or_error(
+            processed_blocks)
         if not ok:
             return self._result_cls(
                 success=False,
@@ -205,7 +211,8 @@ class StructuredParsingController:
         # If code changed due to auto-fix, append the warning exactly as before
         elif fixed_code != original_code:
             assembled_final = fixed_code
-            warnings.append("Code was automatically fixed to resolve syntax errors")
+            warnings.append(
+                "Code was automatically fixed to resolve syntax errors")
         else:
             assembled_final = original_code
 
@@ -214,12 +221,15 @@ class StructuredParsingController:
         warnings.extend(getattr(logic_result, "warnings", []) or [])
 
         # Suggestions unchanged
-        suggestions = self._suggest_improvements(assembled_final)  # type: ignore[arg-type]
+        suggestions = self._suggest_improvements(
+            assembled_final)  # type: ignore[arg-type]
         if suggestions:
-            warnings.append(f"Improvement suggestions: {'; '.join(suggestions)}")
+            warnings.append(
+                f"Improvement suggestions: {'; '.join(suggestions)}")
 
         # Metadata unchanged
-        blocks_translated = sum(1 for b in processed_blocks if b.metadata.get("translated", False))
+        blocks_translated = sum(
+            1 for b in processed_blocks if b.metadata.get("translated", False))
         cache_hits = 0
         metadata = self._create_metadata(
             start_time,

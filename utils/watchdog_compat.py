@@ -4,15 +4,14 @@ This module provides a clean Qt-based watchdog implementation without
 the complexity of legacy fallback mechanisms.
 """
 
-from collections.abc import Callable
-from dataclasses import dataclass
-from enum import Enum
 import sys
 import threading
 import time
+from collections.abc import Callable
+from dataclasses import dataclass
+from enum import Enum
 
 from .logger import Logger
-
 
 logger = Logger()
 
@@ -98,7 +97,8 @@ class StreamlinedWatchdog:
 
         except RuntimeError as e:
             logger.error(f"Failed to initialize Qt controller: {e}")
-            raise RuntimeError(f"Qt controller initialization failed: {e}") from e
+            raise RuntimeError(
+                f"Qt controller initialization failed: {e}") from e
 
     def _connect_signals(self):
         """Connect Qt signals to callback functions."""
@@ -166,7 +166,8 @@ class StreamlinedWatchdog:
                     except RuntimeError as e:
                         logger.error(f"Qt event loop error: {e}")
 
-                self._qt_thread = threading.Thread(target=run_qt_loop, daemon=True)
+                self._qt_thread = threading.Thread(
+                    target=run_qt_loop, daemon=True)
                 self._qt_thread.start()
 
             # Start the controller

@@ -290,20 +290,24 @@ class UnicodeProtection:
     @staticmethod
     def normalize_unicode(text: str) -> str:
         """Normalize Unicode text to prevent attacks."""
+
     @staticmethod
     def detect_unicode_attack(text: str) -> bool:
         """Detect potential Unicode-based attacks."""
         if not text:
             return False
 
-        if (UnicodeProtection._contains_dangerous_chars(text)
-                or UnicodeProtection._detect_mixed_scripts_attack(text)
-                or UnicodeProtection._excessive_combining_chars(text)
-                or UnicodeProtection._contains_rtl_override(text)):
+        if (
+            UnicodeProtection._contains_dangerous_chars(text)
+            or UnicodeProtection._detect_mixed_scripts_attack(text)
+            or UnicodeProtection._excessive_combining_chars(text)
+            or UnicodeProtection._contains_rtl_override(text)
+        ):
             return True
 
         # Check for invisible characters
-        invisible_count = sum(bool(unicodedata.category(c) in {"Cf", "Cc"}) for c in text)
+        invisible_count = sum(
+            bool(unicodedata.category(c) in {"Cf", "Cc"}) for c in text)
 
         return invisible_count > 0
 

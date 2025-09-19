@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-
 if TYPE_CHECKING:
     from models.note import Note
     from models.project import Project
@@ -26,7 +25,8 @@ def format_note(note: Note, preview_len: int | None = None) -> dict[str, Any]:
     content = note.content
     if preview_len is not None:
         preview_len = max(0, int(preview_len))
-        content = content[:preview_len] + "..." if len(content) > preview_len else content
+        content = content[:preview_len] + \
+            "..." if len(content) > preview_len else content
 
     return {
         "id": note.id,

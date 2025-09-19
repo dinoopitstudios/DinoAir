@@ -5,10 +5,8 @@ from typing import TYPE_CHECKING, Any
 
 from .common import guard_imports, resp
 
-
 if TYPE_CHECKING:
     from ..settings import Settings
-
 
 log = logging.getLogger("api.services.rag_embeddings")
 RAG_UNAVAILABLE_MSG = "RAG components unavailable"
@@ -33,7 +31,8 @@ class RagEmbeddingMaintenanceService:
             return resp(False, None, RAG_UNAVAILABLE_MSG, 501)
 
         try:
-            bep = BatchEmbeddingProcessor(user_name="default_user", batch_size=batch_size)
+            bep = BatchEmbeddingProcessor(
+                user_name="default_user", batch_size=batch_size)
             result = bep.generate_missing_embeddings()
             return resp(
                 bool(result.get("success", True)),

@@ -224,8 +224,7 @@ class LiveSecurityAssessment:
                     if response.status_code == 429:  # Too Many Requests
                         blocked_count += 1
                         print(
-                            f"   ✅ Rate limit triggered after {i + 1} requests"
-                        )
+                            f"   ✅ Rate limit triggered after {i + 1} requests")
                         break
                     time.sleep(0.1)  # Small delay between requests
                 except Exception:
@@ -235,10 +234,7 @@ class LiveSecurityAssessment:
                 self.passed_tests += 1
                 print("   ✅ Rate limiting is working")
             else:
-                print(
-                    "   ⚠️  Rate limiting not detected "
-                    "(may be set for higher limits)"
-                )
+                print("   ⚠️  Rate limiting not detected (may be set for higher limits)")
                 self.passed_tests += 1  # For small team, might be set higher
 
         except Exception as e:
@@ -391,10 +387,6 @@ class LiveSecurityAssessment:
         return recommendations
 
 
-
-
-
-
 def run_live_security_assessment():
     """Run live security assessment against DinoAir API."""
 
@@ -457,15 +449,11 @@ if __name__ == "__main__":
 
         if report and report["pass_percentage"] >= 80:
             print(
-                "\n🎉 CONGRATULATIONS! DinoAir has "
-                f"{report['security_level']} security!"
-            )
+                f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
             sys.exit(0)
         elif report:
             print(
-                "\n🔧 Security improvements needed - current level: "
-                f"{report['security_level']}"
-            )
+                f"\n🔧 Security improvements needed - current level: {report['security_level']}")
             sys.exit(1)
         else:
             print("\n❌ Assessment could not be completed")

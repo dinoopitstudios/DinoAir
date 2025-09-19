@@ -78,8 +78,8 @@ def auto_discover_models() -> None:
     """Auto-discover and import model implementation modules under this package."""
     import importlib
     import logging
-    from pathlib import Path
     import pkgutil
+    from pathlib import Path
 
     package_dir = Path(__file__).parent
     for _, module_name, _ in pkgutil.iter_modules([str(package_dir)]):

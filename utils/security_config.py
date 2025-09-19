@@ -224,7 +224,8 @@ def validate_security_config(config: SecurityConfig) -> List[str]:
     # Check for production security requirements
     if not config.encryption_enabled:
         validation_warnings.append(
-            "❌ CRITICAL: Encryption is disabled - required for HIPAA compliance")
+            "❌ CRITICAL: Encryption is disabled - required for HIPAA compliance"
+        )
 
     if not config.database_encryption:
         validation_warnings.append(
@@ -233,7 +234,8 @@ def validate_security_config(config: SecurityConfig) -> List[str]:
 
     if not config.audit_logging_enabled:
         validation_warnings.append(
-            "❌ CRITICAL: Audit logging is disabled - required for compliance")
+            "❌ CRITICAL: Audit logging is disabled - required for compliance"
+        )
 
     if not config.require_mfa:
         validation_warnings.append(
@@ -246,22 +248,26 @@ def validate_security_config(config: SecurityConfig) -> List[str]:
 
     if not config.require_tls:
         validation_warnings.append(
-            "❌ CRITICAL: TLS is disabled - required for data in transit protection")
+            "❌ CRITICAL: TLS is disabled - required for data in transit protection"
+        )
 
     if config.tls_min_version not in ["1.2", "1.3"]:
-        validation_warnings.append("⚠️  WARNING: TLS version should be 1.2 or 1.3")
+        validation_warnings.append(
+            "⚠️  WARNING: TLS version should be 1.2 or 1.3")
 
     if not config.pii_detection_enabled:
         validation_warnings.append("⚠️  WARNING: PII detection is disabled")
 
     if config.audit_retention_days < 2555:  # 7 years
         validation_warnings.append(
-            "⚠️  WARNING: Audit retention is less than 7 years (HIPAA requirement)")
+            "⚠️  WARNING: Audit retention is less than 7 years (HIPAA requirement)"
+        )
 
     # Check for development overrides in production
     if config.security_overrides and _is_production():
         validation_warnings.append(
-            "❌ CRITICAL: Security overrides detected in production environment")
+            "❌ CRITICAL: Security overrides detected in production environment"
+        )
 
     return validation_warnings
 
@@ -301,7 +307,7 @@ def print_security_status() -> None:
     print("=" * 60)
 
     print(
-        f"Environment: {os.environ.get('DINOAIR_ENVIRONMENT', 'development')}" )
+        f"Environment: {os.environ.get('DINOAIR_ENVIRONMENT', 'development')}")
     print(
         f"HIPAA Compliance Mode: {'✅ Enabled' if config.hipaa_compliance_mode else '❌ Disabled'}"
     )

@@ -4,12 +4,13 @@ Provides database operations for RAG-powered file search functionality
 with vector storage and retrieval capabilities.
 """
 
-from datetime import datetime
 import hashlib
 import json
+from datetime import datetime
 from typing import Any
 
 from utils.logger import Logger
+
 from .initialize_db import DatabaseManager
 
 
@@ -41,7 +42,8 @@ class FileSearchDB:
             self.create_tables()
             self.logger.info("File search database initialized successfully")
         except Exception as e:
-            self.logger.error(f"Error ensuring file search database readiness: {str(e)}")
+            self.logger.error(
+                f"Error ensuring file search database readiness: {str(e)}")
             raise
 
     def _get_connection(self):
@@ -60,8 +62,7 @@ class FileSearchDB:
                 cursor = conn.cursor()
 
                 # Table for tracking indexed files
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS indexed_files (
                         id TEXT PRIMARY KEY,
                         file_path TEXT UNIQUE NOT NULL,
@@ -73,12 +74,10 @@ class FileSearchDB:
                         status TEXT DEFAULT 'active',
                         metadata TEXT
                     )
-                """
-                )
+                """)
 
                 # Table for storing text chunks
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS file_chunks (
                         id TEXT PRIMARY KEY,
                         file_id TEXT NOT NULL,
@@ -92,12 +91,10 @@ class FileSearchDB:
                             ON DELETE CASCADE,
                         UNIQUE(file_id, chunk_index)
                     )
-                """
-                )
+                """)
 
                 # Table for storing vector embeddings
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS file_embeddings (
                         id TEXT PRIMARY KEY,
                         chunk_id TEXT UNIQUE NOT NULL,
@@ -107,12 +104,10 @@ class FileSearchDB:
                         FOREIGN KEY (chunk_id) REFERENCES file_chunks (id)
                             ON DELETE CASCADE
                     )
-                """
-                )
+                """)
 
                 # Table for search settings (directory limiters, etc.)
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS search_settings (
                         id TEXT PRIMARY KEY,
                         setting_name TEXT UNIQUE NOT NULL,
@@ -120,40 +115,25 @@ class FileSearchDB:
                         created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                         modified_date DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
-                """
-                )
+                """)
 
                 # Create indexes for performance
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
-                    idx_indexed_files_path ON indexed_files(file_path)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
-                    idx_indexed_files_status ON indexed_files(status)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
-                    idx_indexed_files_type ON indexed_files(file_type)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
-                    idx_file_chunks_file_id ON file_chunks(file_id)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
-                    idx_file_chunks_content ON file_chunks(content)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
+                    idx_indexed_files_path ON indexed_files(file_path)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
+                    idx_indexed_files_status ON indexed_files(status)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
+                    idx_indexed_files_type ON indexed_files(file_type)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
+                    idx_file_chunks_file_id ON file_chunks(file_id)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
+                    idx_file_chunks_content ON file_chunks(content)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
                     idx_file_embeddings_chunk_id
-                    ON file_embeddings(chunk_id)"""
-                )
-                cursor.execute(
-                    """CREATE INDEX IF NOT EXISTS
+                    ON file_embeddings(chunk_id)""")
+                cursor.execute("""CREATE INDEX IF NOT EXISTS
                     idx_search_settings_name
-                    ON search_settings(setting_name)"""
-                )
+                    ON search_settings(setting_name)""")
 
                 conn.commit()
                 self.logger.info("File search tables created successfully")
@@ -329,7 +309,8 @@ class FileSearchDB:
 
                 conn.commit()
 
-                self.logger.debug(f"Added chunk {chunk_index} for file {file_id}")
+                self.logger.debug(
+                    f"Added chunk {chunk_index} for file {file_id}")
                 return {
                     "success": True,
                     "chunk_id": chunk_id,
@@ -337,7 +318,8 @@ class FileSearchDB:
                 }
 
         except Exception as e:
-            self.logger.error(f"Error adding chunk for file {file_id}: {str(e)}")
+            self.logger.error(
+                f"Error adding chunk for file {file_id}: {str(e)}")
             return {"success": False, "error": f"Failed to add chunk: {str(e)}"}
 
     def add_embedding(
@@ -383,7 +365,8 @@ class FileSearchDB:
                 }
 
         except Exception as e:
-            self.logger.error(f"Error adding embedding for chunk {chunk_id}: {str(e)}")
+            self.logger.error(
+                f"Error adding embedding for chunk {chunk_id}: {str(e)}")
             return {"success": False, "error": f"Failed to store embedding: {str(e)}"}
 
     def get_all_embeddings(
@@ -585,7 +568,8 @@ class FileSearchDB:
 
                     results.append(result_dict)
 
-                self.logger.info(f"Keyword search for {keywords} returned {len(results)} results")
+                self.logger.info(
+                    f"Keyword search for {keywords} returned {len(results)} results")
                 return results
 
         except Exception as e:
@@ -647,7 +631,8 @@ class FileSearchDB:
                 return results
 
         except Exception as e:
-            self.logger.error(f"Error getting embeddings for file {file_path}: {str(e)}")
+            self.logger.error(
+                f"Error getting embeddings for file {file_path}: {str(e)}")
             return []
 
     def batch_add_embeddings(self, embeddings_data: list[dict[str, Any]]) -> dict[str, Any]:
@@ -699,7 +684,8 @@ class FileSearchDB:
 
                 conn.commit()
 
-                self.logger.info(f"Batch added {success_count} embeddings ({failed_count} failed)")
+                self.logger.info(
+                    f"Batch added {success_count} embeddings ({failed_count} failed)")
 
                 return {
                     "success": True,
@@ -754,12 +740,14 @@ class FileSearchDB:
 
                 conn.commit()
 
-                self.logger.info(f"Cleared {count} embeddings for file: {file_path}")
+                self.logger.info(
+                    f"Cleared {count} embeddings for file: {file_path}")
 
                 return {"success": True, "embeddings_removed": count}
 
         except Exception as e:
-            self.logger.error(f"Error clearing embeddings for {file_path}: {str(e)}")
+            self.logger.error(
+                f"Error clearing embeddings for {file_path}: {str(e)}")
             return {"success": False, "error": f"Failed to clear embeddings: {str(e)}"}
 
     def update_search_settings(self, setting_name: str, setting_value: Any) -> dict[str, Any]:
@@ -823,7 +811,8 @@ class FileSearchDB:
                 return {"success": True, "message": f"Setting {action} successfully"}
 
         except Exception as e:
-            self.logger.error(f"Error updating setting {setting_name}: {str(e)}")
+            self.logger.error(
+                f"Error updating setting {setting_name}: {str(e)}")
             return {"success": False, "error": f"Failed to update setting: {str(e)}"}
 
     def get_search_settings(self, setting_name: str | None = None) -> dict[str, Any]:
@@ -866,14 +855,12 @@ class FileSearchDB:
                         "error": f"Setting '{setting_name}' not found",
                     }
                 # Get all settings
-                cursor.execute(
-                    """
+                cursor.execute("""
                         SELECT setting_name, setting_value,
                                created_date, modified_date
                         FROM search_settings
                         ORDER BY setting_name
-                    """
-                )
+                    """)
 
                 settings = {}
                 for row in cursor.fetchall():
@@ -903,61 +890,50 @@ class FileSearchDB:
                 stats = {}
 
                 # Total indexed files
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(*) FROM indexed_files WHERE status = 'active'
-                """
-                )
+                """)
                 stats["total_files"] = cursor.fetchone()[0]
 
                 # Files by type
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT file_type, COUNT(*)
                     FROM indexed_files
                     WHERE status = 'active'
                     GROUP BY file_type
-                """
-                )
-                stats["files_by_type"] = {row[0] or "unknown": row[1] for row in cursor.fetchall()}
+                """)
+                stats["files_by_type"] = {
+                    row[0] or "unknown": row[1] for row in cursor.fetchall()}
 
                 # Total size
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT SUM(size) FROM indexed_files WHERE status = 'active'
-                """
-                )
+                """)
                 total_size = cursor.fetchone()[0] or 0
                 stats["total_size_bytes"] = total_size
                 stats["total_size_mb"] = round(total_size / (1024 * 1024), 2)
 
                 # Total chunks
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(*) FROM file_chunks c
                     JOIN indexed_files f ON c.file_id = f.id
                     WHERE f.status = 'active'
-                """
-                )
+                """)
                 stats["total_chunks"] = cursor.fetchone()[0]
 
                 # Total embeddings
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT COUNT(*) FROM file_embeddings e
                     JOIN file_chunks c ON e.chunk_id = c.id
                     JOIN indexed_files f ON c.file_id = f.id
                     WHERE f.status = 'active'
-                """
-                )
+                """)
                 stats["total_embeddings"] = cursor.fetchone()[0]
 
                 # Last indexed date
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT MAX(indexed_date) FROM indexed_files
-                """
-                )
+                """)
                 stats["last_indexed_date"] = cursor.fetchone()[0]
 
                 return stats
@@ -1207,8 +1183,7 @@ class FileSearchDB:
                 conn.execute("VACUUM")
 
                 # Get database statistics
-                cursor.execute(
-                    """
+                cursor.execute("""
                     SELECT
                         name,
                         COUNT(*) as row_count
@@ -1218,8 +1193,7 @@ class FileSearchDB:
                         'file_embeddings', 'search_settings'
                     )
                     GROUP BY name
-                """
-                )
+                """)
 
                 stats = {}
                 # Whitelist of valid table names to prevent SQL injection
@@ -1234,7 +1208,8 @@ class FileSearchDB:
                     table_name = row[0]
                     # Security: Only allow whitelisted table names
                     if table_name not in VALID_TABLES:
-                        self.logger.warning(f"Skipping non-whitelisted table: {table_name}")
+                        self.logger.warning(
+                            f"Skipping non-whitelisted table: {table_name}")
                         continue
 
                     # Use parameterized query - Note: SQLite doesn't support table name parameters,

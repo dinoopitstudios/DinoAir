@@ -9,8 +9,8 @@ All functions follow the standard tool pattern with comprehensive
 documentation and error handling for proper AI discovery and usage.
 """
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +21,6 @@ from tools.common.validators import (
     validate_non_empty_str,
     validate_path_exists,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +36,11 @@ def _map_validate_path_error(e: ValueError, file_path: str) -> dict:
 
     try:
         # Prefer centralized classifier; falls back to direct message checks if unavailable
-        from tools.common.validators import _classify_path_error  # type: ignore[import-untyped]
+        # type: ignore[import-untyped]
+        from tools.common.validators import _classify_path_error
 
-        kind = _classify_path_error(e)  # "not_found" | "not_file" | "not_dir" | "other"
+        # "not_found" | "not_file" | "not_dir" | "other"
+        kind = _classify_path_error(e)
     except Exception:
         kind = "other"
 
@@ -194,7 +195,8 @@ def search_files_by_keywords(
         }
 
     except Exception as e:
-        log_exception(logger, f"Error searching files by keywords {keywords}", e)
+        log_exception(
+            logger, f"Error searching files by keywords {keywords}", e)
         return {
             "success": False,
             "error": str(e),
@@ -553,7 +555,8 @@ def manage_search_directories(
         }
 
     except Exception as e:
-        log_exception(logger, f"Error managing directories with action {action}", e)
+        log_exception(
+            logger, f"Error managing directories with action {action}", e)
         return {
             "success": False,
             "error": str(e),
@@ -666,7 +669,8 @@ def get_file_embeddings(file_path: str, user_name: str = "default_user") -> dict
         }
 
     except Exception as e:
-        log_exception(logger, f"Error getting embeddings for file {file_path}", e)
+        log_exception(
+            logger, f"Error getting embeddings for file {file_path}", e)
         return {
             "success": False,
             "error": str(e),

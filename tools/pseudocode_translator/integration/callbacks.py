@@ -6,15 +6,14 @@ the pseudocode translator with GUI applications, enabling real-time
 progress updates, status monitoring, and error handling.
 """
 
+import logging
+import threading
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import logging
-import threading
 from typing import Any, Protocol
-
 
 logger = logging.getLogger(__name__)
 
@@ -311,7 +310,8 @@ class CallbackManager:
             message: Progress message
         """
         data = CallbackData(
-            type=CallbackType.PROGRESS, message=message, data={"percentage": percentage}
+            type=CallbackType.PROGRESS, message=message, data={
+                "percentage": percentage}
         )
         self.trigger(data)
 
@@ -323,7 +323,8 @@ class CallbackManager:
             status: Status message
             **kwargs: Additional status data
         """
-        data = CallbackData(type=CallbackType.STATUS, message=status, data=kwargs)
+        data = CallbackData(type=CallbackType.STATUS,
+                            message=status, data=kwargs)
         self.trigger(data)
 
     def trigger_error(self, error: str, **kwargs) -> None:
@@ -334,7 +335,8 @@ class CallbackManager:
             error: Error message
             **kwargs: Additional error data
         """
-        data = CallbackData(type=CallbackType.ERROR, message=error, data=kwargs)
+        data = CallbackData(type=CallbackType.ERROR,
+                            message=error, data=kwargs)
         self.trigger(data)
 
     def clear(self, callback_type: CallbackType | None = None) -> None:

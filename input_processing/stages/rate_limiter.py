@@ -4,12 +4,12 @@ Provides configurable rate limiting with different strategies
 and time windows to prevent abuse while maintaining good UX.
 """
 
+import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from math import isfinite
-import time
 
 
 class RateLimitStrategy(Enum):
@@ -73,7 +73,8 @@ class RateLimiter:
         self.config = config or RateLimitConfig()
 
         # Storage for different strategies
-        self.fixed_windows: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+        self.fixed_windows: dict[str, dict[str, int]
+                                 ] = defaultdict(lambda: defaultdict(int))
         self.sliding_windows: dict[str, deque] = defaultdict(deque)
         self.token_buckets: dict[str, dict[str, float]] = defaultdict(
             lambda: {
@@ -177,7 +178,8 @@ class RateLimiter:
         current_count = self.fixed_windows[key][window_key]
 
         if current_count >= limit:
-            reset_time = datetime.fromtimestamp((current_window + 1) * self.config.window_seconds)
+            reset_time = datetime.fromtimestamp(
+                (current_window + 1) * self.config.window_seconds)
             return RateLimitStatus(
                 allowed=False,
                 remaining_requests=0,
@@ -188,7 +190,8 @@ class RateLimiter:
         # Increment counter
         self.fixed_windows[key][window_key] += 1
 
-        reset_time = datetime.fromtimestamp((current_window + 1) * self.config.window_seconds)
+        reset_time = datetime.fromtimestamp(
+            (current_window + 1) * self.config.window_seconds)
 
         return RateLimitStatus(
             allowed=True,
@@ -217,7 +220,8 @@ class RateLimiter:
         # Check limit
         if len(window) >= limit:
             oldest_request = window[0]
-            reset_time = oldest_request + timedelta(seconds=self.config.window_seconds)
+            reset_time = oldest_request + \
+                timedelta(seconds=self.config.window_seconds)
             return RateLimitStatus(
                 allowed=False,
                 remaining_requests=0,
@@ -230,7 +234,8 @@ class RateLimiter:
 
         # Calculate reset time (when oldest request expires)
         if window:
-            reset_time = window[0] + timedelta(seconds=self.config.window_seconds)
+            reset_time = window[0] + \
+                timedelta(seconds=self.config.window_seconds)
         else:
             reset_time = now + timedelta(seconds=self.config.window_seconds)
 
@@ -262,7 +267,8 @@ class RateLimiter:
             refill_rate = limit / self.config.window_seconds
             new_tokens = time_passed * refill_rate
 
-        bucket["tokens"] = min(bucket["tokens"] + new_tokens, self.config.burst_size)
+        bucket["tokens"] = min(
+            bucket["tokens"] + new_tokens, self.config.burst_size)
         bucket["last_update"] = now
 
         # Check if token available

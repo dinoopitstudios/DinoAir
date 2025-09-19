@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     import sqlite3
 
@@ -61,7 +60,8 @@ class BaseMigration(ABC):
         Raises:
             MigrationError: If rollback fails
         """
-        raise NotImplementedError(f"Migration {self.version}_{self.name} does not support rollback")
+        raise NotImplementedError(
+            f"Migration {self.version}_{self.name} does not support rollback")
 
     @property
     def full_name(self) -> str:
@@ -116,8 +116,7 @@ def ensure_migrations_table(conn: sqlite3.Connection) -> None:
         conn: Database connection
     """
     cursor = conn.cursor()
-    cursor.execute(
-        """
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS schema_migrations (
             version TEXT NOT NULL,
             name TEXT NOT NULL,
@@ -126,16 +125,13 @@ def ensure_migrations_table(conn: sqlite3.Connection) -> None:
             checksum TEXT DEFAULT NULL,
             PRIMARY KEY (version, name)
         )
-    """
-    )
+    """)
 
     # Create index for efficient lookups
-    cursor.execute(
-        """
+    cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_migrations_version
         ON schema_migrations(version)
-    """
-    )
+    """)
 
     conn.commit()
 
@@ -176,13 +172,11 @@ def get_applied_migrations(conn: sqlite3.Connection) -> list[MigrationRecord]:
     ensure_migrations_table(conn)
 
     cursor = conn.cursor()
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT version, name, applied_at, description, checksum
         FROM schema_migrations
         ORDER BY version, name
-    """
-    )
+    """)
 
     return [MigrationRecord.from_row(row) for row in cursor.fetchall()]
 

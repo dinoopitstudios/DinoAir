@@ -16,10 +16,8 @@ from .base import (
     record_migration,
 )
 
-
 if TYPE_CHECKING:
     import sqlite3
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -149,7 +147,8 @@ class MigrationRunner:
                 raise MigrationError(error_msg) from e
 
         LOGGER.info(
-            "Successfully executed %d migrations for database '%s'", len(executed), self.db_key
+            "Successfully executed %d migrations for database '%s'", len(
+                executed), self.db_key
         )
         return executed
 
@@ -202,7 +201,8 @@ class MigrationRunner:
 
         # Check if it's applied
         if not is_migration_applied(conn, migration):
-            raise MigrationError(f"Migration {migration.full_name} is not applied")
+            raise MigrationError(
+                f"Migration {migration.full_name} is not applied")
 
         try:
             LOGGER.info(

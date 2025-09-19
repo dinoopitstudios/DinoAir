@@ -7,16 +7,15 @@ Supports multiple export formats and configurable memory limits.
 
 from __future__ import annotations
 
+import json
+import logging
+import threading
+import time
 from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass
-import json
-import logging
 from pathlib import Path
-import threading
-import time
 from typing import Any
-
 
 try:
     from utils.performance_monitor import PerformanceMetrics, PerformanceMonitor
@@ -87,11 +86,13 @@ class JSONFileExporter(TelemetryExporter):
                 with open(self.output_file, "w", encoding="utf-8") as f:
                     json.dump(existing_data, f, indent=2, default=str)
 
-                logger.debug("Exported %d metrics to %s", len(metrics), self.output_file)
+                logger.debug("Exported %d metrics to %s",
+                             len(metrics), self.output_file)
                 return True
 
         except OSError as e:
-            logger.error("Failed to export metrics to %s: %s", self.output_file, e)
+            logger.error("Failed to export metrics to %s: %s",
+                         self.output_file, e)
             return False
 
     def close(self) -> None:
@@ -130,7 +131,8 @@ class PrometheusExporter(TelemetryExporter):
             prometheus_lines = []
 
             for metric in metrics:
-                operation = metric.get("operation", "unknown").replace("-", "_").replace(".", "_")
+                operation = metric.get("operation", "unknown").replace(
+                    "-", "_").replace(".", "_")
                 timestamp = int(metric.get("timestamp", time.time()) * 1000)
 
                 # Duration metric
@@ -158,7 +160,8 @@ class PrometheusExporter(TelemetryExporter):
             with self._lock, open(self.output_file, "a") as f:
                 f.write("\n".join(prometheus_lines) + "\n")
 
-            logger.debug(f"Exported {len(metrics)} metrics to Prometheus format")
+            logger.debug(
+                f"Exported {len(metrics)} metrics to Prometheus format")
             return True
 
         except Exception as e:
@@ -185,16 +188,19 @@ class HTTPExporter(TelemetryExporter):
         except ImportError:
             self.requests = None
             self._has_requests = False
-            logger.warning("requests library not available, HTTP export disabled")
+            logger.warning(
+                "requests library not available, HTTP export disabled")
 
     def export_metrics(self, metrics: list[dict[str, Any]]) -> bool:
         """Export metrics via HTTP."""
         if not self._has_requests:
-            logger.error("Cannot export via HTTP: requests library not available")
+            logger.error(
+                "Cannot export via HTTP: requests library not available")
             return False
 
         try:
-            payload = {"metrics": metrics, "timestamp": time.time(), "source": "dinoair"}
+            payload = {"metrics": metrics, "timestamp": time.time(),
+                       "source": "dinoair"}
 
             response = self.requests.post(
                 self.endpoint,
@@ -204,9 +210,11 @@ class HTTPExporter(TelemetryExporter):
             )
 
             if response.status_code == 200:
-                logger.debug(f"Successfully exported {len(metrics)} metrics via HTTP")
+                logger.debug(
+                    f"Successfully exported {len(metrics)} metrics via HTTP")
                 return True
-            logger.error(f"HTTP export failed with status {response.status_code}: {response.text}")
+            logger.error(
+                f"HTTP export failed with status {response.status_code}: {response.text}")
             return False
 
         except Exception as e:
@@ -245,11 +253,13 @@ class TelemetryManager:
                     output_file = self.config.output_file or "telemetry_metrics.prom"
                     self._exporter = PrometheusExporter(output_file)
                 else:
-                    raise ValueError(f"Unsupported export format: {self.config.export_format}")
+                    raise ValueError(
+                        f"Unsupported export format: {self.config.export_format}")
 
             elif self.config.export_destination == "http":
                 if not self.config.http_endpoint:
-                    raise ValueError("HTTP endpoint must be configured for HTTP export")
+                    raise ValueError(
+                        "HTTP endpoint must be configured for HTTP export")
                 self._exporter = HTTPExporter(self.config.http_endpoint)
 
             elif self.config.export_destination == "console":
@@ -304,7 +314,8 @@ class TelemetryManager:
         if metrics_to_export:
             success = self._exporter.export_metrics(metrics_to_export)
             if not success:
-                logger.warning(f"Failed to export {len(metrics_to_export)} metrics")
+                logger.warning(
+                    f"Failed to export {len(metrics_to_export)} metrics")
 
     def _serialize_metric(self, metric: Any) -> dict[str, Any]:
         """Serialize a metric for export."""
@@ -535,7 +546,6 @@ if _HAS_PERFORMANCE_MONITOR:
 
     # Auto-integrate if performance monitor is available
     _integrate_with_performance_monitor()
-
 
 __all__ = [
     "TelemetryConfig",

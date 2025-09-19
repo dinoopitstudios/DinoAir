@@ -38,7 +38,6 @@ from .prompts import PromptEngineer, PromptLibrary, PromptStyle, PromptTemplate
 from .translator import TranslationManager, TranslationResult
 from .validator import ValidationResult, Validator
 
-
 __version__ = "0.1.0"
 __author__ = "Pseudocode Translator Team"
 

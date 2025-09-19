@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def _ensure_repo_on_path() -> None:

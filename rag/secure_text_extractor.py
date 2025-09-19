@@ -9,12 +9,11 @@ utilities for various file formats.
 """
 
 import logging
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from utils import SafePDFProcessor
-
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +66,11 @@ class SecureTextExtractor:
                     max_pages=pdf_max_pages,
                     max_file_size=pdf_max_file_size,
                 )
-                logger.info("Secure PDF extraction enabled with safety protections")
+                logger.info(
+                    "Secure PDF extraction enabled with safety protections")
             except ImportError:
-                logger.warning("PyPDF2 not available - PDF extraction disabled")
+                logger.warning(
+                    "PyPDF2 not available - PDF extraction disabled")
                 self.pdf_processor = None
                 self.enable_pdf_extraction = False
         else:
@@ -169,7 +170,8 @@ class SecureTextExtractor:
                 result["error"] = pdf_result["error"]
 
                 # Add PDF-specific metadata
-                result["pages_processed"] = pdf_result.get("pages_processed", 0)
+                result["pages_processed"] = pdf_result.get(
+                    "pages_processed", 0)
                 result["total_pages"] = pdf_result.get("total_pages", 0)
 
             elif extension in [".txt", ".md", ".py", ".js", ".html", ".json", ".csv"]:
@@ -181,7 +183,8 @@ class SecureTextExtractor:
 
         except Exception as e:
             result["error"] = f"Unexpected error during extraction: {str(e)}"
-            logger.error("Error extracting text from %s: %s", file_path, str(e))
+            logger.error("Error extracting text from %s: %s",
+                         file_path, str(e))
 
         finally:
             result["processing_time"] = time.time() - start_time
@@ -214,7 +217,8 @@ class SecureTextExtractor:
                 # Read only up to the limit
                 with open(file_path, encoding="utf-8", errors="replace") as f:
                     result["text"] = f.read(size_limit)
-                result["warnings"].append("File content truncated due to size limit")
+                result["warnings"].append(
+                    "File content truncated due to size limit")
             else:
                 # Read entire file
                 if "../" in str(file_path) or "..\\" in str(file_path):
@@ -233,7 +237,8 @@ class SecureTextExtractor:
                     with open(file_path, encoding=encoding, errors="replace") as f:
                         result["text"] = f.read()
                     result["success"] = True
-                    result["warnings"].append(f"Decoded using {encoding} encoding")
+                    result["warnings"].append(
+                        f"Decoded using {encoding} encoding")
                     break
                 except (OSError, ValueError):
                     continue
@@ -301,7 +306,8 @@ class SecureTextExtractor:
                 result["safe"] = True
 
             elif extension in [".docx", ".doc"]:
-                result["warnings"].append("Word document processing not implemented")
+                result["warnings"].append(
+                    "Word document processing not implemented")
                 result["safe"] = False
 
             else:
@@ -377,5 +383,6 @@ def extract_text_secure(
 
     if result["success"]:
         return result["text"]
-    logger.error("Failed to extract text from %s: %s", file_path, result["error"])
+    logger.error("Failed to extract text from %s: %s",
+                 file_path, result["error"])
     return ""

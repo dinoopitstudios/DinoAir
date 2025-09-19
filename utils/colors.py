@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 DinoPit Studios Color Configuration
 Centralized color scheme for the DinoPit Studios GUI application.
@@ -8,7 +7,6 @@ Centralized color scheme for the DinoPit Studios GUI application.
 from typing import TYPE_CHECKING
 
 from .scaling import get_scaling_helper
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable

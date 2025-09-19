@@ -6,12 +6,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 from .common import resp
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from ..settings import Settings
-
 
 log = logging.getLogger("api.services.rag_context")
 RAG_UNAVAILABLE_MSG = "RAG components unavailable"
@@ -57,7 +55,8 @@ class RagContextService:
             log.exception("get_context provider invocation failed")
             return resp(False, None, str(e), 500)
 
-        success_val, normalized_data, error_msg = self._normalize_context_data(data)
+        success_val, normalized_data, error_msg = self._normalize_context_data(
+            data)
         return resp(success_val, normalized_data, error_msg, 200)
 
     # -------------------------
@@ -69,7 +68,8 @@ class RagContextService:
             from rag import get_context_provider  # type: ignore[attr-defined]
         except ImportError:
             return None, True
-        provider_factory: Callable[..., Any] = get_context_provider  # type: ignore[assignment]
+        # type: ignore[assignment]
+        provider_factory: Callable[..., Any] = get_context_provider
         prov = provider_factory(user_name="default_user", enhanced=None)
         method = getattr(prov, "get_context_for_query", None)
         return (method if callable(method) else None), False

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import html
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -55,7 +55,8 @@ class Note:
             id=str(data.get("id", "")),
             title=str(data.get("title", "")),
             content=str(data.get("content", "")),
-            tags=(list(data.get("tags", [])) if isinstance(data.get("tags"), list) else []),
+            tags=(list(data.get("tags", [])) if isinstance(
+                data.get("tags"), list) else []),
             project_id=data.get("project_id"),
             created_at=data.get("created_at"),
             updated_at=data.get("updated_at"),

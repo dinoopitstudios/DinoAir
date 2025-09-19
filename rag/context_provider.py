@@ -8,6 +8,7 @@ from typing import Any
 
 from database.file_search_db import FileSearchDB
 from utils.logger import Logger
+
 from .file_processor import FileProcessor
 from .vector_search import VectorSearchEngine
 
@@ -64,7 +65,8 @@ class ContextProvider:
             )
 
             # Filter by score threshold
-            filtered_results = [r for r in results if r.score >= self.min_score_threshold]
+            filtered_results = [
+                r for r in results if r.score >= self.min_score_threshold]
 
             # Build context items
             context_items = []
@@ -79,11 +81,13 @@ class ContextProvider:
                 }
 
                 # Add file metadata if available
-                file_info = self.file_search_db.get_file_by_path(result.file_path)
+                file_info = self.file_search_db.get_file_by_path(
+                    result.file_path)
                 if file_info:
                     context_item["file_type"] = file_info.get("file_type")
                     context_item["file_size"] = file_info.get("file_size")
-                    context_item["last_modified"] = file_info.get("last_modified")
+                    context_item["last_modified"] = file_info.get(
+                        "last_modified")
 
                 context_items.append(context_item)
 
@@ -206,7 +210,8 @@ class ContextProvider:
 
             # Get first chunk as representative content
             # Use search to get chunks for this file
-            results = self.search_engine.search(query="", top_k=100)  # Empty query
+            results = self.search_engine.search(
+                query="", top_k=100)  # Empty query
             chunks = [r for r in results if r.file_path == file_path]
             if not chunks:
                 return []
@@ -243,7 +248,8 @@ class ContextProvider:
             Dictionary with indexing statistics
         """
         try:
-            file_processor = FileProcessor(user_name=self.user_name, generate_embeddings=False)
+            file_processor = FileProcessor(
+                user_name=self.user_name, generate_embeddings=False)
             stats = file_processor.get_processing_stats()
 
             # Add search engine stats

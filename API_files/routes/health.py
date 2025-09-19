@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse
 
 from core_router.health import health_response, version_info
 
-
 router = APIRouter()
 
 

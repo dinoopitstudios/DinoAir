@@ -7,11 +7,10 @@ ensuring tags are always arrays in models and only flattened in repository layer
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-import json
 from typing import Any
-
 
 # Type aliases for clarity
 JsonValue = dict[str, Any] | list[Any] | str | int | float | bool | None

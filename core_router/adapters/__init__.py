@@ -13,10 +13,8 @@ from typing import TYPE_CHECKING, Any
 from ..errors import AdapterError
 from .base import ServiceAdapter
 
-
 if TYPE_CHECKING:
     from collections.abc import Mapping
-
 
 __all__ = ["ServiceAdapter", "make_adapter"]
 

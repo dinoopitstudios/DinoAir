@@ -5,11 +5,11 @@ This module provides centralized management of language models, including
 model selection, lazy loading, health checks, and memory management.
 """
 
+import logging
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import logging
 from pathlib import Path
-import threading
 from typing import Any
 
 import psutil
@@ -17,7 +17,6 @@ import psutil
 from .base import BaseModel
 from .downloader import ModelDownloader
 from .registry import ModelRegistry, model_exists
-
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +59,8 @@ class ModelManager:
         self.config = config or {}
         self._instances: dict[str, ModelInstance] = {}
         self._lock = threading.Lock()
-        self._downloader = ModelDownloader(download_dir=self.config.get("model_dir", "./models"))
+        self._downloader = ModelDownloader(
+            download_dir=self.config.get("model_dir", "./models"))
 
         # Configuration
         self.max_loaded_models = self.config.get("max_loaded_models", 3)
@@ -70,7 +70,8 @@ class ModelManager:
         self.model_configs = self.config.get("model_configs", {})
 
         # Memory thresholds
-        self.min_available_memory_gb = self.config.get("min_available_memory_gb", 2.0)
+        self.min_available_memory_gb = self.config.get(
+            "min_available_memory_gb", 2.0)
 
     def get_model(self, name: str | None = None, auto_load: bool = True) -> BaseModel:
         """
@@ -100,7 +101,8 @@ class ModelManager:
             # Load model if requested
             if auto_load:
                 return self._load_model(model_name)
-            raise RuntimeError(f"Model '{model_name}' not loaded. Call load_model() first.")
+            raise RuntimeError(
+                f"Model '{model_name}' not loaded. Call load_model() first.")
 
     def load_model(self, name: str, model_path: Path | None = None) -> BaseModel:
         """
@@ -160,7 +162,8 @@ class ModelManager:
                         model.metadata.sha256_checksum,
                     )
                 else:
-                    raise RuntimeError(f"No download URL provided for model '{name}'")
+                    raise RuntimeError(
+                        f"No download URL provided for model '{name}'")
             except Exception as e:
                 raise RuntimeError(f"Failed to download model: {e}")
 
@@ -202,7 +205,8 @@ class ModelManager:
                 try:
                     instance.model.shutdown()
                 except Exception as e:
-                    logger.warning("Error shutting down model '%s': %s", name, e)
+                    logger.warning(
+                        "Error shutting down model '%s': %s", name, e)
 
                 del self._instances[name]
                 logger.info("Model '%s' unloaded", name)
@@ -306,7 +310,8 @@ class ModelManager:
             return
 
         # Find least recently used model
-        lru_name = min(self._instances.keys(), key=lambda k: self._instances[k].last_used)
+        lru_name = min(self._instances.keys(),
+                       key=lambda k: self._instances[k].last_used)
 
         logger.info("Evicting LRU model: %s", lru_name)
         self.unload_model(lru_name)

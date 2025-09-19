@@ -1,6 +1,5 @@
 version = 1
 
-# Test patterns - directories containing test files that should be analyzed but marked as tests
 test_patterns = [
   "**/tests/**",
   "**/*test*.py",
@@ -11,7 +10,6 @@ test_patterns = [
   "test_*.py"
 ]
 
-# Exclude patterns - files/directories that should be completely ignored
 exclude_patterns = [
   ".venv/**",
   "node_modules/**",
@@ -28,44 +26,29 @@ exclude_patterns = [
   "dinoair_test_files_archive.zip"
 ]
 
-# Python analyzer for backend code
-[[analyzers]]
-name = "python"
-
-  [analyzers.meta]
-  runtime_version = "3.11"
-
-  # Skip specific Python files if needed
-  skip_doc_coverage = [
-    "migrations/**",
-    "scripts/**"
-  ]
-
-# TypeScript analyzer for frontend code
 [[analyzers]]
 name = "javascript"
 
   [analyzers.meta]
   plugins = ["react"]
   environment = [
-    "nodejs",
     "browser",
-    "es2022"
+    "nodejs",
+    "jest"
   ]
-  style_guide = "standard"
 
-# Security analyzer for secrets and vulnerabilities
-[[analyzers]]
-name = "secrets"
-
-# Test coverage analyzer
 [[analyzers]]
 name = "test-coverage"
 
-  [analyzers.meta]
-  coverage_threshold = 80
+[[analyzers]]
+name = "python"
 
-# Python code formatters and linters
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+
+[[analyzers]]
+name = "secrets"
+
 [[transformers]]
 name = "black"
 
@@ -75,6 +58,14 @@ name = "isort"
 [[transformers]]
 name = "ruff"
 
-# JavaScript/TypeScript formatters
 [[transformers]]
 name = "prettier"
+
+[[transformers]]
+name = "yapf"
+
+[[transformers]]
+name = "autopep8"
+
+[[transformers]]
+name = "standardjs"
