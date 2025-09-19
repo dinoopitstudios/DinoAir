@@ -13,6 +13,11 @@ RAG_UNAVAILABLE_MSG = "RAG components unavailable"
 
 
 class RagMonitorService:
+    """
+    Service to manage the lifecycle of RAG file monitoring.
+    Allows starting and stopping file monitoring on configured directories and file extensions.
+    """
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._monitor: Any = None  # mirrors semantics from RagService

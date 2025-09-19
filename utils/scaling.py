@@ -20,9 +20,13 @@ else:
     except ImportError:  # pragma: no cover - fallbacks for static analysis/CLI envs without PySide6  # pylint: disable=broad-exception-caught
 
         class QObject:  # type: ignore
+            """Fallback for PySide6.QtCore.QObject representing basic object functionality."""
+
             pass
 
         class _DummySignal:  # type: ignore
+            """Dummy signal class used to simulate Qt signals in non-GUI environments."""
+
             @staticmethod
             def emit(*_: Any, **__: Any) -> None:
                 pass
@@ -38,14 +42,20 @@ else:
             return _DummySignal()
 
         class QFont:  # type: ignore
+            """Fallback for PySide6.QtGui.QFont representing font configuration."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
         class QFontMetrics:  # type: ignore
+            """Fallback for PySide6.QtGui.QFontMetrics providing font metric calculations."""
+
             def __init__(self, *_: Any, **__: Any) -> None:
                 pass
 
         class QApplication:  # type: ignore
+            """Fallback for PySide6.QtWidgets.QApplication providing minimal application context."""
+
             @staticmethod
             def instance() -> Optional["QApplication"]:
                 return None

@@ -19,6 +19,12 @@ if TYPE_CHECKING:
 
 
 class StreamingTranslatorProto(Protocol):
+    """Protocol defining the interface for streaming translators.
+
+    Provides methods to manage cancellation and pausing, detect complete statements,
+    and translate full documents in a streaming context.
+    """
+
     def _check_cancelled(self) -> bool: ...
 
     def _wait_if_paused(self) -> None: ...

@@ -84,6 +84,11 @@ class RetryableError(Exception):
 
 
 class ErrorResponse(BaseModel):
+    """A Pydantic model representing a standardized API error response.
+
+    Contains fields for error category, HTTP status, error code, message, and optional details.
+    """
+
     # Short, human category (e.g. "Not Implemented", "Validation Error", "Not Found")
     error: str = Field(...)
     # HTTP status code

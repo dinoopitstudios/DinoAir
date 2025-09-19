@@ -21,6 +21,10 @@ router = APIRouter()
 
 # Optional Pydantic schemas (validation + OpenAPI)
 class ExecuteRequest(BaseModel):
+    """
+    Model for execute requests, containing the target service name and request payload.
+    """
+
     serviceName: str = Field(..., min_length=1)
     payload: dict[str, Any] = Field(default_factory=dict)
 
@@ -29,6 +33,10 @@ PolicyLiteral = Literal["first_healthy", "round_robin", "lowest_latency"]
 
 
 class ExecuteByRequest(BaseModel):
+    """
+    Model for execute-by requests, containing a service tag, optional selection policy, and request payload.
+    """
+
     tag: str = Field(..., min_length=1)
     policy: PolicyLiteral | None = None
     payload: dict[str, Any] = Field(default_factory=dict)

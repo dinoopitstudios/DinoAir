@@ -25,6 +25,12 @@ log = logging.getLogger("api.app")
 
 
 class TimeoutMiddleware:
+    """Enforces a timeout for ASGI requests.
+
+    Cancels requests that exceed the specified duration and returns a
+    504 Gateway Timeout response.
+    """
+
     def __init__(self, app: ASGIApp, timeout: float = 10.0):
         self.app = app
         self.timeout = timeout

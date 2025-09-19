@@ -53,6 +53,8 @@ try:
 except Exception:  # pragma: no cover
 
     class _FallbackBrokenProcessPool(Exception):
+        """Fallback exception used when the concurrent.futures BrokenProcessPool import fails."""
+
         pass
 
     # type: ignore[misc,assignment]
@@ -74,6 +76,15 @@ except ImportError:
 
 
 class ModelConfig(TypedDict, total=False):
+    """TypedDict for translator configuration options.
+
+    Attributes:
+        model_name: name of the translation model
+        model_path: filesystem path to the model
+        temperature: sampling temperature for generation
+        max_tokens: maximum number of tokens to generate
+    """
+
     model_name: str | None
     model_path: str | None
     temperature: float | None
@@ -81,12 +92,33 @@ class ModelConfig(TypedDict, total=False):
 
 
 class ParseResult(TypedDict):
+    """Result of parsing code into blocks.
+
+    Attributes:
+        code: the original or transformed source code
+        blocks: list of parsed code blocks
+        meta: additional metadata from parsing
+    """
+
     code: str | None
     blocks: list[Block]
     meta: dict[str, Any]
 
 
 class Block(Protocol):
+    """Protocol representing a code block extracted from source.
+
+    Attributes:
+        type: the block type identifier
+        content: text content of the block
+        line_numbers: start and end line numbers in source
+        metadata: additional block-specific metadata
+        context: parsing context or related data
+
+    Methods:
+        to_source: reconstruct the block into source code string
+    """
+
     type: Any
     content: str
     line_numbers: tuple[int, int]

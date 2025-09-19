@@ -28,10 +28,12 @@ except ImportError:
     # Create dummy classes for type hints
 
     class QtObject:
+        """Dummy QtObject used when PySide6 is unavailable. Acts as a stand-in for QObject."""
         def __init__(self, parent=None):
             pass
 
     class QtSignal:
+        """Dummy QtSignal used when PySide6 is unavailable. Provides emit() method placeholder."""
         def __init__(self, *args):
             pass
 
@@ -39,6 +41,7 @@ except ImportError:
             pass
 
     class QtThread:
+        """Dummy QtThread used when PySide6 is unavailable. Serves as placeholder for QThread."""
         pass
 
     def Slot(*_args):
@@ -89,6 +92,7 @@ class TranslationTask:
 class GUITranslatorAdapter:
     """
     Adapter for integrating the translator with GUI applications
+    """
 
     This class provides a high-level interface that handles threading,
     progress updates, and error handling for GUI applications.
@@ -402,9 +406,7 @@ def create_result_handler(
 Example Usage:
 
     # Basic GUI adapter usage
-    from pseudocode_translator.integration.gui_adapter import (
-        GUITranslatorAdapter
-    )
+    from pseudocode_translator.integration.gui_adapter import GUITranslatorAdapter
 
     class MyGUI:
         def __init__(self):
@@ -423,9 +425,7 @@ Example Usage:
 
     # Qt integration
     if HAS_QT:
-        from pseudocode_translator.integration.gui_adapter import (
-            QtTranslatorWidget
-        )
+        from pseudocode_translator.integration.gui_adapter import QtTranslatorWidget
 
         class MainWindow(QMainWindow):
             def __init__(self):
