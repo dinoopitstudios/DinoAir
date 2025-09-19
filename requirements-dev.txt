@@ -14,7 +14,7 @@ coverage==7.10.6          # Code coverage measurement
 black==24.3.0            # Code formatter
 ruff==0.13.0              # Fast linter and formatter
 isort==6.0.1             # Import statement sorter
-mypy==1.18.1              # Static type checker
+mypy==1.18.2              # Static type checker
 mypy-extensions==1.1.0    # Extensions for mypy
 
 # Security and safety analysis
