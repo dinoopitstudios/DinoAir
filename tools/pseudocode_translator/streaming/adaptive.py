@@ -84,7 +84,6 @@ class AdaptiveChunkSizer:
     ) -> None:
         """
         Initialize the controller.
-        """
 
         Args:
             min_size: Minimum allowed chunk size (inclusive).
