@@ -255,7 +255,6 @@ def add_docstrings_to_file(file_path: str, file_info: Dict[str, Any]) -> bool:
                 definition_line = lines[line_num - 1]  # Convert to 0-based index
 
                 # Get indentation level
-                indent = len(definition_line) - len(definition_line.lstrip())
 
                 # Generate appropriate docstring
                 if item_type == "function":

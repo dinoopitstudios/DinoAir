@@ -44,7 +44,7 @@ def demo_precedence():
         test_keys = ["app.name", "app.debug", "database.connection_timeout", "ai.temperature"]
 
         for key in test_keys:
-            value_info = config.get_with_source(key)
+            _ = config.get_with_source(key)
 
         return True
 
@@ -71,7 +71,6 @@ def demo_environment_override():
         config = VersionedConfigManager(validate_on_load=False)
 
         # Show environment mappings
-        mappings = config.get_env_mappings()
 
         # Cleanup
         for key in test_env_vars:

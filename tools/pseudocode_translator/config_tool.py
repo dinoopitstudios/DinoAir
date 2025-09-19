@@ -313,7 +313,7 @@ class ConfigTool:
         # use CLI flag precedence over env
         cfg_path = getattr(args, "path", None)
         lenient = bool(getattr(args, "lenient", False))
-        exit_code, result = validate_config(str(cfg_path), lenient=lenient)
+        exit_code, _ = validate_config(str(cfg_path), lenient=lenient)
         return exit_code
 
     def cmd_generate(self, args) -> int:
@@ -389,11 +389,8 @@ class ConfigTool:
                 "PSEUDOCODE_CHECK_UNDEFINED_VARS",
             ]
 
-            found_any = False
             for var in env_vars:
                 value = os.getenv(var)
-                if value:
-                    found_any = True
 
         return 0
 
@@ -429,7 +426,7 @@ class ConfigTool:
             # Get file stats
             config_path.stat()
 
-            for _name, model in config.llm.models.items():
+            for _ in config.llm.models.items():
                 pass
 
             return 0

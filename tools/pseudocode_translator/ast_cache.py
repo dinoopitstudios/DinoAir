@@ -612,7 +612,7 @@ class ASTCache:
         sel = self._select_victim(reason=reason)
         if not sel:
             return
-        key, entry = sel
+        key, _ = sel
         # Pop the selected key (may not be at head; pop by key)
         popped = self._cache.pop(key, None)
         if popped is None:

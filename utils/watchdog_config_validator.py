@@ -293,7 +293,7 @@ class WatchdogConfigValidator:
         # Log validation results
         if result.issues:
             logger.info(f"Configuration validation found {len(result.issues)} issues")
-            for param, level, message in result.issues:
+            for _, level, message in result.issues:
                 if level == ValidationLevel.ERROR:
                     logger.error(f"Config validation: {message}")
                 elif level == ValidationLevel.WARNING:
