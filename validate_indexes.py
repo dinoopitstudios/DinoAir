@@ -62,7 +62,6 @@ def check_database_indexes(db_path: str) -> None:
                 # Ensure idx is a safe SQLite identifier (alphanumeric or underscore)
 
                 if not re.match(r"^[A-Za-z0-9_]+$", idx):
-
                     continue
 
                 # Get index details
