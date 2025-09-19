@@ -73,10 +73,3 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
 
-    # Generate and upload human-readable report
-    - name: Generate Summary Report
-      if: always()
-      run: |
-        echo "## CodeQL Analysis Summary - ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
-        echo "Analysis completed for ${{ matrix.language }} code" >> $GITHUB_STEP_SUMMARY
-        echo "Check the Security tab for detailed results" >> $GITHUB_STEP_SUMMARY
