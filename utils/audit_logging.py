@@ -16,7 +16,6 @@ import hmac
 import json
 import logging
 import logging.handlers
-import sys
 import time
 import uuid
 from dataclasses import asdict, dataclass
