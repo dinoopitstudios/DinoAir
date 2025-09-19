@@ -141,7 +141,7 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
     class .*\\bProtocol\\):
-    @(abc\.)?abstractmethod
+    @(abc\\.)?abstractmethod
 
 [html]
 directory = htmlcov
