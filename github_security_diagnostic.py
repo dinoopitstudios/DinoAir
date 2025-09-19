@@ -98,8 +98,8 @@ class GitHubSecurityDiagnostic:
                     "push": permissions.push,
                     "triage": permissions.triage if hasattr(permissions, "triage") else False,
                     "pull": permissions.pull,
-                }
-            except:
+            except (GithubException, AttributeError) as e:
+                print(f"⚠️  Could not retrieve detailed permissions: {e}")
                 print("⚠️  Could not retrieve detailed permissions")
 
             print(f"📁 Repository: {repo_info['name']}")
