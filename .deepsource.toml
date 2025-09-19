@@ -33,9 +33,6 @@ name = "python"
   runtime_version = "3.x.x"
   max_line_length = 100
 
-  # Disable docstring-related issues
-  skip_doc_coverage = true
-
   # Ignore specific docstring and documentation issues
   ignore_rules = [
     "PYL-C0111",  # Missing module docstring
