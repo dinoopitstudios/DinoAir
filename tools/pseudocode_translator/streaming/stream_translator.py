@@ -93,10 +93,12 @@ class StreamingTranslator:
         self.current_progress = StreamingProgress()
 
         # Results buffer
-        self.result_buffer = StreamBuffer(BufferConfig(max_size_mb=100, enable_compression=True))
+        self.result_buffer = StreamBuffer(BufferConfig(
+            max_size_mb=100, enable_compression=True))
 
         # Translation invoker (used by translator_core helpers)
-        self._invoker = TranslationInvoker(self._emit_event, self.context_buffer)
+        self._invoker = TranslationInvoker(
+            self._emit_event, self.context_buffer)
 
         # Interactive mode state
         self.interactive_session = None
@@ -199,7 +201,8 @@ class StreamingTranslator:
                         yield translated
 
         except Exception as e:
-            self._emit_event(StreamingEventData(event=StreamingEvent.ERROR, error=str(e)))
+            self._emit_event(StreamingEventData(
+                event=StreamingEvent.ERROR, error=str(e)))
             raise StreamingError(f"Streaming translation failed: {e}")
 
         finally:
@@ -247,7 +250,8 @@ class StreamingTranslator:
                     yield from strategy(input_stream, on_update)
 
         except Exception as e:
-            self._emit_event(StreamingEventData(event=StreamingEvent.ERROR, error=str(e)))
+            self._emit_event(StreamingEventData(
+                event=StreamingEvent.ERROR, error=str(e)))
             raise StreamingError(f"Streaming translation failed: {e}")
 
         finally:
@@ -287,7 +291,8 @@ class StreamingTranslator:
             if self._is_complete_statement("".join(line_buffer)):
                 statement = "".join(line_buffer)
                 line_buffer.clear()
-                translated = self._process_statement(statement, chunk_index, on_update)
+                translated = self._process_statement(
+                    statement, chunk_index, on_update)
                 if translated:
                     yield translated
                 chunk_index += 1
@@ -300,7 +305,8 @@ class StreamingTranslator:
                 break
             self._wait_if_paused()
             accumulated_input.append(chunk)
-            result = self._process_accumulated_blocks(accumulated_input, on_update)
+            result = self._process_accumulated_blocks(
+                accumulated_input, on_update)
             if result:
                 translated_chunks, remaining = result
                 if translated_chunks:
@@ -310,14 +316,16 @@ class StreamingTranslator:
     def _translate_full_document(self, full_text: str, on_update=None):
         """Translate an entire document as a single unit (sync)."""
         # Emit chunk lifecycle for full-document path
-        self._emit_event(StreamingEventData(event=StreamingEvent.CHUNK_STARTED, chunk_index=0))
+        self._emit_event(StreamingEventData(
+            event=StreamingEvent.CHUNK_STARTED, chunk_index=0))
         try:
             for t in self._parse_and_translate_blocks(full_text, 0, on_update):
                 # Ensure full-document outputs are chunk-like and end with double newline
                 yield f"{t}\n\n"
         finally:
             self._emit_event(
-                StreamingEventData(event=StreamingEvent.CHUNK_COMPLETED, chunk_index=0)
+                StreamingEventData(
+                    event=StreamingEvent.CHUNK_COMPLETED, chunk_index=0)
             )
 
     def cancel(self):
@@ -374,7 +382,8 @@ class StreamingTranslator:
         cancelled = self._rt.check_cancelled() or self.is_cancelled
         if not cancelled:
             self._emit_event(
-                StreamingEventData(event=StreamingEvent.COMPLETED, progress=self.current_progress)
+                StreamingEventData(event=StreamingEvent.COMPLETED,
+                                   progress=self.current_progress)
             )
 
         # Delegate shutdown to runtime
@@ -489,8 +498,12 @@ class StreamingTranslator:
         on_update: Callable[[TranslationUpdate], None] | None,
     ) -> str | None:
         """Process a single statement (refactored)."""
-        translations = self._parse_and_translate_blocks(statement, chunk_index, on_update)
+        translations = self._parse_and_translate_blocks(
+            statement, chunk_index, on_update)
         return ("\n".join(translations) + "\n") if translations else None
+
+    def identify_blocks(self, current_input: str) -> list[str]:
+        return self.parser._identify_blocks(current_input)
 
     def _process_accumulated_blocks(
         self,
@@ -500,15 +513,17 @@ class StreamingTranslator:
         """Process accumulated blocks and return (translated_list, remaining_list) (refactored)."""
         current_input = "".join(accumulated_input)
         try:
-            blocks = self.parser._identify_blocks(current_input)
+            blocks = self.identify_blocks(current_input)
             if len(blocks) > 1:
                 translated_chunks: list[str] = []
                 for i, block_text in enumerate(blocks[:-1]):
                     if not block_text.strip():
                         continue
-                    translations = self._parse_and_translate_blocks(block_text, i, on_update)
+                    translations = self._parse_and_translate_blocks(
+                        block_text, i, on_update)
                     if translations:
-                        translated_chunks.append("\n".join(translations) + "\n\n")
+                        translated_chunks.append(
+                            "\n".join(translations) + "\n\n")
                 return translated_chunks, [blocks[-1]]
         except Exception as e:
             logger.warning(f"Error processing blocks: {e}")

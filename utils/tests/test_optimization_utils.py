@@ -108,7 +108,8 @@ class TestOptimizedPatterns:
         for filename, expected in test_cases:
             result = OptimizedPatterns.extract_file_extension(filename)
             if result != expected:
-                raise AssertionError(f"Expected {expected} for {filename}, got {result}")
+                raise AssertionError(
+                    f"Expected {expected} for {filename}, got {result}")
 
 
 class TestStringBuilder:
@@ -167,7 +168,8 @@ class TestStringBuilder:
     def test_string_builder_chaining(self):
         """Test method chaining."""
         result = (
-            StringBuilder().append("Hello").append(" ").append("World").append_line("!").build()
+            StringBuilder().append("Hello").append(
+                " ").append("World").append_line("!").build()
         )
 
         if result != "Hello World!\n":
@@ -406,8 +408,8 @@ class TestLazyComponentManager:
         manager.register_component("test", factory)
 
         # Component should not be initialized yet
-        assert len(manager._components) == 1
-        if manager._components["test"].state != ComponentState.UNINITIALIZED:
+        assert len(manager.components) == 1
+        if manager.components["test"].state != ComponentState.UNINITIALIZED:
             raise AssertionError
 
     def test_component_initialization(self):
@@ -423,7 +425,7 @@ class TestLazyComponentManager:
         component = manager.get_component("test")
         if component != {"initialized": True}:
             raise AssertionError
-        if manager._components["test"].state != ComponentState.INITIALIZED:
+        if manager.get_component_state("test") != ComponentState.INITIALIZED:
             raise AssertionError
 
     def test_component_dependency_resolution(self):
@@ -440,7 +442,8 @@ class TestLazyComponentManager:
             return "main_component"
 
         manager.register_component("dependency", dep_factory)
-        manager.register_component("main", main_factory, dependencies=["dependency"])
+        manager.register_component(
+            "main", main_factory, dependencies=["dependency"])
 
         # Get main component - should initialize dependency first
         main = manager.get_component("main")
@@ -478,9 +481,9 @@ class TestLazyComponentManager:
         manager.preload_components(["test"])
 
         # Should already be initialized
-        if manager._components["test"].state != ComponentState.INITIALIZED:
+        if manager.get_component("test").state != ComponentState.INITIALIZED:
             raise AssertionError
-        if manager._components["test"].instance != "preloaded_component":
+        if manager.get_component("test").instance != "preloaded_component":
             raise AssertionError
 
     def test_initialization_metrics(self):
@@ -514,7 +517,8 @@ class TestSignalConnectionManager:
         mock_signal.connect.return_value = "connection_object"
         mock_slot = Mock()
 
-        result = manager.connect_signal(mock_signal, mock_slot, "test_connection")
+        result = manager.connect_signal(
+            mock_signal, mock_slot, "test_connection")
 
         if result is not True:
             raise AssertionError
@@ -546,7 +550,8 @@ class TestSignalConnectionManager:
 
         # Connect signals to same group
         for i, signal in enumerate(signals):
-            manager.connect_signal(signal, Mock(), f"conn_{i}", group="test_group")
+            manager.connect_signal(
+                signal, Mock(), f"conn_{i}", group="test_group")
 
         # Disconnect group
         count = manager.disconnect_group("test_group")
@@ -801,14 +806,14 @@ class TestIntegrationScenarios:
         manager.register_component("expensive", create_expensive_resource)
 
         # Component should not be created yet
-        if manager._components["expensive"].state != ComponentState.UNINITIALIZED:
+        if manager.get_component_state("expensive") != ComponentState.UNINITIALIZED:
             raise AssertionError
 
         # Access should trigger creation
         resource = manager.get_component("expensive")
         if resource["data"] != "expensive_resource":
             raise AssertionError
-        if manager._components["expensive"].state != ComponentState.INITIALIZED:
+        if manager.get_component_state("expensive") != ComponentState.INITIALIZED:
             raise AssertionError
 
     @pytest.mark.boundary
@@ -824,7 +829,7 @@ class TestIntegrationScenarios:
         with pytest.raises(RuntimeError, match="Failed to initialize component"):
             manager.get_component("failing")
 
-        if manager._components["failing"].state != ComponentState.ERROR:
+        if manager.get_component_state("failing") != ComponentState.ERROR:
             raise AssertionError
 
     @pytest.mark.slow
@@ -849,7 +854,8 @@ class TestIntegrationScenarios:
         manager = LazyComponentManager()
 
         for i in range(100):
-            manager.register_component(f"comp_{i}", lambda i=i: f"component_{i}")
+            manager.register_component(
+                f"comp_{i}", lambda i=i: f"component_{i}")
 
         # Preload all at once
         component_names = [f"comp_{i}" for i in range(100)]

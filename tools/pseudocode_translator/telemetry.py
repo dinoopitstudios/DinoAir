@@ -48,15 +48,14 @@ Duration histogram buckets:
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from datetime import UTC, datetime
 import json
 import logging
 import os
 import threading
 import time
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import Any
-
 
 _TRUTHY = {"1", "true", "yes"}
 _BUCKET_EDGES_MS: list[float] = [
@@ -118,7 +117,8 @@ class TelemetryRecorder:
         self._seq: int = 0  # used by sampling wrapper (set in get_recorder())
 
         # Optional JSON logging flag (checked at construction time, only when enabled)
-        self._do_log: bool = os.getenv("PSEUDOCODE_TELEMETRY_LOG", "").strip().lower() in _TRUTHY
+        self._do_log: bool = os.getenv(
+            "PSEUDOCODE_TELEMETRY_LOG", "").strip().lower() in _TRUTHY
         self._logger = logging.getLogger("pseudocode.telemetry")
 
         # Tiny internal sanity check (best-effort, never raises)
@@ -161,7 +161,8 @@ class TelemetryRecorder:
                     "total_ms": 0.0,
                     "min_ms": None,  # filled once a duration is recorded
                     "max_ms": None,  # filled once a duration is recorded
-                    "buckets": {},  # dict[str,int], added when durations recorded
+                    # dict[str,int], added when durations recorded
+                    "buckets": {},
                 }
                 self._events[name] = agg
 
@@ -174,8 +175,10 @@ class TelemetryRecorder:
                 agg["total_ms"] = float(agg.get("total_ms", 0.0)) + d
                 prev_min = agg.get("min_ms")
                 prev_max = agg.get("max_ms")
-                agg["min_ms"] = d if prev_min is None else float(min(float(prev_min), d))
-                agg["max_ms"] = d if prev_max is None else float(max(float(prev_max), d))
+                agg["min_ms"] = d if prev_min is None else float(
+                    min(float(prev_min), d))
+                agg["max_ms"] = d if prev_max is None else float(
+                    max(float(prev_max), d))
 
                 # histogram bucket
                 bucket_key = self._bucket_label(d)
@@ -262,7 +265,8 @@ class TelemetryRecorder:
             tmp = {"counters": {}}
             for delta in [{"a": 1, "b": 2}, {"a": 3}]:
                 for k, v in delta.items():
-                    tmp["counters"][k] = int(tmp["counters"].get(k, 0)) + int(v)
+                    tmp["counters"][k] = int(
+                        tmp["counters"].get(k, 0)) + int(v)
             if tmp["counters"]["a"] != 4:
                 raise AssertionError("Counter 'a' is incorrect")
         except (ValueError, TypeError, KeyError):
@@ -293,16 +297,17 @@ class NoOpTelemetryRecorder:
 
 def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
     """
-    Return process-wide singleton recorder.
+        Return process-wide singleton recorder.
 
-    - If telemetry is enabled, returns a TelemetryRecorder instance.
-    - Otherwise, returns a NoOpTelemetryRecorder instance.
+        - If telemetry is enabled, returns a TelemetryRecorder instance.
+        - Otherwise, returns a NoOpTelemetryRecorder instance.
 
-    Deterministic sampling:
-    - Controlled by PSEUDOCODE_TELEMETRY_SAMPLE (int N ≥ 1; default 1).
-    - If N > 1, record_event is wrapped to keep only every Nth call.
+        Deterministic sampling:
+        - Controlled by PSEUDOCODE_TELEMETRY_SAMPLE (int N
+    = 1; default 1).
+        - If N > 1, record_event is wrapped to keep only every Nth call.
 
-    The decision is made on first call and cached for the process lifetime.
+        The decision is made on first call and cached for the process lifetime.
     """
     global _RECORDER
     if _RECORDER is not None:
@@ -314,13 +319,14 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                 rec = TelemetryRecorder()
 
                 # Configure sampling
-                sample_env = os.getenv("PSEUDOCODE_TELEMETRY_SAMPLE", "1").strip()
+                sample_env = os.getenv(
+                    "PSEUDOCODE_TELEMETRY_SAMPLE", "1").strip()
                 try:
                     sample_rate = int(sample_env)
                     sample_rate = max(sample_rate, 1)
                 except (ValueError, TypeError):
                     sample_rate = 1
-                rec._sample_rate = sample_rate  # type: ignore[attr-defined]
+                rec.set_sample_rate(sample_rate)
 
                 if sample_rate > 1:
                     # Wrap record_event to apply deterministic sampling
@@ -333,8 +339,8 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                         counters: dict[str, int] | None = None,
                     ) -> None:
                         # increment a simple sequence counter; only keep every Nth
-                        rec._seq += 1  # type: ignore[attr-defined]
-                        if rec._seq % sample_rate != 0:  # type: ignore[attr-defined]
+                        seq = rec.increment_seq()
+                        if seq % sample_rate != 0:
                             return None
                         return orig_record_event(
                             name,
@@ -343,7 +349,7 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                             counters=counters,
                         )
 
-                    rec.record_event = _sampled_record_event  # type: ignore[assignment]
+                    rec.record_event = _sampled_record_event
 
                 _RECORDER = rec
             else:

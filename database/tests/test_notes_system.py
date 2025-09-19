@@ -29,7 +29,8 @@ class TestNotesService:
     def test_create_note_success(self, mock_db_manager, sample_note):
         """Test successful note creation"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesValidator") as mock_validator_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
@@ -43,15 +44,18 @@ class TestNotesService:
             mock_security_class.return_value = mock_security
 
             # Mock successful validation and creation
-            mock_validator.validate_note_creation.return_value = ValidationResult(valid=True)
-            mock_security.can_perform_write_operation.return_value = (True, None)
+            mock_validator.validate_note_creation.return_value = ValidationResult(
+                valid=True)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
             mock_repo.create_note.return_value = QueryResult(
                 success=True, data={"id": "test-note-1"}
             )
 
             service = NotesService(user_name="test_user")
 
-            result = service.create_note(title="Test Note", content="Test Content", tags=["test"])
+            result = service.create_note(
+                title="Test Note", content="Test Content", tags=["test"])
 
             if result.success is not True:
                 raise AssertionError
@@ -61,7 +65,8 @@ class TestNotesService:
     def test_create_note_validation_failure(self, mock_db_manager):
         """Test note creation with validation failure"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesValidator") as mock_validator_class,
         ):
             mock_validator = Mock()
@@ -84,7 +89,8 @@ class TestNotesService:
     def test_create_note_security_denied(self, mock_db_manager):
         """Test note creation when security check fails"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesValidator") as mock_validator_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
         ):
@@ -95,8 +101,10 @@ class TestNotesService:
             mock_security_class.return_value = mock_security
 
             # Mock validation success but security failure
-            mock_validator.validate_note_creation.return_value = ValidationResult(valid=True)
-            mock_security.can_perform_write_operation.return_value = (False, "Permission denied")
+            mock_validator.validate_note_creation.return_value = ValidationResult(
+                valid=True)
+            mock_security.can_perform_write_operation.return_value = (
+                False, "Permission denied")
 
             service = NotesService(user_name="test_user")
 
@@ -110,7 +118,8 @@ class TestNotesService:
     def test_update_note_success(self, mock_db_manager):
         """Test successful note update"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesValidator") as mock_validator_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
@@ -124,13 +133,16 @@ class TestNotesService:
             mock_security_class.return_value = mock_security
 
             # Mock successful validation and update
-            mock_validator.validate_note_update.return_value = ValidationResult(valid=True)
-            mock_security.can_perform_write_operation.return_value = (True, None)
+            mock_validator.validate_note_update.return_value = ValidationResult(
+                valid=True)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
             mock_repo.update_note.return_value = QueryResult(success=True)
 
             service = NotesService(user_name="test_user")
 
-            result = service.update_note(note_id="test-note-1", updates={"title": "Updated Title"})
+            result = service.update_note(
+                note_id="test-note-1", updates={"title": "Updated Title"})
 
             if result.success is not True:
                 raise AssertionError
@@ -138,7 +150,8 @@ class TestNotesService:
     def test_delete_note_success(self, mock_db_manager):
         """Test successful note deletion"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
         ):
@@ -149,7 +162,8 @@ class TestNotesService:
             mock_security_class.return_value = mock_security
 
             # Mock successful security check and deletion
-            mock_security.can_perform_write_operation.return_value = (True, None)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
             mock_repo.soft_delete_note.return_value = QueryResult(success=True)
 
             service = NotesService(user_name="test_user")
@@ -162,7 +176,8 @@ class TestNotesService:
     def test_search_notes_success(self, mock_db_manager):
         """Test successful note search"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesValidator") as mock_validator_class,
         ):
@@ -173,8 +188,10 @@ class TestNotesService:
             mock_validator_class.return_value = mock_validator
 
             # Mock successful validation and search
-            mock_validator.validate_search_query.return_value = ValidationResult(valid=True)
-            mock_repo.search_notes.return_value = QueryResult(success=True, data=[{"id": "note-1"}])
+            mock_validator.validate_search_query.return_value = ValidationResult(
+                valid=True)
+            mock_repo.search_notes.return_value = QueryResult(
+                success=True, data=[{"id": "note-1"}])
 
             service = NotesService(user_name="test_user")
 
@@ -187,7 +204,8 @@ class TestNotesService:
     def test_get_notes_by_tag_success(self, mock_db_manager):
         """Test getting notes by tag"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
         ):
             mock_repo = Mock()
@@ -207,7 +225,8 @@ class TestNotesService:
     def test_rename_tag_success(self, mock_db_manager):
         """Test successful tag renaming"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
         ):
@@ -217,8 +236,10 @@ class TestNotesService:
             mock_repo_class.return_value = mock_repo
             mock_security_class.return_value = mock_security
 
-            mock_security.can_perform_write_operation.return_value = (True, None)
-            mock_repo.update_tag_in_notes.return_value = QueryResult(success=True)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
+            mock_repo.update_tag_in_notes.return_value = QueryResult(
+                success=True)
 
             service = NotesService(user_name="test_user")
 
@@ -230,7 +251,8 @@ class TestNotesService:
     def test_assign_notes_to_project_success(self, mock_db_manager):
         """Test successful note assignment to project"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesValidator") as mock_validator_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
@@ -243,13 +265,17 @@ class TestNotesService:
             mock_validator_class.return_value = mock_validator
             mock_security_class.return_value = mock_security
 
-            mock_validator.validate_bulk_operation.return_value = ValidationResult(valid=True)
-            mock_security.can_perform_write_operation.return_value = (True, None)
-            mock_repo.bulk_update_project.return_value = QueryResult(success=True)
+            mock_validator.validate_bulk_operation.return_value = ValidationResult(
+                valid=True)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
+            mock_repo.bulk_update_project.return_value = QueryResult(
+                success=True)
 
             service = NotesService(user_name="test_user")
 
-            result = service.assign_notes_to_project(["note-1", "note-2"], "project-1")
+            result = service.assign_notes_to_project(
+                ["note-1", "note-2"], "project-1")
 
             if result.success is not True:
                 raise AssertionError
@@ -379,7 +405,8 @@ class TestNotesRepository:
             cursor = mock_db_connection.cursor.return_value
             cursor.rowcount = 2
 
-            result = repo.bulk_update_project(["note-1", "note-2"], "project-1")
+            result = repo.bulk_update_project(
+                ["note-1", "note-2"], "project-1")
 
             if result.success is not True:
                 raise AssertionError
@@ -418,7 +445,7 @@ class TestNotesRepository:
                 mock_note = Mock()
                 mock_note_class.from_dict.return_value = mock_note
 
-                result = repo._row_to_note(row)
+                result = repo.row_to_note(row)
 
                 if result != mock_note:
                     raise AssertionError
@@ -433,14 +460,16 @@ class TestNotesSecurity:
             security = NotesSecurity(user_name="test_user")
 
             # Should have loaded a policy
-            if not hasattr(security, "_policy"):
+            if not hasattr(security, "policy"):
                 raise AssertionError
-            assert isinstance(security._policy, SecurityPolicy | FallbackSecurity)
+            assert isinstance(
+                security.policy, SecurityPolicy | FallbackSecurity)
 
     def test_can_perform_write_operation_allowed(self, mock_db_manager):
         """Test write operation permission check - allowed"""
         with (
-            patch("database.notes_security.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_security.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_security.NotesSecurity._load_security_policy") as mock_load,
         ):
             mock_policy = Mock()
@@ -458,7 +487,8 @@ class TestNotesSecurity:
     def test_can_perform_write_operation_denied(self, mock_db_manager):
         """Test write operation permission check - denied"""
         with (
-            patch("database.notes_security.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_security.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_security.NotesSecurity._load_security_policy") as mock_load,
         ):
             mock_policy = Mock()
@@ -553,7 +583,8 @@ class TestNotesValidator:
         """Test note creation validation with missing title"""
         validator = NotesValidator()
 
-        result = validator.validate_note_creation(title="", content="Valid content", tags=["tag1"])
+        result = validator.validate_note_creation(
+            title="", content="Valid content", tags=["tag1"])
 
         if result.valid is not False:
             raise AssertionError
@@ -578,7 +609,8 @@ class TestNotesValidator:
         """Test successful note update validation"""
         validator = NotesValidator()
 
-        updates = {"title": "Updated Title", "content": "Updated content", "tags": ["new", "tags"]}
+        updates = {"title": "Updated Title",
+                   "content": "Updated content", "tags": ["new", "tags"]}
 
         result = validator.validate_note_update(updates)
 
@@ -634,7 +666,8 @@ class TestNotesValidator:
         """Test bulk operation validation with empty note IDs"""
         validator = NotesValidator()
 
-        result = validator.validate_bulk_operation(note_ids=[], operation="assign_project")
+        result = validator.validate_bulk_operation(
+            note_ids=[], operation="assign_project")
 
         if result.valid is not False:
             raise AssertionError
@@ -688,7 +721,8 @@ class TestQueryResult:
 
     def test_query_result_with_count(self):
         """Test query result with count"""
-        result = QueryResult(success=True, data=[{"id": "note-1"}], count=1, total=10)
+        result = QueryResult(success=True, data=[
+                             {"id": "note-1"}], count=1, total=10)
 
         if result.count != 1:
             raise AssertionError
@@ -730,7 +764,8 @@ class TestNotesSystemIntegration:
     def test_full_note_lifecycle(self, mock_db_manager):
         """Test complete note lifecycle through service layer"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
             patch("database.notes_service.NotesValidator") as mock_validator_class,
             patch("database.notes_service.NotesSecurity") as mock_security_class,
@@ -746,16 +781,22 @@ class TestNotesSystemIntegration:
             service = NotesService(user_name="test_user")
 
             # Setup mocks for successful operations
-            mock_validator.validate_note_creation.return_value = ValidationResult(valid=True)
-            mock_security.can_perform_write_operation.return_value = (True, None)
-            mock_repo.create_note.return_value = QueryResult(success=True, data={"id": "note-1"})
-            mock_repo.get_note_by_id.return_value = QueryResult(success=True, data={"id": "note-1"})
-            mock_validator.validate_note_update.return_value = ValidationResult(valid=True)
+            mock_validator.validate_note_creation.return_value = ValidationResult(
+                valid=True)
+            mock_security.can_perform_write_operation.return_value = (
+                True, None)
+            mock_repo.create_note.return_value = QueryResult(
+                success=True, data={"id": "note-1"})
+            mock_repo.get_note_by_id.return_value = QueryResult(
+                success=True, data={"id": "note-1"})
+            mock_validator.validate_note_update.return_value = ValidationResult(
+                valid=True)
             mock_repo.update_note.return_value = QueryResult(success=True)
             mock_repo.soft_delete_note.return_value = QueryResult(success=True)
 
             # Create
-            create_result = service.create_note("Test Note", "Content", ["tag"])
+            create_result = service.create_note(
+                "Test Note", "Content", ["tag"])
             if create_result.success is not True:
                 raise AssertionError
 
@@ -777,7 +818,8 @@ class TestNotesSystemIntegration:
     def test_notes_service_error_handling(self, mock_db_manager):
         """Test error handling in notes service"""
         with (
-            patch("database.notes_service.DatabaseManager", return_value=mock_db_manager),
+            patch("database.notes_service.DatabaseManager",
+                  return_value=mock_db_manager),
             patch("database.notes_service.NotesRepository") as mock_repo_class,
         ):
             mock_repo = Mock()
@@ -804,14 +846,16 @@ class TestNotesSystemIntegration:
 def test_security_operations_parametrized(mock_db_manager, operation, expected_result):
     """Parametrized test for security operations"""
     with (
-        patch("database.notes_security.DatabaseManager", return_value=mock_db_manager),
+        patch("database.notes_security.DatabaseManager",
+              return_value=mock_db_manager),
         patch("database.notes_security.NotesSecurity._load_security_policy") as mock_load,
     ):
         mock_policy = Mock()
         if expected_result:
             mock_policy.validate_note_data.return_value = {"valid": True}
         else:
-            mock_policy.validate_note_data.return_value = {"valid": False, "error": "Denied"}
+            mock_policy.validate_note_data.return_value = {
+                "valid": False, "error": "Denied"}
 
         mock_load.return_value = mock_policy
 
