@@ -132,9 +132,11 @@ class SafePDFProcessor:
             with open(path, "rb") as f:
                 header = f.read(8)
                 if not header.startswith(b"%PDF-"):
-                    raise PDFProcessingError("File does not have valid PDF header")
+                    raise PDFProcessingError(
+                        "File does not have valid PDF header")
         except OSError as e:
-            raise PDFProcessingError(f"Error reading PDF file: {str(e)}") from e
+            raise PDFProcessingError(
+                f"Error reading PDF file: {str(e)}") from e
 
     async def _validate_pdf_file_async(self, file_path: str | Path) -> None:
         """
@@ -170,9 +172,11 @@ class SafePDFProcessor:
             async with aiofiles.open(path, "rb") as f:
                 header = await f.read(8)
                 if not header.startswith(b"%PDF-"):
-                    raise PDFProcessingError("File does not have valid PDF header")
+                    raise PDFProcessingError(
+                        "File does not have valid PDF header")
         except OSError as e:
-            raise PDFProcessingError(f"Error reading PDF file: {str(e)}") from e
+            raise PDFProcessingError(
+                f"Error reading PDF file: {str(e)}") from e
 
     @staticmethod
     def _preprocess_pdf_content(file_content: bytes) -> bytes:
@@ -218,17 +222,20 @@ class SafePDFProcessor:
 
             # Third pass: Fix '%' at end of lines without proper following content
             # Use regex to find % followed by only whitespace until end of line
-            content_str = re.sub(r"%(\s*)$", r"% safe\1", content_str, flags=re.MULTILINE)
+            content_str = re.sub(r"%(\s*)$", r"% safe\1",
+                                 content_str, flags=re.MULTILINE)
 
             # Fourth pass: Fix '%' followed by non-printable characters
-            content_str = re.sub(r"%(?=[\x00-\x08\x0B\x0C\x0E-\x1F\x7F])", r"% safe", content_str)
+            content_str = re.sub(
+                r"%(?=[\x00-\x08\x0B\x0C\x0E-\x1F\x7F])", r"% safe", content_str)
 
             # Convert back to bytes
             return content_str.encode("latin-1", errors="ignore")
 
         except Exception as e:
             # If preprocessing fails, log warning and return original content
-            logger.warning("PDF preprocessing failed, using original content: %s", e)
+            logger.warning(
+                "PDF preprocessing failed, using original content: %s", e)
             return file_content
 
     def _safe_read_pdf(self, file_path: str | Path) -> Any:
@@ -325,7 +332,8 @@ class SafePDFProcessor:
                 if not isinstance(text, str):
                     text = str(text)
                 # Remove null bytes and control characters except newlines/tabs
-                text = "".join(char for char in text if ord(char) >= 32 or char in "\n\t\r")
+                text = "".join(char for char in text if ord(
+                    char) >= 32 or char in "\n\t\r")
                 # Limit text length per page to prevent memory issues
                 if len(text) > 100000:  # 100KB per page
                     text = text[:99987] + "\n[TEXT TRUNCATED - Page too long]"
@@ -336,7 +344,8 @@ class SafePDFProcessor:
             logger.warning("Timeout extracting text from page %d", page_num)
             raise
         except RuntimeError as e:
-            logger.warning("Error extracting text from page %d: %s", page_num, str(e))
+            logger.warning(
+                "Error extracting text from page %d: %s", page_num, str(e))
             return f"[ERROR EXTRACTING PAGE {page_num}: {str(e)}]\n"
 
     def _process_reader(
@@ -356,7 +365,8 @@ class SafePDFProcessor:
             # Check for timeout with a small safety buffer
             elapsed = time.time() - start_time
             if elapsed > self.timeout - 5:
-                warnings.append(f"Stopping at page {page_num} due to approaching timeout")
+                warnings.append(
+                    f"Stopping at page {page_num} due to approaching timeout")
                 break
 
             try:
@@ -364,7 +374,8 @@ class SafePDFProcessor:
                 page_text = self._extract_page_text_safe(page, page_num + 1)
 
                 if page_text.strip():
-                    extracted_texts.append(f"=== Page {page_num + 1} ===\n{page_text}\n")
+                    extracted_texts.append(
+                        f"=== Page {page_num + 1} ===\n{page_text}\n")
 
                 pages_processed += 1
 
@@ -372,7 +383,8 @@ class SafePDFProcessor:
                 warnings.append(f"Timeout processing page {page_num + 1}")
                 break
             except RuntimeError as e:
-                warnings.append(f"Error processing page {page_num + 1}: {str(e)}")
+                warnings.append(
+                    f"Error processing page {page_num + 1}: {str(e)}")
                 continue
 
         return extracted_texts, pages_processed, warnings
@@ -420,7 +432,8 @@ class SafePDFProcessor:
             pages_limit = min(max_pages or self.max_pages, total_pages)
 
             if pages_limit < total_pages:
-                result["warnings"].append(f"Processing limited to {pages_limit} pages")
+                result["warnings"].append(
+                    f"Processing limited to {pages_limit} pages")
 
             # Extract text using shared processor
             extracted_texts, pages_processed, warnings = self._process_reader(
@@ -440,13 +453,16 @@ class SafePDFProcessor:
 
         except PDFProcessingTimeout:
             result["error"] = f"PDF processing timed out after {self.timeout} seconds"
-            logger.error("Timeout processing %s: %s", file_path, result["error"])
+            logger.error("Timeout processing %s: %s",
+                         file_path, result["error"])
         except PDFProcessingError as e:
             result["error"] = str(e)
-            logger.error("PDF processing error for %s: %s", file_path, result["error"])
+            logger.error("PDF processing error for %s: %s",
+                         file_path, result["error"])
         except RuntimeError as e:
             result["error"] = f"Unexpected error: {str(e)}"
-            logger.error("Unexpected error processing %s: %s", file_path, result["error"])
+            logger.error("Unexpected error processing %s: %s",
+                         file_path, result["error"])
 
         finally:
             result["processing_time"] = time.time() - start_time
@@ -498,7 +514,8 @@ class SafePDFProcessor:
             pages_limit = min(max_pages or self.max_pages, total_pages)
 
             if pages_limit < total_pages:
-                result["warnings"].append(f"Processing limited to {pages_limit} pages")
+                result["warnings"].append(
+                    f"Processing limited to {pages_limit} pages")
 
             # Extract text using shared processor
             extracted_texts, pages_processed, warnings = self._process_reader(
@@ -518,13 +535,16 @@ class SafePDFProcessor:
 
         except PDFProcessingTimeout:
             result["error"] = f"PDF processing timed out after {self.timeout} seconds"
-            logger.error("Timeout processing %s: %s", file_path, result["error"])
+            logger.error("Timeout processing %s: %s",
+                         file_path, result["error"])
         except PDFProcessingError as e:
             result["error"] = str(e)
-            logger.error("PDF processing error for %s: %s", file_path, result["error"])
+            logger.error("PDF processing error for %s: %s",
+                         file_path, result["error"])
         except RuntimeError as e:
             result["error"] = f"Unexpected error: {str(e)}"
-            logger.error("Unexpected error processing %s: %s", file_path, result["error"])
+            logger.error("Unexpected error processing %s: %s",
+                         file_path, result["error"])
 
         finally:
             result["processing_time"] = time.time() - start_time
@@ -586,7 +606,8 @@ class SafePDFProcessor:
 
             pages_limit = min(self.max_pages, total_pages)
             if pages_limit < total_pages:
-                result["warnings"].append(f"Processing limited to {pages_limit} pages")
+                result["warnings"].append(
+                    f"Processing limited to {pages_limit} pages")
 
             extracted_texts, pages_processed, warnings = self._process_reader(
                 reader, start_time, pages_limit
@@ -605,13 +626,16 @@ class SafePDFProcessor:
 
         except PDFProcessingTimeout:
             result["error"] = f"PDF processing timed out after {self.timeout} seconds"
-            logger.error("Timeout processing %s: %s", filename, result["error"])
+            logger.error("Timeout processing %s: %s",
+                         filename, result["error"])
         except PDFProcessingError as e:
             result["error"] = str(e)
-            logger.error("PDF processing error for %s: %s", filename, result["error"])
+            logger.error("PDF processing error for %s: %s",
+                         filename, result["error"])
         except RuntimeError as e:
             result["error"] = f"Unexpected error: {str(e)}"
-            logger.error("Unexpected error processing %s: %s", filename, result["error"])
+            logger.error("Unexpected error processing %s: %s",
+                         filename, result["error"])
 
         finally:
             result["processing_time"] = time.time() - start_time
@@ -651,7 +675,8 @@ class SafePDFProcessor:
             reader_any = reader
             page_count = len(reader_any.pages)
             if page_count > self.max_pages:
-                result["warnings"].append(f"Large document: {page_count} pages")
+                result["warnings"].append(
+                    f"Large document: {page_count} pages")
             else:
                 result["checks_passed"].append("Page count reasonable")
 
@@ -705,7 +730,8 @@ class SafePDFProcessor:
             reader_any = reader
             page_count = len(reader_any.pages)
             if page_count > self.max_pages:
-                result["warnings"].append(f"Large document: {page_count} pages")
+                result["warnings"].append(
+                    f"Large document: {page_count} pages")
             else:
                 result["checks_passed"].append("Page count reasonable")
 
@@ -765,7 +791,8 @@ def extract_pdf_text_safe(
 
     if result["success"]:
         return result["text"]
-    logger.error("Failed to extract text from %s: %s", file_path, result["error"])
+    logger.error("Failed to extract text from %s: %s",
+                 file_path, result["error"])
     return ""
 
 
@@ -789,5 +816,6 @@ async def extract_pdf_text_safe_async(
 
     if result["success"]:
         return result["text"]
-    logger.error("Failed to extract text from %s: %s", file_path, result["error"])
+    logger.error("Failed to extract text from %s: %s",
+                 file_path, result["error"])
     return ""
