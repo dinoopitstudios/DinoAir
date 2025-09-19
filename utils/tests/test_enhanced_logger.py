@@ -107,7 +107,8 @@ class TestLogContext:
 
     def test_log_context_to_dict_partial(self):
         """Test LogContext to_dict with partial fields."""
-        context = LogContext(correlation_id="corr-123", metadata={"test": "value"})
+        context = LogContext(correlation_id="corr-123",
+                             metadata={"test": "value"})
 
         result = context.to_dict()
         expected = {"correlation_id": "corr-123", "test": "value"}
@@ -469,7 +470,8 @@ class TestEnhancedJsonFormatter:
 
         # Set up context
         with patch("utils.enhanced_logger._context_manager") as mock_manager:
-            mock_context = LogContext(correlation_id="test-123", user_id="user-456")
+            mock_context = LogContext(
+                correlation_id="test-123", user_id="user-456")
             mock_manager.get_context.return_value = mock_context
 
             record = logging.LogRecord(
@@ -766,7 +768,8 @@ class TestEnhancedLogger:
         enhanced_logger = EnhancedLogger()
 
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
-            enhanced_logger.update_filter_config(sampling_rate=0.5, enabled=False)
+            enhanced_logger.update_filter_config(
+                sampling_rate=0.5, enabled=False)
 
             if enhanced_logger.config.filter_config.sampling_rate != 0.5:
                 raise AssertionError

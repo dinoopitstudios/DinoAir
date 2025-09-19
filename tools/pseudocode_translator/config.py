@@ -24,12 +24,10 @@ import yaml
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-
 try:
     from typing import TypedDict
 except ImportError:
     from typing import TypedDict
-
 
 logger = logging.getLogger(__name__)
 
@@ -84,10 +82,12 @@ class ModelConfig:
             errors.append("Model name cannot be empty")
 
         if not 0.0 <= self.temperature <= 2.0:
-            errors.append(f"Temperature must be between 0.0 and 2.0, got {self.temperature}")
+            errors.append(
+                f"Temperature must be between 0.0 and 2.0, got {self.temperature}")
 
         if not 1 <= self.max_tokens <= 32768:
-            errors.append(f"max_tokens must be between 1 and 32768, got {self.max_tokens}")
+            errors.append(
+                f"max_tokens must be between 1 and 32768, got {self.max_tokens}")
 
         return errors
 
@@ -110,7 +110,8 @@ class LLMConfig:
     repeat_penalty: float = 1.1
     cache_enabled: bool = True
     timeout_seconds: int = 30
-    models: dict[str, ModelConfig] = field(default_factory=_empty_str_modelconfig_dict)
+    models: dict[str, ModelConfig] = field(
+        default_factory=_empty_str_modelconfig_dict)
 
     # For backward compatibility
     model_file: str = "qwen-7b-q4_k_m.gguf"
@@ -139,14 +140,17 @@ class LLMConfig:
                     cfg_d = cast("dict[str, Any]", cfg)
                     params_raw = cfg_d.get("parameters")
                     params = (
-                        cast("dict[str, Any]", params_raw) if isinstance(params_raw, dict) else {}
+                        cast("dict[str, Any]", params_raw) if isinstance(
+                            params_raw, dict) else {}
                     )
                     self.models[name] = ModelConfig(
                         name=name,
                         enabled=bool(cfg_d.get("enabled", True)),
                         model_path=cast("str | None", cfg_d.get("model_path")),
-                        temperature=cast("float", params.get("temperature", self.temperature)),
-                        max_tokens=cast("int", params.get("max_tokens", self.max_tokens)),
+                        temperature=cast("float", params.get(
+                            "temperature", self.temperature)),
+                        max_tokens=cast("int", params.get(
+                            "max_tokens", self.max_tokens)),
                         auto_download=bool(cfg_d.get("auto_download", False)),
                     )
 
@@ -166,25 +170,32 @@ class LLMConfig:
             errors.append("model_type cannot be empty")
 
         if not 512 <= self.n_ctx <= 32768:
-            errors.append(f"n_ctx must be between 512 and 32768, got {self.n_ctx}")
+            errors.append(
+                f"n_ctx must be between 512 and 32768, got {self.n_ctx}")
 
         if not 1 <= self.n_threads <= 32:
-            errors.append(f"n_threads must be between 1 and 32, got {self.n_threads}")
+            errors.append(
+                f"n_threads must be between 1 and 32, got {self.n_threads}")
 
         if not 0 <= self.n_gpu_layers <= 100:
-            errors.append(f"n_gpu_layers must be between 0 and 100, got {self.n_gpu_layers}")
+            errors.append(
+                f"n_gpu_layers must be between 0 and 100, got {self.n_gpu_layers}")
 
         if not 0.0 <= self.temperature <= 2.0:
-            errors.append(f"temperature must be between 0.0 and 2.0, got {self.temperature}")
+            errors.append(
+                f"temperature must be between 0.0 and 2.0, got {self.temperature}")
 
         if self.timeout_seconds < 0:
-            errors.append(f"timeout_seconds must be >= 0, got {self.timeout_seconds}")
+            errors.append(
+                f"timeout_seconds must be >= 0, got {self.timeout_seconds}")
         elif self.timeout_seconds == 0:
-            warnings.append("timeout_seconds is 0; operations may hang indefinitely")
+            warnings.append(
+                "timeout_seconds is 0; operations may hang indefinitely")
 
         # Validate model configurations
         if self.model_type not in self.models:
-            errors.append(f"Primary model '{self.model_type}' not found in models configuration")
+            errors.append(
+                f"Primary model '{self.model_type}' not found in models configuration")
 
         for name, model in self.models.items():
             model_errors = model.validate()
@@ -237,10 +248,14 @@ class LLMConfig:
             self.models[cast("str", model_config.name)] = ModelConfig(
                 name=cast("str", model_config.name),
                 enabled=bool(getattr(model_config, "enabled", True)),
-                model_path=cast("str | None", getattr(model_config, "model_path", None)),
-                temperature=cast("float", getattr(model_config, "temperature", 0.3)),
-                max_tokens=cast("int", getattr(model_config, "max_tokens", 1024)),
-                auto_download=bool(getattr(model_config, "auto_download", False)),
+                model_path=cast("str | None", getattr(
+                    model_config, "model_path", None)),
+                temperature=cast("float", getattr(
+                    model_config, "temperature", 0.3)),
+                max_tokens=cast("int", getattr(
+                    model_config, "max_tokens", 1024)),
+                auto_download=bool(
+                    getattr(model_config, "auto_download", False)),
             )
 
 
@@ -295,23 +310,28 @@ class StreamingConfig:
         if self.chunk_size <= 0:
             errors.append(f"chunk_size must be > 0, got {self.chunk_size}")
         elif not 512 <= self.chunk_size <= 65536:
-            warnings.append(f"chunk_size should be between 512 and 65536, got {self.chunk_size}")
+            warnings.append(
+                f"chunk_size should be between 512 and 65536, got {self.chunk_size}")
 
         if self.max_memory_mb <= 0:
-            errors.append(f"max_memory_mb must be > 0, got {self.max_memory_mb}")
+            errors.append(
+                f"max_memory_mb must be > 0, got {self.max_memory_mb}")
         elif not 10 <= self.max_memory_mb <= 1000:
             warnings.append(
                 f"max_memory_mb should be between 10 and 1000, got {self.max_memory_mb}"
             )
 
         if self.max_concurrent_chunks < 1:
-            errors.append(f"max_concurrent_chunks must be >= 1, got {self.max_concurrent_chunks}")
+            errors.append(
+                f"max_concurrent_chunks must be >= 1, got {self.max_concurrent_chunks}")
 
         if self.max_queue_size < 0:
-            errors.append(f"max_queue_size must be >= 0, got {self.max_queue_size}")
+            errors.append(
+                f"max_queue_size must be >= 0, got {self.max_queue_size}")
 
         if self.chunk_timeout < 0:
-            errors.append(f"chunk_timeout must be >= 0, got {self.chunk_timeout}")
+            errors.append(
+                f"chunk_timeout must be >= 0, got {self.chunk_timeout}")
 
         if self.progress_callback_interval < 0:
             errors.append(
@@ -319,7 +339,8 @@ class StreamingConfig:
             )
 
         if self.context_window_size < 0:
-            errors.append(f"context_window_size must be >= 0, got {self.context_window_size}")
+            errors.append(
+                f"context_window_size must be >= 0, got {self.context_window_size}")
 
         # Known/allowed values for enums/strategies (lightweight check)
         allowed_evictions = {"lru", "fifo", "none"}
@@ -332,7 +353,8 @@ class StreamingConfig:
         if self.adaptive_min_chunk_size <= 0:
             errors.append("adaptive_min_chunk_size must be > 0")
         if self.adaptive_max_chunk_size < self.adaptive_min_chunk_size:
-            errors.append("adaptive_max_chunk_size must be >= adaptive_min_chunk_size")
+            errors.append(
+                "adaptive_max_chunk_size must be >= adaptive_min_chunk_size")
         if self.adaptive_target_latency_ms <= 0:
             errors.append("adaptive_target_latency_ms must be > 0")
         if not (0.0 < self.adaptive_smoothing_alpha <= 1.0):
@@ -344,7 +366,8 @@ class StreamingConfig:
 
         # Warnings (non-fatal)
         if self.adaptive_hysteresis_pct > 0.5:
-            warnings.append("adaptive_hysteresis_pct is high (> 0.5); may reduce responsiveness")
+            warnings.append(
+                "adaptive_hysteresis_pct is high (> 0.5); may reduce responsiveness")
         if self.adaptive_initial_chunk_size is not None:
             if not (
                 self.adaptive_min_chunk_size
@@ -361,7 +384,8 @@ class StreamingConfig:
             preview = "; ".join(errors[:3])
             from .exceptions import ConfigurationError
 
-            raise ConfigurationError(f"Invalid streaming configuration: {preview}")
+            raise ConfigurationError(
+                f"Invalid streaming configuration: {preview}")
 
         # Backward-compatible behavior (legacy callers expect list[str] of errors)
         return result if strict else errors
@@ -428,7 +452,8 @@ class ExecutionConfig:
             from .exceptions import ConfigurationError
 
             preview = "; ".join(errors[:3])
-            raise ConfigurationError(f"Invalid execution configuration: {preview}")
+            raise ConfigurationError(
+                f"Invalid execution configuration: {preview}")
 
         # Backward-compat behavior: return only list[str] when called from legacy path
         return result if strict else errors
@@ -456,9 +481,11 @@ class CacheConfig:
         if self.max_size < 1:
             errors.append(f"cache.max_size must be >= 1, got {self.max_size}")
         if self.ttl_seconds is not None and self.ttl_seconds < 1:
-            errors.append(f"cache.ttl_seconds must be None or >= 1, got {self.ttl_seconds}")
+            errors.append(
+                f"cache.ttl_seconds must be None or >= 1, got {self.ttl_seconds}")
         if self.max_memory_mb <= 0:
-            errors.append(f"cache.max_memory_mb must be > 0, got {self.max_memory_mb}")
+            errors.append(
+                f"cache.max_memory_mb must be > 0, got {self.max_memory_mb}")
 
         result = {"errors": errors, "warnings": warnings}
         return result if strict else errors
@@ -535,7 +562,8 @@ class Config:
 
         # Validate basic settings
         if self.indent_size not in [2, 4, 8]:
-            errors.append(f"indent_size should be 2, 4, or 8, got {self.indent_size}")
+            errors.append(
+                f"indent_size should be 2, 4, or 8, got {self.indent_size}")
 
         if not 50 <= self.max_line_length <= 120:
             errors.append(
@@ -774,7 +802,8 @@ class Config:
             llm_data = cast("dict[str, Any]", data["llm"])
             models_raw = llm_data.pop("models", {})
             models: dict[str, Any] = (
-                cast("dict[str, Any]", models_raw) if isinstance(models_raw, dict) else {}
+                cast("dict[str, Any]", models_raw) if isinstance(
+                    models_raw, dict) else {}
             )
             data["llm"] = LLMConfig(**llm_data)
             # Recreate model configs
@@ -849,7 +878,8 @@ class ConfigManager:
 
         # Top-level config constraints
         if cfg.indent_size not in [2, 4, 8]:
-            all_errors.append(f"indent_size should be 2, 4, or 8, got {cfg.indent_size}")
+            all_errors.append(
+                f"indent_size should be 2, 4, or 8, got {cfg.indent_size}")
 
         if not 50 <= cfg.max_line_length <= 120:
             all_errors.append(
@@ -936,7 +966,8 @@ class ConfigManager:
                     ConfigManager._upgrade_config(config, old_ver)
 
             except Exception as e:
-                logger.error("Failed to load config from %s: %s", config_path, e)
+                logger.error("Failed to load config from %s: %s",
+                             config_path, e)
                 logger.info("Using default configuration")
         else:
             logger.info("No configuration file found, using defaults")
@@ -946,7 +977,8 @@ class ConfigManager:
 
         # Strictness gating via env flag (lenient opt-out)
         # If PSEUDOCODE_LENIENT_CONFIG in {"1","true","yes"}, downgrade strict to False
-        strict_default = not ConfigManager._truthy_env("PSEUDOCODE_LENIENT_CONFIG")
+        strict_default = not ConfigManager._truthy_env(
+            "PSEUDOCODE_LENIENT_CONFIG")
 
         # Validate and fail-fast on critical invalids
         mgr = ConfigManager()
@@ -971,7 +1003,8 @@ class ConfigManager:
             raise Exception("Invalid file path")
         with open(config_path, "w") as f:
             if config_path.suffix in [".yaml", ".yml"]:
-                yaml.dump(config.to_dict(), f, default_flow_style=False, sort_keys=False)
+                yaml.dump(config.to_dict(), f,
+                          default_flow_style=False, sort_keys=False)
             else:
                 json.dump(config.to_dict(), f, indent=2)
 
@@ -1037,7 +1070,8 @@ class ConfigManager:
 
         def prompt_yes_no(prompt: str, default: bool) -> bool:
             default_str = "y" if default else "n"
-            raw = safe_input(f"{prompt} (y/n) [{default_str}]: ").strip().lower()
+            raw = safe_input(
+                f"{prompt} (y/n) [{default_str}]: ").strip().lower()
             return (raw or default_str).startswith("y")
 
         # Non-interactive environments: return sensible defaults without prompting
@@ -1049,7 +1083,8 @@ class ConfigManager:
 
         # Profile selection
 
-        choice = safe_input("\nEnter choice [1-4] (default: 1): ").strip() or "1"
+        choice = safe_input(
+            "\nEnter choice [1-4] (default: 1): ").strip() or "1"
 
         profile_map = {
             "1": ConfigProfile.DEVELOPMENT,
@@ -1062,7 +1097,8 @@ class ConfigManager:
 
         if profile == ConfigProfile.CUSTOM:
             default_model = config.llm.model_type
-            model_type_raw = safe_input(f"Model type [{default_model}]: ").strip()
+            model_type_raw = safe_input(
+                f"Model type [{default_model}]: ").strip()
             config.llm.model_type = model_type_raw or default_model
 
             config.llm.n_threads = prompt_int(
@@ -1086,8 +1122,10 @@ class ConfigManager:
                 2.0,
             )
 
-            config.use_type_hints = prompt_yes_no("Use type hints?", config.use_type_hints)
-            config.validate_imports = prompt_yes_no("Validate imports?", config.validate_imports)
+            config.use_type_hints = prompt_yes_no(
+                "Use type hints?", config.use_type_hints)
+            config.validate_imports = prompt_yes_no(
+                "Validate imports?", config.validate_imports)
 
         return config
 
@@ -1113,7 +1151,8 @@ class ConfigManager:
             if "../" in str(path) or "..\\" in str(path):
                 raise Exception("Invalid file path")
             with open(path) as f:
-                data = yaml.safe_load(f) if path.suffix in [".yaml", ".yml"] else json.load(f)
+                data = yaml.safe_load(f) if path.suffix in [
+                    ".yaml", ".yml"] else json.load(f)
 
             version = data.get("version", data.get("_version", "1.0"))
             info["version"] = version
@@ -1149,8 +1188,10 @@ class ConfigManager:
         model_config = ModelConfig(
             name=model_name,
             model_path=model_path,
-            temperature=(parameters.get("temperature", 0.3) if parameters else 0.3),
-            max_tokens=(parameters.get("max_tokens", 1024) if parameters else 1024),
+            temperature=(parameters.get("temperature", 0.3)
+                         if parameters else 0.3),
+            max_tokens=(parameters.get("max_tokens", 1024)
+                        if parameters else 1024),
             auto_download=auto_download,
         )
         config.llm.models[model_name] = model_config
@@ -1277,7 +1318,8 @@ def load_config(path: str | None = None) -> TranslatorConfig:
 
 def save_config(config: TranslatorConfig, path: str | None = None):
     """Deprecated: Use ConfigManager.save() instead"""
-    ConfigManager.save(config.get_config(), path)  # pyright: ignore[reportPrivateUsage]
+    ConfigManager.save(config.get_config(),
+                       path)  # pyright: ignore[reportPrivateUsage]
 
 
 def validate_config(config: TranslatorConfig) -> list[str]:

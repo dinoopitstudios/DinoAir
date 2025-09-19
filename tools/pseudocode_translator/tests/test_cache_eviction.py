@@ -11,7 +11,8 @@ def _src(n: int) -> str:
 
 def test_lru_eviction_order():
     # LRU default semantics; TTL disabled and no persistence
-    cache = ASTCache(max_size=3, eviction_mode="lru", ttl_seconds=None, persistent_path=None)
+    cache = ASTCache(max_size=3, eviction_mode="lru",
+                     ttl_seconds=None, persistent_path=None)
 
     # Insert 3 entries
     a = _src(1)
@@ -42,7 +43,8 @@ def test_lru_eviction_order():
 
 def test_lfu_lite_eviction_prefers_low_frequency():
     # LFU-lite policy; small cache; TTL disabled
-    cache = ASTCache(max_size=3, eviction_mode="lfu_lite", ttl_seconds=None, persistent_path=None)
+    cache = ASTCache(max_size=3, eviction_mode="lfu_lite",
+                     ttl_seconds=None, persistent_path=None)
 
     a = _src(10)
     b = _src(20)
@@ -79,7 +81,8 @@ def test_lfu_lite_eviction_prefers_low_frequency():
 
 def test_ttl_eviction_still_applies(monkeypatch):
     # Avoid background thread by constructing with ttl_seconds=None, then enable TTL
-    cache = ASTCache(max_size=10, eviction_mode="lru", ttl_seconds=None, persistent_path=None)
+    cache = ASTCache(max_size=10, eviction_mode="lru",
+                     ttl_seconds=None, persistent_path=None)
 
     # Enable tiny TTL post-init (no background thread)
     cache.ttl_seconds = 0.001
@@ -161,7 +164,8 @@ def test_memory_eviction_policy_respected():
 
 
 def test_stats_include_eviction_mode():
-    cache = ASTCache(max_size=3, eviction_mode="lfu_lite", ttl_seconds=None, persistent_path=None)
+    cache = ASTCache(max_size=3, eviction_mode="lfu_lite",
+                     ttl_seconds=None, persistent_path=None)
     stats = cache.get_stats()
     if "eviction_mode" not in stats:
         raise AssertionError
@@ -172,7 +176,8 @@ def test_stats_include_eviction_mode():
 def test_persistence_survives_policy_switch(tmp_path: Path):
     # Create cache with persistence and some entries
     pdir = tmp_path / "ast_cache_persist"
-    cache1 = ASTCache(max_size=3, eviction_mode="lru", ttl_seconds=None, persistent_path=pdir)
+    cache1 = ASTCache(max_size=3, eviction_mode="lru",
+                      ttl_seconds=None, persistent_path=pdir)
     cache1.parse(_src(201))
     cache1.parse(_src(202))
     # Persist to disk
@@ -182,7 +187,8 @@ def test_persistence_survives_policy_switch(tmp_path: Path):
         raise AssertionError
 
     # Create a new cache with a different policy pointing to the same path
-    cache2 = ASTCache(max_size=3, eviction_mode="lfu_lite", ttl_seconds=None, persistent_path=pdir)
+    cache2 = ASTCache(max_size=3, eviction_mode="lfu_lite",
+                      ttl_seconds=None, persistent_path=pdir)
 
     # The current persistence format intentionally skips non-AST payloads on load; ensure no crash and state is coherent
     stats2 = cache2.get_stats()
@@ -200,7 +206,8 @@ def test_env_overrides_apply_cache_config(monkeypatch):
     monkeypatch.setenv("PSEUDOCODE_CACHE_MAX_SIZE", "123")
     monkeypatch.setenv("PSEUDOCODE_CACHE_TTL_SECONDS", "789")
     monkeypatch.setenv("PSEUDOCODE_CACHE_MAX_MEMORY_MB", "12.5")
-    monkeypatch.setenv("PSEUDOCODE_CACHE_PERSISTENT_PATH", str(Path.cwd() / "tmp_cache_dir"))
+    monkeypatch.setenv("PSEUDOCODE_CACHE_PERSISTENT_PATH",
+                       str(Path.cwd() / "tmp_cache_dir"))
     monkeypatch.setenv("PSEUDOCODE_CACHE_ENABLE_COMPRESSION", "1")
 
     # Ensure unrelated flags do not interfere

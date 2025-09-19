@@ -108,7 +108,8 @@ class TestOptimizedPatterns:
         for filename, expected in test_cases:
             result = OptimizedPatterns.extract_file_extension(filename)
             if result != expected:
-                raise AssertionError(f"Expected {expected} for {filename}, got {result}")
+                raise AssertionError(
+                    f"Expected {expected} for {filename}, got {result}")
 
 
 class TestStringBuilder:
@@ -167,7 +168,8 @@ class TestStringBuilder:
     def test_string_builder_chaining(self):
         """Test method chaining."""
         result = (
-            StringBuilder().append("Hello").append(" ").append("World").append_line("!").build()
+            StringBuilder().append("Hello").append(
+                " ").append("World").append_line("!").build()
         )
 
         if result != "Hello World!\n":
@@ -440,7 +442,8 @@ class TestLazyComponentManager:
             return "main_component"
 
         manager.register_component("dependency", dep_factory)
-        manager.register_component("main", main_factory, dependencies=["dependency"])
+        manager.register_component(
+            "main", main_factory, dependencies=["dependency"])
 
         # Get main component - should initialize dependency first
         main = manager.get_component("main")
@@ -514,7 +517,8 @@ class TestSignalConnectionManager:
         mock_signal.connect.return_value = "connection_object"
         mock_slot = Mock()
 
-        result = manager.connect_signal(mock_signal, mock_slot, "test_connection")
+        result = manager.connect_signal(
+            mock_signal, mock_slot, "test_connection")
 
         if result is not True:
             raise AssertionError
@@ -546,7 +550,8 @@ class TestSignalConnectionManager:
 
         # Connect signals to same group
         for i, signal in enumerate(signals):
-            manager.connect_signal(signal, Mock(), f"conn_{i}", group="test_group")
+            manager.connect_signal(
+                signal, Mock(), f"conn_{i}", group="test_group")
 
         # Disconnect group
         count = manager.disconnect_group("test_group")
@@ -849,7 +854,8 @@ class TestIntegrationScenarios:
         manager = LazyComponentManager()
 
         for i in range(100):
-            manager.register_component(f"comp_{i}", lambda i=i: f"component_{i}")
+            manager.register_component(
+                f"comp_{i}", lambda i=i: f"component_{i}")
 
         # Preload all at once
         component_names = [f"comp_{i}" for i in range(100)]

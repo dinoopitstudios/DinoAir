@@ -189,7 +189,8 @@ def test_timer_database_error_recovery(mock_db_manager, mock_db_connection):
     mock_db_manager.get_timers_connection.return_value = mock_db_connection
 
     # Test connection failure
-    mock_db_manager.get_timers_connection.side_effect = Exception("Connection failed")
+    mock_db_manager.get_timers_connection.side_effect = Exception(
+        "Connection failed")
 
     log_data = {
         "task_name": "Test Task",

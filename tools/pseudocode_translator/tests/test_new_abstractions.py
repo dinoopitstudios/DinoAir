@@ -64,7 +64,8 @@ def test_fix_refiner_attempt_fixes_success_and_exception():
             raise RuntimeError("refine boom")
 
     bad_validation = FakeValidationResult(
-        errors=["E1: missing colon", "E2: indent", "E3: name error", "E4: extra"]
+        errors=["E1: missing colon", "E2: indent",
+                "E3: name error", "E4: extra"]
     )
     code = "def x():\n    pass"
 
@@ -99,7 +100,8 @@ def test_offload_executor_gating_and_immediate_fallback(monkeypatch):
                 self.events.append((str(event_type), dict(payload)))
             else:
                 # Some dispatchers may use kwargs; normalize those
-                self.events.append((str(event_type), {**kwargs} if kwargs else {}))
+                self.events.append(
+                    (str(event_type), {**kwargs} if kwargs else {}))
 
     # Fake pool that returns immediate fallback sentinel
     class FakePool:
@@ -171,7 +173,8 @@ def test_separate_mixed_block_segmentation(monkeypatch):
     manager = TranslationManager(cfg)
 
     mixed_text = "Explain how to print OK\nprint('OK')\nAnd say goodbye\nprint('bye')\n"
-    line_count = mixed_text.count("\n") + (0 if mixed_text.endswith("\n") else 1)
+    line_count = mixed_text.count(
+        "\n") + (0 if mixed_text.endswith("\n") else 1)
     block = CodeBlock(
         type=BlockType.MIXED,
         content=mixed_text,
@@ -237,7 +240,8 @@ def test_translate_pseudocode_orchestration_guard_clauses(
                 ),
             )
 
-        monkeypatch.setattr(manager, "_run_llm_first_flow", _run_llm_first_flow, raising=True)
+        monkeypatch.setattr(manager, "_run_llm_first_flow",
+                            _run_llm_first_flow, raising=True)
     else:
 
         def _translate_with_llm_first(self, txt, start_time=None, translation_id=None):
@@ -277,7 +281,8 @@ def test_translate_pseudocode_orchestration_guard_clauses(
                 metadata={"approach": "structured_parsing"},
             )
 
-        monkeypatch.setattr(manager, "_run_structured_flow", _run_structured_flow, raising=True)
+        monkeypatch.setattr(manager, "_run_structured_flow",
+                            _run_structured_flow, raising=True)
     else:
 
         def _translate_with_structured_parsing(

@@ -18,14 +18,12 @@ import json
 import logging
 import logging.handlers
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
 
 REDACT_KEYS = {
     "authorization",
@@ -40,7 +38,8 @@ REDACT_KEYS = {
 }
 
 # Collect env-based secrets to redact (values)
-_ENV_SECRET_VALUES = {v for k, v in os.environ.items() if k.upper().startswith("DINOAIR_") and v}
+_ENV_SECRET_VALUES = {v for k, v in os.environ.items(
+) if k.upper().startswith("DINOAIR_") and v}
 
 
 class RedactionFilter(logging.Filter):
@@ -73,7 +72,8 @@ class RedactionFilter(logging.Filter):
             elif isinstance(v, dict):
                 sanitized[k] = self._redact_mapping(cast("dict[str, Any]", v))
             elif isinstance(v, list | tuple):
-                sanitized[k] = [self._mask_value(x) for x in cast("Iterable[Any]", v)]
+                sanitized[k] = [self._mask_value(x)
+                                for x in cast("Iterable[Any]", v)]
             else:
                 sanitized[k] = self._mask_value(v)
         return sanitized
@@ -84,7 +84,8 @@ class RedactionFilter(logging.Filter):
             for attr in ("msg",):
                 val = getattr(record, attr, None)
                 if isinstance(val, dict):
-                    setattr(record, attr, self._redact_mapping(cast("dict[str, Any]", val)))
+                    setattr(record, attr, self._redact_mapping(
+                        cast("dict[str, Any]", val)))
 
             # Also scan record.__dict__ extras for common names
             for k in list(record.__dict__.keys()):
@@ -94,9 +95,11 @@ class RedactionFilter(logging.Filter):
                 else:
                     v = record.__dict__[k]
                     if isinstance(v, dict):
-                        record.__dict__[k] = self._redact_mapping(cast("dict[str, Any]", v))
+                        record.__dict__[k] = self._redact_mapping(
+                            cast("dict[str, Any]", v))
                     elif isinstance(v, list | tuple):
-                        record.__dict__[k] = [self._mask_value(x) for x in cast("Iterable[Any]", v)]
+                        record.__dict__[k] = [self._mask_value(
+                            x) for x in cast("Iterable[Any]", v)]
                     elif isinstance(v, str) and v in _ENV_SECRET_VALUES:
                         record.__dict__[k] = "***REDACTED***"
         except RuntimeError:
@@ -131,8 +134,10 @@ class JsonFormatter(logging.Formatter):
 def is_structured_logging_configured(logger: logging.Logger) -> bool:
     return getattr(logger, "_dinoair_structured_logging_configured", False)
 
+
 def set_structured_logging_configured(logger: logging.Logger) -> None:
     setattr(logger, "_dinoair_structured_logging_configured", True)
+
 
 def setup_logging(
     app_name: str = "dinoair-core", log_dir: str = "logs", level: str = "INFO"

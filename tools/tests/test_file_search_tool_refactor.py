@@ -196,7 +196,8 @@ def test_get_file_embeddings_success(fsdb_stub: FSDBStub, tmp_path: Path) -> Non
     def _fake_embeddings_by_file(file_path: str):
         if file_path in fsdb_stub.files:
             return [
-                {"chunk_id": "c1", "embedding": [0.1, 0.2], "content": "alpha"},
+                {"chunk_id": "c1", "embedding": [
+                    0.1, 0.2], "content": "alpha"},
                 {"chunk_id": "c2", "embedding": [0.3, 0.4], "content": "beta"},
             ]
         return []

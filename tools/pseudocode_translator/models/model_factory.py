@@ -5,16 +5,15 @@ This module implements a factory pattern for dynamic model loading,
 supporting model registration, discovery, and configuration-based selection.
 """
 
-from dataclasses import dataclass
-from enum import Enum
 import importlib
 import logging
-from pathlib import Path
 import pkgutil
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 from typing import Any
 
 from .base_model import BaseTranslationModel, OutputLanguage
-
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,8 @@ class ModelFactory:
             cls.discover_models()
 
         cls._initialized = True
-        logger.info(f"ModelFactory initialized with {len(cls._registry)} models")
+        logger.info(
+            f"ModelFactory initialized with {len(cls._registry)} models")
 
     @classmethod
     def register_model(
@@ -206,9 +206,11 @@ class ModelFactory:
                 model_name = selected
             else:
                 # Fallback to existing default behavior
-                model_name = cls._default_model or next(iter(cls._registry.keys()), None)
+                model_name = cls._default_model or next(
+                    iter(cls._registry.keys()), None)
                 if not model_name:
-                    raise ValueError("No model name specified and no default set")
+                    raise ValueError(
+                        "No model name specified and no default set")
                 logger.warning(
                     f"No models matched requested capabilities (streaming={require_streaming}, language={language}); falling back to '{model_name}'"
                 )
@@ -228,10 +230,12 @@ class ModelFactory:
                     logger.info(f"Trying fallback model: {fallback_name}")
                     return cls._create_model_instance(fallback_name, config)
                 except Exception as fallback_e:
-                    logger.error(f"Fallback '{fallback_name}' failed: {fallback_e}")
+                    logger.error(
+                        f"Fallback '{fallback_name}' failed: {fallback_e}")
                     continue
 
-            raise ValueError(f"No suitable model found (tried {model_name} and fallbacks)")
+            raise ValueError(
+                f"No suitable model found (tried {model_name} and fallbacks)")
 
     @classmethod
     def _create_model_instance(
@@ -339,7 +343,8 @@ class ModelFactory:
                 if temp_instance.metadata.supports_language(language):
                     supporting_models.append(name)
             except Exception as e:
-                logger.warning(f"Error checking language support for {name}: {e}")
+                logger.warning(
+                    f"Error checking language support for {name}: {e}")
 
         return sorted(supporting_models)
 
@@ -412,7 +417,8 @@ class ModelFactory:
             failed_priority = ModelPriority.FALLBACK  # Worst priority to include all
 
         # Sort models by priority
-        sorted_models = sorted(cls._registry.items(), key=lambda x: (x[1].priority.value, x[0]))
+        sorted_models = sorted(cls._registry.items(),
+                               key=lambda x: (x[1].priority.value, x[0]))
 
         # Add models with same or better priority
         for name, registration in sorted_models:
@@ -449,7 +455,8 @@ class ModelFactory:
                 temp = reg.model_class({})
                 caps = temp.get_capabilities() or {}
                 supports_stream = bool(caps.get("supports_streaming", False))
-                langs = [str(l).lower() for l in caps.get("supported_languages", [])]
+                langs = [str(l).lower()
+                         for l in caps.get("supported_languages", [])]
 
                 # Language filter (case-insensitive)
                 if desired_lang and langs and desired_lang not in langs:
@@ -459,7 +466,8 @@ class ModelFactory:
                 if require_streaming is True and not supports_stream:
                     continue
 
-                streaming_match = 1 if (require_streaming and supports_stream) else 0
+                streaming_match = 1 if (
+                    require_streaming and supports_stream) else 0
                 quality = str(caps.get("quality", "")).lower()
                 quality_score = quality_rank.get(quality, 0)
 
@@ -473,9 +481,11 @@ class ModelFactory:
                 elif isinstance(tps, int | float):
                     tps_max = float(tps)
 
-                candidates.append((streaming_match, quality_score, tps_max, name))
+                candidates.append(
+                    (streaming_match, quality_score, tps_max, name))
             except Exception as e:
-                logger.warning(f"Error reading capabilities for model '{name}': {e}")
+                logger.warning(
+                    f"Error reading capabilities for model '{name}': {e}")
                 continue
 
         if not candidates:
@@ -502,7 +512,8 @@ class ModelFactory:
         discovered_count = 0
 
         # Skip these modules
-        skip_modules = {"base_model", "model_factory", "plugin_system", "__init__"}
+        skip_modules = {"base_model", "model_factory",
+                        "plugin_system", "__init__"}
 
         logger.info(f"Discovering models in: {package_path}")
 
@@ -531,7 +542,8 @@ class ModelFactory:
                         discovered_count += 1
 
             except Exception as e:
-                logger.warning(f"Failed to import model module '{module_name}': {e}")
+                logger.warning(
+                    f"Failed to import model module '{module_name}': {e}")
 
         logger.info(f"Discovered {discovered_count} models")
         return discovered_count

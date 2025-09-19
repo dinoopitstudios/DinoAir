@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Protocol
 
 from .translator_core import process_accumulated_blocks, process_statement
 
-
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, Iterator
 

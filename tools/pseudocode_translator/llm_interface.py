@@ -12,29 +12,30 @@ The interface maintains backward compatibility while adding support for:
 - Improved resource management
 """
 
-from dataclasses import dataclass
 import hashlib
 import json
 import logging
-from pathlib import Path
 import threading
 import time
-from typing import Any
 import warnings
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 from .config import LLMConfig
 from .models.registry import list_available_models, model_exists
-
 
 # Avoid importing BaseModel here; use typing.Any for model type to keep imports robust.
 
 # Try to import a concrete ModelManager from the models package with fallbacks
 try:
-    from .models.manager import ModelManager as _ImportedModelManager  # common path in this repo
+    # common path in this repo
+    from .models.manager import ModelManager as _ImportedModelManager
 except ImportError:
     try:
         from .models import (
-            ModelManager as _ImportedModelManager,  # fallback if models/__init__.py exposes it
+            # fallback if models/__init__.py exposes it
+            ModelManager as _ImportedModelManager,
         )
     except ImportError:
         _ImportedModelManager = None  # type: ignore[assignment]
@@ -73,7 +74,6 @@ if _ImportedModelManager is None:
 else:
     ModelManagerRef = _ImportedModelManager  # type: ignore[assignment]
 
-
 # Configure logging
 logger = logging.getLogger(__name__)
 # Deprecation warning at import time for legacy interface
@@ -110,7 +110,8 @@ class TranslationCache:
         with self._lock:
             # Simple LRU: remove oldest if at capacity
             if len(self._cache) >= self.max_size:
-                oldest_key = min(self._cache.keys(), key=lambda k: self._cache[k][1])
+                oldest_key = min(self._cache.keys(),
+                                 key=lambda k: self._cache[k][1])
                 del self._cache[oldest_key]
 
             self._cache[key] = (value, time.time())
@@ -203,7 +204,8 @@ class LLMInterface:
         # Check if model exists in registry
         if not model_exists(model_to_load):
             available = ", ".join(list_available_models())
-            raise ValueError(f"Model '{model_to_load}' not found. Available models: {available}")
+            raise ValueError(
+                f"Model '{model_to_load}' not found. Available models: {available}")
 
         # Determine model path
         model_path = self.config.get_model_path()
@@ -221,13 +223,15 @@ class LLMInterface:
                     self._manager.unload_model(self._model_name)
 
                 # Load new model
-                self._current_model = self._manager.load_model(model_to_load, model_path)
+                self._current_model = self._manager.load_model(
+                    model_to_load, model_path)
                 self._model_name = model_to_load
 
                 logger.info("Model '%s' loaded successfully", model_to_load)
 
         except Exception as e:
-            raise RuntimeError(f"Failed to load model '{model_to_load}': {str(e)}") from e
+            raise RuntimeError(
+                f"Failed to load model '{model_to_load}': {str(e)}") from e
 
     def translate(self, instruction: str, context: dict[str, Any] | None = None) -> str:
         """
@@ -259,7 +263,8 @@ class LLMInterface:
         try:
             # Use the model's translate_instruction method
             if self._current_model:
-                code = self._current_model.translate_instruction(instruction, context)
+                code = self._current_model.translate_instruction(
+                    instruction, context)
             else:
                 raise RuntimeError("Model not initialized")
 
@@ -296,7 +301,8 @@ class LLMInterface:
                 code = self.translate(instruction)
                 results.append(code)
             except Exception as e:
-                logger.error("Failed to translate: %s... - %s", instruction[:50], str(e))
+                logger.error("Failed to translate: %s... - %s",
+                             instruction[:50], str(e))
                 results.append(f"# Error: Failed to translate - {str(e)}")
 
         return results
@@ -330,7 +336,8 @@ class LLMInterface:
         Args:
             model_name: Name of the model to switch to
         """
-        logger.info("Switching from '%s' to '%s'", self._model_name, model_name)
+        logger.info("Switching from '%s' to '%s'",
+                    self._model_name, model_name)
         self.initialize_model(model_name)
 
         # Clear cache when switching models

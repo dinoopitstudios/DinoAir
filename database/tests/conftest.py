@@ -1,20 +1,19 @@
 # --- Test-time compatibility patches (autouse) for current DB layer behavior ---
 # (Existing content below)
-
 """
 Shared fixtures and test configuration for database tests
 """
 
 import contextlib
-from datetime import date, timedelta
 import os
-from pathlib import Path
 import shutil
 
 # Ensure project root (DinoAir3.0) is importable when running from repo root
 import sys as _sys
 import tempfile
 import uuid
+from datetime import date, timedelta
+from pathlib import Path
 
 import pytest
 
@@ -23,7 +22,6 @@ from database.initialize_db import DatabaseManager
 
 # Real model imports
 from models import Artifact, CalendarEvent, Note, Project
-
 
 # initialize_user_databases signature is now consistent in production
 # No test-side shim needed
@@ -223,10 +221,14 @@ def seeded_appointments_db(clean_db_manager):
 
     # Create seed data
     events = [
-        create_test_event("Daily Standup", event_type="meeting", days_offset=0),
-        create_test_event("Project Review", event_type="meeting", days_offset=1),
-        create_test_event("Client Meeting", event_type="meeting", days_offset=2),
-        create_test_event("Complete Task", event_type="task", status="completed", days_offset=-1),
+        create_test_event(
+            "Daily Standup", event_type="meeting", days_offset=0),
+        create_test_event("Project Review",
+                          event_type="meeting", days_offset=1),
+        create_test_event("Client Meeting",
+                          event_type="meeting", days_offset=2),
+        create_test_event("Complete Task", event_type="task",
+                          status="completed", days_offset=-1),
     ]
 
     for event in events:
@@ -300,7 +302,8 @@ def bulk_test_data():
         for i in range(count):
             note = create_test_note(
                 title=f"Bulk Note {i + 1}",
-                content=f"Content for bulk note {i + 1}" * (i % 10 + 1),  # Varying content size
+                # Varying content size
+                content=f"Content for bulk note {i + 1}" * (i % 10 + 1),
                 tags=[f"batch-{i // 10}", "bulk", "test"],
             )
             notes.append(note)
@@ -405,7 +408,8 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line(
+        "markers", "integration: marks tests as integration tests")
     config.addinivalue_line("markers", "unit: marks tests as unit tests")
 
 
@@ -432,7 +436,6 @@ def cleanup(db_manager):
 
 
 # --- Test-time compatibility patches (autouse) for current DB layer behavior ---
-
 
 # Artifact normalization is now handled in production models.artifact.Artifact.to_dict()
 # No test-side fixture needed
