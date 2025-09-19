@@ -348,3 +348,4 @@ Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 test-deepsource-config.ps1
+DEEPSOURCE_FIXES.md

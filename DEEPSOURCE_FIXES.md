@@ -3,13 +3,13 @@
 ## 🔧 **Issues Fixed in `.deepsource.toml`**
 
 ### **1. Python Runtime Version Format**
-**Before:** `runtime_version = "3.11"`  
+**Before:** `runtime_version = "3.11"`
 **After:** `runtime_version = "3.x"`
 
 **Why:** DeepSource expects the format "3.x" for Python 3.x versions, not specific version numbers.
 
 ### **2. Removed Jest from JavaScript Environment**
-**Before:** 
+**Before:**
 ```toml
 environment = [
   "browser",
@@ -21,7 +21,7 @@ environment = [
 **After:**
 ```toml
 environment = [
-  "browser", 
+  "browser",
   "nodejs"
 ]
 ```
@@ -29,7 +29,7 @@ environment = [
 **Why:** Your project doesn't use Jest for testing. Including it can cause configuration conflicts.
 
 ### **3. Improved Analyzer Order**
-**Before:** JavaScript → Test Coverage → Python → Secrets  
+**Before:** JavaScript → Test Coverage → Python → Secrets
 **After:** Python → JavaScript → Secrets → Test Coverage
 
 **Why:** Best practice is to put the primary language (Python) first, followed by secondary languages, then specialized analyzers.
@@ -38,7 +38,7 @@ environment = [
 Added descriptive comments for each analyzer section to make the configuration more maintainable.
 
 ### **5. Grouped Transformers by Language**
-**Before:** Mixed order  
+**Before:** Mixed order
 **After:** Python transformers first, then JavaScript transformers
 
 **Why:** Logical grouping makes the configuration easier to understand and maintain.
