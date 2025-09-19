@@ -1,18 +1,16 @@
 """
 Core translation helper functions extracted from StreamingTranslator
-to reduce file size and cognitive complexity.
+ to reduce file size and cognitive complexity.
 """
 
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from ..models import BlockType, CodeBlock
 from .events import StreamingEvent, StreamingEventData, TranslationUpdate
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from .translator import StreamingTranslator
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +154,7 @@ def process_statement(
 
 
 def process_accumulated_blocks(
-    translator: StreamingTranslator,
+    translator,
     accumulated_input: list[str],
     on_update: Callable[[TranslationUpdate], None] | None,
 ):

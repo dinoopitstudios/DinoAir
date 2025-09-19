@@ -6,16 +6,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncIterator, Callable, Iterator
 
 from ..models import BlockType
 from ..models.base_model import TranslationResult as ModelTranslationResult
 from .events import TranslationUpdate
+from .streaming_translator import StreamingTranslator
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterator
-
-logger = logging.getLogger(__name__)
+    from .translator import StreamingTranslator
 
 
 def process_interactive_input(
@@ -77,7 +76,7 @@ def process_interactive_input(
                 )
         return "\n".join(translations)
     except Exception as e:
-        logger.error(f"Error in interactive translation: {e}")
+        logging.error(f"Error in interactive translation: {e}")
         return f"Error: {str(e)}"
 
 
