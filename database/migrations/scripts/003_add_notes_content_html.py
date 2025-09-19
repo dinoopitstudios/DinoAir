@@ -38,10 +38,12 @@ class AddNotesContentHtmlMigration(BaseMigration):
 
         try:
             # Check if table exists
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT name FROM sqlite_master
                 WHERE type='table' AND name='note_list'
-            """)
+            """
+            )
             table_exists = cursor.fetchone() is not None
 
             if table_exists:
@@ -51,8 +53,7 @@ class AddNotesContentHtmlMigration(BaseMigration):
 
                 if "content_html" not in columns:
                     # Add the content_html column
-                    cursor.execute(
-                        "ALTER TABLE note_list ADD COLUMN content_html TEXT")
+                    cursor.execute("ALTER TABLE note_list ADD COLUMN content_html TEXT")
                     conn.commit()
                 else:
                     pass
@@ -61,8 +62,7 @@ class AddNotesContentHtmlMigration(BaseMigration):
                 pass
 
         except sqlite3.Error as e:
-            raise MigrationError(
-                f"Failed to add content_html column: {str(e)}") from e
+            raise MigrationError(f"Failed to add content_html column: {str(e)}") from e
 
     def down(self, conn: sqlite3.Connection) -> None:
         """Rollback the migration: remove content_html column."""

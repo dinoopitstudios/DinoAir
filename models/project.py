@@ -53,8 +53,7 @@ class Project:
         if isinstance(metadata_raw, str) and metadata_raw:
             try:
                 parsed = json.loads(metadata_raw)
-                metadata = parsed if isinstance(parsed, dict) else {
-                    "value": parsed}
+                metadata = parsed if isinstance(parsed, dict) else {"value": parsed}
             except (json.JSONDecodeError, TypeError):
                 metadata = {"raw_value": metadata_raw}
         elif isinstance(metadata_raw, dict):
@@ -64,8 +63,7 @@ class Project:
             id=str(data.get("id", "")),
             name=str(data.get("name", "")),
             description=str(data.get("description", "")),
-            status=ProjectStatus(
-                str(data.get("status") or ProjectStatus.ACTIVE.value)),
+            status=ProjectStatus(str(data.get("status") or ProjectStatus.ACTIVE.value)),
             color=data.get("color"),
             icon=data.get("icon"),
             parent_project_id=data.get("parent_project_id"),
@@ -84,8 +82,7 @@ class Project:
             "name": self.name,
             "description": self.description,
             "status": (
-                self.status.value if isinstance(
-                    self.status, ProjectStatus) else str(self.status)
+                self.status.value if isinstance(self.status, ProjectStatus) else str(self.status)
             ),
             "color": self.color,
             "icon": self.icon,
@@ -110,8 +107,7 @@ class Project:
                 metadata_str = json.dumps(self.metadata, ensure_ascii=False)
             except (TypeError, ValueError):
                 metadata_str = json.dumps(
-                    {"error": "serialization_failed",
-                        "raw": str(self.metadata)}
+                    {"error": "serialization_failed", "raw": str(self.metadata)}
                 )
 
         return {
@@ -119,8 +115,7 @@ class Project:
             "name": self.name,
             "description": self.description,
             "status": (
-                self.status.value if isinstance(
-                    self.status, ProjectStatus) else str(self.status)
+                self.status.value if isinstance(self.status, ProjectStatus) else str(self.status)
             ),
             "color": self.color,
             "icon": self.icon,
@@ -222,8 +217,7 @@ class ProjectStatistics:
         """Calculate completion percentage with proper error handling."""
         try:
             self.completion_percentage = (
-                (self.completed_items / self.total_items) *
-                100.0 if self.total_items else 0.0
+                (self.completed_items / self.total_items) * 100.0 if self.total_items else 0.0
             )
         except (ZeroDivisionError, TypeError, AttributeError):
             self.completion_percentage = 0.0

@@ -35,8 +35,7 @@ def _get_engine():
             # Resolve engine via factory (optimized with safe fallback)
             from rag import get_search_engine  # lightweight import via rag.__init__
 
-            _engine_singleton = get_search_engine(
-                user_name=None, optimized=None)
+            _engine_singleton = get_search_engine(user_name=None, optimized=None)
         except Exception as e:
             _engine_error = e
             _engine_singleton = None
@@ -63,8 +62,7 @@ SNIPPET_MAX_CHARS = 500
 def _sanitize_file_types(file_types: list[str] | None) -> list[str] | None:
     if not file_types:
         return None
-    sanitized = [s for ft in file_types[:20] if (
-        s := ft.strip().lower()) and len(s) <= 20]
+    sanitized = [s for ft in file_types[:20] if (s := ft.strip().lower()) and len(s) <= 20]
     return sanitized or None
 
 
@@ -96,8 +94,7 @@ def _to_hit(result: Any) -> VectorSearchHit:
         metadata = dict(cast("Mapping[str, Any]", metadata))
     else:
         md_alt = _get(result, "chunk_metadata")
-        metadata = dict(cast("Mapping[str, Any]", md_alt)) if isinstance(
-            md_alt, Mapping) else None
+        metadata = dict(cast("Mapping[str, Any]", md_alt)) if isinstance(md_alt, Mapping) else None
 
     return VectorSearchHit(
         file_path=str(file_path),
@@ -160,8 +157,7 @@ class SearchService:
             hits: list[VectorSearchHit] = [_to_hit(m) for m in mapped]
             return KeywordSearchResponse(hits=hits)
         except ValidationError as ve:
-            log.warning("KeywordSearchResponse validation error",
-                        extra={"errors": ve.errors()})
+            log.warning("KeywordSearchResponse validation error", extra={"errors": ve.errors()})
             return KeywordSearchResponse(hits=[])
 
     # -------- Vector --------
@@ -211,8 +207,7 @@ class SearchService:
             # Re-raise HTTP errors (e.g., 501)
             raise
         except ValidationError as ve:
-            log.warning("VectorSearchResponse validation error",
-                        extra={"errors": ve.errors()})
+            log.warning("VectorSearchResponse validation error", extra={"errors": ve.errors()})
             return VectorSearchResponse(hits=[])
 
     # -------- Hybrid --------
@@ -248,8 +243,7 @@ class SearchService:
         except HTTPException:
             raise
         except ValidationError as ve:
-            log.warning("HybridSearchResponse validation error",
-                        extra={"errors": ve.errors()})
+            log.warning("HybridSearchResponse validation error", extra={"errors": ve.errors()})
             return HybridSearchResponse(hits=[])
 
     # -------- Index stats --------
@@ -266,8 +260,7 @@ class SearchService:
                 last_indexed_date=data.get("last_indexed_date"),
             )
         except ValidationError as ve:
-            log.warning("FileIndexStatsResponse validation error",
-                        extra={"errors": ve.errors()})
+            log.warning("FileIndexStatsResponse validation error", extra={"errors": ve.errors()})
             # Return zeros if coercion fails
             return FileIndexStatsResponse(
                 total_files=0,
@@ -377,8 +370,7 @@ def _handle_hybrid(payload: dict[str, Any]) -> dict[str, Any]:
 
 def _handle_vector(payload: dict[str, Any]) -> dict[str, Any]:
     req_kwargs: dict[str, Any] = {"query": payload["query"]}
-    req_kwargs |= _extract_kwargs(
-        payload, ("top_k", "similarity_threshold", "file_types"))
+    req_kwargs |= _extract_kwargs(payload, ("top_k", "similarity_threshold", "file_types"))
     if "distance_metric" in payload:
         req_kwargs["distance_metric"] = payload["distance_metric"]
     req = VectorSearchRequest(**req_kwargs)

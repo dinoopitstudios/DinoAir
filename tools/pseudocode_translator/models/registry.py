@@ -45,8 +45,7 @@ class ModelRegistry:
             ValueError: If model is already registered
         """
         if not issubclass(model_class, BaseModel):
-            raise ValueError(
-                f"{model_class.__name__} must inherit from BaseModel")
+            raise ValueError(f"{model_class.__name__} must inherit from BaseModel")
 
         # Get model name
         model_name = name or model_class.__name__.lower()
@@ -55,8 +54,7 @@ class ModelRegistry:
         if model_name in cls._models:
             existing = cls._models[model_name]
             if existing != model_class:
-                raise ValueError(
-                    f"Model '{model_name}' already registered as {existing.__name__}")
+                raise ValueError(f"Model '{model_name}' already registered as {existing.__name__}")
             return  # Same class, skip re-registration
 
         # Register the model
@@ -72,8 +70,7 @@ class ModelRegistry:
                     )
                 else:
                     cls._aliases[alias] = model_name
-                    logger.debug(
-                        f"Registered alias '{alias}' -> '{model_name}'")
+                    logger.debug(f"Registered alias '{alias}' -> '{model_name}'")
 
     @classmethod
     def unregister(cls, name: str) -> None:
@@ -116,8 +113,7 @@ class ModelRegistry:
 
         if actual_name not in cls._models:
             available = ", ".join(sorted(cls._models.keys()))
-            raise KeyError(
-                f"Model '{name}' not found. Available models: {available}")
+            raise KeyError(f"Model '{name}' not found. Available models: {available}")
 
         return cls._models[actual_name]
 
@@ -344,12 +340,10 @@ def discover_models(package_path: Path) -> int:
 
         try:
             # Import the module (which should trigger registration)
-            importlib.import_module(
-                f".{module_name}", package="pseudocode_translator.models")
+            importlib.import_module(f".{module_name}", package="pseudocode_translator.models")
             discovered += 1
             logger.debug(f"Discovered model module: {module_name}")
         except Exception as e:
-            logger.warning(
-                f"Failed to import model module '{module_name}': {e}")
+            logger.warning(f"Failed to import model module '{module_name}': {e}")
 
     return discovered

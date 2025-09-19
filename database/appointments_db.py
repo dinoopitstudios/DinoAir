@@ -35,8 +35,7 @@ class AppointmentsDatabase:
                 participants_value = None
                 if isinstance(event.participants, list):
                     participants_value = (
-                        ",".join(
-                            event.participants) if event.participants else None
+                        ",".join(event.participants) if event.participants else None
                     )
                 elif isinstance(event.participants, str):
                     participants_value = event.participants or None
@@ -48,8 +47,7 @@ class AppointmentsDatabase:
                     tags_value = event.tags or None
 
                 metadata_value = (
-                    json.dumps(event.metadata) if isinstance(
-                        event.metadata, dict) else None
+                    json.dumps(event.metadata) if isinstance(event.metadata, dict) else None
                 )
 
                 # Normalize recurrence_pattern; bind "none" when None to align with schema default
@@ -170,8 +168,7 @@ class AppointmentsDatabase:
 
                 # Update reminder if reminder time changed
                 if "reminder_minutes_before" in updates:
-                    self._update_reminder(
-                        cursor, event_id, updates["reminder_minutes_before"])
+                    self._update_reminder(cursor, event_id, updates["reminder_minutes_before"])
 
                 conn.commit()
 
@@ -284,8 +281,7 @@ class AppointmentsDatabase:
                     ORDER BY event_date DESC, start_time DESC
                     LIMIT 100
                 """,
-                    (search_pattern, search_pattern,
-                     search_pattern, search_pattern),
+                    (search_pattern, search_pattern, search_pattern, search_pattern),
                 )
 
                 events = []
@@ -305,14 +301,16 @@ class AppointmentsDatabase:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT r.*, e.title, e.description, e.event_date,
                            e.start_time, e.location
                     FROM event_reminders r
                     JOIN calendar_events e ON r.event_id = e.id
                     WHERE r.sent = 0 AND r.reminder_time <= datetime('now')
                     ORDER BY r.reminder_time
-                """)
+                """
+                )
 
                 reminders = []
                 for row in cursor.fetchall():
@@ -436,37 +434,43 @@ class AppointmentsDatabase:
                 stats["total_events"] = cursor.fetchone()[0]
 
                 # Events by status
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT status, COUNT(*)
                     FROM calendar_events
                     GROUP BY status
-                """)
-                stats["events_by_status"] = {row[0]: row[1]
-                                             for row in cursor.fetchall()}
+                """
+                )
+                stats["events_by_status"] = {row[0]: row[1] for row in cursor.fetchall()}
 
                 # Events by type
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT event_type, COUNT(*)
                     FROM calendar_events
                     GROUP BY event_type
-                """)
-                stats["events_by_type"] = {row[0]: row[1]
-                                           for row in cursor.fetchall()}
+                """
+                )
+                stats["events_by_type"] = {row[0]: row[1] for row in cursor.fetchall()}
 
                 # Upcoming events (next 7 days)
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT COUNT(*) FROM calendar_events
                     WHERE event_date >= date('now')
                     AND event_date <= date('now', '+7 days')
                     AND status = 'scheduled'
-                """)
+                """
+                )
                 stats["upcoming_events_week"] = cursor.fetchone()[0]
 
                 # Events with reminders
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT COUNT(*) FROM calendar_events
                     WHERE reminder_minutes_before IS NOT NULL
-                """)
+                """
+                )
                 stats["events_with_reminders"] = cursor.fetchone()[0]
 
                 return stats
@@ -483,8 +487,7 @@ class AppointmentsDatabase:
         # Calculate reminder time
         event_datetime = event.get_datetime()
         if event_datetime:
-            reminder_time = event_datetime - \
-                timedelta(minutes=event.reminder_minutes_before)
+            reminder_time = event_datetime - timedelta(minutes=event.reminder_minutes_before)
 
             import uuid
 
@@ -504,8 +507,7 @@ class AppointmentsDatabase:
     def _update_reminder(self, cursor, event_id: str, reminder_minutes: int | None):
         """Update or create reminder for an event"""
         # Delete existing reminder
-        cursor.execute(
-            "DELETE FROM event_reminders WHERE event_id = ?", (event_id,))
+        cursor.execute("DELETE FROM event_reminders WHERE event_id = ?", (event_id,))
 
         # Create new reminder if needed
         if reminder_minutes is not None:
@@ -520,11 +522,9 @@ class AppointmentsDatabase:
             row = cursor.fetchone()
             if row and row[0]:
                 event_date = date.fromisoformat(row[0])
-                start_time = time.fromisoformat(
-                    row[1]) if row[1] else time(0, 0)
+                start_time = time.fromisoformat(row[1]) if row[1] else time(0, 0)
                 event_datetime = datetime.combine(event_date, start_time)
-                reminder_time = event_datetime - \
-                    timedelta(minutes=reminder_minutes)
+                reminder_time = event_datetime - timedelta(minutes=reminder_minutes)
 
                 import uuid
 

@@ -34,8 +34,7 @@ class ValidationService:
     ):
         self.config = config
         self.validator = validator or Validator(config)
-        self.error_handler = error_handler or ErrorHandler(
-            logger_name=__name__)
+        self.error_handler = error_handler or ErrorHandler(logger_name=__name__)
 
         # Validation statistics
         self._validation_count = 0
@@ -61,8 +60,7 @@ class ValidationService:
             result = self.validator.validate_syntax(code)
 
             if not result.is_valid:
-                logger.warning(
-                    "Syntax validation failed with %d errors", len(result.errors))
+                logger.warning("Syntax validation failed with %d errors", len(result.errors))
 
             return result
 
@@ -163,8 +161,7 @@ class ValidationService:
             validation_result = self.validate_comprehensive(current_code)
 
             if validation_result.is_valid:
-                logger.debug(
-                    "Code validation successful after %d attempts", attempt)
+                logger.debug("Code validation successful after %d attempts", attempt)
                 return current_code, validation_result
 
             # Attempt to fix errors
@@ -177,15 +174,13 @@ class ValidationService:
             logger.debug("Attempting fix #%d for validation errors", attempt)
 
             try:
-                fixed_code = self._attempt_fix(
-                    current_code, validation_result, use_llm_fixes)
+                fixed_code = self._attempt_fix(current_code, validation_result, use_llm_fixes)
 
                 if fixed_code and fixed_code != current_code:
                     current_code = fixed_code
                     logger.debug("Applied fix attempt #%d", attempt)
                 else:
-                    logger.warning(
-                        "Fix attempt #%d produced no changes", attempt)
+                    logger.warning("Fix attempt #%d produced no changes", attempt)
                     break
 
             except Exception as e:
@@ -293,8 +288,7 @@ class ValidationService:
                     modified_line = line
                     for pattern, replacement in patterns:
                         if re.match(pattern, line, re.MULTILINE):
-                            modified_line = re.sub(
-                                pattern, replacement, line, flags=re.MULTILINE)
+                            modified_line = re.sub(pattern, replacement, line, flags=re.MULTILINE)
                             break
                     fixed_lines_list.append(modified_line)
                 fixed_code = "\n".join(fixed_lines_list)

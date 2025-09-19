@@ -100,8 +100,7 @@ class TranslatorAPI:
                 )
             else:
                 # Regular translation
-                result = self._translator.translate_pseudocode(
-                    pseudocode, target_lang)
+                result = self._translator.translate_pseudocode(pseudocode, target_lang)
 
             # Convert to dictionary
             return {
@@ -219,8 +218,7 @@ class TranslatorAPI:
 
             # Progress callback
             if progress_callback:
-                progress_callback(
-                    i, total, f"Translating item {i + 1}/{total}")
+                progress_callback(i, total, f"Translating item {i + 1}/{total}")
 
             # Translate
             result = self.translate(code, item_lang, **item_options)

@@ -32,8 +32,7 @@ class UserDataCleanupManager:
 
         # Configure logging
         level = logging.DEBUG if verbose else logging.INFO
-        logging.basicConfig(
-            level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+        logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
     def get_user_data_directories(self) -> dict[str, Path]:
         """Get all potential user data directories.
@@ -47,8 +46,7 @@ class UserDataCleanupManager:
         try:
             locations["default"] = _get_default_user_data_directory()
         except Exception as e:
-            LOGGER.warning(
-                f"Could not determine default user data directory: {e}")
+            LOGGER.warning(f"Could not determine default user data directory: {e}")
 
         # Repository location (legacy, should be empty now)
         repo_root = Path(__file__).parent.parent
@@ -82,8 +80,7 @@ class UserDataCleanupManager:
         for location, path in directories.items():
             try:
                 if not path.exists():
-                    analysis[location] = {
-                        "status": "not_found", "path": str(path)}
+                    analysis[location] = {"status": "not_found", "path": str(path)}
                     continue
 
                 # Analyze directory contents
@@ -124,15 +121,13 @@ class UserDataCleanupManager:
                             if d.is_dir() and not d.name.startswith(".")
                         ]
                     except OSError:
-                        LOGGER.warning(
-                            f"Could not list users in {user_data_path}")
+                        LOGGER.warning(f"Could not list users in {user_data_path}")
 
                 info["size_mb"] = round(info["size_mb"], 2)
                 analysis[location] = info
 
             except Exception as e:
-                analysis[location] = {"status": "error",
-                                      "path": str(path), "error": str(e)}
+                analysis[location] = {"status": "error", "path": str(path), "error": str(e)}
                 LOGGER.error(f"Error analyzing {path}: {e}")
 
         return analysis
@@ -146,8 +141,7 @@ class UserDataCleanupManager:
         Returns:
             Dict with cleanup statistics
         """
-        stats = {"directories_removed": 0,
-                 "files_removed": 0, "space_freed_mb": 0}
+        stats = {"directories_removed": 0, "files_removed": 0, "space_freed_mb": 0}
 
         temp_dir = Path(tempfile.gettempdir())
         cutoff_time = os.path.getmtime(temp_dir) - (max_age_hours * 3600)
@@ -163,19 +157,16 @@ class UserDataCleanupManager:
                     # Check if directory is old enough
                     if os.path.getmtime(test_dir) > cutoff_time:
                         if self.verbose:
-                            LOGGER.debug(
-                                f"Skipping recent test directory: {test_dir}")
+                            LOGGER.debug(f"Skipping recent test directory: {test_dir}")
                         continue
 
                     # Calculate size before removal
                     size_mb = self._calculate_directory_size(test_dir)
 
                     if self.dry_run:
-                        LOGGER.info(
-                            f"Would remove test directory: {test_dir} ({size_mb:.2f} MB)")
+                        LOGGER.info(f"Would remove test directory: {test_dir} ({size_mb:.2f} MB)")
                     else:
-                        LOGGER.info(
-                            f"Removing test directory: {test_dir} ({size_mb:.2f} MB)")
+                        LOGGER.info(f"Removing test directory: {test_dir} ({size_mb:.2f} MB)")
                         shutil.rmtree(test_dir)
 
                     stats["directories_removed"] += 1
@@ -195,8 +186,7 @@ class UserDataCleanupManager:
         Returns:
             Dict with cleanup statistics
         """
-        stats = {"files_removed": 0,
-                 "space_freed_mb": 0, "backup_created": False}
+        stats = {"files_removed": 0, "space_freed_mb": 0, "backup_created": False}
 
         repo_root = Path(__file__).parent.parent
         repo_user_data = repo_root / "user_data"
@@ -220,12 +210,10 @@ class UserDataCleanupManager:
 
         # Remove directory
         if self.dry_run:
-            LOGGER.info(
-                f"Would remove repository user_data: {repo_user_data} ({size_mb:.2f} MB)")
+            LOGGER.info(f"Would remove repository user_data: {repo_user_data} ({size_mb:.2f} MB)")
         else:
             try:
-                LOGGER.info(
-                    f"Removing repository user_data: {repo_user_data} ({size_mb:.2f} MB)")
+                LOGGER.info(f"Removing repository user_data: {repo_user_data} ({size_mb:.2f} MB)")
                 shutil.rmtree(repo_user_data)
                 stats["files_removed"] = 1
                 stats["space_freed_mb"] = size_mb
@@ -255,8 +243,7 @@ class UserDataCleanupManager:
             manager = DatabaseManager(user_name=user_name or "cleanup_user")
 
             # Clean memory database (this also closes connections)
-            manager.clean_memory_database(
-                watchdog_retention_days=0)  # Aggressive cleanup
+            manager.clean_memory_database(watchdog_retention_days=0)  # Aggressive cleanup
             stats["memory_cleaned"] = 1
 
             LOGGER.info("Cleaned database connections and memory data")
@@ -290,16 +277,14 @@ class UserDataCleanupManager:
         # 2. Clean repository user_data if requested
         if cleanup_repo:
             LOGGER.info("Cleaning repository user_data...")
-            results["repository"] = self.cleanup_repository_user_data(
-                backup_repo_data)
+            results["repository"] = self.cleanup_repository_user_data(backup_repo_data)
 
         # 3. Clean database connections
         LOGGER.info("Cleaning database connections...")
         results["database"] = self.cleanup_database_connections()
 
         # 4. Summary
-        total_space_freed = sum(r.get("space_freed_mb", 0)
-                                for r in results.values())
+        total_space_freed = sum(r.get("space_freed_mb", 0) for r in results.values())
         total_items_removed = sum(
             r.get("directories_removed", 0) + r.get("files_removed", 0) for r in results.values()
         )
@@ -337,8 +322,7 @@ def main():
     """Command-line interface for cleanup tools."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="DinoAir User Data Cleanup Utility")
+    parser = argparse.ArgumentParser(description="DinoAir User Data Cleanup Utility")
     parser.add_argument(
         "--analyze", action="store_true", help="Analyze user data directories without cleaning"
     )
@@ -347,8 +331,7 @@ def main():
         action="store_true",
         help="Show what would be cleaned without actually doing it",
     )
-    parser.add_argument("--verbose", "-v",
-                        action="store_true", help="Verbose output")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument(
         "--max-age-hours",
         type=int,
@@ -364,8 +347,7 @@ def main():
 
     args = parser.parse_args()
 
-    cleanup_manager = UserDataCleanupManager(
-        dry_run=args.dry_run, verbose=args.verbose)
+    cleanup_manager = UserDataCleanupManager(dry_run=args.dry_run, verbose=args.verbose)
 
     if args.analyze:
         analysis = cleanup_manager.analyze_user_data()

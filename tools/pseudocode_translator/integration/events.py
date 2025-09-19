@@ -191,8 +191,7 @@ class EventDispatcher:
         """Start the async event worker thread"""
         self._event_queue = queue.Queue()
         self._running = True
-        self._worker_thread = threading.Thread(
-            target=self._async_worker, daemon=True)
+        self._worker_thread = threading.Thread(target=self._async_worker, daemon=True)
         self._worker_thread.start()
 
     def _async_worker(self):
@@ -221,8 +220,7 @@ class EventDispatcher:
                 try:
                     handler.handle(event)
                 except Exception as e:
-                    logger.error(
-                        "Error delivering event %s to handler: %s", event.name, e)
+                    logger.error("Error delivering event %s to handler: %s", event.name, e)
 
     def register(self, handler: EventHandler) -> None:
         """
@@ -243,8 +241,7 @@ class EventDispatcher:
             handler: Handler to unregister
         """
         with self._lock:
-            self._handlers = [
-                h for h in self._handlers if h() is not None and h() != handler]
+            self._handlers = [h for h in self._handlers if h() is not None and h() != handler]
 
     def dispatch(self, event: TranslationEvent) -> None:
         """
@@ -321,8 +318,7 @@ class EventMixin:
             **data: Event data
         """
         if self._event_dispatcher:
-            self._event_dispatcher.dispatch_event(
-                event_type, source=self._event_source, **data)
+            self._event_dispatcher.dispatch_event(event_type, source=self._event_source, **data)
 
 
 def create_event_dispatcher() -> EventDispatcher:
@@ -343,8 +339,7 @@ def create_event_dispatcher() -> EventDispatcher:
         elif event.type == EventType.SYSTEM_WARNING:
             level = logging.WARNING
 
-        logger.log(
-            level, f"Event: {event.name} from {event.source}", extra=event.data)
+        logger.log(level, f"Event: {event.name} from {event.source}", extra=event.data)
 
     log_handler = EventHandler(
         log_event, filter_func=lambda e: e.type != EventType.TRANSLATION_PROGRESS

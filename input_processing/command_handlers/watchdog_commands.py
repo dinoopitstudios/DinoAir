@@ -216,8 +216,7 @@ class WatchdogCommandHandler:
 
             # Set the threshold (this would need implementation in Watchdog)
             if hasattr(self.watchdog, f"set_{threshold_name}_threshold"):
-                setter = getattr(
-                    self.watchdog, f"set_{threshold_name}_threshold")
+                setter = getattr(self.watchdog, f"set_{threshold_name}_threshold")
                 setter(float_value)
             # Fallback to modifying thresholds dict if available
             elif hasattr(self.watchdog, "thresholds"):
@@ -298,8 +297,7 @@ class WatchdogCommandHandler:
             except ValueError:
                 # Not a PID, treat as process name
                 if hasattr(self.watchdog, "kill_process_by_name"):
-                    killed_count = self.watchdog.kill_process_by_name(
-                        process_name)
+                    killed_count = self.watchdog.kill_process_by_name(process_name)
                     if killed_count > 0:
                         return CommandResult(
                             success=True,

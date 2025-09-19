@@ -27,8 +27,7 @@ def get_header(scope: Scope, name: str) -> str | None:
     - Defensive against absent or ill-typed scope["headers"].
     """
     # noinspection PyCompatibility
-    headers: Iterable[tuple[bytes, bytes]] = scope.get(
-        "headers") or []  # type: ignore[assignment]
+    headers: Iterable[tuple[bytes, bytes]] = scope.get("headers") or []  # type: ignore[assignment]
     name_b = name.lower().encode("latin-1")
     for k, v in headers:
         if k.lower() == name_b:

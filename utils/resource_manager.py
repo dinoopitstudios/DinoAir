@@ -123,8 +123,7 @@ class ResourceManager:
         """
         with self._lock:
             if self._shutdown_initiated:
-                logger.warning(
-                    f"Cannot register resource {resource_id} - shutdown in progress")
+                logger.warning(f"Cannot register resource {resource_id} - shutdown in progress")
                 return
 
             if priority is None:
@@ -144,8 +143,7 @@ class ResourceManager:
             self._resources[resource_id] = resource_info
             resource_info.state = ResourceState.ACTIVE
 
-            logger.info(
-                f"Registered resource: {resource_id} ({resource_type.value})")
+            logger.info(f"Registered resource: {resource_id} ({resource_type.value})")
 
     def unregister_resource(self, resource_id: str) -> bool:
         """
@@ -186,8 +184,7 @@ class ResourceManager:
         with self._lock:
             resources = list(self._resources.values())
             if resource_type:
-                resources = [
-                    r for r in resources if r.resource_type == resource_type]
+                resources = [r for r in resources if r.resource_type == resource_type]
             return resources
 
     def get_resource_status(self) -> dict[str, Any]:
@@ -199,13 +196,11 @@ class ResourceManager:
             for resource_info in self._resources.values():
                 # Count by type
                 type_name = resource_info.resource_type.value
-                resources_by_type[type_name] = resources_by_type.get(
-                    type_name, 0) + 1
+                resources_by_type[type_name] = resources_by_type.get(type_name, 0) + 1
 
                 # Count by state
                 state_name = resource_info.state.value
-                resources_by_state[state_name] = resources_by_state.get(
-                    state_name, 0) + 1
+                resources_by_state[state_name] = resources_by_state.get(state_name, 0) + 1
 
             status: dict[str, Any] = {
                 "total_resources": len(self._resources),
@@ -254,12 +249,10 @@ class ResourceManager:
                     success = False
                     break
 
-                individual_timeout = min(
-                    resource_info.shutdown_timeout, remaining_time)
+                individual_timeout = min(resource_info.shutdown_timeout, remaining_time)
 
                 if not self._shutdown_single_resource(resource_info, individual_timeout):
-                    logger.error(
-                        f"Failed to shutdown resource: {resource_info.resource_id}")
+                    logger.error(f"Failed to shutdown resource: {resource_info.resource_id}")
                     success = False
 
             # Clean up any remaining resources
@@ -271,8 +264,7 @@ class ResourceManager:
                 ]
 
                 if failed_resources:
-                    logger.warning(
-                        f"Resources failed to shutdown cleanly: {failed_resources}")
+                    logger.warning(f"Resources failed to shutdown cleanly: {failed_resources}")
                     success = False
 
         except RuntimeError as e:
@@ -282,8 +274,7 @@ class ResourceManager:
         finally:
             self._shutdown_event.set()
             total_time = time.time() - start_time
-            logger.info(
-                f"Resource shutdown completed in {total_time:.2f}s (success: {success})")
+            logger.info(f"Resource shutdown completed in {total_time:.2f}s (success: {success})")
 
         return success
 
@@ -293,8 +284,7 @@ class ResourceManager:
             resources = list(self._resources.values())
 
             # Filter to only active resources
-            active_resources = [
-                r for r in resources if r.state == ResourceState.ACTIVE]
+            active_resources = [r for r in resources if r.state == ResourceState.ACTIVE]
 
             # Sort by priority first (lower priority number = shutdown first)
             active_resources.sort(key=lambda r: r.priority)
@@ -342,8 +332,7 @@ class ResourceManager:
                         cleanup_result["exception"] = e
                         cleanup_result["completed"] = True
 
-                cleanup_thread = threading.Thread(
-                    target=cleanup_wrapper, daemon=True)
+                cleanup_thread = threading.Thread(target=cleanup_wrapper, daemon=True)
                 cleanup_start = time.time()
                 cleanup_thread.start()
 

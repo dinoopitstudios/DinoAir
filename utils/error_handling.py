@@ -436,8 +436,7 @@ def timeout_context(seconds: float) -> Generator[None, None, None]:
     Raises:
         TimeoutError: If operation exceeds timeout
     """
-    timeout_exception = TimeoutError(
-        f"Operation timed out after {seconds} seconds")
+    timeout_exception = TimeoutError(f"Operation timed out after {seconds} seconds")
 
     timeout_reached = threading.Event()
 
@@ -528,12 +527,9 @@ class ErrorStats:
     """Statistics for error monitoring."""
 
     total_errors: int = 0
-    errors_by_category: dict[ErrorCategory, int] = field(
-        default_factory=lambda: defaultdict(int))
-    errors_by_severity: dict[ErrorSeverity, int] = field(
-        default_factory=lambda: defaultdict(int))
-    recent_errors: deque[dict[str, Any]] = field(
-        default_factory=lambda: deque(maxlen=100))
+    errors_by_category: dict[ErrorCategory, int] = field(default_factory=lambda: defaultdict(int))
+    errors_by_severity: dict[ErrorSeverity, int] = field(default_factory=lambda: defaultdict(int))
+    recent_errors: deque[dict[str, Any]] = field(default_factory=lambda: deque(maxlen=100))
 
 
 class ErrorAggregator:
