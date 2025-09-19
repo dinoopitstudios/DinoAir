@@ -64,6 +64,7 @@ jobs:
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, or Java)
     - name: Autobuild
+      if: matrix.language == 'cpp' || matrix.language == 'csharp' || matrix.language == 'java'
       uses: github/codeql-action/autobuild@v3
 
     # Perform CodeQL Analysis
