@@ -293,8 +293,8 @@ class AuditLogger:
 class SecurityAuditManager:
     """High-level audit manager for security events."""
 
-    def __init__(self, audit_logger: AuditLogger):
-        self.audit_logger = audit_logger
+    def __init__(self, logger: AuditLogger):
+        self.audit_logger = logger
 
     def log_authentication(
         self,
@@ -444,13 +444,13 @@ def create_audit_logger(
 
 
 def create_security_audit_manager(
-    audit_logger: Optional[AuditLogger] = None,
+    custom_audit_logger: Optional[AuditLogger] = None,
 ) -> SecurityAuditManager:
     """Create a security audit manager."""
-    if audit_logger is None:
-        audit_logger = create_audit_logger()
+    if custom_audit_logger is None:
+        custom_audit_logger = create_audit_logger()
 
-    return SecurityAuditManager(audit_logger)
+    return SecurityAuditManager(custom_audit_logger)
 
 
 # Global audit manager instance

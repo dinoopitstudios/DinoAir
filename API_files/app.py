@@ -30,8 +30,8 @@ class TimeoutMiddleware:
     Cancels requests exceeding settings.request_timeout_seconds, returning 504.
     """
 
-    def __init__(self, app: ASGIApp, timeout_seconds: int):
-        self.app = app
+    def __init__(self, asgi_app: ASGIApp, timeout_seconds: int):
+        self.app = asgi_app
         self.timeout_seconds = max(1, timeout_seconds)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
@@ -103,7 +103,7 @@ def create_app() -> FastAPI:
         "/redoc" if (settings.is_dev and settings.expose_openapi_in_dev) else None
     )
 
-    app = FastAPI(
+    fastapi_app = FastAPI(
         title="DinoAir Local API",
         version="0.1.0",
         openapi_url=openapi_url,
@@ -113,10 +113,10 @@ def create_app() -> FastAPI:
     )
 
     # Register exception handlers (canonical ErrorResponse responses)
-    register_exception_handlers(app)
+    register_exception_handlers(fastapi_app)
 
     # CORS - strict, no wildcards
-    app.add_middleware(
+    fastapi_app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_methods=["GET", "POST", "OPTIONS", "PUT", "PATCH"],
@@ -130,29 +130,31 @@ def create_app() -> FastAPI:
     # Add short-circuiting middlewares first, then logging, and finally
     # RequestID as OUTERMOST so it can stamp trace_id on all responses.
     # Enforce JSON content-type for POSTs before any parsing/validation
-    app.add_middleware(ContentTypeJSONMiddleware)
-    app.add_middleware(BodySizeLimitMiddleware, settings=settings)
-    app.add_middleware(AuthMiddleware, settings=settings)
-    app.add_middleware(TimeoutMiddleware, timeout_seconds=settings.request_timeout_seconds)
-    app.add_middleware(RequestResponseLoggerMiddleware)
-    app.add_middleware(GZipMiddleware, minimum_size=1024)
+    fastapi_app.add_middleware(ContentTypeJSONMiddleware)
+    fastapi_app.add_middleware(BodySizeLimitMiddleware, settings=settings)
+    fastapi_app.add_middleware(AuthMiddleware, settings=settings)
+    fastapi_app.add_middleware(TimeoutMiddleware, timeout_seconds=settings.request_timeout_seconds)
+    fastapi_app.add_middleware(RequestResponseLoggerMiddleware)
+    fastapi_app.add_middleware(GZipMiddleware, minimum_size=1024)
     # Must be last-added to be outermost
-    app.add_middleware(RequestIDMiddleware)
+    fastapi_app.add_middleware(RequestIDMiddleware)
 
     # Routers: import lazily to reduce import-time coupling and allow testing with stubs
     try:
         from .routes.health import router as health_router
 
-        app.include_router(health_router)
+        fastapi_app.include_router(health_router)
     except Exception:  # pragma: no cover
         log.exception("Failed to include health router")
 
     try:
         from .routes.translate import router as translate_router
 
-        app.include_router(translate_router)
+        fastapi_app.include_router(translate_router)
     except Exception:  # pragma: no cover
         log.exception("Failed to include translate router")
+
+    return fastapi_app
 
     try:
         from .routes.search import router as search_router

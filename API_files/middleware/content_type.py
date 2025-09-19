@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover
 
     def core_error_response(
         *,
-        status: int,
+        status_code: int,
         code: str,
         message: str,
         error: str,
@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
             "message": message,
             "error": error,
         }
-        return _JSONResponse(status_code=status, content=payload)
+        return _JSONResponse(status_code=status_code, content=payload)
 
 
 # Local alias to avoid linter/editor false positives on starlette.types.ASGIApp

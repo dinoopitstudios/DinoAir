@@ -137,9 +137,9 @@ def _dict_to_ast(data: dict[str, Any]) -> ast.AST:
                 cls = getattr(ast, ast_type)
                 node = cls()
                 valid_fields = getattr(cls, "_fields", ())
-                for field, value in obj.items():
-                    if field != "_ast_type" and field in valid_fields:
-                        setattr(node, field, _convert_value(value))
+                for field_name, value in obj.items():
+                    if field_name != "_ast_type" and field_name in valid_fields:
+                        setattr(node, field_name, _convert_value(value))
                 return node
             raise ValueError(f"Unknown AST node type: {ast_type}")
         if isinstance(obj, list):
