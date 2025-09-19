@@ -455,7 +455,6 @@ class UserManager:
 
         # Invalidate all sessions
         self._invalidate_user_sessions(user_id)
-
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username."""
         return next((u for u in self.users.values() if u.username == username), None)
@@ -507,25 +506,31 @@ class UserManager:
 
     def _validate_password(self, password: str, username: str, email: str, full_name: str) -> None:
         """Validate password against policy."""
+        self._validate_length(password)
+        self._validate_character_requirements(password)
+        self._validate_special_chars(password)
+        self._validate_personal_info(password, username, email, full_name)
+
+    def _validate_length(self, password: str) -> None:
         policy = self.password_policy
-
         if len(password) < policy.min_length:
-            raise ValueError(
-                f"Password must be at least {policy.min_length} characters")
-
+            raise ValueError(f"Password must be at least {policy.min_length} characters")
         if len(password) > policy.max_length:
-            raise ValueError(
-                f"Password must be no more than {policy.max_length} characters")
+            raise ValueError(f"Password must be no more than {policy.max_length} characters")
 
-        if policy.require_uppercase and not re.search(r"[A-Z]", password):
-            raise ValueError("Password must contain uppercase letters")
+    def _validate_character_requirements(self, password: str) -> None:
+        policy = self.password_policy
+        requirements = [
+            (policy.require_uppercase, r"[A-Z]", "uppercase letters"),
+            (policy.require_lowercase, r"[a-z]", "lowercase letters"),
+            (policy.require_digits, r"\d", "digits"),
+        ]
+        for required, pattern, description in requirements:
+            if required and not re.search(pattern, password):
+                raise ValueError(f"Password must contain {description}")
 
-        if policy.require_lowercase and not re.search(r"[a-z]", password):
-            raise ValueError("Password must contain lowercase letters")
-
-        if policy.require_digits and not re.search(r"\d", password):
-            raise ValueError("Password must contain digits")
-
+    def _validate_special_chars(self, password: str) -> None:
+        policy = self.password_policy
         if policy.require_special_chars:
             special_pattern = f"[{re.escape(policy.special_chars)}]"
             if not re.search(special_pattern, password):
@@ -533,16 +538,19 @@ class UserManager:
                     f"Password must contain special characters: {policy.special_chars}"
                 )
 
-        # Check for personal information
+    def _validate_personal_info(
+        self, password: str, username: str, email: str, full_name: str
+    ) -> None:
+        policy = self.password_policy
         if policy.disallow_personal_info:
             personal_info = [username.lower(), email.split("@")[0].lower()]
             if full_name:
                 personal_info.extend(full_name.lower().split())
 
+            lower_password = password.lower()
             for info in personal_info:
-                if len(info) >= 4 and info in password.lower():
-                    raise ValueError(
-                        "Password cannot contain personal information")
+                if len(info) >= 4 and info in lower_password:
+                    raise ValueError("Password cannot contain personal information")
 
     def _hash_password(self, password: str) -> str:
         """Hash password using bcrypt."""

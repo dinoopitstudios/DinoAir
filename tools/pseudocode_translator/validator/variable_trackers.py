@@ -465,36 +465,58 @@ class UndefinedVariableChecker(ast.NodeVisitor):
                     self.visit(stmt)
 
     def _collect_pattern_binds(self, pattern: ast.AST) -> set[str]:
+        for pat_type, handler in (
+            (ast.MatchAs, self._bind_match_as),
+            (ast.MatchStar, self._bind_match_star),
+            (ast.MatchOr, self._bind_match_or),
+            (ast.MatchSequence, self._bind_match_sequence),
+            (ast.MatchMapping, self._bind_match_mapping),
+            (ast.MatchClass, self._bind_match_class),
+        ):
+            if isinstance(pattern, pat_type):
+                return handler(pattern)
+        return set()
+
+    def _bind_match_as(self, pattern: ast.MatchAs) -> set[str]:
         names: set[str] = set()
-        if isinstance(pattern, ast.MatchAs):
-            if pattern.name:
-                names.add(pattern.name)
-            if pattern.pattern:
-                names.update(self._collect_pattern_binds(pattern.pattern))
-        elif isinstance(pattern, ast.MatchStar):
-            if pattern.name:
-                names.add(pattern.name)
-        elif isinstance(pattern, ast.MatchOr):
-            # Intersection of all alternatives
-            alts = [self._collect_pattern_binds(p) for p in pattern.patterns]
-            if alts:
-                common = set(alts[0])
-                for a in alts[1:]:
-                    common &= a
-                names.update(common)
-        elif isinstance(pattern, ast.MatchSequence):
-            for p in pattern.patterns:
-                names.update(self._collect_pattern_binds(p))
-        elif isinstance(pattern, ast.MatchMapping):
-            for p in pattern.patterns:
-                names.update(self._collect_pattern_binds(p))
-            if pattern.rest:
-                names.add(pattern.rest)
-        elif isinstance(pattern, ast.MatchClass):
-            for p in pattern.patterns:
-                names.update(self._collect_pattern_binds(p))
-            for p in pattern.kwd_patterns:
-                names.update(self._collect_pattern_binds(p))
+        if pattern.name:
+            names.add(pattern.name)
+        if pattern.pattern:
+            names.update(self._collect_pattern_binds(pattern.pattern))
+        return names
+
+    def _bind_match_star(self, pattern: ast.MatchStar) -> set[str]:
+        return {pattern.name} if pattern.name else set()
+
+    def _bind_match_or(self, pattern: ast.MatchOr) -> set[str]:
+        alts = [self._collect_pattern_binds(p) for p in pattern.patterns]
+        if not alts:
+            return set()
+        common = set(alts[0])
+        for a in alts[1:]:
+            common &= a
+        return common
+
+    def _bind_match_sequence(self, pattern: ast.MatchSequence) -> set[str]:
+        names: set[str] = set()
+        for p in pattern.patterns:
+            names.update(self._collect_pattern_binds(p))
+        return names
+
+    def _bind_match_mapping(self, pattern: ast.MatchMapping) -> set[str]:
+        names: set[str] = set()
+        for p in pattern.patterns:
+            names.update(self._collect_pattern_binds(p))
+        if pattern.rest:
+            names.add(pattern.rest)
+        return names
+
+    def _bind_match_class(self, pattern: ast.MatchClass) -> set[str]:
+        names: set[str] = set()
+        for p in pattern.patterns:
+            names.update(self._collect_pattern_binds(p))
+        for p in pattern.kwd_patterns:
+            names.update(self._collect_pattern_binds(p))
         return names
 
     @contextlib.contextmanager

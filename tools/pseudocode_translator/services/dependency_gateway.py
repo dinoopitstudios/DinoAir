@@ -37,51 +37,61 @@ class DependencyAnalysisGateway:
         defined_names: set[str] = set()
         required_imports: set[str] = set()
 
-        # Try the resolver path first
-        resolver = None
+        resolver = self._get_resolver()
+        if resolver is not None:
+            analyses = self._safe_analyze_blocks(resolver, blocks)
+            self._annotate_resolver_blocks(blocks, analyses, defined_names, required_imports)
+            return
+
+    def _get_resolver(self) -> Any:
         try:
             from ..translator_support.dependency_resolver import DependencyResolver  # type: ignore
 
-            resolver = DependencyResolver(use_cache=True)
+            return DependencyResolver(use_cache=True)
         except ImportError:
-            resolver = None
+            return None
 
-        if resolver is not None:
+    def _safe_analyze_blocks(self, resolver: Any, blocks: list[Any]) -> list[dict[str, list[str]]]:
+        try:
+            return resolver.analyze_blocks(blocks)
+        except (AttributeError, ValueError, TypeError):
+            return []
+
+    def _annotate_resolver_blocks(
+        self,
+        blocks: list[Any],
+        analyses: list[dict[str, list[str]]],
+        defined_names: set[str],
+        required_imports: set[str],
+    ) -> None:
+        for i, block in enumerate(blocks):
             try:
-                analyses: list[dict[str, list[str]]] = resolver.analyze_blocks(blocks)
-            except (AttributeError, ValueError, TypeError):
-                analyses = []
+                block_type = getattr(block, "type", None)
+                if str(getattr(block_type, "value", block_type)).lower() != "python":
+                    continue
 
-            for i, block in enumerate(blocks):
+                result = (
+                    analyses[i]
+                    if i < len(analyses)
+                    else {"defined_names": [], "required_imports": []}
+                )
+                dn = result.get("defined_names", []) or []
+                ri = result.get("required_imports", []) or []
+
+                if dn or ri:
+                    defined_names.update(dn)
+                    required_imports.update(ri)
+                    block.metadata["defined_names"] = list(defined_names)
+                    block.metadata["required_imports"] = list(required_imports)
+                else:
+                    block.metadata["defined_names"] = []
+                    block.metadata["required_imports"] = []
+            except (AttributeError, ValueError, TypeError, KeyError):
                 try:
-                    # Only PYTHON blocks receive dependency metadata (preserve behavior)
-                    block_type = getattr(block, "type", None)
-                    if str(getattr(block_type, "value", block_type)).lower() != "python":
-                        continue
-
-                    result = (
-                        analyses[i]
-                        if i < len(analyses)
-                        else {"defined_names": [], "required_imports": []}
-                    )
-                    dn = result.get("defined_names", []) or []
-                    ri = result.get("required_imports", []) or []
-                    if dn or ri:
-                        defined_names.update(dn)
-                        required_imports.update(ri)
-                        block.metadata["defined_names"] = list(defined_names)
-                        block.metadata["required_imports"] = list(required_imports)
-                    else:
-                        block.metadata["defined_names"] = []
-                        block.metadata["required_imports"] = []
-                except (AttributeError, ValueError, TypeError, KeyError):
-                    # Never raise; default empty metadata for this block
-                    try:
-                        block.metadata["defined_names"] = []
-                        block.metadata["required_imports"] = []
-                    except (AttributeError, TypeError):
-                        pass
-            return
+                    block.metadata["defined_names"] = []
+                    block.metadata["required_imports"] = []
+                except (AttributeError, TypeError):
+                    pass
 
         # Fallback: in-process AST walk with parse_cached
         import ast

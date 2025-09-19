@@ -38,7 +38,6 @@ except ImportError:  # pragma: no cover
 
     class ErrorResponseModel(BaseModel):  # type: ignore[misc,unused-ignore]
         """Minimal error response model for FastAPI responses when core_router is unavailable."""
-
         detail: str | None = None
         code: str | None = None
         message: str | None = None
@@ -46,6 +45,26 @@ except ImportError:  # pragma: no cover
 
 
 router = APIRouter()
+
+
+def _get_tool_schemas_from_params(extra_params: Mapping | None) -> list[dict[str, Any]]:
+    """
+    Helper to retrieve tool schemas based on extra_params.
+    """
+    enable_tools = _extract_bool_param(extra_params, "enable_tools", False)
+    if not enable_tools:
+        return []
+    try:
+        registry = get_tool_registry()
+        requested_tools = _extract_list_param(extra_params, "tools")
+        tool_schemas = registry.get_tool_schemas(requested_tools)
+        logger.info("Function calling enabled with %d tools", len(tool_schemas))
+        return tool_schemas
+    except Exception as e:
+        logger.warning(
+            "Failed to load tools for function calling, continuing without tools: %s", e
+        )
+        return []
 
 
 @router.post(
@@ -103,41 +122,22 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
       which are mapped to LM Studio's 'options' payload.
     - Function calling: Set extra_params.enable_tools=true to enable function calling.
     """
+    mapping_params = req.extra_params if isinstance(req.extra_params, Mapping) else None
+
     messages: list[dict[str, str]] = [
         {"role": m.role.value, "content": m.content} for m in req.messages
     ]
 
-    options: dict[str, Any] = _extract_options(
-        req.extra_params if isinstance(req.extra_params, Mapping) else None
-    )
-
-    # Check if function calling is enabled
-    enable_tools = _extract_bool_param(req.extra_params, "enable_tools", False)
-    tool_schemas = []
-
-    if enable_tools:
-        try:
-            registry = get_tool_registry()
-
-            # Get specific tools if requested, otherwise all tools
-            requested_tools = _extract_list_param(req.extra_params, "tools")
-            tool_schemas = registry.get_tool_schemas(requested_tools)
-
-            logger.info("Function calling enabled with %d tools",
-                        len(tool_schemas))
-        except Exception as e:
-            logger.warning(
-                "Failed to load tools for function calling, continuing without tools: %s", e
-            )
-
+    options: dict[str, Any] = _extract_options(mapping_params)
+    tool_schemas = _get_tool_schemas_from_params(mapping_params)
     payload: dict[str, Any] = _build_payload(messages, options, tool_schemas)
 
-    svc_name, tag, policy = _parse_routing_params(
-        req.extra_params if isinstance(req.extra_params, Mapping) else None
-    )
+    svc_name, tag, policy = _parse_routing_params(mapping_params)
 
     r = router_client.get_router()
     result_obj: Any = _execute_router_call(r, svc_name, tag, policy, payload)
+
+    return result_obj
 
     result_dict: dict[str, Any] | None = (
         cast("dict[str, Any]", result_obj) if isinstance(

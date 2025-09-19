@@ -193,67 +193,60 @@ class EnhancedJsonFormatter(logging.Formatter):
 
         # Build log entry
         log_entry = {}
-
-        if self.config.include_timestamp:
-            log_entry["timestamp"] = self.formatTime(record, self.config.date_format)
-
-        if self.config.include_level:
-            log_entry["level"] = record.levelname
-
-        if self.config.include_logger:
-            log_entry["logger"] = record.name
-
-        if self.config.include_module:
-            log_entry["module"] = record.module
-
-        if self.config.include_function:
-            log_entry["function"] = record.funcName
-
+        self._add_standard_fields(record, log_entry)
         log_entry["message"] = record.getMessage()
 
         # Add context information
-        if self.config.include_context and (context_dict := context.to_dict()):
-            log_entry["context"] = context_dict
-        # Add exception info if present
-        if record.exc_info:
-            if record.exc_info is True:
-                # Handle the case where exc_info is True by getting current exception
-                import sys
+        self._add_context(context, log_entry)
 
-                exc_info = sys.exc_info()
-                if exc_info and exc_info[0] is not None:
-                    log_entry["exception"] = self.formatException(exc_info)
-            elif isinstance(record.exc_info, tuple) and len(record.exc_info) == 3:
-                log_entry["exception"] = self.formatException(record.exc_info)
+        # Add exception info if present
+        self._add_exception_info(record, log_entry)
 
         # Add any extra fields from record
-        for key, value in record.__dict__.items():
-            if key not in (
-                "name",
-                "msg",
-                "args",
-                "levelname",
-                "levelno",
-                "pathname",
-                "filename",
-                "module",
-                "exc_info",
-                "exc_text",
-                "stack_info",
-                "lineno",
-                "funcName",
-                "created",
-                "msecs",
-                "relativeCreated",
-                "thread",
-                "threadName",
-                "processName",
-                "process",
-                "getMessage",
-            ):
-                log_entry[key] = value
+        self._add_extra_fields(record, log_entry)
 
         return json.dumps(log_entry, ensure_ascii=False, default=str)
+
+    def _add_standard_fields(self, record: logging.LogRecord, log_entry: dict) -> None:
+        fields = [
+            ("include_timestamp", "timestamp", lambda rec: self.formatTime(rec, self.config.date_format)),
+            ("include_level", "level", lambda rec: rec.levelname),
+            ("include_logger", "logger", lambda rec: rec.name),
+            ("include_module", "module", lambda rec: rec.module),
+            ("include_function", "function", lambda rec: rec.funcName),
+        ]
+        for config_attr, key, func in fields:
+            if getattr(self.config, config_attr):
+                log_entry[key] = func(record)
+
+    def _add_context(self, context: Any, log_entry: dict) -> None:
+        if self.config.include_context:
+            context_dict = context.to_dict()
+            if context_dict:
+                log_entry["context"] = context_dict
+
+    def _add_exception_info(self, record: logging.LogRecord, log_entry: dict) -> None:
+        if not record.exc_info:
+            return
+        if record.exc_info is True:
+            import sys
+
+            exc_info = sys.exc_info()
+            if exc_info and exc_info[0] is not None:
+                log_entry["exception"] = self.formatException(exc_info)
+        elif isinstance(record.exc_info, tuple) and len(record.exc_info) == 3:
+            log_entry["exception"] = self.formatException(record.exc_info)
+
+    def _add_extra_fields(self, record: logging.LogRecord, log_entry: dict) -> None:
+        excluded = {
+            "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
+            "module", "exc_info", "exc_text", "stack_info", "lineno", "funcName",
+            "created", "msecs", "relativeCreated", "thread", "threadName", "processName",
+            "process", "getMessage",
+        }
+        for key, value in record.__dict__.items():
+            if key not in excluded:
+                log_entry[key] = value
 
 
 class AsyncLogHandler(logging.Handler):

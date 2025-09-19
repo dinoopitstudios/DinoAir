@@ -150,6 +150,28 @@ class InputPipeline:
         # User identifier for rate limiting
         self.user_id = "default_user"  # Could use actual user ID
 
+    def _increment_counter(self, key: str, value: int = 1) -> None:
+        try:
+            self.security_counters[key] += value
+        except KeyError:
+            self.security_counters[key] = value
+
+    def _process_enhanced_security(self, text: str) -> str:
+        try:
+            sanitized = self.enhanced_sanitizer.sanitize_input(
+                text, context="general", allow_unicode=True, strict_mode=False
+            )
+            summary = self.enhanced_sanitizer.get_security_summary()
+            attacks = summary.get("total_attacks", 0)
+            if attacks > 0:
+                self._increment_counter("attacks_blocked", int(attacks))
+                self.gui_feedback(f"🛡️ Security: Blocked {attacks} attack(s)")
+            return sanitized
+        except ValueError as e:
+            self._increment_counter("rejections", 1)
+            self.gui_feedback(f"🚨 Security: {str(e)}")
+            raise InputPipelineError(str(e))
+
     def run(self, raw: str) -> tuple[str, IntentType]:
         """Process raw input through the sanitization pipeline.
 
@@ -172,35 +194,9 @@ class InputPipeline:
                 raise InputPipelineError(rate_status.message)
 
             # Stage 1: Enhanced security processing (if enabled)
+            text = raw
             if self.enable_enhanced_security and self.enhanced_sanitizer:
-                try:
-                    # Apply comprehensive security sanitization
-                    text = self.enhanced_sanitizer.sanitize_input(
-                        raw, context="general", allow_unicode=True, strict_mode=False
-                    )
-
-                    # Check security summary for attacks
-                    security_summary = self.enhanced_sanitizer.get_security_summary()
-                    total_attacks = security_summary.get("total_attacks", 0)
-                    if total_attacks > 0:
-                        # Increment basic security counter for attacks blocked
-                        try:
-                            self.security_counters["attacks_blocked"] += int(total_attacks)
-                        except Exception:
-                            self.security_counters["attacks_blocked"] = self.security_counters.get(
-                                "attacks_blocked", 0
-                            ) + int(total_attacks)
-                        self.gui_feedback(f"🛡️ Security: Blocked {total_attacks} attack(s)")
-                except ValueError as e:
-                    # Strict mode rejection
-                    try:
-                        self.security_counters["rejections"] += 1
-                    except Exception:
-                        self.security_counters["rejections"] = (
-                            self.security_counters.get("rejections", 0) + 1
-                        )
-                    self.gui_feedback(f"🚨 Security: {str(e)}")
-                    raise InputPipelineError(str(e))
+                text = self._process_enhanced_security(text)
             else:
                 # Original validation path
                 validation_result = self.validator.validate(raw)

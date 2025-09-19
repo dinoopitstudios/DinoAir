@@ -93,10 +93,10 @@ class SQLInjectionProtection:
         r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
         r"(UNION\s+SELECT)",  # UNION SELECT
         r"(INTO\s+OUTFILE)",  # INTO OUTFILE
-        r"(LOAD_FILE\s*\()",  # LOAD_FILE(
+        r"(LOAD_FILE\s*\(),",  # LOAD_FILE(
         r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
-        r"('\s*AND\s*SLEEP\s*\()",  # Time-based injection
-        r"('\s*AND\s*BENCHMARK\s*\()",  # Benchmark injection
+        r"('\s*AND\s*SLEEP\s*\(),",  # Time-based injection
+        r"('\s*AND\s*BENCHMARK\s*\(),",  # Benchmark injection
         r"(INFORMATION_SCHEMA)",  # Information schema access
         r"(sys\.databases)",  # System tables
         r"(xp_cmdshell)",  # Command execution
@@ -106,46 +106,52 @@ class SQLInjectionProtection:
     ]
 
     @staticmethod
+    def _has_sql_comments(text: str) -> bool:
+        return "--" in text or "/*" in text or "*/" in text
+
+    @staticmethod
+    def _excessive_sql_keywords(text: str) -> bool:
+        text_upper = text.upper()
+        count = sum(1 for kw in SQLInjectionProtection.SQL_KEYWORDS if f" {kw} " in f" {text_upper} ")
+        return count >= 2
+
+    @staticmethod
+    def _contains_sql_operator(text: str) -> bool:
+        text_upper = text.upper()
+        return any(op.upper() in text_upper for op in SQLInjectionProtection.SQL_OPERATORS)
+
+    @staticmethod
+    def _matches_sql_patterns(text: str) -> bool:
+        return any(re.search(pattern, text, re.IGNORECASE) for pattern in SQLInjectionProtection.SQL_PATTERNS)
+
+    @staticmethod
+    def _contains_hex_encoded_sql(text: str) -> bool:
+        return bool(re.search(r"0x[0-9a-fA-F]+", text))
+
+    @staticmethod
+    def _has_string_concat_in_sql_context(text: str) -> bool:
+        if any(op in text for op in ["||", "CONCAT", "+", "CHR("]):
+            text_upper = text.upper()
+            return any(kw in text_upper for kw in ["SELECT", "WHERE", "AND", "OR"])
+        return False
+
+    @staticmethod
     def detect_sql_injection(text: str) -> bool:
         """Detect potential SQL injection attempts."""
         if not text:
             return False
-
-        text_upper = text.upper()
-
-        # Check for SQL comments
-        if "--" in text or "/*" in text or "*/" in text:
+        if SQLInjectionProtection._has_sql_comments(text):
             return True
-
-        # Check for multiple SQL keywords in suspicious context
-        keyword_count = 0
-        for keyword in SQLInjectionProtection.SQL_KEYWORDS:
-            if f" {keyword} " in f" {text_upper} ":
-                keyword_count += 1
-                if keyword_count >= 2:  # Multiple SQL keywords
-                    return True
-
-        # Check for SQL operators
-        for operator in SQLInjectionProtection.SQL_OPERATORS:
-            if operator.upper() in text_upper:
-                return True
-
-        # Check for specific injection patterns
-        for pattern in SQLInjectionProtection.SQL_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
-                return True
-
-        # Check for hex-encoded SQL
-        if re.search(r"0x[0-9a-fA-F]+", text):
-            # Could be hex-encoded SQL
+        if SQLInjectionProtection._excessive_sql_keywords(text):
             return True
-
-        # Check for string concatenation attempts
-        if any(op in text for op in ["||", "CONCAT", "+", "CHR("]):
-            # Check if it's in SQL context
-            if any(kw in text_upper for kw in ["SELECT", "WHERE", "AND", "OR"]):
-                return True
-
+        if SQLInjectionProtection._contains_sql_operator(text):
+            return True
+        if SQLInjectionProtection._matches_sql_patterns(text):
+            return True
+        if SQLInjectionProtection._contains_hex_encoded_sql(text):
+            return True
+        if SQLInjectionProtection._has_string_concat_in_sql_context(text):
+            return True
         return False
 
     @staticmethod

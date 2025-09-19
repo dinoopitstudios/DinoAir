@@ -18,10 +18,7 @@ def run_command(cmd, cwd=None):
     return result.returncode
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Run tests for pseudocode_translator")
-
-    # Test selection arguments
+def add_test_selection_args(parser):
     parser.add_argument(
         "tests",
         nargs="*",
@@ -29,7 +26,8 @@ def main():
         help="Specific test files or directories to run (default: all tests)",
     )
 
-    # Test options
+
+def add_test_options_args(parser):
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("-vv", "--very-verbose", action="store_true", help="Very verbose output")
     parser.add_argument("-q", "--quiet", action="store_true", help="Quiet output")
@@ -47,7 +45,8 @@ def main():
         help="Only run tests matching given mark expression",
     )
 
-    # Coverage options
+
+def add_coverage_args(parser):
     parser.add_argument(
         "--cov", "--coverage", action="store_true", help="Run with coverage analysis"
     )
@@ -59,7 +58,8 @@ def main():
     )
     parser.add_argument("--cov-html", action="store_true", help="Generate HTML coverage report")
 
-    # Performance options
+
+def add_performance_args(parser):
     parser.add_argument(
         "-n",
         "--numprocesses",
@@ -68,6 +68,14 @@ def main():
         help="Number of processes to use for parallel testing",
     )
     parser.add_argument("--benchmark", action="store_true", help="Run benchmark tests")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run tests for pseudocode_translator")
+    add_test_selection_args(parser)
+    add_test_options_args(parser)
+    add_coverage_args(parser)
+    add_performance_args(parser)
 
     # Other options
     parser.add_argument("--pdb", action="store_true", help="Drop into debugger on failures")

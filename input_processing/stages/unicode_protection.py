@@ -290,104 +290,16 @@ class UnicodeProtection:
     @staticmethod
     def normalize_unicode(text: str) -> str:
         """Normalize Unicode text to prevent attacks."""
-        if not text:
-            return text
-
-        # Step 1: NFD normalization (decompose)
-        text = unicodedata.normalize("NFD", text)
-
-        # Step 2: Remove dangerous characters
-        cleaned = []
-        for char in text:
-            if char not in UnicodeProtection.DANGEROUS_CHARS:
-                cleaned.append(char)
-        text = "".join(cleaned)
-
-        # Step 3: Remove characters from dangerous categories
-        cleaned = []
-        for char in text:
-            category = unicodedata.category(char)
-            if category not in UnicodeProtection.DANGEROUS_CATEGORIES:
-                cleaned.append(char)
-        text = "".join(cleaned)
-
-        # Step 4: Convert homographs
-        chars = list(text)
-        for i, char in enumerate(chars):
-            if char in UnicodeProtection.HOMOGRAPH_MAP:
-                chars[i] = UnicodeProtection.HOMOGRAPH_MAP[char]
-        text = "".join(chars)
-
-        # Step 5: NFC normalization (compose)
-        text = unicodedata.normalize("NFC", text)
-
-        # Step 6: Remove excessive combining characters
-        # Allow max 2 combining chars per base character
-        result = []
-        combining_count = 0
-
-        for char in text:
-            if unicodedata.category(char).startswith("M"):
-                # Combining character
-                combining_count += 1
-                if combining_count <= 2:
-                    result.append(char)
-            else:
-                # Base character
-                combining_count = 0
-                result.append(char)
-
-        return "".join(result)
-
     @staticmethod
     def detect_unicode_attack(text: str) -> bool:
         """Detect potential Unicode-based attacks."""
         if not text:
             return False
 
-        # Check for dangerous characters
-        for char in text:
-            if char in UnicodeProtection.DANGEROUS_CHARS:
-                return True
-
-        # Check for mixed scripts
-        scripts = set()
-        for char in text:
-            if char.isalpha():
-                try:
-                    char_name = unicodedata.name(char, "")
-                    if char_name:
-                        # Extract script from character name
-                        for script in UnicodeProtection.SCRIPT_NAMES:
-                            if script in char_name:
-                                scripts.add(script)
-                                break
-                except ValueError:
-                    pass
-
-        # Multiple scripts = possible homograph attack
-        if len(scripts) > 1:
-            # Allow mixing with LATIN for legitimate cases
-            non_latin_scripts = scripts - {"LATIN"}
-            if len(non_latin_scripts) > 1:
-                return True
-            # If mixing Cyrillic/Greek with Latin, it's suspicious
-            if non_latin_scripts and "LATIN" in scripts:
-                suspicious_scripts = {"CYRILLIC", "GREEK"}
-                if non_latin_scripts & suspicious_scripts:
-                    return True
-
-        # Check for excessive combining characters
-        text_len = len(text)
-        if text_len > 0:
-            combining_count = sum(bool(unicodedata.category(c).startswith("M")) for c in text)
-
-            if combining_count > text_len * 0.3:  # More than 30%
-                return True
-
-        # Check for right-to-left override
-        rtl_chars = {"\u202e", "\u202b", "\u200f"}
-        if any(char in text for char in rtl_chars):
+        if (UnicodeProtection._contains_dangerous_chars(text)
+                or UnicodeProtection._detect_mixed_scripts_attack(text)
+                or UnicodeProtection._excessive_combining_chars(text)
+                or UnicodeProtection._contains_rtl_override(text)):
             return True
 
         # Check for invisible characters

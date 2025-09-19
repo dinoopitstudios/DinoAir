@@ -76,6 +76,24 @@ class TimeoutMiddleware:
         await response(scope, receive, send)
 
 
+def _get_docs_urls(settings: Settings) -> tuple[str | None, str | None, str | None]:
+    if settings.is_dev and settings.expose_openapi_in_dev:
+        return "/openapi.json", "/docs", "/redoc"
+    return None, None, None
+
+
+def _configure_cors(app: FastAPI, settings: Settings) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins,
+        allow_methods=["GET", "POST", "OPTIONS", "PUT", "PATCH"],
+        allow_headers=["Content-Type", "X-DinoAir-Auth", "X-Request-ID", "X-Trace-Id"],
+        expose_headers=["X-Trace-Id"],
+        allow_credentials=False,
+        max_age=600,
+    )
+
+
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application with:
@@ -94,14 +112,7 @@ def create_app() -> FastAPI:
         extra={"env": settings.environment, "port": settings.port},
     )
 
-    # Control OpenAPI/docs exposure
-    openapi_url: str | None = (
-        "/openapi.json" if (settings.is_dev and settings.expose_openapi_in_dev) else None
-    )
-    docs_url: str | None = "/docs" if (settings.is_dev and settings.expose_openapi_in_dev) else None
-    redoc_url: str | None = (
-        "/redoc" if (settings.is_dev and settings.expose_openapi_in_dev) else None
-    )
+    openapi_url, docs_url, redoc_url = _get_docs_urls(settings)
 
     fastapi_app = FastAPI(
         title="DinoAir Local API",
@@ -116,15 +127,7 @@ def create_app() -> FastAPI:
     register_exception_handlers(fastapi_app)
 
     # CORS - strict, no wildcards
-    fastapi_app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.allowed_origins,
-        allow_methods=["GET", "POST", "OPTIONS", "PUT", "PATCH"],
-        allow_headers=["Content-Type", "X-DinoAir-Auth", "X-Request-ID", "X-Trace-Id"],
-        expose_headers=["X-Trace-Id"],
-        allow_credentials=False,
-        max_age=600,
-    )
+    _configure_cors(fastapi_app, settings)
 
     # Request pipeline middlewares (order matters):
     # Add short-circuiting middlewares first, then logging, and finally

@@ -47,8 +47,25 @@ def _ast_to_dict(node: ast.AST, max_depth: int = 500) -> dict[str, Any]:
     if max_depth <= 0:
         raise ValueError("max_depth must be positive")
 
+    def _convert_ast_node(n: ast.AST, current_depth: int) -> dict[str, Any]:
+        result: dict[str, Any] = {"_ast_type": n.__class__.__name__}
+        for field_name in n._fields:
+            try:
+                value = getattr(n, field_name, None)
+                if value is not None:
+                    result[field_name] = _convert_node(value, current_depth + 1)
+            except Exception as e:
+                logger.debug(f"Failed to serialize field '{field_name}': {e}")
+                result[field_name] = None
+        for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset"):
+            if hasattr(n, attr):
+                try:
+                    result[attr] = getattr(n, attr)
+                except Exception as e:
+                    logger.debug(f"Failed to serialize attribute '{attr}': {e}")
+        return result
+
     def _convert_node(obj: Any, current_depth: int = 0) -> Any:
-        # Check recursion depth limit
         if current_depth > max_depth:
             logger.warning(f"AST conversion exceeded max depth {max_depth}, truncating")
             return {
@@ -56,24 +73,19 @@ def _ast_to_dict(node: ast.AST, max_depth: int = 500) -> dict[str, Any]:
                 "_reason": "max_depth_exceeded",
                 "_type": type(obj).__name__,
             }
+        if isinstance(obj, ast.AST):
+            return _convert_ast_node(obj, current_depth)
+        if isinstance(obj, list):
+            return [_convert_node(item, current_depth + 1) for item in obj]
+        if isinstance(obj, tuple):
+            return tuple(_convert_node(item, current_depth + 1) for item in obj)
+        if isinstance(obj, dict):
+            return {key: _convert_node(val, current_depth + 1) for key, val in obj.items()}
+        if isinstance(obj, (str, int, float, bool, type(None))):
+            return obj
+        return str(obj)
 
-        try:
-            if isinstance(obj, ast.AST):
-                result = {"_ast_type": obj.__class__.__name__}
-
-                # Serialize fields - FIX: Use ast_field instead of undefined 'field'
-                for ast_field in obj._fields:
-                    try:
-                        value = getattr(obj, ast_field, None)
-                        if value is not None:
-                            result[ast_field] = _convert_node(value, current_depth + 1)
-                    except Exception as e:
-                        logger.debug(f"Failed to serialize field '{ast_field}': {e}")
-                        result[ast_field] = None
-
-                # Serialize common attributes if present
-                for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset"):
-                    try:
+    return _convert_node(node, 0)
                         if hasattr(obj, attr):
                             attr_value = getattr(obj, attr)
                             # Ensure attribute is JSON-serializable
