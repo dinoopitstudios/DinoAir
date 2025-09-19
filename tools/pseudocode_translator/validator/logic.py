@@ -15,7 +15,6 @@ from .runtime_checkers import RuntimeRiskChecker
 from .type_checkers import TypeConsistencyChecker
 from .variable_trackers import UndefinedVariableChecker
 
-
 if TYPE_CHECKING:
     from .scope import Scope
 
@@ -46,7 +45,8 @@ class LogicValidator:
         result = ValidationResult(is_valid=True)
 
         # At this point, parsing succeeded; tree must be non-None
-        if tree is None: raise AssertionError("Tree must not be None")
+        if tree is None:
+            raise AssertionError("Tree must not be None")
 
         # Collect logic issues
         logic_issues = self._collect_logic_issues(tree)

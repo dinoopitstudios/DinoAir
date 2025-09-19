@@ -5,11 +5,11 @@ This module provides centralized management of language models, including
 model selection, lazy loading, health checks, and memory management.
 """
 
+import logging
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import logging
 from pathlib import Path
-import threading
 from typing import Any
 
 import psutil
@@ -17,7 +17,6 @@ import psutil
 from .base import BaseModel
 from .downloader import ModelDownloader
 from .registry import ModelRegistry, model_exists
-
 
 logger = logging.getLogger(__name__)
 

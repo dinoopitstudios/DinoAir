@@ -18,13 +18,12 @@ Import graph:
 - No imports from translator.py (acyclic). Use literal source string "TranslationManager".
 """
 
-from concurrent import futures
 import contextlib
+from concurrent import futures
 from typing import Any
 
 # Events import (does not create cycle with translator.py)
 from ..integration.events import EventType  # noqa: E402
-
 
 # Best-effort BrokenProcessPool import; fall back to a local sentinel Exception subclass
 try:  # pragma: no cover - platform/env specific

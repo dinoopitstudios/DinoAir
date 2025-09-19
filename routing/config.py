@@ -11,14 +11,13 @@ Config loader for core_router services.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping
-from contextlib import suppress
 import json
 import os
-from pathlib import Path
 import re
+from collections.abc import Mapping, MutableMapping
+from contextlib import suppress
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
-
 
 try:
     import yaml  # type: ignore

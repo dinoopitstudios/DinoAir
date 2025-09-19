@@ -2,8 +2,8 @@
 
 import os
 
-from fastapi import FastAPI
 import sentry_sdk
+from fastapi import FastAPI
 
 
 def _get_sentry_dsn() -> str | None:

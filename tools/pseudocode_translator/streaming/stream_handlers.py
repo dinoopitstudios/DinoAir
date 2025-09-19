@@ -5,20 +5,19 @@ This module provides handlers for different stream types including files,
 sockets, pipes, and other I/O sources with buffering strategies.
 """
 
-from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterator
 import contextlib
-from dataclasses import dataclass
 import io
 import logging
 import os
-from pathlib import Path
 import select
 import socket
 import threading
 import time
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from pathlib import Path
 from typing import BinaryIO, TextIO
-
 
 logger = logging.getLogger(__name__)
 

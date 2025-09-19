@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 from .common import resp
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

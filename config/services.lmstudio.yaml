@@ -2,7 +2,7 @@
 # Configuration for LM Studio local LLM hosting
 
 - name: lmstudio.chat
-  version: "1.0.0"
+  version: '1.0.0'
   adapter: lmstudio
   tags: [chat, llm, lmstudio]
   adapter_config:
@@ -11,11 +11,11 @@
     timeout_s: 30
     retries: 3
   metadata:
-    description: "LM Studio chat completion service"
-    provider: "lmstudio"
+    description: 'LM Studio chat completion service'
+    provider: 'lmstudio'
 
 - name: lmstudio.assistant
-  version: "1.0.0"
+  version: '1.0.0'
   adapter: lmstudio
   tags: [assistant, llm, lmstudio]
   adapter_config:
@@ -24,16 +24,16 @@
     timeout_s: 30
     retries: 3
   metadata:
-    description: "LM Studio assistant service"
-    provider: "lmstudio"
+    description: 'LM Studio assistant service'
+    provider: 'lmstudio'
 
 # Mock service for testing when LM Studio is unavailable
 - name: mock.chat
-  version: "1.0.0"
+  version: '1.0.0'
   adapter: local_python
   tags: [chat, mock, fallback]
   adapter_config:
     function_path: api.services.mock_chat:mock_chat_completion
   metadata:
-    description: "Mock chat service for testing"
-    provider: "mock"
+    description: 'Mock chat service for testing'
+    provider: 'mock'

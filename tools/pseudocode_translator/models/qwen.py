@@ -13,7 +13,6 @@ from ..prompts import PromptEngineer, PromptLibrary
 from .base import BaseModel, ModelCapabilities, ModelFormat, ModelMetadata
 from .registry import register_model
 
-
 try:
     from llama_cpp import Llama
 except ImportError:

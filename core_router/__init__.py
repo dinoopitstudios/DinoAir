@@ -10,9 +10,9 @@ from __future__ import annotations
 from .adapters import ServiceAdapter, make_adapter
 from .errors import AdapterError, NoHealthyService, ServiceNotFound, ValidationError
 from .health import HealthState
-from .metrics import record_error, record_success, snapshot as metrics_snapshot
+from .metrics import record_error, record_success
+from .metrics import snapshot as metrics_snapshot
 from .router import ServiceRouter, create_router, get_router, set_router
-
 
 __all__ = [
     "__version__",

@@ -4,10 +4,10 @@ Provides customizable profanity filtering with different severity levels
 and context-aware detection to avoid false positives on technical terms.
 """
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import re
 from typing import Any
 
 

@@ -3,16 +3,15 @@ Resource Manager for DinoAir 2.0
 Handles proper resource lifecycle management and shutdown sequencing
 """
 
+import threading
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import threading
-import time
 from typing import Any, Optional
 
 from .performance_monitor import performance_monitor
-
 
 try:
     from .logger import Logger

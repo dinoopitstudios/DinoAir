@@ -15,15 +15,14 @@ Refactor goals addressed:
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-from datetime import datetime, timedelta
 import json
 import sqlite3
+from collections.abc import Iterable, Sequence
+from datetime import datetime, timedelta
 from typing import Any, Protocol, TypeGuard
 
 from models.project import Project, ProjectStatistics, ProjectStatus, ProjectSummary
 from utils.logger import Logger
-
 
 # Type aliases for clarity
 Connection = sqlite3.Connection

@@ -10,7 +10,6 @@ from typing import Any, TypeVar
 
 from .dependency_container import DependencyContainer
 
-
 T = TypeVar("T")
 
 # Global container instance

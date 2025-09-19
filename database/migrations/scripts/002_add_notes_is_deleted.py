@@ -10,14 +10,13 @@ Created: 2024-09-16
 
 import sqlite3
 
-
 # Import will be resolved at runtime when loaded by migration runner
 try:
     from database.migrations.base import BaseMigration, MigrationError
 except ImportError:
     # Fallback for direct execution or different import paths
-    from pathlib import Path
     import sys
+    from pathlib import Path
 
     sys.path.append(str(Path(__file__).parent.parent))
     from base import BaseMigration, MigrationError

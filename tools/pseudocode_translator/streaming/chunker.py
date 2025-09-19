@@ -7,11 +7,10 @@ in the middle during streaming processing.
 """
 
 import ast
+import logging
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-import logging
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 

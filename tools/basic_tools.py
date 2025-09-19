@@ -10,9 +10,9 @@ type documentation for proper discovery by the agent system.
 
 import datetime
 import json
-from pathlib import Path
 import shlex
 import subprocess
+from pathlib import Path
 from typing import Any
 
 from src.utils.process import safe_run
@@ -24,7 +24,6 @@ from .file_search_tool import FILE_SEARCH_TOOLS
 # Import the new AI-accessible tool modules
 from .notes_tool import NOTES_TOOLS
 from .projects_tool import PROJECTS_TOOLS
-
 
 # Import secure process utilities
 try:
@@ -298,8 +297,8 @@ def read_text_file(file_path: str, encoding: str = "utf-8") -> dict[str, Any]:
                 "error": err,
             }
 
-        if '../' in str(file_path_obj) or '..\\' in str(file_path_obj):
-            raise Exception('Invalid file path')
+        if "../" in str(file_path_obj) or "..\\" in str(file_path_obj):
+            raise Exception("Invalid file path")
         with open(file_path_obj, encoding=encoding) as f:
             content = f.read()
 
@@ -466,8 +465,8 @@ def create_json_data(data: dict[str, Any], file_path: str | None = None) -> dict
 
     def _write_json_file(path: str, json_string: str) -> str:
         file_path_obj = Path(path)
-        if '../' in str(file_path_obj) or '..\\' in str(file_path_obj):
-            raise Exception('Invalid file path')
+        if "../" in str(file_path_obj) or "..\\" in str(file_path_obj):
+            raise Exception("Invalid file path")
         file_path_obj.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path_obj, "w", encoding="utf-8") as f:
             f.write(json_string)

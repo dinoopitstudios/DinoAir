@@ -3,9 +3,9 @@ CLI Progress Indicators for DinoAir 2.0
 Provides simple progress indicators for command-line operations
 """
 
-from collections.abc import Callable, Generator, Sequence
 import sys
 import time
+from collections.abc import Callable, Generator, Sequence
 from typing import Any
 
 

@@ -5,21 +5,19 @@ This module provides functionality to download language models from various
 sources with progress tracking, checksum verification, and resume capability.
 """
 
-from collections.abc import Callable
 import hashlib
 import logging
 import os
-from pathlib import Path
 import shutil
 import time
+from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import requests
-from tqdm import tqdm
-
 from pseudocode_translator.exceptions import ConfigurationError
-
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 

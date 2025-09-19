@@ -6,7 +6,6 @@ Provides DPI-aware scaling functionality for GUI elements
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
-
 # pylint: disable=missing-class-docstring, missing-function-docstring, invalid-name
 
 if TYPE_CHECKING:

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 
 from .scaling import get_scaling_helper
 
-
 if TYPE_CHECKING:
     from collections.abc import Callable
 

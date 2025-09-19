@@ -38,12 +38,11 @@ top-level per-service entries:
 
 from __future__ import annotations
 
+import time
 from collections import deque
 from copy import deepcopy
 from threading import Lock
-import time
 from typing import Any, cast
-
 
 __all__ = [
     "record_success",

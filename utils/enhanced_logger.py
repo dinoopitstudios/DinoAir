@@ -12,19 +12,18 @@ This module provides:
 - Thread-safe operations
 """
 
-from collections import deque
-from contextlib import contextmanager
-from dataclasses import dataclass, field
 import json
 import logging
 import logging.handlers
-from pathlib import Path
 import queue
 import threading
 import time
+from collections import deque
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Optional
 from uuid import uuid4
-
 
 # Custom log levels
 TRACE_LEVEL = 5
@@ -184,6 +183,7 @@ class FormatterConfig:
 Module providing an enhanced JSON log formatter with context, exception, and extra fields support.
 """
 
+
 class EnhancedJsonFormatter(logging.Formatter):
     """Enhanced JSON formatter with context support."""
 
@@ -232,7 +232,11 @@ class EnhancedJsonFormatter(logging.Formatter):
             log_entry (dict): The dictionary to populate with standard fields.
         """
         fields = [
-            ("include_timestamp", "timestamp", lambda rec: self.formatTime(rec, self.config.date_format)),
+            (
+                "include_timestamp",
+                "timestamp",
+                lambda rec: self.formatTime(rec, self.config.date_format),
+            ),
             ("include_level", "level", lambda rec: rec.levelname),
             ("include_logger", "logger", lambda rec: rec.name),
             ("include_module", "module", lambda rec: rec.module),

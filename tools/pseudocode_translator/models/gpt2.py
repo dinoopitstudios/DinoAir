@@ -6,14 +6,13 @@ Note: This is a demonstration - actual implementation would require the
 transformers library and appropriate model files.
 """
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from .base import BaseModel, ModelCapabilities, ModelFormat, ModelMetadata
 from .registry import register_model
-
 
 logger = logging.getLogger(__name__)
 

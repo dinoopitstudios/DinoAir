@@ -5,8 +5,8 @@ Appointments Database Manager
 Manages all calendar event database operations with resilient handling.
 """
 
-from datetime import date, datetime, time, timedelta
 import json
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 from models.calendar_event import CalendarEvent

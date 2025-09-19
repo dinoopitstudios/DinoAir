@@ -87,7 +87,6 @@ Migration guide
 3. Model selection and capabilities
 
 - Prefer factory-based selection with capability filters (supported language, streaming requirement):
-
   - Convenience function [create_model()](../pseudocode_translator/models/model_factory.py:616)
   - Class APIs [ModelFactory.find_models_by_language()](../pseudocode_translator/models/model_factory.py:317), [ModelFactory.list_models()](../pseudocode_translator/models/model_factory.py:262)
 

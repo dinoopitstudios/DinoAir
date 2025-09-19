@@ -6,16 +6,17 @@ search history, suggestions, and export functionality.
 
 from __future__ import annotations
 
-from collections import Counter, deque
 import csv
-from datetime import datetime
 import json
 import os
 import re
+from collections import Counter, deque
+from datetime import datetime
 from typing import Any
 
 from database.file_search_db import FileSearchDB
 from utils.logger import Logger
+
 from .vector_search import VectorSearchEngine
 
 

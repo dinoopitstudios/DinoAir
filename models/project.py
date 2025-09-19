@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import json
 from typing import Any
 
 

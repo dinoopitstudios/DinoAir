@@ -10,7 +10,6 @@ from .buffer import BufferConfig, StreamBuffer
 from .chunker import ChunkConfig, CodeChunker
 from .pipeline import StreamConfig, StreamingPipeline
 
-
 __all__ = [
     "CodeChunker",
     "ChunkConfig",

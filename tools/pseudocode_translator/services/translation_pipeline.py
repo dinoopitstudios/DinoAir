@@ -7,15 +7,14 @@ workflow, replacing the monolithic TranslationManager with focused coordination.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
 import time
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from ..models.base_model import OutputLanguage
 from .dependency_container import DependencyContainer
 from .error_handler import ErrorCategory, ErrorHandler
-
 
 if TYPE_CHECKING:
     from ..config import TranslatorConfig

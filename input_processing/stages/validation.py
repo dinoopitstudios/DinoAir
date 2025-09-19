@@ -19,13 +19,13 @@ Example:
     Valid: True, Threat: ThreatLevel.NONE
 """
 
+import re
+import string
+import unicodedata
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-import re
 from re import Pattern
-import string
-import unicodedata
 
 
 class ValidationError(Exception):

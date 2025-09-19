@@ -9,20 +9,17 @@ This document describes the new versioned migration system that replaces the ad-
 ### Core Components
 
 1. **Migration Base Classes** (`database/migrations/base.py`)
-
    - `BaseMigration`: Abstract base class for all migrations
    - `MigrationRecord`: Represents applied migration records
    - `MigrationError`: Custom exception for migration failures
    - Utility functions for migration table management
 
 2. **Migration Runner** (`database/migrations/runner.py`)
-
    - `MigrationRunner`: Manages execution of migrations
    - Supports dry-run mode, target versions, and rollbacks
    - Provides migration status and tracking
 
 3. **Migration Loader** (`database/migrations/loader.py`)
-
    - Dynamically loads migration scripts from the scripts directory
    - Validates and instantiates migration classes
    - Provides convenient access to notes migrations

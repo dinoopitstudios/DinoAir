@@ -3,9 +3,8 @@ Shared search utilities for RAG engines.
 Centralizes common logic without changing behavior.
 """
 
-from collections.abc import Sequence
 import re
-
+from collections.abc import Sequence
 
 # Union of stop words from baseline and optimized engines
 STOP_WORDS: set[str] = {

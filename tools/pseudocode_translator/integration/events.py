@@ -6,16 +6,15 @@ enabling decoupled communication between components and supporting
 reactive GUI updates.
 """
 
+import logging
+import queue
+import threading
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
-import logging
-import queue
-import threading
 from typing import Any
-import weakref
-
 
 logger = logging.getLogger(__name__)
 

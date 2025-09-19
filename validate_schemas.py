@@ -1,12 +1,11 @@
 """Quick validation that schema generation works"""
 
-from collections.abc import Callable
 import datetime
 import inspect
 import logging
 import re
+from collections.abc import Callable
 from typing import Any
-
 
 logger = logging.getLogger(__name__)
 

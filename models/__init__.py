@@ -9,7 +9,6 @@ from .note import Note
 from .project import Project, ProjectStatistics, ProjectStatus, ProjectSummary
 from .watchdog_metrics import WatchdogMetric, WatchdogMetricsManager
 
-
 __all__ = [
     "Note",
     "CalendarEvent",

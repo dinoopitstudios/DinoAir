@@ -7,14 +7,13 @@ mechanisms throughout the translation pipeline.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import traceback
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 from ..exceptions import ErrorContext, TranslatorError
-
 
 logger = logging.getLogger(__name__)
 

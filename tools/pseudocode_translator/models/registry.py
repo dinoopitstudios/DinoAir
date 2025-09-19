@@ -11,7 +11,6 @@ from typing import Any
 
 from .base import BaseModel
 
-
 logger = logging.getLogger(__name__)
 
 

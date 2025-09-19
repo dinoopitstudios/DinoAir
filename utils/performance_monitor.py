@@ -13,16 +13,15 @@ Provides comprehensive performance tracking including:
 
 from __future__ import annotations
 
-from collections import defaultdict, deque
-from contextlib import contextmanager
-from dataclasses import dataclass, field
 import functools
 import logging
 import random
 import threading
 import time
+from collections import defaultdict, deque
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator

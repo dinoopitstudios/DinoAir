@@ -8,9 +8,9 @@ version control, and file storage integration.
 
 import hashlib
 import json
+import uuid
 from pathlib import Path
 from typing import Any
-import uuid
 
 from models.artifact import Artifact, ArtifactCollection, ArtifactVersion
 from utils.artifact_encryption import ArtifactEncryption

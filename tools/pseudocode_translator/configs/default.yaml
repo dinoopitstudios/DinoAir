@@ -115,4 +115,4 @@ gui_font_size: 12
 syntax_highlighting: true
 
 # Configuration version (do not modify)
-_version: "2.0"
+_version: '2.0'

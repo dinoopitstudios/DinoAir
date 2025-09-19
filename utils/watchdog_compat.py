@@ -4,15 +4,14 @@ This module provides a clean Qt-based watchdog implementation without
 the complexity of legacy fallback mechanisms.
 """
 
-from collections.abc import Callable
-from dataclasses import dataclass
-from enum import Enum
 import sys
 import threading
 import time
+from collections.abc import Callable
+from dataclasses import dataclass
+from enum import Enum
 
 from .logger import Logger
-
 
 logger = Logger()
 

@@ -16,7 +16,6 @@ from .base import (
     record_migration,
 )
 
-
 if TYPE_CHECKING:
     import sqlite3
 

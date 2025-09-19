@@ -8,6 +8,7 @@ from typing import Any
 
 from database.file_search_db import FileSearchDB
 from utils.logger import Logger
+
 from .file_processor import FileProcessor
 from .vector_search import VectorSearchEngine
 

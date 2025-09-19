@@ -158,4 +158,4 @@ syntax_highlighting: true # Enable syntax highlighting
 # PSEUDOCODE_TRANSLATOR_CHECK_UNDEFINED_VARS=false
 
 # Configuration version (do not modify)
-_version: "2.0"
+_version: '2.0'

@@ -7,8 +7,8 @@ arrays in the model layer and only flattened in the repository layer.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import html
+from dataclasses import dataclass, field
 from typing import Any
 
 from base import TaggedModel

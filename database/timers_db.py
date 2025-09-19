@@ -8,8 +8,8 @@ import sqlite3
 from typing import TYPE_CHECKING, Any
 
 from utils.logger import Logger
-from .initialize_db import DatabaseManager
 
+from .initialize_db import DatabaseManager
 
 if TYPE_CHECKING:
     from datetime import datetime

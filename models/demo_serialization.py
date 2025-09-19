@@ -8,14 +8,13 @@ This script shows how the new base classes ensure consistent serialization:
 """
 
 import contextlib
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 from .artifact_v2 import Artifact
 from .calendar_event_v2 import CalendarEvent
 from .note_v2 import Note
-
 
 # Add the parent directory to the path so we can import our modules
 sys.path.append(str(Path(__file__).parent))

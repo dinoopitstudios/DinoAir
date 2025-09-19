@@ -16,20 +16,21 @@ Exports:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import contextlib
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import (
     BaseModel,
-    Field as PydField,
-    ValidationError as PydanticValidationError,
+)
+from pydantic import Field as PydField
+from pydantic import ValidationError as PydanticValidationError
+from pydantic import (
     create_model,
 )
 from pydantic.config import ConfigDict
 
 from .errors import ValidationError
-
 
 if TYPE_CHECKING:
     from .registry import ServiceDescriptor

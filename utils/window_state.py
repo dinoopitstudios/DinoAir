@@ -12,7 +12,6 @@ import aiofiles
 from .logger import Logger
 from .scaling import ScalingHelper, get_scaling_helper  # noqa: F401 - needed for test compatibility
 
-
 if TYPE_CHECKING:
     from PySide6.QtCore import QRect, Qt  # type: ignore
     from PySide6.QtWidgets import QSplitter, QWidget  # type: ignore

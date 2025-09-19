@@ -9,9 +9,9 @@ deps at import time (pylint: import-outside-toplevel is disabled inline where us
 
 from __future__ import annotations
 
-from functools import lru_cache
 import inspect
 import logging
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 from ..settings import Settings
@@ -20,7 +20,6 @@ from .rag_context import RagContextService
 from .rag_embeddings import RagEmbeddingMaintenanceService
 from .rag_ingestion import RagIngestionService
 from .rag_monitor import RagMonitorService
-
 
 if TYPE_CHECKING:
     from collections.abc import Callable

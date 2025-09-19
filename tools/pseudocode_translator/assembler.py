@@ -9,15 +9,14 @@ consistency checks.
 from __future__ import annotations
 
 import ast
-from collections import OrderedDict
 import logging
 import re
+from collections import OrderedDict
 from typing import TYPE_CHECKING, TypedDict
 
 from .ast_cache import parse_cached
 from .exceptions import AssemblyError, ErrorContext
 from .models import BlockType, CodeBlock
-
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

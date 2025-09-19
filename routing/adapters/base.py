@@ -11,7 +11,6 @@ from typing import Any, Protocol, runtime_checkable
 
 from ..errors import AdapterError
 
-
 __all__ = ["ServiceAdapter", "ensure_protocol"]
 
 

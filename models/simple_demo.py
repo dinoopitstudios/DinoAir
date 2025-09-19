@@ -7,7 +7,6 @@ This script shows the key concepts without complex imports.
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # Type aliases
 TagList = list[str]
 
