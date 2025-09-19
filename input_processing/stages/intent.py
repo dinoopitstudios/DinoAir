@@ -354,7 +354,7 @@ class IntentClassifier:
         ][:3]  # Max 3 secondary intents
 
         # Generate reasoning
-        reasoning = self._generate_reasoning(
+        reasoning = IntentClassifier._generate_reasoning(
             primary_intent, primary_score, pattern_scores, keyword_scores
         )
 
@@ -366,8 +366,8 @@ class IntentClassifier:
             reasoning=reasoning,
         )
 
+    @staticmethod
     def _generate_reasoning(
-        self,
         intent: IntentType,
         score: float,
         pattern_scores: dict[IntentType, float],
