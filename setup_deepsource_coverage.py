@@ -33,9 +33,7 @@ class DeepSourceCoverageSetup:
             print("\n💡 Your DSN should look like:")
             print("   https://f86b5205816f43d5a274d22d6232be60@app.deepsource.com")
             return False
-        print(
-            f"✅ DEEPSOURCE_DSN found: {self.deepsource_dsn[:20]}...{self.deepsource_dsn[-10:]}"
-        )
+        print(f"✅ DEEPSOURCE_DSN found: {self.deepsource_dsn[:20]}...{self.deepsource_dsn[-10:]}")
         return True
 
     def install_deepsource_cli(self):
