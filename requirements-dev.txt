@@ -19,7 +19,7 @@ mypy-extensions==1.1.0    # Extensions for mypy
 
 # Security and safety analysis
 bandit==1.8.6             # Security linter
-safety==2.3.4             # Dependency vulnerability scanner
+safety==3.6.1             # Dependency vulnerability scanner
 
 # Performance and profiling
 memory-profiler==0.61.0   # Memory usage profiling
