@@ -215,7 +215,7 @@ class ParseValidateExecutor:
             self._t0 = time.perf_counter()
 
         def _timeout_seconds(self) -> float:
-            ms = max(1, int(self._p._config.process_pool_task_timeout_ms))
+            ms = max(1, int(self._p.config.process_pool_task_timeout_ms))
             return ms / 1000.0
 
         def result(self, timeout: float | None = None):
@@ -224,59 +224,59 @@ class ParseValidateExecutor:
                 try:
                     res = self._fut.result(timeout=timeout_sec)
                     dur_ms = (time.perf_counter() - self._t0) * 1000.0
-                    self._p._emit(
+                    self._p.emit(
                         EventType.EXEC_POOL_TASK_COMPLETED,
                         kind=self._spec.kind,
                         duration_ms=dur_ms,
                     )
-                    self._p._rec.record_event(
+                    self._p.record_event(
                         "exec_pool.complete", counters={"exec_pool.complete": 1}
                     )
-                    self._p._rec.record_event("exec_pool.task_ms", duration_ms=dur_ms)
+                    self._p.record_event("exec_pool.task_ms", duration_ms=dur_ms)
                     return res
                 except (TimeoutError, BrokenProcessPool) as e:
                     # telemetry
-                    self._p._emit(
+                    self._p.emit(
                         EventType.EXEC_POOL_TIMEOUT,
                         kind=self._spec.kind,
                         timeout_ms=int(timeout_sec * 1000.0),
                         attempt=self._attempt,
                     )
-                    self._p._rec.record_event(
+                    self._p.record_event(
                         "exec_pool.timeout", counters={"exec_pool.timeout": 1}
                     )
                     # retry semantics
-                    do_retry = bool(self._p._config.process_pool_retry_on_timeout)
-                    limit = int(self._p._config.process_pool_retry_limit)
+                    do_retry = bool(self._p.config.process_pool_retry_on_timeout)
+                    limit = int(self._p.config.process_pool_retry_limit)
                     if do_retry and self._attempt < limit:
                         self._attempt += 1
                         # restart pool and resubmit
                         try:
-                            self._p._restart_pool()
-                            self._fut = self._p._pool.submit(self._spec.func, *self._spec.args)  # type: ignore
+                            self._p.restart_pool()
+                            self._fut = self._p.pool.submit(self._spec.func, *self._spec.args)  # type: ignore
                             self._t0 = time.perf_counter()
                             continue
                         except Exception:
                             # if resubmission fails, break to fallback
                             pass
                     # give up -> fallback
-                    self._p._emit(
+                    self._p.emit(
                         EventType.EXEC_POOL_FALLBACK,
                         kind=self._spec.kind,
                         reason=("timeout" if isinstance(e, TimeoutError) else "broken_pool"),
                     )
-                    self._p._rec.record_event(
+                    self._p.record_event(
                         "exec_pool.fallback", counters={"exec_pool.fallback": 1}
                     )
                     raise
                 except Exception:
                     # unexpected failure: treat as broken pool and fallback
-                    self._p._emit(
+                    self._p.emit(
                         EventType.EXEC_POOL_FALLBACK,
                         kind=self._spec.kind,
                         reason="broken_pool",
                     )
-                    self._p._rec.record_event(
+                    self._p.record_event(
                         "exec_pool.fallback", counters={"exec_pool.fallback": 1}
                     )
                     raise

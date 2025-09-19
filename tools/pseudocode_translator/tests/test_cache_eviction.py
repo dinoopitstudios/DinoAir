@@ -98,7 +98,7 @@ def test_ttl_eviction_still_applies(monkeypatch):
     monkeypatch.setattr("time.time", lambda: base_time + 1.0)
 
     # Trigger TTL cleanup directly (no sleeps)
-    cache._cleanup_expired_entries()
+    cache.cleanup_expired_entries()
 
     stats = cache.get_stats()
     if stats["ttl_evictions"] != 2:

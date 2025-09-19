@@ -54,10 +54,10 @@ def test_pool_disabled_uses_inprocess(manager_mock_config, monkeypatch):
         handler = _collecting_handler(events)
         manager.get_event_dispatcher().register(handler)
 
-        text = "Define a function add(a, b) that returns their sum.\n\ndef add(a, b):\n    return a + b\n"
+        text = "Define a function add(a, b) that returns their sum.\n\n\ndef add(a, b):\n    return a + b\n"
 
         # Parse should be in-process
-        res = manager._maybe_offload_parse(text)  # private helper under test
+        res = manager.maybe_offload_parse(text)  # public method under test
         assert res is not None
         # No EXEC_POOL_* events should be emitted
         pool_events = _events_of(
@@ -85,7 +85,7 @@ def test_pool_parse_submit_and_complete(manager_mock_config):
         manager.get_event_dispatcher().register(handler)
 
         text = "x = 1\ny = 2\nz = x + y\n"
-        res = manager._maybe_offload_parse(text)
+        res = manager.maybe_offload_parse(text)
         assert res is not None
 
         # Expect SUBMITTED and COMPLETED lifecycle
@@ -110,7 +110,7 @@ def test_pool_timeout_then_retry_then_fallback(manager_mock_config, monkeypatch)
     manager = TranslationManager(manager_mock_config)
     try:
         # Inject slow parse function into manager seam for deterministic timeout
-        manager._exec_pool_test_parse_fn = slow_parse_worker
+        manager.set_exec_pool_test_parse_fn(slow_parse_worker)
 
         events = []
         handler = _collecting_handler(events)
@@ -118,7 +118,7 @@ def test_pool_timeout_then_retry_then_fallback(manager_mock_config, monkeypatch)
 
         text = "a = 1\nb = 2\n"
         # Should fallback to in-process without raising
-        res = manager._maybe_offload_parse(text)
+        res = manager.maybe_offload_parse(text)
         assert res is not None
 
         # Expect TIMEOUT and FALLBACK emitted
@@ -144,7 +144,7 @@ def test_job_size_cap_triggers_fallback(manager_mock_config):
         manager.get_event_dispatcher().register(handler)
 
         text = "this_is_longer_than_cap"
-        res = manager._maybe_offload_parse(text)
+        res = manager.maybe_offload_parse(text)
         assert res is not None  # in-process fallback result
 
         # FALLBACK reason should be job_too_large; ensure we did NOT submit

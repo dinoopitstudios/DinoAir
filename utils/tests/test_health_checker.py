@@ -211,7 +211,7 @@ class TestHealthChecker:
             raise AssertionError
         if checker.retries != 5:
             raise AssertionError
-        assert checker._http_client is None
+        assert checker.http_client is None
 
     def test_health_checker_default_values(self):
         """Test HealthChecker with default values."""
@@ -230,7 +230,7 @@ class TestHealthChecker:
             mock_client.return_value = mock_instance
 
             async with HealthChecker() as checker:
-                if checker._http_client != mock_instance:
+                if checker.http_client != mock_instance:
                     raise AssertionError
                 mock_client.assert_called_once()
 
@@ -794,7 +794,6 @@ class TestPerformanceAndConcurrency:
                 logging.debug(
                     f"Mock setup complete for test_timeout_handling_under_load. Mock client: {mock_client}"
                 )
-                logging.debug(f"Checker HTTP client type: {type(checker._http_client)}")
 
                 result = await checker.check_http_endpoint("slow_api", "http://localhost:8000")
 

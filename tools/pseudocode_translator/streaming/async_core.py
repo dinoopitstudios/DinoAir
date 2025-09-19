@@ -41,11 +41,11 @@ async def async_translate_line_by_line(
     line_buffer: list[str] = []
     chunk_index = 0
     async for line in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
+        translator.wait_if_paused()
         line_buffer.append(line)
-        if translator._is_complete_statement("".join(line_buffer)):
+        if translator.is_complete_statement("".join(line_buffer)):
             statement = "".join(line_buffer)
             line_buffer.clear()
             loop = asyncio.get_running_loop()
@@ -64,9 +64,9 @@ async def async_translate_block_by_block(
 ) -> AsyncIterator[str]:
     accumulated_input: list[str] = []
     async for chunk in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
+        translator.wait_if_paused()
         accumulated_input.append(chunk)
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
@@ -89,10 +89,10 @@ async def async_translate_full_document(
     loop = asyncio.get_running_loop()
 
     def collect() -> list[str]:
-        return list(translator._translate_full_document(full_text, on_update))
+        return list(translator.translate_full_document(full_text, on_update))
 
     results = await loop.run_in_executor(None, collect)
     for r in results:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
         yield r

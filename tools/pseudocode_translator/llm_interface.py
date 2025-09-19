@@ -396,7 +396,7 @@ class LLMInterface:
         model_info = self._current_model.get_info()
         extra_info: dict[str, Any] = {
             "cache_enabled": self.config.cache_enabled,
-            "cache_size": (len(self.cache._cache) if self.config.cache_enabled else 0),
+            "cache_size": (self.cache.get_cache_size() if self.config.cache_enabled else 0),
         }
         mgr = getattr(self, "_manager", None)
         if mgr and hasattr(mgr, "get_memory_usage"):

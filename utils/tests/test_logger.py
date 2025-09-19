@@ -22,14 +22,11 @@ class TestLogger:
 
         if logger1 is not logger2:
             raise AssertionError
-        if logger1._instance is not logger2._instance:
-            raise AssertionError
 
     def test_initialization_once(self):
         """Test that initialization only happens once."""
         # Reset singleton state for test
-        Logger._instance = None
-        Logger._initialized = False
+        Logger.reset()
         with patch("utils.logger.Logger.setup_logging") as mock_setup:
             Logger()
             Logger()
@@ -46,7 +43,7 @@ class TestLogger:
         ):
             # Mock root logger to not have structured logging configured
             mock_root = MagicMock()
-            mock_root._dinoair_structured_logging_configured = False
+            mock_root.is_structured_logging_configured.return_value = False
             mock_root.name = "DinoAir"  # Set mock name
             mock_get_logger.return_value = mock_root
 
@@ -63,7 +60,7 @@ class TestLogger:
         with patch("logging.getLogger") as mock_get_logger:
             # Mock root logger to have structured logging configured
             mock_root = MagicMock()
-            mock_root._dinoair_structured_logging_configured = True
+            Logger.mark_structured_logging_configured(mock_root)
             mock_root.name = "DinoAir"  # Set mock name
             mock_get_logger.return_value = mock_root
 
@@ -106,7 +103,7 @@ class TestLogger:
         ):
             # Mock root logger
             mock_root = MagicMock()
-            mock_root._dinoair_structured_logging_configured = False
+            Logger.set_structured_logging_configured(mock_root, False)
             mock_get_logger.return_value = mock_root
 
             # Mock Path to use temp directory

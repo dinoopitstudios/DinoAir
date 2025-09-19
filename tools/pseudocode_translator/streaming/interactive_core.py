@@ -88,9 +88,9 @@ def interactive_translate(
     session_context: list[str] = []
     interaction_count = 0
     for user_input in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
+        translator.wait_if_paused()
         session_context.append(f"# User input {interaction_count}:\n{user_input}")
         response = process_interactive_input(
             translator, user_input, session_context, interaction_count, on_update
@@ -109,9 +109,9 @@ async def interactive_translate_async(
     session_context: list[str] = []
     interaction_count = 0
     async for user_input in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
+        translator.wait_if_paused()
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,

@@ -281,7 +281,7 @@ class TestStateMachine:
         mock_validator.can_transition.return_value = (True, "")
 
         state_machine = StateMachine(validator=mock_validator)
-        if state_machine._validator != mock_validator:
+        if state_machine.validator != mock_validator:
             raise AssertionError
 
     def test_successful_transition(self):

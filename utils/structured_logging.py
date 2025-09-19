@@ -128,6 +128,12 @@ class JsonFormatter(logging.Formatter):
             return super().format(record)
 
 
+def is_structured_logging_configured(logger: logging.Logger) -> bool:
+    return getattr(logger, "_dinoair_structured_logging_configured", False)
+
+def set_structured_logging_configured(logger: logging.Logger) -> None:
+    setattr(logger, "_dinoair_structured_logging_configured", True)
+
 def setup_logging(
     app_name: str = "dinoair-core", log_dir: str = "logs", level: str = "INFO"
 ) -> None:
@@ -140,7 +146,7 @@ def setup_logging(
     """
     # Ensure idempotency: configure root only once
     root = logging.getLogger()
-    if getattr(root, "_dinoair_structured_logging_configured", False):
+    if is_structured_logging_configured(root):
         return
 
     # Create log directory
@@ -173,7 +179,7 @@ def setup_logging(
     root.handlers = [file_handler, stream_handler]
 
     # Mark configured
-    root._dinoair_structured_logging_configured = True
+    set_structured_logging_configured(root)
 
     # Create a namespaced logger for the app (optional convenience)
     app_logger = logging.getLogger(app_name)

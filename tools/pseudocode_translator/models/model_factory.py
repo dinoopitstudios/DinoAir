@@ -665,7 +665,7 @@ def list_available_models() -> list[str]:
 
 def get_default_model() -> str | None:
     """Get the default model name"""
-    return ModelFactory._default_model
+    return ModelFactory.get_default_model()
 
 
 # Initialize factory on import

@@ -1277,12 +1277,12 @@ def load_config(path: str | None = None) -> TranslatorConfig:
 
 def save_config(config: TranslatorConfig, path: str | None = None):
     """Deprecated: Use ConfigManager.save() instead"""
-    ConfigManager.save(config._config, path)  # pyright: ignore[reportPrivateUsage]
+    ConfigManager.save(config.get_config(), path)  # pyright: ignore[reportPrivateUsage]
 
 
 def validate_config(config: TranslatorConfig) -> list[str]:
     """Deprecated: Use ConfigManager.validate() instead"""
-    return ConfigManager.validate(config._config)  # pyright: ignore[reportPrivateUsage]
+    return ConfigManager.validate(config.get_config())  # pyright: ignore[reportPrivateUsage]
 
 
 # Stub classes for backward compatibility

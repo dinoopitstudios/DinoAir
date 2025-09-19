@@ -87,7 +87,7 @@ class TestTimersDatabase:
         db = TimersDatabase(mock_db_manager)
         mock_db_manager.get_timers_connection.return_value = mock_db_connection
 
-        conn = db._get_connection()
+        conn = db.get_connection()
         if conn != mock_db_connection:
             raise AssertionError
         mock_db_manager.get_timers_connection.assert_called_once()

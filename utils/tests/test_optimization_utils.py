@@ -406,8 +406,8 @@ class TestLazyComponentManager:
         manager.register_component("test", factory)
 
         # Component should not be initialized yet
-        assert len(manager._components) == 1
-        if manager._components["test"].state != ComponentState.UNINITIALIZED:
+        assert len(manager.components) == 1
+        if manager.components["test"].state != ComponentState.UNINITIALIZED:
             raise AssertionError
 
     def test_component_initialization(self):
@@ -423,7 +423,7 @@ class TestLazyComponentManager:
         component = manager.get_component("test")
         if component != {"initialized": True}:
             raise AssertionError
-        if manager._components["test"].state != ComponentState.INITIALIZED:
+        if manager.get_component_state("test") != ComponentState.INITIALIZED:
             raise AssertionError
 
     def test_component_dependency_resolution(self):
@@ -478,9 +478,9 @@ class TestLazyComponentManager:
         manager.preload_components(["test"])
 
         # Should already be initialized
-        if manager._components["test"].state != ComponentState.INITIALIZED:
+        if manager.get_component("test").state != ComponentState.INITIALIZED:
             raise AssertionError
-        if manager._components["test"].instance != "preloaded_component":
+        if manager.get_component("test").instance != "preloaded_component":
             raise AssertionError
 
     def test_initialization_metrics(self):
@@ -801,14 +801,14 @@ class TestIntegrationScenarios:
         manager.register_component("expensive", create_expensive_resource)
 
         # Component should not be created yet
-        if manager._components["expensive"].state != ComponentState.UNINITIALIZED:
+        if manager.get_component_state("expensive") != ComponentState.UNINITIALIZED:
             raise AssertionError
 
         # Access should trigger creation
         resource = manager.get_component("expensive")
         if resource["data"] != "expensive_resource":
             raise AssertionError
-        if manager._components["expensive"].state != ComponentState.INITIALIZED:
+        if manager.get_component_state("expensive") != ComponentState.INITIALIZED:
             raise AssertionError
 
     @pytest.mark.boundary
@@ -824,7 +824,7 @@ class TestIntegrationScenarios:
         with pytest.raises(RuntimeError, match="Failed to initialize component"):
             manager.get_component("failing")
 
-        if manager._components["failing"].state != ComponentState.ERROR:
+        if manager.get_component_state("failing") != ComponentState.ERROR:
             raise AssertionError
 
     @pytest.mark.slow

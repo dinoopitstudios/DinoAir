@@ -107,7 +107,7 @@ class FileChangeHandler(FileSystemEventHandler):
         file_path = os.path.normpath(file_path)
 
         # Check if file should be indexed
-        if not self.file_monitor._should_index_file(file_path):
+        if not self.file_monitor.should_index_file(file_path):
             return
 
         # Add to pending changes with timestamp
@@ -117,7 +117,7 @@ class FileChangeHandler(FileSystemEventHandler):
         self.logger.info("File %s: %s", change_type, os.path.basename(file_path))
 
         # Process after debounce period
-        self.file_monitor._schedule_processing()
+        self.file_monitor.schedule_processing()
 
     def _handle_file_deletion(self, file_path: str):
         """
@@ -133,7 +133,7 @@ class FileChangeHandler(FileSystemEventHandler):
         self._pending_changes.pop(file_path, None)
 
         # Remove from index immediately
-        self.file_monitor._remove_from_index(file_path)
+        self.file_monitor.remove_from_index(file_path)
 
         self.logger.info("File deleted: %s", os.path.basename(file_path))
 
@@ -451,7 +451,7 @@ class FileMonitor:
             "is_monitoring": self._is_monitoring,
             "monitored_directories": list(self._monitored_dirs),
             "file_extensions": list(self._file_extensions),
-            "pending_changes": len(self._handler._pending_changes),
+            "pending_changes": self._handler.get_pending_changes_count(),
         }
 
     def __del__(self):

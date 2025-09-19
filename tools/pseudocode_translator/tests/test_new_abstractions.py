@@ -179,7 +179,7 @@ def test_separate_mixed_block_segmentation(monkeypatch):
         metadata={"source": "test"},
         context=None,
     )
-    parts = manager._separate_mixed_block(block)
+    parts = manager.separate_mixed_block(block)
 
     # Expect alternating ENGLISH then PYTHON segments
     assert len(parts) == 4

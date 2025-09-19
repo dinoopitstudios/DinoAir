@@ -13,7 +13,7 @@ def test_notes_security_uses_fallback_policy_by_default():
     """NotesSecurity should fall back to FallbackSecurity when GUI policy is unavailable."""
     with patch.dict(os.environ, {}, clear=True):
         sec = NotesSecurity()
-        assert isinstance(sec._policy, FallbackSecurity)
+        assert isinstance(sec.policy, FallbackSecurity)
 
 
 def test_can_perform_write_operation_blocked_by_default():

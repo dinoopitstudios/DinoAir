@@ -53,7 +53,7 @@ def parse_and_translate_blocks(
         return translations
     except Exception as e:
         logger.error(f"Parse/translate error: {e}")
-        translator._emit_event(
+        translator.emit_event(
             StreamingEventData(
                 event=StreamingEvent.WARNING,
                 warning=f"Failed to translate segment: {e}",
@@ -94,7 +94,7 @@ def translate_block(
     _block_index: int,
 ) -> str | None:
     try:
-        translator._emit_event(
+        translator.emit_event(
             StreamingEventData(
                 event=StreamingEvent.TRANSLATION_STARTED,
                 chunk_index=chunk_index,
@@ -102,9 +102,9 @@ def translate_block(
             )
         )
         if block.type == BlockType.ENGLISH:
-            context = translator._build_context()
+            context = translator.build_context()
             manager = translator.translation_manager
-            return translator._invoker.translate_english(
+            return translator.invoker.translate_english(
                 text=block.content,
                 context=context,
                 manager=manager,
@@ -118,7 +118,7 @@ def translate_block(
             return block.content
     except Exception as e:
         logger.error(f"Error translating block: {e}")
-        translator._emit_event(
+        translator.emit_event(
             StreamingEventData(
                 event=StreamingEvent.WARNING,
                 warning=f"Failed to translate block: {str(e)}",
@@ -160,7 +160,7 @@ def process_accumulated_blocks(
 ):
     current_input = "".join(accumulated_input)
     try:
-        blocks = translator.parser._identify_blocks(current_input)
+        blocks = translator.identify_blocks(current_input)
         if len(blocks) > 1:
             translated_chunks: list[str] = []
             for i, block_text in enumerate(blocks[:-1]):

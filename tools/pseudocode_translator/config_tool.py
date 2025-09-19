@@ -156,7 +156,7 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
         # Validate with requested strictness using runtime validators
         mgr = ConfigManager()
         try:
-            result = mgr._validate_all(cfg, strict=not lenient)
+            result = mgr.validate_all(cfg, strict=not lenient)
         except ConfigurationError as e:
             # Strict validation failed
             msg = str(e).strip()

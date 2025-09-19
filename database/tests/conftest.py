@@ -446,15 +446,15 @@ def _ensure_artifact_storage_dir(monkeypatch):
     """
     from database.artifacts_db import ArtifactsDatabase as _ADB
 
-    _orig_handle = _ADB._handle_file_storage
+    _orig_handle = _ADB.handle_file_storage
 
     def _patched_handle(self, artifact, content=None):
         # For large content, pre-create the 'artifact id' directory
         if content is not None and len(content) > getattr(
             self, "FILE_SIZE_THRESHOLD", 5 * 1024 * 1024
         ):
-            storage_path = self._get_storage_path(artifact)
+            storage_path = self.get_storage_path(artifact)
             storage_path.mkdir(parents=True, exist_ok=True)
         return _orig_handle(self, artifact, content)
 
-    monkeypatch.setattr(_ADB, "_handle_file_storage", _patched_handle)
+    monkeypatch.setattr(_ADB, "handle_file_storage", _patched_handle)

@@ -299,7 +299,8 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
     - Otherwise, returns a NoOpTelemetryRecorder instance.
 
     Deterministic sampling:
-    - Controlled by PSEUDOCODE_TELEMETRY_SAMPLE (int N ≥ 1; default 1).
+    - Controlled by PSEUDOCODE_TELEMETRY_SAMPLE (int N 
+= 1; default 1).
     - If N > 1, record_event is wrapped to keep only every Nth call.
 
     The decision is made on first call and cached for the process lifetime.
@@ -320,7 +321,7 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                     sample_rate = max(sample_rate, 1)
                 except (ValueError, TypeError):
                     sample_rate = 1
-                rec._sample_rate = sample_rate  # type: ignore[attr-defined]
+                rec.set_sample_rate(sample_rate)
 
                 if sample_rate > 1:
                     # Wrap record_event to apply deterministic sampling
@@ -333,8 +334,8 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                         counters: dict[str, int] | None = None,
                     ) -> None:
                         # increment a simple sequence counter; only keep every Nth
-                        rec._seq += 1  # type: ignore[attr-defined]
-                        if rec._seq % sample_rate != 0:  # type: ignore[attr-defined]
+                        seq = rec.increment_seq()
+                        if seq % sample_rate != 0:
                             return None
                         return orig_record_event(
                             name,
@@ -343,7 +344,7 @@ def get_recorder() -> TelemetryRecorder | NoOpTelemetryRecorder:
                             counters=counters,
                         )
 
-                    rec.record_event = _sampled_record_event  # type: ignore[assignment]
+                    rec.record_event = _sampled_record_event
 
                 _RECORDER = rec
             else:

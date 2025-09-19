@@ -52,7 +52,7 @@ def test_search_files_by_keywords_success(fsdb_stub: FSDBStub) -> None:
 
 def test_get_file_info_not_found(fsdb_stub: FSDBStub) -> None:
     # type: ignore[assignment]
-    fsdb_stub.get_file_by_path = fsdb_stub._files.get
+    fsdb_stub.get_file_by_path = lambda path: None
     resp = fst.get_file_info("/no/such/file.txt")
     if resp["success"] is not False:
         raise AssertionError
@@ -194,7 +194,7 @@ def test_get_file_embeddings_success(fsdb_stub: FSDBStub, tmp_path: Path) -> Non
     _ = fst.add_file_to_index(str(p), file_type="txt")
 
     def _fake_embeddings_by_file(file_path: str):
-        if file_path in fsdb_stub._files:
+        if file_path in fsdb_stub.files:
             return [
                 {"chunk_id": "c1", "embedding": [0.1, 0.2], "content": "alpha"},
                 {"chunk_id": "c2", "embedding": [0.3, 0.4], "content": "beta"},

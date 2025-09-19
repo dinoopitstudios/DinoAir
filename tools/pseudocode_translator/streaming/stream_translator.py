@@ -492,6 +492,9 @@ class StreamingTranslator:
         translations = self._parse_and_translate_blocks(statement, chunk_index, on_update)
         return ("\n".join(translations) + "\n") if translations else None
 
+    def identify_blocks(self, current_input: str) -> list[str]:
+        return self.parser._identify_blocks(current_input)
+
     def _process_accumulated_blocks(
         self,
         accumulated_input: list[str],
@@ -500,7 +503,7 @@ class StreamingTranslator:
         """Process accumulated blocks and return (translated_list, remaining_list) (refactored)."""
         current_input = "".join(accumulated_input)
         try:
-            blocks = self.parser._identify_blocks(current_input)
+            blocks = self.identify_blocks(current_input)
             if len(blocks) > 1:
                 translated_chunks: list[str] = []
                 for i, block_text in enumerate(blocks[:-1]):

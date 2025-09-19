@@ -685,13 +685,8 @@ class WatchdogThread(QThread):
     def _collect_vram_with_fallback(self) -> tuple[float, float, float]:
         """Collect VRAM info with error handling and fallback."""
         try:
-            # Try public method first, fallback to protected method for compatibility
-            vram_method = getattr(self._watchdog_instance, "get_vram_info", None)
-            if vram_method is None:
-                vram_method = self._watchdog_instance._get_vram_info
-
-            result = vram_method()
-            vram_used, vram_total, vram_percent = result
+            # Use the public method to get VRAM info
+            vram_used, vram_total, vram_percent = self._watchdog_instance.get_vram_info()
             self._update_component_health(
                 "vram_collector", ComponentHealth.HEALTHY, "VRAM metrics collected"
             )
@@ -766,11 +761,8 @@ class WatchdogThread(QThread):
 
             total_processes = len(psutil.pids())
 
-            # Try public method first, fallback to protected method for compatibility
-            process_method = getattr(self._watchdog_instance, "count_dinoair_processes", None)
-            if process_method is None:
-                process_method = self._watchdog_instance._count_dinoair_processes
-
+            # Use public method for dinoair process count
+            process_method = getattr(self._watchdog_instance, "count_dinoair_processes")
             dinoair_count = process_method()
 
             self._update_component_health(
@@ -970,14 +962,8 @@ class WatchdogThread(QThread):
             new_metrics = self._watchdog_instance.get_current_metrics()
             if new_metrics and new_metrics.dinoair_processes > self.config.max_processes:
                 logger.critical("Emergency cleanup failed, performing full shutdown")
-                # Try public method first, fallback to protected method for compatibility
-                shutdown_method = getattr(
-                    self._watchdog_instance, "perform_emergency_shutdown", None
-                )
-                if shutdown_method is None:
-                    shutdown_method = self._watchdog_instance._perform_emergency_shutdown
-
-                shutdown_method()
+                # Use public method for emergency shutdown
+                self._watchdog_instance.perform_emergency_shutdown()
 
         except (OSError, AttributeError, RuntimeError) as e:
             logger.error(f"Error during emergency shutdown: {e}")

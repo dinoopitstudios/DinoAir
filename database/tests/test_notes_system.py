@@ -418,7 +418,7 @@ class TestNotesRepository:
                 mock_note = Mock()
                 mock_note_class.from_dict.return_value = mock_note
 
-                result = repo._row_to_note(row)
+                result = repo.row_to_note(row)
 
                 if result != mock_note:
                     raise AssertionError
@@ -433,9 +433,9 @@ class TestNotesSecurity:
             security = NotesSecurity(user_name="test_user")
 
             # Should have loaded a policy
-            if not hasattr(security, "_policy"):
+            if not hasattr(security, "policy"):
                 raise AssertionError
-            assert isinstance(security._policy, SecurityPolicy | FallbackSecurity)
+            assert isinstance(security.policy, SecurityPolicy | FallbackSecurity)
 
     def test_can_perform_write_operation_allowed(self, mock_db_manager):
         """Test write operation permission check - allowed"""
