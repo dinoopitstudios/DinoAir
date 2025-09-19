@@ -20,7 +20,6 @@ except ImportError:
         "llama-cpp-python is required for Qwen model support. Install with: pip install llama-cpp-python"
     )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -191,7 +190,8 @@ class QwenModel(BaseModel):
             Generated text
         """
         if not self._initialized:
-            raise RuntimeError("Model not initialized. Call initialize() first.")
+            raise RuntimeError(
+                "Model not initialized. Call initialize() first.")
 
         # Use provided parameters or fall back to config
         generation_params = {
@@ -225,7 +225,8 @@ class QwenModel(BaseModel):
         code_context = context.get("code", "") if context else ""
 
         # Select best prompting style
-        prompt_style = self.prompt_engineer.select_best_style(instruction, code_context)
+        prompt_style = self.prompt_engineer.select_best_style(
+            instruction, code_context)
 
         # Create prompt
         prompt = self.prompt_engineer.create_prompt(
@@ -258,14 +259,17 @@ class QwenModel(BaseModel):
             Refined code
         """
         # Create refinement prompt
-        prompt = self.prompt_engineer.create_refinement_prompt(code, error_context)
+        prompt = self.prompt_engineer.create_refinement_prompt(
+            code, error_context)
         full_prompt = f"{PromptLibrary.SYSTEM_PROMPT}\n\n{prompt}"
 
         # Generate with lower temperature for refinement
-        generated_text = self.generate(full_prompt, temperature=self.config["temperature"] * 0.8)
+        generated_text = self.generate(
+            full_prompt, temperature=self.config["temperature"] * 0.8)
 
         # Extract and validate refined code
-        refined_code = self.prompt_engineer.extract_code_from_response(generated_text)
+        refined_code = self.prompt_engineer.extract_code_from_response(
+            generated_text)
         return self._validate_and_clean_code(refined_code)
 
     def _validate_and_clean_code(self, code: str) -> str:

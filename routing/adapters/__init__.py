@@ -16,7 +16,6 @@ from .base import ServiceAdapter
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-
 __all__ = ["ServiceAdapter", "make_adapter"]
 
 

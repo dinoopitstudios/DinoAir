@@ -17,7 +17,8 @@ from ..schemas import TargetLanguageEnum, TranslateRequest, TranslateResponse
 
 # Prefer the high-level API but force non-streaming behavior
 try:
-    from pseudocode_translator.integration.api import TranslatorAPI  # type: ignore[import-untyped]
+    # type: ignore[import-untyped]
+    from pseudocode_translator.integration.api import TranslatorAPI
 
     # Type alias for when the dependency is available
     TranslatorAPIType = type[TranslatorAPI]
@@ -116,7 +117,8 @@ class TranslatorService:
         Translate pseudocode to the target language with non-streaming behavior.
         """
         # Map TargetLanguageEnum to raw string expected by TranslatorAPI
-        target_lang: str = (req.target_language or TargetLanguageEnum.python).value
+        target_lang: str = (
+            req.target_language or TargetLanguageEnum.python).value
 
         # TranslatorAPI returns a dictionary with keys:
         #   success: bool, code: Optional[str], language: str

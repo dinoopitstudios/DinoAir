@@ -200,10 +200,12 @@ class EnhancedContextProvider:
             # Export formats
             self.export_formats = ["json", "csv", "markdown"]
 
-            self.logger.info("Enhanced context provider initialized successfully")
+            self.logger.info(
+                "Enhanced context provider initialized successfully")
 
         except Exception as e:
-            self.logger.error("Failed to initialize context provider: %s", str(e))
+            self.logger.error(
+                "Failed to initialize context provider: %s", str(e))
             raise
 
     def get_context_for_query(
@@ -225,7 +227,8 @@ class EnhancedContextProvider:
         """
         try:
             # Validate query
-            is_valid, sanitized_query, error_msg = self.validator.validate_query(query)
+            is_valid, sanitized_query, error_msg = self.validator.validate_query(
+                query)
             if not is_valid:
                 return {
                     "success": False,
@@ -234,7 +237,8 @@ class EnhancedContextProvider:
                 }
 
             # Validate file types
-            is_valid, sanitized_types, error_msg = self.validator.validate_file_types(file_types)
+            is_valid, sanitized_types, error_msg = self.validator.validate_file_types(
+                file_types)
             if not is_valid:
                 return {
                     "success": False,
@@ -260,7 +264,8 @@ class EnhancedContextProvider:
                     context_item = self._build_context_item(result)
                     context_items.append(context_item)
                 except Exception as e:
-                    self.logger.error("Error building context item: %s", str(e))
+                    self.logger.error(
+                        "Error building context item: %s", str(e))
                     continue
 
             # Add to search history
@@ -269,7 +274,8 @@ class EnhancedContextProvider:
             # Get suggestions if requested
             suggestions: list[str] = []
             if include_suggestions and context_items:
-                suggestions = self._generate_suggestions(sanitized_query, context_items)
+                suggestions = self._generate_suggestions(
+                    sanitized_query, context_items)
 
             return {
                 "success": True,
@@ -392,7 +398,8 @@ class EnhancedContextProvider:
         suggestions = []
 
         # Get suggestions from search history
-        history_suggestions = self.search_history.get_suggestions(query, limit=3)
+        history_suggestions = self.search_history.get_suggestions(
+            query, limit=3)
         suggestions.extend(history_suggestions)
 
         # Extract key terms from top results
@@ -401,7 +408,8 @@ class EnhancedContextProvider:
             for result in results[:3]:  # Top 3 results
                 # Extract nouns and important terms from content
                 words = result["content"].lower().split()
-                important_words = [w for w in words if len(w) > 4 and w not in query.lower()]
+                important_words = [w for w in words if len(
+                    w) > 4 and w not in query.lower()]
                 term_counter.update(important_words)
 
             # Add most common terms as suggestions
@@ -491,18 +499,21 @@ class EnhancedContextProvider:
         """Export results as Markdown"""
         with open(file_path, "w", encoding="utf-8") as f:
             f.write("# Search Results\n\n")
-            f.write(f"**Export Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(
+                f"**Export Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write(f"**Total Results:** {len(results)}\n\n")
 
             for i, result in enumerate(results, 1):
                 f.write(f"## Result {i}\n\n")
                 f.write(f"**File:** `{result.get('file_name', 'Unknown')}`\n")
                 f.write(f"**Path:** `{result.get('file_path', 'Unknown')}`\n")
-                f.write(f"**Relevance:** {result.get('relevance_level', 'Unknown')} ")
+                f.write(
+                    f"**Relevance:** {result.get('relevance_level', 'Unknown')} ")
                 f.write(f"({result.get('score', 0):.1%})\n")
                 f.write(f"**Type:** {result.get('file_type', 'Unknown')}\n\n")
                 f.write("### Content Preview\n\n")
-                f.write(f"```\n{result.get('preview', result.get('content', ''))}\n```\n\n")
+                f.write(
+                    f"```\n{result.get('preview', result.get('content', ''))}\n```\n\n")
                 f.write("---\n\n")
 
     def get_search_history(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -531,7 +542,8 @@ class EnhancedContextProvider:
                 "search_history_count": len(history_queries),
                 "popular_terms": self.search_history.term_frequency.most_common(10),
                 "average_results_per_search": (
-                    sum(q["result_count"] for q in history_queries) / len(history_queries)
+                    sum(q["result_count"]
+                        for q in history_queries) / len(history_queries)
                     if history_queries
                     else 0
                 ),
@@ -559,7 +571,8 @@ class EnhancedContextProvider:
 
             # Check embedding generator
             try:
-                test_embedding = self.search_engine.embedding_generator.generate_embedding("test")
+                test_embedding = self.search_engine.embedding_generator.generate_embedding(
+                    "test")
                 if test_embedding is None:
                     issues.append("Embedding generator not functioning")
             except Exception as e:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Projects Database Manager
 Manages all project database operations with resilient handling,
@@ -163,7 +162,8 @@ class ProjectsDatabase:
                 max_date_str = row[1] if len(row) > 1 else None
                 if count > 0:
                     recent_total += count
-                    candidate = self._iso_to_dt(max_date_str) if max_date_str else None
+                    candidate = self._iso_to_dt(
+                        max_date_str) if max_date_str else None
                     if candidate and (last_activity is None or candidate > last_activity):
                         last_activity = candidate
                         last_type = label
@@ -385,7 +385,8 @@ class ProjectsDatabase:
             if "parent_project_id" in updates:
                 parent_id = updates["parent_project_id"]
                 if parent_id and not self._validate_project_hierarchy(project_id, parent_id):
-                    self.logger.error(f"Invalid parent project {parent_id} for {project_id}")
+                    self.logger.error(
+                        f"Invalid parent project {parent_id} for {project_id}")
                     return False
 
             with self._get_connection() as conn:
@@ -398,7 +399,8 @@ class ProjectsDatabase:
                 if len(set_clauses) == 1 and set_clauses[-1] == "updated_at = CURRENT_TIMESTAMP":
                     return False
 
-                query = "UPDATE projects SET " + ", ".join(set_clauses) + " WHERE id = ?"
+                query = "UPDATE projects SET " + \
+                    ", ".join(set_clauses) + " WHERE id = ?"
                 cursor.execute(query, list(params) + [project_id])
 
                 conn.commit()
@@ -437,7 +439,8 @@ class ProjectsDatabase:
                     )
                     deleted_total = cursor.rowcount or 0
                 else:
-                    cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+                    cursor.execute(
+                        "DELETE FROM projects WHERE id = ?", (project_id,))
                     deleted_total = cursor.rowcount or 0
 
                 conn.commit()
@@ -548,15 +551,18 @@ class ProjectsDatabase:
             if not project:
                 return ProjectStatistics(project_id=project_id, project_name="Unknown")
 
-            stats = ProjectStatistics(project_id=project_id, project_name=project.name)
+            stats = ProjectStatistics(
+                project_id=project_id, project_name=project.name)
 
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
                 # Related object counts
                 stats.total_notes = self.get_project_notes_count(project_id)
-                stats.total_artifacts = self.get_project_artifacts_count(project_id)
-                stats.total_calendar_events = self.get_project_events_count(project_id)
+                stats.total_artifacts = self.get_project_artifacts_count(
+                    project_id)
+                stats.total_calendar_events = self.get_project_events_count(
+                    project_id)
 
                 # Child projects count
                 stats.child_project_count = self._exec_count(
@@ -571,7 +577,8 @@ class ProjectsDatabase:
                 # Last activity across tables
                 last_activity = None
                 for table in ("notes", "artifacts", "calendar_events"):
-                    candidate = self._safe_max_updated_at(cursor, table, project_id)
+                    candidate = self._safe_max_updated_at(
+                        cursor, table, project_id)
                     if candidate and (last_activity is None or candidate > last_activity):
                         last_activity = candidate
 
@@ -614,7 +621,8 @@ class ProjectsDatabase:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 return self._count_where(
-                    cursor, "notes", "project_id = ? AND is_deleted = 0", (project_id,)
+                    cursor, "notes", "project_id = ? AND is_deleted = 0", (
+                        project_id,)
                 )
         except Exception:
             # Table might not exist or have project_id column yet
@@ -658,17 +666,20 @@ class ProjectsDatabase:
                 summaries: list[ProjectSummary] = []
 
                 for project in projects:
-                    summary = self._build_project_summary(cursor, project, cutoff_iso)
+                    summary = self._build_project_summary(
+                        cursor, project, cutoff_iso)
                     if summary:
                         summaries.append(summary)
 
                 # Sort by most recent activity
-                summaries.sort(key=lambda s: s.last_activity_date or datetime.min, reverse=True)
+                summaries.sort(
+                    key=lambda s: s.last_activity_date or datetime.min, reverse=True)
 
                 return summaries
 
         except Exception as e:
-            self.logger.error(f"Failed to get projects with activity: {str(e)}")
+            self.logger.error(
+                f"Failed to get projects with activity: {str(e)}")
             return []
 
     def search_projects(self, query: str) -> list[Project]:
@@ -711,7 +722,8 @@ class ProjectsDatabase:
 
                 # Use LIKE prefilter to leverage indexes
                 tag_pattern = f"%{tag}%"
-                projects = self._fetch_projects_where(cursor, "tags LIKE ?", (tag_pattern,), "name")
+                projects = self._fetch_projects_where(
+                    cursor, "tags LIKE ?", (tag_pattern,), "name")
 
                 # Exact-match filter preserving existing semantics
                 return [p for p in projects if self._has_tag(p, tag)]
@@ -804,5 +816,6 @@ class ProjectsDatabase:
                 rows = cursor.fetchall()
                 return [r[0] for r in rows] if rows else []
         except Exception as e:
-            self.logger.error(f"Error getting descendants for {project_id}: {str(e)}")
+            self.logger.error(
+                f"Error getting descendants for {project_id}: {str(e)}")
             return []

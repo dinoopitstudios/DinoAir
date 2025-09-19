@@ -41,7 +41,8 @@ class _BrokenPoolSentinel(Exception):
     """Local sentinel to allow except blocks to match consistently when symbol is missing."""
 
 
-BrokenProcessPool = _CFBroken or _MPBroken or _BrokenPoolSentinel  # type: ignore[misc]
+# type: ignore[misc]
+BrokenProcessPool = _CFBroken or _MPBroken or _BrokenPoolSentinel
 
 
 class OffloadExecutor:
@@ -109,12 +110,14 @@ class OffloadExecutor:
                 return False, None
 
             # Respect optional timeout parameter if provided; otherwise use pool's default
-            res = fut.result(timeout=timeout) if timeout is not None else fut.result()
+            res = fut.result(
+                timeout=timeout) if timeout is not None else fut.result()
             return True, res
 
         except (futures.TimeoutError, BrokenProcessPool) as e:
             # Pool has already emitted TIMEOUT and FALLBACK; caller will run local fallback.
-            reason = "timeout" if isinstance(e, futures.TimeoutError) else "broken_pool"
+            reason = "timeout" if isinstance(
+                e, futures.TimeoutError) else "broken_pool"
             return True, f"exec_pool_fallback:{reason}"
 
         except RuntimeError as e:

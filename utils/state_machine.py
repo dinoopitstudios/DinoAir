@@ -181,8 +181,10 @@ class StateMachine:
         self._state_entry_time = datetime.now()
 
         # Event callbacks
-        self._enter_callbacks: dict[ApplicationState, list[Callable[..., Any]]] = {}
-        self._exit_callbacks: dict[ApplicationState, list[Callable[..., Any]]] = {}
+        self._enter_callbacks: dict[ApplicationState,
+                                    list[Callable[..., Any]]] = {}
+        self._exit_callbacks: dict[ApplicationState,
+                                   list[Callable[..., Any]]] = {}
         self._transition_callbacks: list[Callable[..., Any]] = []
 
         # Initialize current state info
@@ -190,7 +192,8 @@ class StateMachine:
             state=initial_state, entry_time=self._state_entry_time, entry_count=1
         )
 
-        logger.info(f"State machine initialized in state: {initial_state.value}")
+        logger.info(
+            f"State machine initialized in state: {initial_state.value}")
 
     def get_current_state(self) -> ApplicationState:
         """Get the current state."""
@@ -249,13 +252,15 @@ class StateMachine:
 
             try:
                 # Perform the state transition
-                self._perform_state_transition(current, new_state, start_time, context)
+                self._perform_state_transition(
+                    current, new_state, start_time, context)
 
                 # Call transition callbacks
                 self._call_transition_callbacks(current, new_state, context)
 
                 # Record successful transition
-                duration_ms = int((datetime.now() - start_time).total_seconds() * 1000)
+                duration_ms = int(
+                    (datetime.now() - start_time).total_seconds() * 1000)
                 self._record_transition(
                     current,
                     new_state,
@@ -266,14 +271,16 @@ class StateMachine:
                     duration_ms,
                 )
 
-                logger.info(f"State transition: {current.value} -> {new_state.value}")
+                logger.info(
+                    f"State transition: {current.value} -> {new_state.value}")
                 return TransitionResult.SUCCESS
 
             except RuntimeError as e:
                 logger.error(f"Error during state transition: {e}")
 
                 # Record failed transition
-                duration_ms = int((datetime.now() - start_time).total_seconds() * 1000)
+                duration_ms = int(
+                    (datetime.now() - start_time).total_seconds() * 1000)
                 self._record_transition(
                     current,
                     new_state,
@@ -371,7 +378,8 @@ class StateMachine:
         context: dict[str, Any],
     ) -> None:
         """Call transition callbacks."""
-        logger.debug(f"DEBUG: Calling {len(self._transition_callbacks)} transition callbacks")
+        logger.debug(
+            f"DEBUG: Calling {len(self._transition_callbacks)} transition callbacks")
         for callback in self._transition_callbacks:
             try:
                 callback(from_state, to_state, context)
@@ -479,7 +487,8 @@ class StateMachine:
 
             total_transitions = len(self._state_history)
             successful_transitions = len(
-                [t for t in self._state_history if t.result == TransitionResult.SUCCESS]
+                [t for t in self._state_history if t.result ==
+                    TransitionResult.SUCCESS]
             )
 
             return {

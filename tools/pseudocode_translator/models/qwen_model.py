@@ -27,7 +27,6 @@ try:
 except ImportError:
     Llama = None
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -141,7 +140,8 @@ class QwenModel(BaseTranslationModel):
             supports_context_aware=True,
             supports_code_completion=True,
             supports_error_correction=True,
-            tokens_per_second=(10.0 if self.config["n_gpu_layers"] == 0 else 50.0),
+            tokens_per_second=(
+                10.0 if self.config["n_gpu_layers"] == 0 else 50.0),
             max_batch_size=10,
             optimal_temperature=0.3,
             min_memory_gb=4.0,
@@ -163,7 +163,8 @@ class QwenModel(BaseTranslationModel):
                 model_path = Path(model_path)
 
         if not model_path:
-            raise ValueError("Model path must be provided either in config or as parameter")
+            raise ValueError(
+                "Model path must be provided either in config or as parameter")
 
         if not model_path.exists():
             raise FileNotFoundError(
@@ -206,7 +207,8 @@ class QwenModel(BaseTranslationModel):
             TranslationResult containing the generated code
         """
         if not self._initialized:
-            raise RuntimeError("Model not initialized. Call initialize() first.")
+            raise RuntimeError(
+                "Model not initialized. Call initialize() first.")
 
         # Use default config if not provided
         if config is None:
@@ -232,7 +234,8 @@ class QwenModel(BaseTranslationModel):
             )
 
             # Select best prompting style
-            prompt_style = self.prompt_engineer.select_best_style(instruction, code_context)
+            prompt_style = self.prompt_engineer.select_best_style(
+                instruction, code_context)
 
             # Create prompt with language specification
             base_prompt = self.prompt_engineer.create_prompt(
@@ -243,7 +246,8 @@ class QwenModel(BaseTranslationModel):
             full_prompt = f"{PromptLibrary.SYSTEM_PROMPT}\n\n{lang_prompt}\n\n{base_prompt}"
 
             # Generate code
-            logger.debug(f"Translating to {config.target_language.value}: {instruction[:50]}...")
+            logger.debug(
+                f"Translating to {config.target_language.value}: {instruction[:50]}...")
 
             generated_text = self._generate(
                 prompt=full_prompt,
@@ -251,11 +255,13 @@ class QwenModel(BaseTranslationModel):
                 temperature=config.temperature,
                 top_p=config.top_p,
                 top_k=config.top_k,
-                stop_sequences=(config.stop_sequences or self._get_stop_sequences()),
+                stop_sequences=(
+                    config.stop_sequences or self._get_stop_sequences()),
             )
 
             # Extract code from response
-            code = self.prompt_engineer.extract_code_from_response(generated_text)
+            code = self.prompt_engineer.extract_code_from_response(
+                generated_text)
 
             # Validate and clean code
             code = self._validate_and_clean_code(code, config.target_language)
@@ -265,7 +271,8 @@ class QwenModel(BaseTranslationModel):
                 code = format_code_block(code, config.target_language)
 
             # Calculate confidence based on validation
-            confidence = self._calculate_confidence(code, config.target_language)
+            confidence = self._calculate_confidence(
+                code, config.target_language)
 
             return TranslationResult(
                 success=True,
@@ -299,7 +306,8 @@ class QwenModel(BaseTranslationModel):
             Tuple of (is_valid, error_message)
         """
         # Use helper function for basic validation
-        is_valid, error = validate_instruction(instruction, min_length=3, max_length=1000)
+        is_valid, error = validate_instruction(
+            instruction, min_length=3, max_length=1000)
 
         if not is_valid:
             return is_valid, error

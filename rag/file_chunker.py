@@ -158,7 +158,8 @@ class FileChunker:
             if current_pos <= chunks[-1].metadata.start_pos:
                 current_pos = chunk_end
 
-        self.logger.info("Created %d chunks from %d characters", len(chunks), text_length)
+        self.logger.info("Created %d chunks from %d characters",
+                         len(chunks), text_length)
         return chunks
 
     def chunk_by_sentences(self, text: str) -> list[TextChunk]:
@@ -195,7 +196,8 @@ class FileChunker:
                 chunk_content = "".join(current_chunk)
 
                 # Add overlap from next sentences if available
-                overlap_content = self._get_sentence_overlap(sentences, i, self.overlap)
+                overlap_content = self._get_sentence_overlap(
+                    sentences, i, self.overlap)
                 if overlap_content:
                     chunk_content += overlap_content
 
@@ -204,8 +206,10 @@ class FileChunker:
                     start_pos=chunk_start_pos,
                     end_pos=chunk_start_pos + len(chunk_content),
                     chunk_type="sentence",
-                    overlap_with_previous=(self.overlap if chunk_index > 0 else 0),
-                    overlap_with_next=(len(overlap_content) if overlap_content else 0),
+                    overlap_with_previous=(
+                        self.overlap if chunk_index > 0 else 0),
+                    overlap_with_next=(len(overlap_content)
+                                       if overlap_content else 0),
                 )
 
                 chunk = TextChunk(content=chunk_content, metadata=metadata)
@@ -219,7 +223,8 @@ class FileChunker:
 
                 # Add overlap from previous chunk
                 if self.overlap > 0 and i > 0:
-                    overlap_sentences = self._get_previous_sentences(sentences, i, self.overlap)
+                    overlap_sentences = self._get_previous_sentences(
+                        sentences, i, self.overlap)
                     current_chunk.extend(overlap_sentences)
                     current_size = sum(len(s) for s in overlap_sentences)
 
@@ -284,7 +289,8 @@ class FileChunker:
                     start_pos=chunk_start_pos,
                     end_pos=chunk_start_pos + len(chunk_content),
                     chunk_type="paragraph",
-                    overlap_with_previous=(self.overlap if chunk_index > 0 else 0),
+                    overlap_with_previous=(
+                        self.overlap if chunk_index > 0 else 0),
                     overlap_with_next=0,
                 )
 
@@ -350,7 +356,8 @@ class FileChunker:
             # If block is too large, split it further
             if len(block_content) > self.chunk_size * 2:
                 # Recursively chunk large blocks
-                sub_chunks = self.chunk_text(block_content, respect_boundaries=True)
+                sub_chunks = self.chunk_text(
+                    block_content, respect_boundaries=True)
 
                 for sub_chunk in sub_chunks:
                     # Adjust positions relative to original code
@@ -365,7 +372,8 @@ class FileChunker:
                         },
                     )
 
-                    chunk = TextChunk(content=sub_chunk.content, metadata=metadata)
+                    chunk = TextChunk(
+                        content=sub_chunk.content, metadata=metadata)
                     chunks.append(chunk)
                     chunk_index += 1
             else:
@@ -385,7 +393,8 @@ class FileChunker:
                 chunks.append(chunk)
                 chunk_index += 1
 
-        self.logger.info("Created %d code chunks for %s", len(chunks), language)
+        self.logger.info("Created %d code chunks for %s",
+                         len(chunks), language)
         return chunks
 
     def _find_boundary(self, text: str, start: int, preferred_end: int) -> int:
@@ -402,7 +411,7 @@ class FileChunker:
         """
         # Look for sentence end
         search_start = max(start, preferred_end - 100)
-        search_text = text[search_start : preferred_end + 50]
+        search_text = text[search_start: preferred_end + 50]
 
         # Find last sentence boundary
         matches = list(self.sentence_end_pattern.finditer(search_text))

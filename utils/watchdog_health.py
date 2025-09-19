@@ -124,7 +124,8 @@ class ComponentMetrics:
     recovery_attempts: int = 0
     last_success: datetime | None = None
     last_failure: datetime | None = None
-    response_times: deque[float] = field(default_factory=lambda: deque(maxlen=100))
+    response_times: deque[float] = field(
+        default_factory=lambda: deque(maxlen=100))
     error_types: dict[str, int] = field(default_factory=_empty_str_int_dict)
 
 
@@ -289,9 +290,11 @@ class WatchdogHealthMonitor(QObject):
             if recovery_strategies:
                 self.recovery_actions[name] = recovery_strategies
             else:
-                self.recovery_actions[name] = [RecoveryAction(RecoveryStrategy.ESCALATE)]
+                self.recovery_actions[name] = [
+                    RecoveryAction(RecoveryStrategy.ESCALATE)]
 
-            logger.info("Registered component '%s' for health monitoring", name)
+            logger.info(
+                "Registered component '%s' for health monitoring", name)
 
     def record_success(self, component: str, response_time: float | None = None) -> None:
         """Record successful operation for a component.
@@ -342,7 +345,8 @@ class WatchdogHealthMonitor(QObject):
 
             # Track error types
             error_type = type(error).__name__
-            metrics.error_types[error_type] = metrics.error_types.get(error_type, 0) + 1
+            metrics.error_types[error_type] = metrics.error_types.get(
+                error_type, 0) + 1
 
             # Check if component needs state update
             if metrics.consecutive_failures >= self.failure_threshold:
@@ -371,7 +375,8 @@ class WatchdogHealthMonitor(QObject):
                     state,
                     message,
                 )
-                self.signals.component_health_changed.emit(component, state, message)
+                self.signals.component_health_changed.emit(
+                    component, state, message)
 
                 # Check overall system health
                 self._check_overall_health()
@@ -384,9 +389,12 @@ class WatchdogHealthMonitor(QObject):
             }
 
             # Determine overall state
-            failed_states = [s for s in component_states.values() if s == "failed"]
-            degraded_states = [s for s in component_states.values() if s == "degraded"]
-            healthy_states = [s for s in component_states.values() if s == "healthy"]
+            failed_states = [
+                s for s in component_states.values() if s == "failed"]
+            degraded_states = [
+                s for s in component_states.values() if s == "degraded"]
+            healthy_states = [
+                s for s in component_states.values() if s == "healthy"]
 
             if failed_states:
                 overall_state = "critical"
@@ -397,7 +405,8 @@ class WatchdogHealthMonitor(QObject):
             else:
                 overall_state = "unknown"
 
-            self.signals.overall_health_changed.emit(overall_state, component_states)
+            self.signals.overall_health_changed.emit(
+                overall_state, component_states)
 
     def _perform_health_check(self):
         """Perform periodic health check on all components."""
@@ -416,7 +425,8 @@ class WatchdogHealthMonitor(QObject):
                                     component, "degraded", "Health check failed"
                                 )
                         except RuntimeError as e:
-                            logger.error("Health check failed for %s: %s", component, e)
+                            logger.error(
+                                "Health check failed for %s: %s", component, e)
                             self._update_component_state(
                                 component, "failed", f"Health check error: {e}"
                             )
@@ -424,7 +434,8 @@ class WatchdogHealthMonitor(QObject):
                     # Analyze metrics
                     if component in self.component_metrics:
                         metrics = self.component_metrics[component]
-                        analysis = self._analyze_component_metrics(component, metrics)
+                        analysis = self._analyze_component_metrics(
+                            component, metrics)
 
                         if analysis["needs_attention"]:
                             degraded_components[component] = analysis
@@ -461,12 +472,14 @@ class WatchdogHealthMonitor(QObject):
 
             if analysis["success_rate"] < self.degraded_threshold:
                 analysis["needs_attention"] = True
-                analysis["issues"].append(f"Low success rate: {analysis['success_rate']:.1%}")
+                analysis["issues"].append(
+                    f"Low success rate: {analysis['success_rate']:.1%}")
 
         # Check consecutive failures
         if metrics.consecutive_failures >= self.failure_threshold:
             analysis["needs_attention"] = True
-            analysis["issues"].append(f"High consecutive failures: {metrics.consecutive_failures}")
+            analysis["issues"].append(
+                f"High consecutive failures: {metrics.consecutive_failures}")
 
         # Analyze response times
         if metrics.response_times:
@@ -476,15 +489,18 @@ class WatchdogHealthMonitor(QObject):
 
             if avg_response > self.response_time_threshold:
                 analysis["needs_attention"] = True
-                analysis["issues"].append(f"Slow response time: {avg_response:.2f}s")
+                analysis["issues"].append(
+                    f"Slow response time: {avg_response:.2f}s")
 
         # Check staleness
         if metrics.last_success:
-            time_since_success = (datetime.now() - metrics.last_success).total_seconds()
+            time_since_success = (
+                datetime.now() - metrics.last_success).total_seconds()
 
             if time_since_success > self.metrics_window:
                 analysis["needs_attention"] = True
-                analysis["issues"].append(f"No recent success: {time_since_success:.0f}s ago")
+                analysis["issues"].append(
+                    f"No recent success: {time_since_success:.0f}s ago")
 
         return analysis
 
@@ -515,7 +531,8 @@ class WatchdogHealthMonitor(QObject):
                 component,
             )
 
-            self.signals.recovery_started.emit(component, action.strategy.value)
+            self.signals.recovery_started.emit(
+                component, action.strategy.value)
 
             action.record_attempt()
 
@@ -631,7 +648,8 @@ class WatchdogHealthMonitor(QObject):
                 metrics = self.component_metrics.get(name)
 
                 # Update statistics
-                report["statistics"][state] = report["statistics"].get(state, 0) + 1
+                report["statistics"][state] = report["statistics"].get(
+                    state, 0) + 1
 
                 # Component details
                 component_report: dict[str, Any] = {

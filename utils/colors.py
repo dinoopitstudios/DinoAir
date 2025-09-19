@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 DinoPit Studios Color Configuration
 Centralized color scheme for the DinoPit Studios GUI application.

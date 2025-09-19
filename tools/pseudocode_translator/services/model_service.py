@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from ..config import TranslatorConfig
     from .dependency_container import DependencyContainer
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +41,8 @@ class ModelService:
         container: DependencyContainer | None = None,
     ):
         self.config = config
-        self.error_handler = error_handler or ErrorHandler(logger_name=__name__)
+        self.error_handler = error_handler or ErrorHandler(
+            logger_name=__name__)
         self.container = container
 
         # Model state
@@ -102,7 +102,8 @@ class ModelService:
                 e, ErrorCategory.MODEL, additional_context="Model initialization"
             )
 
-            raise RuntimeError(f"Failed to initialize model '{model_name}': {str(e)}") from e
+            raise RuntimeError(
+                f"Failed to initialize model '{model_name}': {str(e)}") from e
 
     def translate_text(
         self,
@@ -133,7 +134,8 @@ class ModelService:
             self._translation_count += 1
 
             # Build translation config
-            translation_config = self._build_translation_config(target_language, config_overrides)
+            translation_config = self._build_translation_config(
+                target_language, config_overrides)
 
             logger.debug("Translating text with model: %s", self._model_name)
 
@@ -246,7 +248,8 @@ class ModelService:
     def _get_default_model_name(self) -> str:
         """Get the default model name from configuration."""
         return getattr(
-            self.config.llm, "model_type", getattr(self.config.llm, "model_name", "qwen")
+            self.config.llm, "model_type", getattr(
+                self.config.llm, "model_name", "qwen")
         )
 
     def _get_model_path(self) -> Path | None:

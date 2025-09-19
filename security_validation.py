@@ -63,7 +63,8 @@ def test_password_security():
             for pwd, should_pass in test_passwords:
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
-                print(f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
+                print(
+                    f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
 
         except Exception:
             print("   ⚠️  Password validation method not found")
@@ -89,7 +90,8 @@ def test_rbac_system():
         UserManager()
 
         # Test role definitions
-        roles = [UserRole.CLINICIAN, UserRole.NURSE, UserRole.DISPATCHER, UserRole.HEALTHCARE_ADMIN]
+        roles = [UserRole.CLINICIAN, UserRole.NURSE,
+                 UserRole.DISPATCHER, UserRole.HEALTHCARE_ADMIN]
         print(f"   ✅ Healthcare roles defined: {len(roles)} roles")
 
         # List available roles
@@ -224,7 +226,8 @@ def test_security_configuration():
         config_attrs = []
         if config_created:
             attrs = dir(config)
-            security_attrs = [attr for attr in attrs if not attr.startswith("_")]
+            security_attrs = [
+                attr for attr in attrs if not attr.startswith("_")]
             config_attrs = security_attrs[:5]  # Show first 5
             print(f"   ✅ Config attributes: {', '.join(config_attrs)}")
 
@@ -286,7 +289,8 @@ def run_security_validation():
     validation_results["overall_score"] = score
 
     print("\n📊 SECURITY VALIDATION RESULTS")
-    print(f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
+    print(
+        f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
 
     if score >= 90:
         grade = "A (Excellent)"

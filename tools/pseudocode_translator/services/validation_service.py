@@ -6,7 +6,6 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import Callable
 
-
 # Intentionally avoid importing ValidationResult to prevent type resolution issues in editors.
 # Use 'Any' for callback typing to keep this module decoupled from translator/validator internals.
 

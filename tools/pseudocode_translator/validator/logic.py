@@ -139,7 +139,8 @@ class LogicValidator:
             similar = self._find_similar_name(name, checker.defined_names)
             loc = f"line {line}" + (f", col {col}" if col is not None else "")
             if similar:
-                issues.append(f"Undefined variable '{name}' at {loc}. Did you mean '{similar}'?")
+                issues.append(
+                    f"Undefined variable '{name}' at {loc}. Did you mean '{similar}'?")
             else:
                 issues.append(f"Undefined variable '{name}' at {loc}")
 
@@ -159,12 +160,14 @@ class LogicValidator:
 
         # Simple edit distance check
         if len(name1) == len(name2):
-            diff_count = sum(c1 != c2 for c1, c2 in zip(name1, name2, strict=False))
+            diff_count = sum(c1 != c2 for c1, c2 in zip(
+                name1, name2, strict=False))
             return diff_count <= 1
 
         # Check for single character insertion/deletion
-        shorter, longer = (name1, name2) if len(name1) < len(name2) else (name2, name1)
-        return any(longer[:i] + longer[i + 1 :] == shorter for i in range(len(longer)))
+        shorter, longer = (name1, name2) if len(
+            name1) < len(name2) else (name2, name1)
+        return any(longer[:i] + longer[i + 1:] == shorter for i in range(len(longer)))
 
     def _check_basic_type_consistency(self, tree: ast.AST) -> list[str]:
         """Check for basic type consistency issues."""
@@ -189,7 +192,8 @@ class LogicValidator:
                 found_return = False
                 for stmt in node.body:
                     if found_return and not isinstance(stmt, ast.Pass):
-                        self.issues.append(f"Unreachable code after return at line {stmt.lineno}")
+                        self.issues.append(
+                            f"Unreachable code after return at line {stmt.lineno}")
                         break
                     if isinstance(stmt, ast.Return):
                         found_return = True
@@ -221,7 +225,8 @@ class LogicValidator:
         finder = UnusedVariableFinder()
         finder.visit(tree)
 
-        unused = finder.assigned - finder.used - {"_"}  # Exclude underscore convention
+        unused = finder.assigned - finder.used - \
+            {"_"}  # Exclude underscore convention
         return [f"Unused variable: {var}" for var in sorted(unused)]
 
     def _detect_infinite_loops(self, tree: ast.AST) -> list[str]:
@@ -235,9 +240,11 @@ class LogicValidator:
                 # Check for simple infinite loops
                 if isinstance(node.test, ast.Constant) and node.test.value is True:
                     # Check if there's a break statement
-                    has_break = any(isinstance(stmt, ast.Break) for stmt in ast.walk(node))
+                    has_break = any(isinstance(stmt, ast.Break)
+                                    for stmt in ast.walk(node))
                     if not has_break:
-                        self.issues.append(f"Potential infinite loop at line {node.lineno}")
+                        self.issues.append(
+                            f"Potential infinite loop at line {node.lineno}")
                 self.generic_visit(node)
 
         detector = InfiniteLoopDetector()
@@ -256,7 +263,8 @@ class LogicValidator:
                     return
 
                 # Check if function has any return statements
-                has_return = any(isinstance(stmt, ast.Return) for stmt in ast.walk(node))
+                has_return = any(isinstance(stmt, ast.Return)
+                                 for stmt in ast.walk(node))
 
                 # Skip if function name suggests it doesn't return anything
                 if not has_return and not node.name.startswith(

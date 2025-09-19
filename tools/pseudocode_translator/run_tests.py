@@ -30,10 +30,14 @@ def add_test_selection_args(parser):
 
 def add_test_options_args(parser):
     """Add standard test options like verbosity, exit on first failure, keyword and mark filtering."""
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    parser.add_argument("-vv", "--very-verbose", action="store_true", help="Very verbose output")
-    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet output")
-    parser.add_argument("-x", "--exitfirst", action="store_true", help="Exit on first failure")
+    parser.add_argument("-v", "--verbose",
+                        action="store_true", help="Verbose output")
+    parser.add_argument("-vv", "--very-verbose",
+                        action="store_true", help="Very verbose output")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="Quiet output")
+    parser.add_argument("-x", "--exitfirst",
+                        action="store_true", help="Exit on first failure")
     parser.add_argument(
         "-k",
         "--keyword",
@@ -59,7 +63,8 @@ def add_coverage_args(parser):
         default="term",
         help="Coverage report format (default: term)",
     )
-    parser.add_argument("--cov-html", action="store_true", help="Generate HTML coverage report")
+    parser.add_argument("--cov-html", action="store_true",
+                        help="Generate HTML coverage report")
 
 
 def add_performance_args(parser):
@@ -71,12 +76,14 @@ def add_performance_args(parser):
         metavar="NUM",
         help="Number of processes to use for parallel testing",
     )
-    parser.add_argument("--benchmark", action="store_true", help="Run benchmark tests")
+    parser.add_argument("--benchmark", action="store_true",
+                        help="Run benchmark tests")
 
 
 def add_general_args(parser):
     """Add general test and collection options to the parser."""
-    parser.add_argument("--pdb", action="store_true", help="Drop into debugger on failures")
+    parser.add_argument("--pdb", action="store_true",
+                        help="Drop into debugger on failures")
     parser.add_argument(
         "--lf",
         "--last-failed",
@@ -91,8 +98,10 @@ def add_general_args(parser):
         dest="failed_first",
         help="Run all tests but run failed tests first",
     )
-    parser.add_argument("--markers", action="store_true", help="Show available markers")
-    parser.add_argument("--fixtures", action="store_true", help="Show available fixtures")
+    parser.add_argument("--markers", action="store_true",
+                        help="Show available markers")
+    parser.add_argument("--fixtures", action="store_true",
+                        help="Show available fixtures")
     parser.add_argument(
         "--collect-only",
         action="store_true",
@@ -102,8 +111,10 @@ def add_general_args(parser):
 
 def add_quality_args(parser):
     """Add code quality check options to the parser."""
-    parser.add_argument("--lint", action="store_true", help="Run linting (flake8) before tests")
-    parser.add_argument("--mypy", action="store_true", help="Run type checking (mypy) before tests")
+    parser.add_argument("--lint", action="store_true",
+                        help="Run linting (flake8) before tests")
+    parser.add_argument("--mypy", action="store_true",
+                        help="Run type checking (mypy) before tests")
     parser.add_argument(
         "--format", action="store_true", help="Check code formatting (ruff) before tests"
     )
@@ -116,7 +127,8 @@ def add_quality_args(parser):
 
 def main():
     """Parse command-line arguments, configure the test environment, and execute the test runner."""
-    parser = argparse.ArgumentParser(description="Run tests for pseudocode_translator")
+    parser = argparse.ArgumentParser(
+        description="Run tests for pseudocode_translator")
     add_test_selection_args(parser)
     add_test_options_args(parser)
     add_coverage_args(parser)
@@ -134,7 +146,8 @@ def main():
         sys.path.insert(0, str(repo_root))
         # Ensure child processes inherit for pytest collection
         os.environ["PYTHONPATH"] = str(repo_root) + (
-            os.pathsep + os.environ["PYTHONPATH"] if os.environ.get("PYTHONPATH") else ""
+            os.pathsep +
+            os.environ["PYTHONPATH"] if os.environ.get("PYTHONPATH") else ""
         )
 
     # Change to project directory (keep behavior for relative ops)
@@ -160,7 +173,8 @@ def main():
 
     if args.all_checks or args.mypy:
         exit_codes.append(
-            run_command([sys.executable, "-m", "mypy", ".", "--exclude=tests/fixtures"])
+            run_command([sys.executable, "-m", "mypy",
+                        ".", "--exclude=tests/fixtures"])
         )
 
     if args.all_checks or args.format:
@@ -223,7 +237,8 @@ def main():
     # Add coverage options
     if args.cov:
         pytest_cmd.extend(
-            ["--cov=.", "--cov-config=.coveragerc", f"--cov-report={args.cov_report}"]
+            ["--cov=.", "--cov-config=.coveragerc",
+                f"--cov-report={args.cov_report}"]
         )
 
         if args.cov_html or args.cov_report == "html":
@@ -257,7 +272,8 @@ def main():
 
     # Generate coverage badge if coverage was run
     if args.cov and args.cov_html:
-        run_command([sys.executable, "-m", "coverage_badge", "-o", "coverage.svg"])
+        run_command(
+            [sys.executable, "-m", "coverage_badge", "-o", "coverage.svg"])
 
     # Return the highest exit code
     return max(exit_codes) if exit_codes else 0

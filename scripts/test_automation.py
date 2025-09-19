@@ -35,7 +35,8 @@ class AutomationTester:
         """Log a message if verbose mode is enabled."""
         if self.verbose or level == "error":
             timestamp = datetime.now().strftime("%H:%M:%S")
-            prefix = {"info": "ℹ️", "success": "✅", "warning": "⚠️", "error": "❌"}
+            prefix = {"info": "ℹ️", "success": "✅",
+                      "warning": "⚠️", "error": "❌"}
             print(f"[{timestamp}] {prefix.get(level, 'ℹ️')} {message}")
 
     def run_test(
@@ -80,9 +81,11 @@ class AutomationTester:
             if success:
                 self.log(f"✅ {name} passed ({duration:.2f}s)", "success")
             else:
-                self.log(f"❌ {name} failed (exit code: {result.returncode})", "error")
+                self.log(
+                    f"❌ {name} failed (exit code: {result.returncode})", "error")
                 if self.verbose and result.stderr:
-                    self.log(f"Error output: {result.stderr[:200]}...", "error")
+                    self.log(
+                        f"Error output: {result.stderr[:200]}...", "error")
 
             self.test_results.append(test_result)
             return test_result
@@ -142,9 +145,11 @@ class AutomationTester:
             (
                 "isort_check",
                 "Check import sorting",
-                [sys.executable, "-m", "isort", "--check-only", "--profile", "black", "."],
+                [sys.executable, "-m", "isort",
+                    "--check-only", "--profile", "black", "."],
             ),
-            ("ruff_check", "Run ruff linter", [sys.executable, "-m", "ruff", "check", "."]),
+            ("ruff_check", "Run ruff linter", [
+             sys.executable, "-m", "ruff", "check", "."]),
             (
                 "ruff_format_check",
                 "Check ruff formatting",
@@ -165,14 +170,18 @@ class AutomationTester:
 
         # Check if package.json exists
         if not (self.root_path / "package.json").exists():
-            self.log("⚠️ No package.json found, skipping TypeScript tests", "warning")
+            self.log(
+                "⚠️ No package.json found, skipping TypeScript tests", "warning")
             return True
 
         tests = [
-            ("npm_install", "Install TypeScript dependencies", ["npm", "install"]),
+            ("npm_install", "Install TypeScript dependencies",
+             ["npm", "install"]),
             ("eslint_check", "Run ESLint", ["npm", "run", "lint"]),
-            ("typescript_check", "Check TypeScript compilation", ["npm", "run", "type-check"]),
-            ("prettier_check", "Check Prettier formatting", ["npm", "run", "format:check"]),
+            ("typescript_check", "Check TypeScript compilation",
+             ["npm", "run", "type-check"]),
+            ("prettier_check", "Check Prettier formatting",
+             ["npm", "run", "format:check"]),
         ]
 
         results = []
@@ -286,7 +295,8 @@ class AutomationTester:
 
         test_categories = [
             ("Configuration Files", self.test_configuration_files),
-            ("Circular Dependency Detection", self.test_circular_dependency_detection),
+            ("Circular Dependency Detection",
+             self.test_circular_dependency_detection),
             ("Python Import Organization", self.test_python_import_organization),
             ("TypeScript Tools", self.test_typescript_tools),
             ("Pre-commit Hooks", self.test_pre_commit_hooks),
@@ -300,17 +310,20 @@ class AutomationTester:
             try:
                 category_results[category_name] = test_func()
             except Exception as e:
-                self.log(f"❌ {category_name} test failed with exception: {e}", "error")
+                self.log(
+                    f"❌ {category_name} test failed with exception: {e}", "error")
                 category_results[category_name] = False
 
         total_duration = time.time() - start_time
 
         # Calculate summary statistics
         total_tests = len(self.test_results)
-        successful_tests = sum(1 for result in self.test_results if result["success"])
+        successful_tests = sum(
+            1 for result in self.test_results if result["success"])
         failed_tests = total_tests - successful_tests
 
-        successful_categories = sum(1 for success in category_results.values() if success)
+        successful_categories = sum(
+            1 for success in category_results.values() if success)
         total_categories = len(category_results)
 
         summary = {
@@ -327,7 +340,8 @@ class AutomationTester:
                 "successful": successful_tests,
                 "failed": failed_tests,
                 "success_rate": (
-                    round(successful_tests / total_tests * 100, 1) if total_tests > 0 else 0
+                    round(successful_tests / total_tests *
+                          100, 1) if total_tests > 0 else 0
                 ),
                 "details": self.test_results,
             },
@@ -336,7 +350,8 @@ class AutomationTester:
 
         # Print summary
         self.log("\n📊 Test Suite Summary:")
-        self.log(f"   Categories: {successful_categories}/{total_categories} passed")
+        self.log(
+            f"   Categories: {successful_categories}/{total_categories} passed")
         self.log(
             f"   Tests: {successful_tests}/{total_tests} passed ({summary['tests']['success_rate']}%)"
         )
@@ -348,7 +363,8 @@ class AutomationTester:
                 "success",
             )
         else:
-            self.log("❌ Some tests failed. Please review the results and fix issues.", "error")
+            self.log(
+                "❌ Some tests failed. Please review the results and fix issues.", "error")
 
         return summary
 
@@ -363,8 +379,10 @@ def main():
         epilog=__doc__,
     )
 
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--report", type=Path, help="Generate JSON test report")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Enable verbose output")
+    parser.add_argument("--report", type=Path,
+                        help="Generate JSON test report")
     parser.add_argument(
         "--path",
         type=Path,

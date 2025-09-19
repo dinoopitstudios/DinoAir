@@ -67,7 +67,7 @@ def _apply_env_overrides(
     for k, v in env.items():
         if not k.startswith(prefix):
             continue
-        tail = k[len(prefix) :]
+        tail = k[len(prefix):]
         parts = [p for p in tail.split("__") if p]
         if not parts:
             continue
@@ -300,7 +300,8 @@ def _build_descriptor_from_entry(
 
     try:
         base = _normalize_service_dict(raw_entry, model_fields)
-        final_entry = _apply_env_overrides(base, env) if apply_env else dict(base)
+        final_entry = _apply_env_overrides(
+            base, env) if apply_env else dict(base)
         return SD.model_validate(final_entry)
     except PydanticValidationError as e:
         svc_name = str(raw_entry.get("name", "<unknown>"))

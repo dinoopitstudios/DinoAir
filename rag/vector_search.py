@@ -157,9 +157,11 @@ class VectorSearchEngine:
             chunk_index=int(emb["chunk_index"]),
             start_pos=int(emb["start_pos"]),
             end_pos=int(emb["end_pos"]),
-            file_type=(str(emb.get("file_type")) if emb.get("file_type") is not None else None),
+            file_type=(str(emb.get("file_type")) if emb.get(
+                "file_type") is not None else None),
             metadata=(
-                emb.get("chunk_metadata") if isinstance(emb.get("chunk_metadata"), dict) else None
+                emb.get("chunk_metadata") if isinstance(
+                    emb.get("chunk_metadata"), dict) else None
             ),
             match_type="vector",
         )
@@ -280,7 +282,8 @@ class VectorSearchEngine:
             return []
 
         # Normalize/validate similarity threshold
-        similarity_threshold = self._normalize_similarity_threshold(similarity_threshold)
+        similarity_threshold = self._normalize_similarity_threshold(
+            similarity_threshold)
 
         # Validate distance metric
         metric = self._normalize_distance_metric(distance_metric)
@@ -289,7 +292,8 @@ class VectorSearchEngine:
             # Generate query embedding
             preview = query[:50].replace("\n", " ")
             self.logger.info("Generating embedding for query: %s...", preview)
-            query_embedding = self.embedding_generator.generate_embedding(query, normalize=True)
+            query_embedding = self.embedding_generator.generate_embedding(
+                query, normalize=True)
 
             # Retrieve all embeddings from database
             all_embeddings = self._retrieve_all_embeddings(file_types)
@@ -316,7 +320,8 @@ class VectorSearchEngine:
                 self.logger.info("search(): no results above threshold")
                 return []
 
-            top_results: list[SearchResult] = self._top_k_sorted(results, top_k)
+            top_results: list[SearchResult] = self._top_k_sorted(
+                results, top_k)
 
             self.logger.info(
                 f"Vector search found {len(top_results)} results (from {len(results)} above threshold)"
@@ -378,7 +383,8 @@ class VectorSearchEngine:
                 )
                 search_results.append(search_result)
 
-            self.logger.info("Keyword search found %d results", len(search_results))
+            self.logger.info("Keyword search found %d results",
+                             len(search_results))
             return search_results
 
         except Exception as e:
@@ -425,7 +431,8 @@ class VectorSearchEngine:
             )
 
             # Perform keyword search
-            keyword_results = self.keyword_search(query, top_k=top_k * 2, file_types=file_types)
+            keyword_results = self.keyword_search(
+                query, top_k=top_k * 2, file_types=file_types)
 
             # Merge results
             merged_results = self._merge_search_results(
@@ -434,12 +441,14 @@ class VectorSearchEngine:
 
             # Rerank if requested
             if rerank and merged_results:
-                merged_results = self.rerank_results(query, merged_results, top_k=top_k)
+                merged_results = self.rerank_results(
+                    query, merged_results, top_k=top_k)
             else:
                 # Just take top k
                 merged_results = merged_results[:top_k]
 
-            self.logger.info("Hybrid search returned %d results", len(merged_results))
+            self.logger.info(
+                "Hybrid search returned %d results", len(merged_results))
 
             return merged_results
 
@@ -452,7 +461,8 @@ class VectorSearchEngine:
         query: str,
         results: list[SearchResult],
         top_k: int | None = None,
-        rerank_func: Callable[[str, list[SearchResult]], list[SearchResult]] | None = None,
+        rerank_func: Callable[[str, list[SearchResult]],
+                              list[SearchResult]] | None = None,
     ) -> list[SearchResult]:
         """
         Rerank search results for better relevance.
@@ -487,14 +497,16 @@ class VectorSearchEngine:
                 exact_match_bonus = 0.2 if query_lower in content_lower else 0.0
 
                 # Term frequency bonus
-                term_matches = sum(1 for term in query_terms if term in content_lower)
+                term_matches = sum(
+                    1 for term in query_terms if term in content_lower)
                 term_bonus = min(0.3, term_matches * 0.05)
 
                 # Position bonus (prefer matches at beginning)
                 position_bonus = 0.0
                 if query_lower in content_lower:
                     position = content_lower.find(query_lower)
-                    position_bonus = 0.1 * (1.0 - position / len(content_lower))
+                    position_bonus = 0.1 * \
+                        (1.0 - position / len(content_lower))
 
                 # File type bonus (configurable)
                 file_type_bonus = 0.0
@@ -671,7 +683,8 @@ class VectorSearchEngine:
 
                     # Calculate relevance score (0-1)
                     match_count = result_dict.pop("match_count", 0)
-                    result_dict["relevance_score"] = match_count / max_match_count
+                    result_dict["relevance_score"] = match_count / \
+                        max_match_count
 
                     # Parse JSON metadata if present
                     if result_dict.get("chunk_metadata"):
@@ -732,7 +745,8 @@ class VectorSearchEngine:
         for result in keyword_results:
             if result.chunk_id in merged_dict:
                 # Combine scores
-                merged_dict[result.chunk_id].score += result.score * keyword_weight
+                merged_dict[result.chunk_id].score += result.score * \
+                    keyword_weight
             else:
                 # Add new result
                 merged_dict[result.chunk_id] = SearchResult(

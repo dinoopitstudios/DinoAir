@@ -46,7 +46,8 @@ def _current_adapter_config(svc: object) -> dict[str, Any]:
 def _build_overridden_config(cfg_dict: dict[str, Any], env: Any) -> dict[str, Any]:
     headers = cfg_dict.get("headers")
     headers_dict: dict[str, Any] = (
-        dict(cast("Mapping[str, Any]", headers)) if isinstance(headers, Mapping) else {}
+        dict(cast("Mapping[str, Any]", headers)) if isinstance(
+            headers, Mapping) else {}
     )
 
     # Apply env-backed overrides
@@ -64,7 +65,8 @@ def _build_overridden_config(cfg_dict: dict[str, Any], env: Any) -> dict[str, An
 def _try_model_copy_update(svc: object, cfg_dict: dict[str, Any]) -> object | None:
     if hasattr(svc, "model_copy"):
         with suppress(Exception):
-            return svc.model_copy(update={"adapter_config": cfg_dict})  # type: ignore[attr-defined]
+            # type: ignore[attr-defined]
+            return svc.model_copy(update={"adapter_config": cfg_dict})
     return None
 
 
@@ -94,7 +96,8 @@ def _apply_lmstudio_env_overrides(services: Sequence[Any]) -> list[Any]:
                 out.append(svc)
                 continue
 
-            cfg_dict = _build_overridden_config(_current_adapter_config(svc), env)
+            cfg_dict = _build_overridden_config(
+                _current_adapter_config(svc), env)
 
             replaced = _try_model_copy_update(svc, cfg_dict)
             if replaced is not None:

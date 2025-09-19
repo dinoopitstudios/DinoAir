@@ -169,7 +169,8 @@ class _Metrics:
 
             for name, stats in self._services.items():
                 avg, p50, p95 = stats.calc_stats()
-                last_value: int | None = int(stats.last_ms) if stats.last_ms is not None else None
+                last_value: int | None = int(
+                    stats.last_ms) if stats.last_ms is not None else None
                 services_block[name] = {
                     "calls": int(stats.calls),
                     "errors": int(stats.errors),

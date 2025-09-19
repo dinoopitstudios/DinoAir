@@ -45,7 +45,6 @@ __all__ = [
     "resolve_type",
 ]
 
-
 # Type-checker-only import to provide symbol visibility without runtime side effects
 if TYPE_CHECKING:
     from .logger import Logger  # pragma: no cover  # pylint: disable=reimported

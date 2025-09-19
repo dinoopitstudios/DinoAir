@@ -119,7 +119,8 @@ class FileProcessor:
             if not os.path.isdir(directory):
                 return {"success": False, "error": f"Directory not found: {directory}"}
 
-            validation_result = self.directory_validator.validate_path(directory)
+            validation_result = self.directory_validator.validate_path(
+                directory)
             if not validation_result.get("valid", False):
                 return {
                     "success": False,
@@ -130,8 +131,10 @@ class FileProcessor:
             if not file_types:
                 file_types = self.extractor_factory.get_supported_extensions()
 
-            all_files = self._find_files(directory, recursive, file_types or [])
-            files_to_process = self.directory_validator.get_allowed_files(all_files)
+            all_files = self._find_files(
+                directory, recursive, file_types or [])
+            files_to_process = self.directory_validator.get_allowed_files(
+                all_files)
 
             results: dict[str, Any] = {
                 "success": True,
@@ -151,7 +154,8 @@ class FileProcessor:
             for file_path in files_to_process:
                 try:
                     # Base class delegates to process_file (abstract by default)
-                    file_result = self.process_file(file_path, force_reprocess=force_reprocess)
+                    file_result = self.process_file(
+                        file_path, force_reprocess=force_reprocess)
                     if not isinstance(file_result, dict):
                         raise TypeError("process_file must return a dict")
 
@@ -170,13 +174,15 @@ class FileProcessor:
                                 }
                             )
                             results["stats"]["processed"] += 1
-                            results["stats"]["total_chunks"] += len(file_result.get("chunks", []))
+                            results["stats"]["total_chunks"] += len(
+                                file_result.get("chunks", []))
                             results["stats"]["total_embeddings"] += (
                                 file_result.get("stats", {}) or {}
                             ).get("embeddings_generated", 0)
                     else:
                         results["failed_files"].append(
-                            {"file_path": file_path, "error": file_result.get("error")}
+                            {"file_path": file_path,
+                                "error": file_result.get("error")}
                         )
                         results["stats"]["failed"] += 1
 
@@ -185,8 +191,10 @@ class FileProcessor:
                     results["skipped_files"].append(file_path)
                     results["stats"]["skipped"] += 1
                 except Exception as e:  # pragma: no cover - defensive
-                    self.logger.error("Error processing file %s: %s", file_path, str(e))
-                    results["failed_files"].append({"file_path": file_path, "error": str(e)})
+                    self.logger.error(
+                        "Error processing file %s: %s", file_path, str(e))
+                    results["failed_files"].append(
+                        {"file_path": file_path, "error": str(e)})
                     results["stats"]["failed"] += 1
 
             # If any failures, mark overall as not fully successful
@@ -198,7 +206,8 @@ class FileProcessor:
 
             return results
         except Exception as e:  # pragma: no cover - defensive
-            self.logger.error("Error processing directory %s: %s", directory, str(e))
+            self.logger.error(
+                "Error processing directory %s: %s", directory, str(e))
             return {"success": False, "error": f"Unexpected error: {str(e)}"}
 
     def process_file(self, file_path: str, **kwargs) -> dict[str, Any]:  # noqa: D401
@@ -214,7 +223,8 @@ class FileProcessor:
                 "error": Optional[str]
             }
         """
-        raise NotImplementedError("process_file() must be implemented by subclasses")
+        raise NotImplementedError(
+            "process_file() must be implemented by subclasses")
 
     def get_performance_stats(self) -> dict[str, Any]:
         """
@@ -250,7 +260,8 @@ class FileProcessor:
 
             self._embedding_generator = get_embedding_generator()
         except Exception as e:  # pragma: no cover - defensive
-            self.logger.error("Failed to initialize embedding generator: %s", str(e))
+            self.logger.error(
+                "Failed to initialize embedding generator: %s", str(e))
             self._embedding_generator = None
 
     def _find_files(self, root: str, recursive: bool, file_extensions: Iterable[str]) -> list[str]:
@@ -297,7 +308,8 @@ class FileProcessor:
 
             return files
         except Exception as e:  # pragma: no cover - defensive
-            self.logger.error("Error enumerating files under %s: %s", root, str(e))
+            self.logger.error(
+                "Error enumerating files under %s: %s", root, str(e))
             return []
 
     def _calculate_file_hash(self, file_path: str, chunk_size: int = 1024 * 1024) -> str:

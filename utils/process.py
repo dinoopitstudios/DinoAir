@@ -57,7 +57,6 @@ from .performance_monitor import performance_monitor
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-
 logger = logging.getLogger(__name__)
 
 # Import configuration system
@@ -66,7 +65,6 @@ try:
 except ImportError:
     # Fallback for when config system is not available
     config = None
-
 
 # Constants for process execution
 MAX_ENV_DISPLAY_SIZE = 20  # Maximum number of env vars to display in logs
@@ -138,7 +136,8 @@ class SecurityConfig:
             "curl",
             "wget",
         }
-        self._default_redact_env_keys = ["secret", "key", "token", "password", "credential", "auth"]
+        self._default_redact_env_keys = [
+            "secret", "key", "token", "password", "credential", "auth"]
         self._default_redact_arg_patterns = [
             r"--password=.*",
             r"--token=.*",
@@ -153,7 +152,8 @@ class SecurityConfig:
         if self._config:
             try:
                 return set(
-                    self._config.get("security.process.allowlist.binaries", self._default_allowlist)
+                    self._config.get(
+                        "security.process.allowlist.binaries", self._default_allowlist)
                 )
             except (KeyError, TypeError, AttributeError):
                 logger.warning(
@@ -166,12 +166,15 @@ class SecurityConfig:
         normalized_binary = binary.lower()
         if self._config:
             try:
-                patterns = self._config.get("security.process.allowlist.arg_patterns", {})
+                patterns = self._config.get(
+                    "security.process.allowlist.arg_patterns", {})
                 # Normalize keys for case-insensitive lookup
-                normalized_patterns = {k.lower(): v for k, v in patterns.items()}
+                normalized_patterns = {
+                    k.lower(): v for k, v in patterns.items()}
                 return normalized_patterns.get(normalized_binary, [])
             except (KeyError, TypeError, AttributeError):
-                logger.warning("Failed to load arg patterns for %s from config", binary)
+                logger.warning(
+                    "Failed to load arg patterns for %s from config", binary)
         return []
 
     def get_merge_enabled(self) -> bool:
@@ -180,7 +183,8 @@ class SecurityConfig:
             try:
                 return self._config.get("security.process.allowlist.enable_merge", False)
             except (KeyError, TypeError, AttributeError):
-                logger.warning("Failed to load security.process.allowlist.enable_merge from config")
+                logger.warning(
+                    "Failed to load security.process.allowlist.enable_merge from config")
         return False
 
     def get_no_window_windows(self) -> bool:
@@ -200,7 +204,8 @@ class SecurityConfig:
             try:
                 return self._config.get("security.process.flags.close_fds_unix", True)
             except (KeyError, TypeError, AttributeError):
-                logger.warning("Failed to load security.process.flags.close_fds_unix from config")
+                logger.warning(
+                    "Failed to load security.process.flags.close_fds_unix from config")
         return True
 
     def get_disallow_tty(self) -> bool:
@@ -209,7 +214,8 @@ class SecurityConfig:
             try:
                 return self._config.get("security.process.flags.disallow_tty", True)
             except (KeyError, TypeError, AttributeError):
-                logger.warning("Failed to load security.process.flags.disallow_tty from config")
+                logger.warning(
+                    "Failed to load security.process.flags.disallow_tty from config")
         return True
 
     def get_stdin_default_devnull(self) -> bool:
@@ -308,19 +314,22 @@ def _validate_allowed_binary(command: Sequence[str], allowed_binaries: set[str])
     merge_enabled = _security_config.get_merge_enabled()
 
     # Merge allowlists based on policy
-    effective_allowlist = _merge_allowlists(allowed_binaries, config_allowlist, merge_enabled)
+    effective_allowlist = _merge_allowlists(
+        allowed_binaries, config_allowlist, merge_enabled)
 
     # If effective allowlist is empty after merging (but allowed_binaries was not empty),
     # this means intersection resulted in empty set - this should be PermissionError
     if not effective_allowlist:
         binary = Path(command[0]).name.lower()
-        raise PermissionError(f"Binary '{binary}' is not in the allowed_binaries set")
+        raise PermissionError(
+            f"Binary '{binary}' is not in the allowed_binaries set")
 
     binary = Path(command[0]).name.lower()
     normalized_allow = {Path(b).name.lower() for b in effective_allowlist}
 
     if binary not in normalized_allow:
-        raise PermissionError(f"Binary '{binary}' is not in the allowed_binaries set")
+        raise PermissionError(
+            f"Binary '{binary}' is not in the allowed_binaries set")
     return binary
 
 
@@ -342,7 +351,8 @@ def _validate_arguments(binary: str, command: Sequence[str]) -> None:
                     matched = True
                     break
             except re.error as e:
-                logger.warning("Invalid regex pattern '%s' for binary '%s': %s", pattern, binary, e)
+                logger.warning(
+                    "Invalid regex pattern '%s' for binary '%s': %s", pattern, binary, e)
                 continue
 
         if not matched and patterns:  # If patterns exist but none match
@@ -360,7 +370,8 @@ def _redact_environment(env: dict[str, str] | None) -> dict[str, str]:
     redacted = {}
 
     for key, value in env.items():
-        should_redact = any(redact_key.lower() in key.lower() for redact_key in redact_keys)
+        should_redact = any(redact_key.lower() in key.lower()
+                            for redact_key in redact_keys)
         redacted[key] = "[REDACTED]" if should_redact else value
 
     return redacted
@@ -379,7 +390,8 @@ def _redact_arguments(command: Sequence[str]) -> list[str]:
                     redacted_arg = "[REDACTED]"
                     break
             except re.error as e:
-                logger.warning("Invalid redaction pattern '%s': %s", pattern, e)
+                logger.warning(
+                    "Invalid redaction pattern '%s': %s", pattern, e)
                 continue
         redacted_command.append(redacted_arg)
 
@@ -471,7 +483,8 @@ def _get_platform_kwargs(creationflags: int | None = None) -> dict[str, Any]:
 
         if creationflags is not None:
             # creationflags is Windows-specific, ignore on Unix
-            logger.warning("creationflags parameter ignored on non-Windows platforms")
+            logger.warning(
+                "creationflags parameter ignored on non-Windows platforms")
 
     return kwargs
 
