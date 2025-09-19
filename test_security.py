@@ -8,13 +8,12 @@ This module provides unit tests for security components including:
 - Security configuration validation
 """
 
-import asyncio
-import json
 import tempfile
 import time
-from datetime import datetime, timezone
+import os
+import sys
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -63,13 +62,15 @@ except ImportError:
 class TestPasswordPolicies:
     """Test password policy enforcement."""
 
+    @staticmethod
     @pytest.fixture
-    def password_policy(self):
+    def password_policy():
         """Create HIPAA-compliant password policy."""
         return PasswordPolicy.hipaa_compliant()
 
+    @staticmethod
     @pytest.fixture
-    def user_manager(self, password_policy):
+    def user_manager(password_policy):
         """Create user manager with test policy."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
@@ -158,8 +159,9 @@ class TestPasswordPolicies:
 class TestRoleBasedAccessControl:
     """Test RBAC implementation."""
 
+    @staticmethod
     @pytest.fixture
-    def user_manager(self):
+    def user_manager():
         """Create user manager for RBAC testing."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
@@ -215,27 +217,34 @@ class TestRoleBasedAccessControl:
         )
 
         # Should have emergency access
-        assert dispatcher.has_permission(Permission.EMERGENCY_ACCESS)
-        assert dispatcher.has_permission(Permission.DATA_READ)
-        assert dispatcher.has_permission(Permission.DATA_CREATE)
-        assert dispatcher.has_permission(Permission.API_WRITE)
+        if not dispatcher.has_permission(Permission.EMERGENCY_ACCESS):
+            raise AssertionError
+        if not dispatcher.has_permission(Permission.DATA_READ):
+            raise AssertionError
+        if not dispatcher.has_permission(Permission.DATA_CREATE):
+            raise AssertionError
+        if not dispatcher.has_permission(Permission.API_WRITE):
+            raise AssertionError
 
         # But not admin permissions
-        assert not dispatcher.has_permission(Permission.SYSTEM_CONFIG)
+        if dispatcher.has_permission(Permission.SYSTEM_CONFIG):
+            raise AssertionError
 
 
 class TestNetworkSecurityMiddleware:
     """Test network security middleware."""
 
+    @staticmethod
     @pytest.fixture
-    def security_config(self):
+    def security_config():
         """Create security configuration for testing."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
         return create_small_team_security_config()
 
+    @staticmethod
     @pytest.fixture
-    def mock_request(self):
+    def mock_request():
         """Create mock FastAPI request."""
         if not FASTAPI_AVAILABLE:
             pytest.skip("FastAPI not available")
@@ -248,34 +257,45 @@ class TestNetworkSecurityMiddleware:
         request.client.host = "127.0.0.1"
         return request
 
+    @staticmethod
     @pytest.fixture
-    def security_middleware(self, security_config):
+    def security_middleware(security_config):
         """Create security middleware instance."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
         return SecurityMiddleware(None, security_config)
 
-    def test_rate_limiting_allows_normal_requests(self, security_middleware, mock_request):
+    def test_rate_limiting_allows_normal_requests(
+        self, security_middleware, mock_request
+    ):
         """Test that normal request rates are allowed."""
         client_ip = "127.0.0.1"
 
         # Simulate normal request pattern (under limits)
         for _ in range(5):
-            allowed = security_middleware._check_rate_limits(
+            allowed = security_middleware.check_rate_limits(
                 mock_request, client_ip)
-            assert allowed, "Normal request rate should be allowed"
+            if not allowed:
+                raise AssertionError("Normal request rate should be allowed")
 
-    def test_rate_limiting_blocks_excessive_requests(self, security_middleware, mock_request):
+    def test_rate_limiting_blocks_excessive_requests(
+        self,
+        security_middleware,
+        mock_request,
+    ):
         """Test that excessive requests are blocked."""
         client_ip = "127.0.0.1"
 
         # Simulate excessive requests (over 600/minute for small team config)
-        security_middleware.rate_limiter.requests[f"ip:{client_ip}"] = [
-            time.time()] * 700
+        security_middleware.rate_limiter.requests[
+            f"ip:{client_ip}"
+        ] = [time.time()] * 700
 
-        blocked = not security_middleware._check_rate_limits(
-            mock_request, client_ip)
-        assert blocked, "Excessive requests should be blocked"
+        blocked = not security_middleware.check_rate_limits(
+            mock_request, client_ip
+        )
+        if not blocked:
+            raise AssertionError("Excessive requests should be blocked")
 
     def test_ip_allowlist_enforcement(self, security_middleware):
         """Test IP allowlist enforcement."""
@@ -283,11 +303,13 @@ class TestNetworkSecurityMiddleware:
         security_middleware.config.allowed_ips.add("192.168.1.100")
 
         # Allowed IP should pass
-        assert security_middleware._check_ip_allowed("192.168.1.100")
+        if not security_middleware.check_ip_allowed("192.168.1.100"):
+            raise AssertionError
 
         # If allowlist is configured, other IPs should be blocked
         if security_middleware.config.allowed_ips:
-            assert not security_middleware._check_ip_allowed("10.0.0.1")
+            if security_middleware.check_ip_allowed("10.0.0.1"):
+                raise AssertionError
 
     def test_ddos_detection(self, security_middleware):
         """Test DDoS detection."""
@@ -300,8 +322,9 @@ class TestNetworkSecurityMiddleware:
 
         security_middleware.ddos_tracker[client_ip].extend(attack_requests)
 
-        is_ddos = security_middleware._detect_ddos(client_ip)
-        assert is_ddos, "DDoS pattern should be detected"
+        is_ddos = security_middleware.detect_ddos(client_ip)
+        if not is_ddos:
+            raise AssertionError("DDoS pattern should be detected")
 
 
 class TestAuditLogging:
@@ -320,7 +343,7 @@ class TestAuditLogging:
             pytest.skip("Security modules not available")
 
         log_file = temp_log_dir / "test_audit.log"
-        secret_key = "test_secret_key_for_audit_testing"
+        secret_key = os.getenv("AUDIT_SECRET_KEY")
         return AuditLogger(log_file, secret_key)
 
     @pytest.fixture
@@ -330,7 +353,8 @@ class TestAuditLogging:
             pytest.skip("Security modules not available")
         return SecurityAuditManager(audit_logger)
 
-    def test_audit_event_creation(self, audit_manager):
+    @staticmethod
+    def test_audit_event_creation(audit_manager):
         """Test audit event creation and logging."""
         event_id = audit_manager.log_authentication(
             AuditEventType.LOGIN_SUCCESS,
@@ -339,8 +363,10 @@ class TestAuditLogging:
             user_agent="TestAgent/1.0",
         )
 
-        assert event_id is not None
-        assert len(event_id) > 0
+        if event_id is None:
+            raise AssertionError()
+        if len(event_id) <= 0:
+            raise AssertionError()
 
     def test_audit_log_integrity(self, audit_logger):
         """Test audit log integrity verification."""
@@ -355,13 +381,16 @@ class TestAuditLogging:
 
         # Read the log file and verify integrity
         log_file = audit_logger.log_file
-        assert log_file.exists()
+        if not log_file.exists():
+            raise AssertionError()
 
         # Check that log contains the event
         with open(log_file, "r") as f:
             log_content = f.read()
-            assert event_id in log_content
-            assert "integrity_test" in log_content
+            if event_id not in log_content:
+                raise AssertionError()
+            if "integrity_test" not in log_content:
+                raise AssertionError()
 
     def test_data_access_logging(self, audit_manager):
         """Test data access audit logging."""
@@ -403,7 +432,8 @@ class TestAuditLogging:
 class TestSecurityConfiguration:
     """Test security configuration system."""
 
-    def test_hipaa_compliance_mode(self):
+    @staticmethod
+    def test_hipaa_compliance_mode():
         """Test HIPAA compliance configuration."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
@@ -411,12 +441,17 @@ class TestSecurityConfiguration:
         config = SecurityConfig(compliance_mode=ComplianceMode.HIPAA)
 
         # HIPAA should enforce strong settings
-        assert config.audit_retention_days >= 2555  # 7 years
-        assert config.session_timeout_minutes <= 30
-        assert config.password_complexity_enabled
-        assert config.mfa_required
+        if not (config.audit_retention_days >= 2555):  # 7 years
+            raise AssertionError
+        if not (config.session_timeout_minutes <= 30):
+            raise AssertionError
+        if not config.password_complexity_enabled:
+            raise AssertionError
+        if not config.mfa_required:
+            raise AssertionError
 
-    def test_small_team_security_config(self):
+    @staticmethod
+    def test_small_team_security_config():
         """Test small team security configuration."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
@@ -424,18 +459,23 @@ class TestSecurityConfiguration:
         config = create_small_team_security_config()
 
         # Should have relaxed but secure settings
-        assert not config.require_https  # Allow HTTP for development
-        assert len(config.cors_allow_origins) > 1  # Multiple dev origins
-        assert any(rule.requests_per_minute >=
-                   600 for rule in config.rate_limit_rules)
-        assert config.ddos_block_duration <= 300  # Short blocks (5 minutes)
+        if config.require_https:  # Allow HTTP for development
+            raise AssertionError
+        if not (len(config.cors_allow_origins) > 1):  # Multiple dev origins
+            raise AssertionError
+        if not any(rule.requests_per_minute >=
+                   600 for rule in config.rate_limit_rules):
+            raise AssertionError
+        if config.ddos_block_duration > 300:  # Short blocks (5 minutes)
+            raise AssertionError
 
 
 class TestSecurityIntegration:
     """Integration tests for security components."""
 
     @pytest.fixture
-    def integrated_system(self):
+    @staticmethod
+    def integrated_system():
         """Set up integrated security system."""
         if not SECURITY_MODULES_AVAILABLE:
             pytest.skip("Security modules not available")
@@ -477,8 +517,10 @@ class TestSecurityIntegration:
                 role.value for role in user.roles]},
         )
 
-        assert user.username == "integration_test"
-        assert audit_id is not None
+        if user.username != "integration_test":
+            raise AssertionError
+        if audit_id is None:
+            raise AssertionError
 
     def test_authentication_flow_with_security(self, integrated_system):
         """Test complete authentication flow with security measures."""
@@ -511,9 +553,12 @@ class TestSecurityIntegration:
             user_agent="IntegrationTest/1.0",
         )
 
-        assert session is not None
-        assert session.user_id == user.user_id
-        assert not session.is_expired()
+        if session is None:
+            raise AssertionError
+        if session.user_id != user.user_id:
+            raise AssertionError
+        if session.is_expired():
+            raise AssertionError
 
 
 # Test runner configuration
@@ -544,4 +589,4 @@ if __name__ == "__main__":
         print("\n❌ Some security tests failed!")
         print("💡 Review the test output above for details.")
 
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

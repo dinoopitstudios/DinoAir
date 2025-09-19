@@ -5,7 +5,6 @@ Tests all implemented security components to ensure they're working correctly.
 """
 
 import json
-import os
 import sys
 import traceback
 from datetime import datetime
@@ -27,29 +26,29 @@ def test_security_imports():
         "utils.network_security",
     ]
 
-    results = {}
+    import_results = {}
 
     for module in modules:
         try:
             __import__(module)
-            results[module] = "✅ SUCCESS"
+            import_results[module] = "✅ SUCCESS"
             print(f"   ✅ {module}")
         except Exception as e:
-            results[module] = f"❌ FAILED: {str(e)}"
+            import_results[module] = f"❌ FAILED: {str(e)}"
             print(f"   ❌ {module}: {str(e)}")
 
-    return results
+    return import_results
 
 
 def test_password_security():
     """Test password security implementation."""
 
-    print("\n🔐 Testing Password Security...")
+    print("\n🔐 Testing Password Security...\n")
 
     try:
         from utils.auth_system import UserManager
 
-        um = UserManager()
+        UserManager()
 
         # Test password validation (if available)
         try:
@@ -65,7 +64,9 @@ def test_password_security():
                 # This is a basic test - the actual validation might be in a different method
                 result = len(pwd) >= 8  # Basic check
                 print(
-                    f"   📝 Password '{pwd[:10]}...': {'✅' if result == should_pass else '❌'}")
+                    f"   📝 Password '{pwd[:10]}...': "
+                    f"{'✅' if result == should_pass else '❌'}"
+                )
 
         except Exception:
             print("   ⚠️  Password validation method not found")
@@ -88,7 +89,7 @@ def test_rbac_system():
     try:
         from utils.auth_system import UserManager, UserRole
 
-        um = UserManager()
+        UserManager()
 
         # Test role definitions
         roles = [UserRole.CLINICIAN, UserRole.NURSE,
@@ -123,8 +124,6 @@ def test_audit_logging():
     print("\n📝 Testing Audit Logging...")
 
     try:
-        from pathlib import Path
-
         from utils.audit_logging import AuditEventType, AuditLogger
 
         # Create a test audit logger
@@ -263,21 +262,21 @@ def run_security_validation():
     print("🛡️  DinoAir Security Validation")
     print("=" * 50)
 
-    results = {"timestamp": datetime.now().isoformat(), "tests": {}}
+    validation_results = {"timestamp": datetime.now().isoformat(), "tests": {}}
 
     # Run all tests
-    results["tests"]["imports"] = test_security_imports()
-    results["tests"]["password_security"] = test_password_security()
-    results["tests"]["rbac_system"] = test_rbac_system()
-    results["tests"]["audit_logging"] = test_audit_logging()
-    results["tests"]["network_security"] = test_network_security()
-    results["tests"]["security_configuration"] = test_security_configuration()
+    validation_results["tests"]["imports"] = test_security_imports()
+    validation_results["tests"]["password_security"] = test_password_security()
+    validation_results["tests"]["rbac_system"] = test_rbac_system()
+    validation_results["tests"]["audit_logging"] = test_audit_logging()
+    validation_results["tests"]["network_security"] = test_network_security()
+    validation_results["tests"]["security_configuration"] = test_security_configuration()
 
     # Calculate overall score
     total_tests = 0
     passed_tests = 0
 
-    for test_category, test_results in results["tests"].items():
+    for _, test_results in validation_results["tests"].items():
         if isinstance(test_results, dict):
             for test_name, test_result in test_results.items():
                 total_tests += 1
@@ -289,9 +288,9 @@ def run_security_validation():
                     passed_tests += 1
 
     score = (passed_tests / total_tests * 100) if total_tests > 0 else 0
-    results["overall_score"] = score
+    validation_results["overall_score"] = score
 
-    print(f"\n📊 SECURITY VALIDATION RESULTS")
+    print("\n📊 SECURITY VALIDATION RESULTS")
     print(
         f"Overall Score: {score:.1f}% ({passed_tests}/{total_tests} tests passed)")
 
@@ -308,16 +307,16 @@ def run_security_validation():
         grade = "D (Needs Improvement)"
         print("🔴 Security Grade: D (Needs Improvement)")
 
-    results["security_grade"] = grade
+    validation_results["security_grade"] = grade
 
     # Save results
     with open("security_validation_report.json", "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(validation_results, f, indent=2)
 
-    print(f"\n💾 Detailed report saved to: security_validation_report.json")
+    print("\n💾 Detailed report saved to: security_validation_report.json")
 
     # Provide recommendations
-    print(f"\n📋 RECOMMENDATIONS:")
+    print("\n📋 RECOMMENDATIONS:")
     if score < 100:
         print("   🔧 Review failed tests and implement missing components")
         print("   🔍 Run penetration testing once API server is functional")
@@ -327,7 +326,7 @@ def run_security_validation():
     print("   📊 Set up continuous security monitoring")
     print("   🛠️ Complete data encryption at rest implementation")
 
-    return results
+    return validation_results
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 """
 Red Team Testing Framework for DinoAir.
 
-This module provides comprehensive penetration testing and security validation including:
+This module provides comprehensive penetration testing and security validation
+including:
 - Automated vulnerability scanning
 - Red team attack simulations
 - Security unit tests and integration tests
@@ -13,17 +14,9 @@ This module provides comprehensive penetration testing and security validation i
 from __future__ import annotations
 
 import asyncio
-import base64
-import concurrent.futures
-import hashlib
 import json
-import random
 import secrets
-import string
-import subprocess
-import threading
 import time
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -251,7 +244,9 @@ class RedTeamTester:
             for endpoint in common_endpoints:
                 try:
                     response = self.session.get(
-                        f"{self.target_base_url}{endpoint}", timeout=5, allow_redirects=False
+                        f"{self.target_base_url}{endpoint}",
+                        timeout=5,
+                        allow_redirects=False,
                     )
 
                     if response.status_code < 404:
@@ -274,7 +269,9 @@ class RedTeamTester:
                     results["errors"].append(f"Endpoint {endpoint}: {str(e)}")
 
             print(
-                f"   📍 Discovered {len(results['endpoints_discovered'])} endpoints")
+                f"   📍 Discovered {len(results['endpoints_discovered'])} "
+                "endpoints"
+            )
 
         except Exception as e:
             results["errors"].append(f"Reconnaissance failed: {str(e)}")
@@ -312,7 +309,9 @@ class RedTeamTester:
 
         return results
 
-    async def _run_authentication_tests(self) -> Dict[str, Any]:
+    async def _run_authentication_tests(
+        self,
+    ) -> Dict[str, Any]:
         """Test authentication mechanisms."""
 
         results = {
@@ -342,7 +341,8 @@ class RedTeamTester:
 
         except Exception as e:
             results["errors"].append(
-                f"Authentication testing failed: {str(e)}")
+                f"Authentication testing failed: {str(e)}"
+            )
 
         return results
 
@@ -544,7 +544,7 @@ class RedTeamTester:
                     if response.status_code == 429:  # Too Many Requests
                         blocked = True
                         break
-                    elif response.status_code == 401:
+                    if response.status_code == 401:
                         failed_attempts += 1
 
                 except Exception:
@@ -555,6 +555,10 @@ class RedTeamTester:
 
         # Good if we get blocked after multiple attempts
         return blocked and failed_attempts >= 3
+
+    def get_cookie_attributes(self, cookie) -> Dict[str, Any]:
+        """Return the protected _rest attribute for a cookie."""
+        return getattr(cookie, "_rest", {})
 
     async def _test_session_security(self) -> Dict[str, Any]:
         """Test session management security."""
@@ -576,9 +580,10 @@ class RedTeamTester:
 
             # Analyze cookies
             for cookie in response.cookies:
-                if "secure" in cookie._rest:
+                rest = self.get_cookie_attributes(cookie)
+                if "secure" in rest:
                     session_info["secure_cookies"] = True
-                if "httponly" in cookie._rest:
+                if "httponly" in rest:
                     session_info["httponly_cookies"] = True
 
         except Exception:
@@ -651,7 +656,7 @@ class RedTeamTester:
             except Exception as e:
                 bypass_attempts.append(
                     {"technique": technique["method"],
-                        "error": str(e), "successful": False}
+                     "error": str(e), "successful": False}
                 )
 
         return bypass_attempts
@@ -661,50 +666,73 @@ class RedTeamTester:
     ) -> List[Dict[str, Any]]:
         """Test injection payloads against endpoints."""
 
+        def detect_sql(response_text: str, payload: str) -> bool:
+            sql_errors = [
+                "sql syntax",
+                "mysql_fetch",
+                "ora-",
+                "postgresql",
+                "sqlite_",
+                "odbc",
+                "jdbc",
+                "database error",
+            ]
+            return any(error in response_text for error in sql_errors)
+
+        def detect_xss(response_text: str, payload: str) -> bool:
+            return payload.lower() in response_text or "alert" in response_text
+
+        def detect_ldap(response_text: str, payload: str) -> bool:
+            return payload.lower() in response_text
+
+        def detect_command(response_text: str, payload: str) -> bool:
+            command_errors = ["command not found", "permission denied"]
+            return any(error in response_text for error in command_errors)
+
+        def detect_xpath(response_text: str, payload: str) -> bool:
+            xpath_errors = ["xpath syntax error", "unable to evaluate xpath"]
+            return any(error in response_text for error in xpath_errors)
+
+        detectors = {
+            "sql": (detect_sql, "sql_injection"),
+            "xss": (detect_xss, "xss"),
+            "ldap": (detect_ldap, "ldap_injection"),
+            "command": (detect_command, "command_injection"),
+            "xpath": (detect_xpath, "xpath_injection"),
+        }
+
         vulnerabilities = []
 
         for endpoint_template in endpoints:
             for payload in payloads:
                 try:
-                    # URL encode payload for GET parameters
                     import urllib.parse
 
                     encoded_payload = urllib.parse.quote(payload)
                     endpoint = endpoint_template.format(encoded_payload)
 
                     response = self.session.get(
-                        f"{self.target_base_url}{endpoint}", timeout=5)
+                        f"{self.target_base_url}{endpoint}",
+                        timeout=5,
+                    )
 
-                    # Look for signs of successful injection
                     response_text = response.text.lower()
 
-                    if injection_type == "sql":
-                        sql_errors = [
-                            "sql syntax",
-                            "mysql_fetch",
-                            "ora-",
-                            "postgresql",
-                            "sqlite_",
-                            "odbc",
-                            "jdbc",
-                            "database error",
-                        ]
-                        if any(error in response_text for error in sql_errors):
-                            vulnerabilities.append(
-                                {
-                                    "endpoint": endpoint,
-                                    "payload": payload,
-                                    "type": "sql_injection",
-                                    "evidence": response_text[:500],
-                                }
-                            )
+                    detect_func, vuln_type = detectors.get(injection_type, (None, None))
+                    if detect_func and detect_func(response_text, payload):
+                        vulnerabilities.append(
+                            {
+                                "endpoint": endpoint,
+                                "payload": payload,
+                                "type": vuln_type,
+                                "evidence": response_text[:500],
+                            }
+                        )
 
-                    elif injection_type == "xss":
-                        if payload.lower() in response_text or "alert" in response_text:
-                            vulnerabilities.append(
-                                {
-                                    "endpoint": endpoint,
-                                    "payload": payload,
+                except Exception:
+                    pass
+
+        return vulnerabilities
                                     "type": "xss",
                                     "evidence": response_text[:500],
                                 }
@@ -768,7 +796,7 @@ class RedTeamTester:
             requests_sent = 0
             blocked = False
 
-            for i in range(50):  # Send up to 50 requests
+            for _ in range(50):  # Send up to 50 requests
                 response = self.session.get(
                     f"{self.target_base_url}/health", timeout=5)
 
@@ -809,12 +837,6 @@ class RedTeamTester:
             "null_origin_allowed": False,
         }
 
-        dangerous_headers = [
-            "Access-Control-Allow-Origin: *",
-            "Access-Control-Allow-Credentials: true",
-            "Access-Control-Allow-Headers: *",
-        ]
-
         try:
             # Test with malicious origin
             response = self.session.options(
@@ -838,7 +860,9 @@ class RedTeamTester:
 
             # Test null origin
             response = self.session.options(
-                f"{self.target_base_url}/api/v1/health", headers={"Origin": "null"}, timeout=5
+                f"{self.target_base_url}/api/v1/health",
+                headers={"Origin": "null"},
+                timeout=5,
             )
 
             if "Access-Control-Allow-Origin: null" in str(response.headers):
@@ -954,7 +978,11 @@ class RedTeamTester:
 
     async def _test_tls_configuration(self) -> Dict[str, Any]:
         """Test TLS configuration."""
-        return {"tls_version": "unknown", "cipher_suites": [], "certificate_valid": None}
+        return {
+            "tls_version": "unknown",
+            "cipher_suites": [],
+            "certificate_valid": None,
+        }
 
     async def _test_security_headers(self) -> Dict[str, Any]:
         """Test HTTP security headers."""
@@ -980,7 +1008,8 @@ class RedTeamTester:
         """Test file upload security."""
         return {"unrestricted_upload": False, "malicious_file_accepted": False}
 
-    def _analyze_security_headers(self, headers: Dict[str, str]) -> Dict[str, Any]:
+    @staticmethod
+    def _analyze_security_headers(headers: Dict[str, str]) -> Dict[str, Any]:
         """Analyze HTTP security headers."""
 
         security_headers = {
@@ -1000,7 +1029,11 @@ class RedTeamTester:
             "score": (6 - len(missing_headers)) / 6 * 100,  # Percentage score
         }
 
-    def _generate_security_report(self, execution_time: float, *test_results) -> Dict[str, Any]:
+    def _generate_security_report(
+        self,
+        execution_time: float,
+        *test_results,
+    ) -> Dict[str, Any]:
         """Generate comprehensive security report."""
 
         total_vulnerabilities = sum(
@@ -1082,14 +1115,19 @@ class RedTeamTester:
             if isinstance(result, dict):
                 if result.get("errors"):
                     recommendations.append(
-                        "🔧 Fix configuration errors identified during testing")
+                        "🔧 Fix configuration errors identified during testing"
+                    )
 
-                if "brute_force_resistance" in result and not result.get("brute_force_resistance"):
+                if "brute_force_resistance" in result and not result.get(
+                    "brute_force_resistance"
+                ):
                     recommendations.append(
-                        "🔨 Implement account lockout and rate limiting")
+                        "🔨 Implement account lockout and rate limiting"
+                    )
 
-                if "rate_limiting" in result and not result.get("rate_limiting", {}).get(
-                    "rate_limiting_enabled"
+                if (
+                    "rate_limiting" in result
+                    and not result.get("rate_limiting", {}).get("rate_limiting_enabled")
                 ):
                     recommendations.append("🚦 Enable API rate limiting")
 
@@ -1097,19 +1135,21 @@ class RedTeamTester:
 
 
 def create_red_team_tester(target_url: str = "http://127.0.0.1:24801") -> RedTeamTester:
-    """Create a red team tester instance."""
+    """Create a red team tester instance with the specified target URL."""
     return RedTeamTester(target_base_url=target_url)
 
 
-async def run_red_team_assessment(target_url: str = "http://127.0.0.1:24801") -> Dict[str, Any]:
-    """Run complete red team assessment."""
+async def run_red_team_assessment(
+    target_url: str = "http://127.0.0.1:24801",
+) -> Dict[str, Any]:
+    """Run complete red team assessment asynchronously and return the report."""
     tester = create_red_team_tester(target_url)
     return await tester.run_comprehensive_test_suite()
-
 
 if __name__ == "__main__":
     # Run red team testing
     async def main():
+        """Entry point for running the DinoAir red team security assessment CLI."""
         print("🔴 DinoAir Red Team Security Assessment")
         print("=" * 50)
 
@@ -1127,14 +1167,14 @@ if __name__ == "__main__":
 
         # Display summary
         summary = report["summary"]
-        print(f"\n📊 SECURITY ASSESSMENT RESULTS")
+        print("\n📊 SECURITY ASSESSMENT RESULTS")
         print(f"Security Grade: {summary['security_grade']}")
         print(f"Risk Score: {summary['risk_score']}/100")
         print(f"Vulnerabilities Found: {summary['total_vulnerabilities']}")
         print(f"Execution Time: {summary['execution_time']:.2f}s")
 
         # Show recommendations
-        print(f"\n📋 RECOMMENDATIONS:")
+        print("\n📋 RECOMMENDATIONS:")
         for rec in report["recommendations"]:
             print(f"   {rec}")
 

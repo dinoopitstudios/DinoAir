@@ -30,9 +30,8 @@ class LiveSecurityAssessment:
             if response.status_code == 200:
                 print("✅ API is accessible")
                 return True
-            else:
-                print(f"❌ API returned status {response.status_code}")
-                return False
+            print(f"❌ API returned status {response.status_code}")
+            return False
         except Exception as e:
             print(f"❌ API is not accessible: {e}")
             return False
@@ -225,7 +224,8 @@ class LiveSecurityAssessment:
                     if response.status_code == 429:  # Too Many Requests
                         blocked_count += 1
                         print(
-                            f"   ✅ Rate limit triggered after {i + 1} requests")
+                            f"   ✅ Rate limit triggered after {i + 1} requests"
+                        )
                         break
                     time.sleep(0.1)  # Small delay between requests
                 except Exception:
@@ -235,7 +235,10 @@ class LiveSecurityAssessment:
                 self.passed_tests += 1
                 print("   ✅ Rate limiting is working")
             else:
-                print("   ⚠️  Rate limiting not detected (may be set for higher limits)")
+                print(
+                    "   ⚠️  Rate limiting not detected "
+                    "(may be set for higher limits)"
+                )
                 self.passed_tests += 1  # For small team, might be set higher
 
         except Exception as e:
@@ -352,7 +355,8 @@ class LiveSecurityAssessment:
             "recommendations": self._get_recommendations(pass_percentage),
         }
 
-    def _get_recommendations(self, pass_percentage: float) -> List[str]:
+    @staticmethod
+    def _get_recommendations(pass_percentage: float) -> List[str]:
         """Get security recommendations based on test results."""
 
         recommendations = []
@@ -387,6 +391,7 @@ class LiveSecurityAssessment:
         return recommendations
 
 
+
 def run_live_security_assessment():
     """Run live security assessment against DinoAir API."""
 
@@ -412,34 +417,35 @@ def run_live_security_assessment():
     assessor.test_information_disclosure()
 
     # Generate report
-    report = assessor.generate_report()
+    assessment_report = assessor.generate_report()
 
     # Display results
-    print(f"\n📊 SECURITY ASSESSMENT RESULTS")
-    print(f"Security Level: {report['security_level']}")
-    print(f"Grade: {report['security_grade']}")
+    print("\n📊 SECURITY ASSESSMENT RESULTS")
+    print(f"Security Level: {assessment_report['security_level']}")
+    print(f"Grade: {assessment_report['security_grade']}")
     print(
-        f"Tests Passed: {report['tests_passed']}/{report['total_tests']} ({report['pass_percentage']}%)"
+        f"Tests Passed: {assessment_report['tests_passed']}/"
+        f"{assessment_report['total_tests']} ({assessment_report['pass_percentage']}%)"
     )
 
-    if report["findings"]:
-        print(f"\n⚠️ SECURITY FINDINGS:")
-        for finding in report["findings"]:
+    if assessment_report["findings"]:
+        print("\n⚠️ SECURITY FINDINGS:")
+        for finding in assessment_report["findings"]:
             print(f"   • {finding}")
     else:
-        print(f"\n✅ NO CRITICAL SECURITY ISSUES FOUND")
+        print("\n✅ NO CRITICAL SECURITY ISSUES FOUND")
 
-    print(f"\n📋 RECOMMENDATIONS:")
-    for rec in report["recommendations"][:5]:
+    print("\n📋 RECOMMENDATIONS:")
+    for rec in assessment_report["recommendations"][:5]:
         print(f"   {rec}")
 
     # Save report
     with open("live_security_assessment.json", "w") as f:
-        json.dump(report, f, indent=2)
+        json.dump(assessment_report, f, indent=2)
 
-    print(f"\n💾 Report saved to: live_security_assessment.json")
+    print("\n💾 Report saved to: live_security_assessment.json")
 
-    return report
+    return assessment_report
 
 
 if __name__ == "__main__":
@@ -448,14 +454,18 @@ if __name__ == "__main__":
 
         if report and report["pass_percentage"] >= 80:
             print(
-                f"\n🎉 CONGRATULATIONS! DinoAir has {report['security_level']} security!")
+                "\n🎉 CONGRATULATIONS! DinoAir has "
+                f"{report['security_level']} security!"
+            )
             sys.exit(0)
         elif report:
             print(
-                f"\n🔧 Security improvements needed - current level: {report['security_level']}")
+                "\n🔧 Security improvements needed - current level: "
+                f"{report['security_level']}"
+            )
             sys.exit(1)
         else:
-            print(f"\n❌ Assessment could not be completed")
+            print("\n❌ Assessment could not be completed")
             sys.exit(1)
 
     except Exception as e:
