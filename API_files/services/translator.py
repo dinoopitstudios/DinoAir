@@ -121,8 +121,7 @@ class TranslatorService:
         Translate pseudocode to the target language with non-streaming behavior.
         """
         # Map TargetLanguageEnum to raw string expected by TranslatorAPI
-        target_lang: str = (
-            req.target_language or TargetLanguageEnum.python).value
+        target_lang: str = (req.target_language or TargetLanguageEnum.python).value
 
         # TranslatorAPI returns a dictionary with keys:
         #   success: bool, code: Optional[str], language: str
