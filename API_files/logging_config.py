@@ -79,8 +79,7 @@ class RedactionService:
         # Redact explicit secrets
         for secret in self.secrets:
             if secret and secret in redacted:
-                redacted = redacted.replace(
-                    secret, self.config.redacted_placeholder)
+                redacted = redacted.replace(secret, self.config.redacted_placeholder)
 
         # Apply pattern-based redaction
         redacted = self._redact_json_auth_header(redacted)
@@ -272,8 +271,7 @@ class RedactionFilter(logging.Filter):
                         k: self.redaction_service.redact_value(v) for k, v in record.args.items()
                     }
                 elif isinstance(record.args, tuple):
-                    record.args = tuple(
-                        self.redaction_service.redact_value(a) for a in record.args)
+                    record.args = tuple(self.redaction_service.redact_value(a) for a in record.args)
 
     def _redact_extra_fields(self, record: logging.LogRecord) -> None:
         """Redact sensitive extra fields in log records."""
@@ -284,8 +282,7 @@ class RedactionFilter(logging.Filter):
                         record.__dict__[key]
                     )
                 elif isinstance(record.__dict__[key], str):
-                    record.__dict__[key] = self.redaction_service.redact_text(record.__dict__[
-                                                                              key])
+                    record.__dict__[key] = self.redaction_service.redact_text(record.__dict__[key])
 
 
 class ISOFormatter(JsonFormatter):
@@ -363,8 +360,7 @@ class ISOFormatter(JsonFormatter):
     ) -> None:
         """Copy configured structured fields."""
         for field_name in self.config.structured_log_fields:
-            value = self._get_field_value(
-                field_name, message_dict, log_record, record)
+            value = self._get_field_value(field_name, message_dict, log_record, record)
             if value is not None:
                 log_record[field_name] = value
 

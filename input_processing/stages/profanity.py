@@ -355,8 +355,7 @@ class ProfanityFilter:
         matches = self.detect_profanity(text)
 
         # Filter by minimum severity
-        filtered_matches = [
-            m for m in matches if m.severity.value >= min_severity.value]
+        filtered_matches = [m for m in matches if m.severity.value >= min_severity.value]
 
         if not filtered_matches:
             return FilterResult(
@@ -372,8 +371,7 @@ class ProfanityFilter:
         filtered_text = text
 
         # Sort matches by position (reverse order for replacement)
-        sorted_matches = sorted(
-            filtered_matches, key=lambda m: m.position, reverse=True)
+        sorted_matches = sorted(filtered_matches, key=lambda m: m.position, reverse=True)
 
         for match in sorted_matches:
             start = match.position
@@ -384,13 +382,11 @@ class ProfanityFilter:
             original_word = text[start:end]
             if original_word.lower() == match.word:
                 filtered_text = (
-                    filtered_text[:start] +
-                    self._mask_word(original_word) + filtered_text[end:]
+                    filtered_text[:start] + self._mask_word(original_word) + filtered_text[end:]
                 )
 
         # Calculate severity score
-        max_severity = max(
-            (m.severity for m in filtered_matches), default=None)
+        max_severity = max((m.severity for m in filtered_matches), default=None)
         score = self._calculate_score(filtered_matches, len(text))
 
         return FilterResult(

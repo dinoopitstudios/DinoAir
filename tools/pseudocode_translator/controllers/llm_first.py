@@ -57,8 +57,7 @@ class LlmFirstController:
         Execute LLM-first flow and return TranslationResult (manager's dataclass instance).
         """
         logger = self._logger
-        logger.debug("Translation #%s: Using LLM-first approach",
-                     translation_id)
+        logger.debug("Translation #%s: Using LLM-first approach", translation_id)
 
         # Build translation config for document-level LLM translation
         translation_config = self._build_config_for_document()
@@ -94,10 +93,8 @@ class LlmFirstController:
             raise RuntimeError("LLM produced no code output")
 
         # Validate and optionally fix (preserving telemetry labels and re-validation behavior)
-        logger.debug("Translation #%s: Validating generated code",
-                     translation_id)
-        final_code, validation_result = self._validate_and_optionally_fix(
-            generated_code)
+        logger.debug("Translation #%s: Validating generated code", translation_id)
+        final_code, validation_result = self._validate_and_optionally_fix(generated_code)
 
         # Logic validation and improvements (unchanged wording and list order)
         logic_result = self._validator.validate_logic(final_code)
@@ -105,8 +102,7 @@ class LlmFirstController:
 
         suggestions = self._validator.suggest_improvements(final_code)
         if suggestions:
-            warnings.append(
-                f"Improvement suggestions: {'; '.join(suggestions)}")
+            warnings.append(f"Improvement suggestions: {'; '.join(suggestions)}")
 
         # Calculate metadata (unchanged keys/values)
         import time as _time

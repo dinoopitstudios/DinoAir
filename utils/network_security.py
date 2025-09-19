@@ -66,8 +66,7 @@ class RateLimitRule:
 
     def __post_init__(self):
         if self.burst_capacity == 0:
-            self.burst_capacity = max(
-                10, self.requests_per_minute // 6)  # 10 second burst
+            self.burst_capacity = max(10, self.requests_per_minute // 6)  # 10 second burst
 
 
 @dataclass
@@ -116,8 +115,7 @@ class NetworkSecurityConfig:
 
     # CORS Configuration
     cors_allow_origins: List[str] = field(default_factory=list)
-    cors_allow_methods: List[str] = field(
-        default_factory=lambda: ["GET", "POST", "PUT", "DELETE"])
+    cors_allow_methods: List[str] = field(default_factory=lambda: ["GET", "POST", "PUT", "DELETE"])
     cors_allow_headers: List[str] = field(default_factory=lambda: ["*"])
     cors_allow_credentials: bool = True
 
@@ -158,10 +156,8 @@ class NetworkSecurityConfig:
                 "http://localhost:8000",
             ]
             network_config.rate_limit_rules = [
-                RateLimitRule(requests_per_minute=600,
-                              scope=RateLimitScope.PER_IP),  # 10/second
-                RateLimitRule(requests_per_minute=2000,
-                              scope=RateLimitScope.GLOBAL),
+                RateLimitRule(requests_per_minute=600, scope=RateLimitScope.PER_IP),  # 10/second
+                RateLimitRule(requests_per_minute=2000, scope=RateLimitScope.GLOBAL),
             ]
             network_config.ddos_threshold_requests = 1000
             network_config.ddos_block_duration = 300  # 5 minutes
@@ -177,18 +173,15 @@ class NetworkSecurityConfig:
             network_config.require_https = True
             network_config.cors_allow_origins = ["https://dinoair.com"]
             network_config.rate_limit_rules = [
-                RateLimitRule(requests_per_minute=60,
-                              scope=RateLimitScope.PER_IP),
-                RateLimitRule(requests_per_minute=1000,
-                              scope=RateLimitScope.GLOBAL),
+                RateLimitRule(requests_per_minute=60, scope=RateLimitScope.PER_IP),
+                RateLimitRule(requests_per_minute=1000, scope=RateLimitScope.GLOBAL),
             ]
 
         elif security_level == SecurityLevel.CRITICAL:
             # Ambulance/healthcare environment settings - relaxed for small team
             network_config.require_https = True
             network_config.tls_min_version = "1.3"
-            network_config.cors_allow_origins = [
-                "https://secure.dinoair.healthcare"]
+            network_config.cors_allow_origins = ["https://secure.dinoair.healthcare"]
             network_config.allow_private_ips = True  # Allow private IPs for small team
             network_config.max_request_size = 5 * 1024 * 1024  # 5MB limit
             network_config.request_timeout = 30  # Standard timeout
@@ -196,8 +189,7 @@ class NetworkSecurityConfig:
                 RateLimitRule(
                     requests_per_minute=300, scope=RateLimitScope.PER_IP
                 ),  # 5 requests/second
-                RateLimitRule(requests_per_minute=1000,
-                              scope=RateLimitScope.GLOBAL),
+                RateLimitRule(requests_per_minute=1000, scope=RateLimitScope.GLOBAL),
                 RateLimitRule(
                     requests_per_minute=60,
                     scope=RateLimitScope.PER_ENDPOINT,
@@ -286,8 +278,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.security_config = security_config
         self.audit_callback = audit_callback
-        self.rate_limiter = RateLimitStore(
-            security_config.rate_limit_storage_ttl)
+        self.rate_limiter = RateLimitStore(security_config.rate_limit_storage_ttl)
         self.blocked_ips: Dict[str, float] = {}  # IP -> block_until_timestamp
         self.ddos_tracker: Dict[str, deque] = defaultdict(deque)
 
@@ -303,14 +294,12 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 await self._audit_security_event(
                     "ip_blocked", client_ip, {"reason": "IP not in allowlist"}
                 )
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
             # 2. Check blocked IPs
             if self._is_ip_blocked(client_ip):
                 await self._audit_security_event(
-                    "blocked_ip_attempt", client_ip, {
-                        "reason": "IP temporarily blocked"}
+                    "blocked_ip_attempt", client_ip, {"reason": "IP temporarily blocked"}
                 )
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests"
@@ -345,8 +334,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             # 6. Rate Limiting
             if not self._check_rate_limits(request, client_ip):
                 await self._audit_security_event(
-                    "rate_limit_exceeded", client_ip, {
-                        "endpoint": str(request.url.path)}
+                    "rate_limit_exceeded", client_ip, {"endpoint": str(request.url.path)}
                 )
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
@@ -611,12 +599,10 @@ def validate_healthcare_compliance(network_config: NetworkSecurityConfig) -> Lis
         issues.append("Rate limiting is required for healthcare environments")
 
     if network_config.allow_private_ips and not network_config.allowed_ips:
-        issues.append(
-            "IP allowlist should be configured for healthcare environments")
+        issues.append("IP allowlist should be configured for healthcare environments")
 
     if not network_config.ddos_detection_enabled:
-        issues.append(
-            "DDoS protection is recommended for healthcare environments")
+        issues.append("DDoS protection is recommended for healthcare environments")
 
     # Check CSP is restrictive enough
     csp = network_config.security_headers.content_security_policy

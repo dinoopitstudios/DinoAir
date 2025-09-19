@@ -104,8 +104,7 @@ class StreamingPipeline:
 
         # Initialize components
         self.chunker = CodeChunker(
-            ChunkConfig(max_chunk_size=config.max_context_length *
-                        2, respect_boundaries=True)
+            ChunkConfig(max_chunk_size=config.max_context_length * 2, respect_boundaries=True)
         )
         self.parser = ParserModule()
         self.translator = None  # Will be created per stream
@@ -113,12 +112,10 @@ class StreamingPipeline:
         self.validator = Validator(config)
 
         # Streaming state
-        self.buffer = StreamBuffer(BufferConfig(
-            max_size_mb=50, enable_compression=True))
+        self.buffer = StreamBuffer(BufferConfig(max_size_mb=50, enable_compression=True))
         self.context_window = []
         self.result_queue = Queue()
-        self.executor = ThreadPoolExecutor(
-            max_workers=self.stream_config.thread_pool_size)
+        self.executor = ThreadPoolExecutor(max_workers=self.stream_config.thread_pool_size)
 
         # Progress tracking
         self.progress = StreamingProgress()
@@ -136,8 +133,7 @@ class StreamingPipeline:
                 except Exception:
                     dispatcher = None
                 if dispatcher:
-                    dispatcher.dispatch_event(
-                        event_type, source=self.__class__.__name__, **data)
+                    dispatcher.dispatch_event(event_type, source=self.__class__.__name__, **data)
         except Exception:
             pass
 
@@ -222,8 +218,7 @@ class StreamingPipeline:
 
                     while pos < n and not self._stop_event.is_set():
                         # Compute desired size and clamp
-                        desired = int(sizer.get_next_chunk_size(
-                            default_chunk_size=sc.chunk_size))
+                        desired = int(sizer.get_next_chunk_size(default_chunk_size=sc.chunk_size))
                         desired = max(1, min(desired, hard_cap_max))
 
                         # Emit decision event if size changed
@@ -236,13 +231,10 @@ class StreamingPipeline:
                                     old_size=int(prev_size),
                                     new_size=int(desired),
                                     reason=reason,
-                                    smoothed_latency_ms=float(
-                                        sizer.smoothed_latency_ms or 0.0),
-                                    target_latency_ms=int(
-                                        sc.adaptive_target_latency_ms),
+                                    smoothed_latency_ms=float(sizer.smoothed_latency_ms or 0.0),
+                                    target_latency_ms=int(sc.adaptive_target_latency_ms),
                                     backpressure_util=float(util),
-                                    cooldown_remaining=int(
-                                        sizer.cooldown_remaining),
+                                    cooldown_remaining=int(sizer.cooldown_remaining),
                                 )
                                 rec = get_recorder()
                                 rec.record_event(
@@ -294,8 +286,7 @@ class StreamingPipeline:
                         model_tps: float | None = None
                         try:
                             tm = self.translator
-                            mdl = getattr(tm, "_current_model",
-                                          None) if tm else None
+                            mdl = getattr(tm, "_current_model", None) if tm else None
                             if mdl:
                                 caps = mdl.get_capabilities()
                                 tps = caps.get("tokens_per_second")
@@ -317,8 +308,7 @@ class StreamingPipeline:
                             rec = get_recorder()
                             rec.record_event(
                                 "adapt.latency_ms",
-                                duration_ms=float(
-                                    sizer.smoothed_latency_ms or observed_ms),
+                                duration_ms=float(sizer.smoothed_latency_ms or observed_ms),
                             )
                         except Exception:
                             pass
@@ -327,8 +317,7 @@ class StreamingPipeline:
                         self.progress.processed_chunks += 1
                         self.progress.bytes_processed += chunk.size
                         # Keep total_chunks in sync for assembler; adaptive path discovers count incrementally
-                        self.progress.total_chunks = max(
-                            self.progress.total_chunks, chunk_idx + 1)
+                        self.progress.total_chunks = max(self.progress.total_chunks, chunk_idx + 1)
 
                         yield result
 
@@ -354,14 +343,12 @@ class StreamingPipeline:
             # Record total stream time
             try:
                 recorder = get_recorder()
-                recorder.record_event(
-                    "stream.total", (time.perf_counter() - _total_start) * 1000.0)
+                recorder.record_event("stream.total", (time.perf_counter() - _total_start) * 1000.0)
             except Exception:
                 pass
 
             # Emit STREAM_COMPLETED with processed chunk count
-            self._dispatch(EventType.STREAM_COMPLETED,
-                           chunks=self.progress.processed_chunks)
+            self._dispatch(EventType.STREAM_COMPLETED, chunks=self.progress.processed_chunks)
 
             # Cleanup
             self._stop_progress_reporting()
@@ -394,8 +381,7 @@ class StreamingPipeline:
                     recorder.record_event(
                         "stream.chunk",
                         result.processing_time * 1000.0,
-                        extra={"chunk_index": chunk.chunk_index,
-                               "size": chunk.size},
+                        extra={"chunk_index": chunk.chunk_index, "size": chunk.size},
                     )
                 except Exception:
                     pass
@@ -419,8 +405,7 @@ class StreamingPipeline:
                 yield result
 
             except Exception as e:
-                logger.error(
-                    f"Error processing chunk {chunk.chunk_index}: {e}")
+                logger.error(f"Error processing chunk {chunk.chunk_index}: {e}")
                 fail = ChunkResult(
                     chunk_index=chunk.chunk_index,
                     success=False,
@@ -480,8 +465,7 @@ class StreamingPipeline:
                     next_chunk = next(chunk_iter)
                 except StopIteration:
                     break
-                fut = self.executor.submit(
-                    self._process_single_chunk, next_chunk)
+                fut = self.executor.submit(self._process_single_chunk, next_chunk)
                 futures[fut] = next_chunk
 
             if not futures:
@@ -495,8 +479,7 @@ class StreamingPipeline:
             for fut in list(done):
                 chunk = futures.pop(fut)
                 try:
-                    result = fut.result(
-                        timeout=self.stream_config.chunk_timeout)
+                    result = fut.result(timeout=self.stream_config.chunk_timeout)
 
                     try:
                         recorder = get_recorder()
@@ -524,14 +507,12 @@ class StreamingPipeline:
                         EventType.STREAM_CHUNK_PROCESSED,
                         index=chunk.chunk_index,
                         success=bool(result.success),
-                        duration_ms=int(
-                            getattr(result, "processing_time", 0.0) * 1000.0),
+                        duration_ms=int(getattr(result, "processing_time", 0.0) * 1000.0),
                     )
 
                     yield result
                 except Exception as e:
-                    logger.error(
-                        f"Error processing chunk {chunk.chunk_index}: {e}")
+                    logger.error(f"Error processing chunk {chunk.chunk_index}: {e}")
                     # Emit per-chunk failure event
                     self._dispatch(
                         EventType.STREAM_CHUNK_PROCESSED,
@@ -563,8 +544,7 @@ class StreamingPipeline:
             # Be robust to different ParseResult shapes (property vs computed)
             success_attr = getattr(parse_result, "success", None)
             parse_success = (
-                success_attr if isinstance(success_attr, bool) else (
-                    len(parse_result.errors) == 0)
+                success_attr if isinstance(success_attr, bool) else (len(parse_result.errors) == 0)
             )
             if not parse_success:
                 result.success = False
@@ -579,16 +559,14 @@ class StreamingPipeline:
             for block in parse_result.blocks:
                 if block.type == BlockType.ENGLISH:
                     # Build translation context
-                    context = self._build_translation_context(
-                        chunk.chunk_index)
+                    context = self._build_translation_context(chunk.chunk_index)
 
                     try:
                         # Delegate via TranslationManager public wrapper
                         translator = self.translator
                         if translator is None:
                             raise RuntimeError("Translator not initialized")
-                        res = translator.translate_text_block(
-                            text=block.content, context=context)
+                        res = translator.translate_text_block(text=block.content, context=context)
                         # Normalize translation result to expected type with .success attribute
                         if (
                             not isinstance(res, ModelTranslationResult)
@@ -616,8 +594,7 @@ class StreamingPipeline:
                         translated_blocks.append(translated_block)
 
                     except Exception as e:
-                        logger.error(
-                            f"Translation error in chunk {chunk.chunk_index}: {e}")
+                        logger.error(f"Translation error in chunk {chunk.chunk_index}: {e}")
                         result.warnings.append(f"Translation error: {str(e)}")
                         translated_blocks.append(block)  # Keep original
                 else:
@@ -679,8 +656,7 @@ class StreamingPipeline:
         Returns:
             Context dictionary
         """
-        context = {"chunk_index": chunk_index,
-                   "code": "", "before": "", "after": ""}
+        context = {"chunk_index": chunk_index, "code": "", "before": "", "after": ""}
 
         # Get previous chunk's code
         if chunk_index > 0:
@@ -691,7 +667,7 @@ class StreamingPipeline:
                     for block in prev_result.translated_blocks
                     if block.type == BlockType.PYTHON
                 )
-                context["before"] = prev_code[-self.stream_config.context_window_size:]
+                context["before"] = prev_code[-self.stream_config.context_window_size :]
                 context["code"] = context["before"]
 
         return context
@@ -741,8 +717,7 @@ class StreamingPipeline:
     def _start_progress_reporting(self):
         """Start the progress reporting thread"""
         self._stop_event.clear()
-        self._progress_thread = threading.Thread(
-            target=self._progress_reporter, daemon=True)
+        self._progress_thread = threading.Thread(target=self._progress_reporter, daemon=True)
         self._progress_thread.start()
 
     def _stop_progress_reporting(self):
@@ -762,8 +737,7 @@ class StreamingPipeline:
                     logger.error(f"Error in progress callback: {e}")
 
             # Wait before next update
-            self._stop_event.wait(
-                self.stream_config.progress_callback_interval)
+            self._stop_event.wait(self.stream_config.progress_callback_interval)
 
     def cancel_streaming(self):
         """Cancel ongoing streaming operation"""

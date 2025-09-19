@@ -104,8 +104,7 @@ class AlertManager:
 
         if not logger.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -380,8 +379,7 @@ Please investigate and resolve the underlying import organization issues.
             response.raise_for_status()
 
             issue_number = response.json().get("number")
-            self.logger.info(
-                f"GitHub issue #{issue_number} created for: {alert.title}")
+            self.logger.info(f"GitHub issue #{issue_number} created for: {alert.title}")
             return True
 
         except Exception as e:
@@ -522,8 +520,7 @@ def main():
         choices=["check", "test", "history", "configure"],
         help="Alert command to execute",
     )
-    parser.add_argument("--config", type=Path,
-                        help="Path to alert configuration file")
+    parser.add_argument("--config", type=Path, help="Path to alert configuration file")
     parser.add_argument(
         "--severity",
         choices=["critical", "warning", "info"],
@@ -542,8 +539,7 @@ def main():
         # Filter by severity
         severity_order = {"info": 0, "warning": 1, "critical": 2}
         min_severity = severity_order.get(args.severity, 1)
-        filtered_alerts = [a for a in alerts if severity_order.get(
-            a.severity, 0) >= min_severity]
+        filtered_alerts = [a for a in alerts if severity_order.get(a.severity, 0) >= min_severity]
 
         if not filtered_alerts:
             print("✅ No alerts to send")
@@ -594,8 +590,7 @@ def main():
         print(f"  Email enabled: {alert_manager.config.email_enabled}")
         print(f"  Webhook enabled: {alert_manager.config.webhook_enabled}")
         print(f"  GitHub enabled: {alert_manager.config.github_enabled}")
-        print(
-            f"  Rate limit: {alert_manager.config.rate_limit_minutes} minutes")
+        print(f"  Rate limit: {alert_manager.config.rate_limit_minutes} minutes")
 
         print("\nTo configure alerts, edit the configuration file:")
         print(f"  {alert_manager.config_path}")

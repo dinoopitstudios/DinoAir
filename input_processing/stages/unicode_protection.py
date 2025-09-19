@@ -306,8 +306,7 @@ class UnicodeProtection:
             return True
 
         # Check for invisible characters
-        invisible_count = sum(
-            bool(unicodedata.category(c) in {"Cf", "Cc"}) for c in text)
+        invisible_count = sum(bool(unicodedata.category(c) in {"Cf", "Cc"}) for c in text)
 
         return invisible_count > 0
 

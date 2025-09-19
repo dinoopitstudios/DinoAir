@@ -67,8 +67,7 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
         # First, parse the file content to a dict to avoid silent fallback to defaults
         try:
             with open(p) as f:
-                raw = yaml.safe_load(f) if p.suffix.lower() in (
-                    ".yaml", ".yml") else json.load(f)
+                raw = yaml.safe_load(f) if p.suffix.lower() in (".yaml", ".yml") else json.load(f)
         except Exception as e:
             msg = f"Failed to read/parse configuration: {e}".strip()
             return 1, {"errors": [msg], "warnings": [], "path": str(p)}
@@ -139,8 +138,7 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
             streaming_data = raw.get("streaming", {})
             if isinstance(streaming_data, dict):
                 # type: ignore[attr-defined]
-                streaming_fields = set(
-                    cfg.streaming.__dataclass_fields__.keys())
+                streaming_fields = set(cfg.streaming.__dataclass_fields__.keys())
                 for k, v in streaming_data.items():
                     if k in streaming_fields:
                         try:
@@ -162,16 +160,14 @@ def validate_config(path: str, lenient: bool = False) -> tuple[int, dict]:
         except ConfigurationError as e:
             # Strict validation failed
             msg = str(e).strip()
-            errors = [m.strip()
-                      for m in msg.splitlines() if m.strip()] or [msg]
+            errors = [m.strip() for m in msg.splitlines() if m.strip()] or [msg]
             return 1, {"errors": errors, "warnings": [], "path": str(p)}
         except Exception as e:
             msg = str(e).strip() or e.__class__.__name__
             return 1, {"errors": [msg], "warnings": [], "path": str(p)}
 
         errors = result.get("errors", []) if isinstance(result, dict) else []
-        warnings = result.get("warnings", []) if isinstance(
-            result, dict) else []
+        warnings = result.get("warnings", []) if isinstance(result, dict) else []
         exit_code = 0 if not errors else 1
         return exit_code, {
             "errors": list(errors),
@@ -201,18 +197,14 @@ class ConfigTool:
         )
 
         # Add verbosity flag
-        parser.add_argument("-v", "--verbose",
-                            action="store_true", help="Enable verbose output")
+        parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
 
         # Create subcommands
-        subparsers = parser.add_subparsers(
-            dest="command", help="Available commands")
+        subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
         # Validate command
-        validate_parser = subparsers.add_parser(
-            "validate", help="Validate a configuration file")
-        validate_parser.add_argument(
-            "--path", required=True, help="Path to configuration file")
+        validate_parser = subparsers.add_parser("validate", help="Validate a configuration file")
+        validate_parser.add_argument("--path", required=True, help="Path to configuration file")
         validate_parser.add_argument(
             "--lenient",
             action="store_true",
@@ -244,17 +236,14 @@ class ConfigTool:
         )
 
         # Check command
-        check_parser = subparsers.add_parser(
-            "check", help="Check configuration and environment")
+        check_parser = subparsers.add_parser("check", help="Check configuration and environment")
         check_parser.add_argument(
             "config_file", nargs="?", help="Path to configuration file (optional)"
         )
-        check_parser.add_argument(
-            "--env", action="store_true", help="Check environment variables")
+        check_parser.add_argument("--env", action="store_true", help="Check environment variables")
 
         # Wizard command
-        wizard_parser = subparsers.add_parser(
-            "wizard", help="Interactive configuration wizard")
+        wizard_parser = subparsers.add_parser("wizard", help="Interactive configuration wizard")
         wizard_parser.add_argument(
             "-o",
             "--output",
@@ -263,17 +252,14 @@ class ConfigTool:
         )
 
         # Info command
-        info_parser = subparsers.add_parser(
-            "info", help="Show configuration information")
-        info_parser.add_argument(
-            "config_file", help="Path to configuration file")
+        info_parser = subparsers.add_parser("info", help="Show configuration information")
+        info_parser.add_argument("config_file", help="Path to configuration file")
 
         # Upgrade command (for old configs)
         upgrade_parser = subparsers.add_parser(
             "upgrade", help="Upgrade old configuration to new format"
         )
-        upgrade_parser.add_argument(
-            "config_file", help="Path to old configuration file")
+        upgrade_parser.add_argument("config_file", help="Path to old configuration file")
         upgrade_parser.add_argument(
             "-o", "--output", help="Output file path (default: overwrite input)"
         )
@@ -336,8 +322,7 @@ class ConfigTool:
 
         # Check if file exists
         if output_path.exists():
-            response = input(
-                f"File {output_path} already exists. Overwrite? [y/N]: ")
+            response = input(f"File {output_path} already exists. Overwrite? [y/N]: ")
             if response.lower() != "y":
                 logger.info("Generation cancelled")
                 return 1
@@ -484,8 +469,7 @@ class ConfigTool:
 
             # Create backup if requested
             if args.backup and output_path == config_path:
-                backup_path = config_path.with_suffix(
-                    f"{config_path.suffix}.bak")
+                backup_path = config_path.with_suffix(f"{config_path.suffix}.bak")
                 import shutil
 
                 shutil.copy2(config_path, backup_path)

@@ -51,8 +51,7 @@ class CodeGenModel(BaseModel):
             author="Salesforce Research",
             license="BSD-3-Clause",
             homepage="https://github.com/salesforce/CodeGen",
-            download_url=(
-                "https://huggingface.co/Salesforce/codegen-350M-mono"),
+            download_url=("https://huggingface.co/Salesforce/codegen-350M-mono"),
             format=ModelFormat.PYTORCH,
             filename_pattern="pytorch_model.bin",
             tags=["code-generation", "python", "autoregressive"],
@@ -125,8 +124,7 @@ class CodeGenModel(BaseModel):
         if not model_path.exists():
             raise FileNotFoundError(f"Model path not found: {model_path}")
 
-        logger.info(
-            f"Loading CodeGen {self.config['model_size']} model from: {model_path}")
+        logger.info(f"Loading CodeGen {self.config['model_size']} model from: {model_path}")
 
         # In a real implementation, this would:
         # 1. Load tokenizer
@@ -252,8 +250,7 @@ class CodeGenMultiModel(CodeGenModel):
             author=meta.author,
             license=meta.license,
             homepage=meta.homepage,
-            download_url=(
-                "https://huggingface.co/Salesforce/codegen-2B-multi"),
+            download_url=("https://huggingface.co/Salesforce/codegen-2B-multi"),
             format=meta.format,
             filename_pattern=meta.filename_pattern,
             tags=["code-generation", "multi-language", "autoregressive"],
@@ -275,8 +272,7 @@ class CodeGenMultiModel(CodeGenModel):
         """Override for multi-language support"""
         caps = super().capabilities
         return ModelCapabilities(
-            supported_languages=["python", "javascript",
-                                 "java", "go", "rust", "cpp"],
+            supported_languages=["python", "javascript", "java", "go", "rust", "cpp"],
             max_context_length=caps.max_context_length,
             supports_code_completion=caps.supports_code_completion,
             supports_translation=caps.supports_translation,

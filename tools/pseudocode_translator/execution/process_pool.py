@@ -116,8 +116,7 @@ class ParseValidateExecutor:
     def _emit(self, et: EventType, **data) -> None:
         if self._dispatcher:
             with contextlib.suppress(Exception):
-                self._dispatcher.dispatch_event(
-                    et, source=self.__class__.__name__, **data)
+                self._dispatcher.dispatch_event(et, source=self.__class__.__name__, **data)
 
     def _ensure_pool(self) -> None:
         if self._pool is not None:
@@ -131,8 +130,7 @@ class ParseValidateExecutor:
 
         if start_method:
             ctx = mp.get_context(start_method)
-            self._pool = ProcessPoolExecutor(
-                max_workers=max_workers, mp_context=ctx)
+            self._pool = ProcessPoolExecutor(max_workers=max_workers, mp_context=ctx)
         else:
             self._pool = ProcessPoolExecutor(max_workers=max_workers)
 
@@ -172,10 +170,8 @@ class ParseValidateExecutor:
         # job size guardrail
         cap = int(self._config.process_pool_job_max_chars)
         if cap > 0 and len(text) > cap:
-            self._emit(EventType.EXEC_POOL_FALLBACK,
-                       kind="parse", reason="job_too_large")
-            self._rec.record_event("exec_pool.fallback", counters={
-                                   "exec_pool.fallback": 1})
+            self._emit(EventType.EXEC_POOL_FALLBACK, kind="parse", reason="job_too_large")
+            self._rec.record_event("exec_pool.fallback", counters={"exec_pool.fallback": 1})
             return _ImmediateFallback("job_too_large")
 
         # respect target
@@ -184,10 +180,8 @@ class ParseValidateExecutor:
 
         self._ensure_pool()
         # submit
-        self._emit(EventType.EXEC_POOL_TASK_SUBMITTED,
-                   kind="parse", size_chars=len(text))
-        self._rec.record_event("exec_pool.submit", counters={
-                               "exec_pool.submit": 1})
+        self._emit(EventType.EXEC_POOL_TASK_SUBMITTED, kind="parse", size_chars=len(text))
+        self._rec.record_event("exec_pool.submit", counters={"exec_pool.submit": 1})
         spec = _TaskSpec(kind="parse", func=self._parse_fn, args=(text,))
         # type: ignore[arg-type]
         fut = self._pool.submit(spec.func, *spec.args)
@@ -204,10 +198,8 @@ class ParseValidateExecutor:
             kind="validate",
             size_chars=(len(ast_obj) if isinstance(ast_obj, str) else 0),
         )
-        self._rec.record_event("exec_pool.submit", counters={
-                               "exec_pool.submit": 1})
-        spec = _TaskSpec(
-            kind="validate", func=self._validate_fn, args=(ast_obj,))
+        self._rec.record_event("exec_pool.submit", counters={"exec_pool.submit": 1})
+        spec = _TaskSpec(kind="validate", func=self._validate_fn, args=(ast_obj,))
         # type: ignore[arg-type]
         fut = self._pool.submit(spec.func, *spec.args)
         return self._TaskHandle(self, spec, fut)
@@ -237,10 +229,8 @@ class ParseValidateExecutor:
                         kind=self._spec.kind,
                         duration_ms=dur_ms,
                     )
-                    self._p.record_event("exec_pool.complete", counters={
-                                         "exec_pool.complete": 1})
-                    self._p.record_event(
-                        "exec_pool.task_ms", duration_ms=dur_ms)
+                    self._p.record_event("exec_pool.complete", counters={"exec_pool.complete": 1})
+                    self._p.record_event("exec_pool.task_ms", duration_ms=dur_ms)
                     return res
                 except (TimeoutError, BrokenProcessPool) as e:
                     # telemetry
@@ -250,19 +240,16 @@ class ParseValidateExecutor:
                         timeout_ms=int(timeout_sec * 1000.0),
                         attempt=self._attempt,
                     )
-                    self._p.record_event("exec_pool.timeout", counters={
-                                         "exec_pool.timeout": 1})
+                    self._p.record_event("exec_pool.timeout", counters={"exec_pool.timeout": 1})
                     # retry semantics
-                    do_retry = bool(
-                        self._p.config.process_pool_retry_on_timeout)
+                    do_retry = bool(self._p.config.process_pool_retry_on_timeout)
                     limit = int(self._p.config.process_pool_retry_limit)
                     if do_retry and self._attempt < limit:
                         self._attempt += 1
                         # restart pool and resubmit
                         try:
                             self._p.restart_pool()
-                            self._fut = self._p.pool.submit(
-                                self._spec.func, *self._spec.args)  # type: ignore
+                            self._fut = self._p.pool.submit(self._spec.func, *self._spec.args)  # type: ignore
                             self._t0 = time.perf_counter()
                             continue
                         except Exception:
@@ -272,11 +259,9 @@ class ParseValidateExecutor:
                     self._p.emit(
                         EventType.EXEC_POOL_FALLBACK,
                         kind=self._spec.kind,
-                        reason=("timeout" if isinstance(
-                            e, TimeoutError) else "broken_pool"),
+                        reason=("timeout" if isinstance(e, TimeoutError) else "broken_pool"),
                     )
-                    self._p.record_event("exec_pool.fallback", counters={
-                                         "exec_pool.fallback": 1})
+                    self._p.record_event("exec_pool.fallback", counters={"exec_pool.fallback": 1})
                     raise
                 except Exception:
                     # unexpected failure: treat as broken pool and fallback
@@ -285,6 +270,5 @@ class ParseValidateExecutor:
                         kind=self._spec.kind,
                         reason="broken_pool",
                     )
-                    self._p.record_event("exec_pool.fallback", counters={
-                                         "exec_pool.fallback": 1})
+                    self._p.record_event("exec_pool.fallback", counters={"exec_pool.fallback": 1})
                     raise

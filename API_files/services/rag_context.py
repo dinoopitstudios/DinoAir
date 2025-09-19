@@ -55,8 +55,7 @@ class RagContextService:
             log.exception("get_context provider invocation failed")
             return resp(False, None, str(e), 500)
 
-        success_val, normalized_data, error_msg = self._normalize_context_data(
-            data)
+        success_val, normalized_data, error_msg = self._normalize_context_data(data)
         return resp(success_val, normalized_data, error_msg, 200)
 
     # -------------------------

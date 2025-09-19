@@ -153,8 +153,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """Internal registration method."""
         with self._lock:
             if name in self._dependencies:
-                raise DependencyResolutionError(
-                    f"Dependency '{name}' already registered")
+                raise DependencyResolutionError(f"Dependency '{name}' already registered")
 
             dependency_info = DependencyInfo(
                 name=name,
@@ -203,8 +202,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
                 if info.dependency_type == dependency_type:
                     return self._resolve_internal(name)
 
-            raise DependencyResolutionError(
-                f"No dependency registered for type: {dependency_type}")
+            raise DependencyResolutionError(f"No dependency registered for type: {dependency_type}")
 
     def _resolve_internal(self, name: str) -> Any:
         """Internal dependency resolution with circular dependency detection."""
@@ -235,8 +233,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         if name in self._resolution_stack:
             cycle = " -> ".join(self._resolution_stack + [name])
-            raise CircularDependencyError(
-                f"Circular dependency detected: {cycle}")
+            raise CircularDependencyError(f"Circular dependency detected: {cycle}")
 
         if name not in self._dependencies:
             raise DependencyResolutionError(f"Unknown dependency: {name}")
@@ -314,8 +311,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
 
     def _create_instance(self, dependency_info: DependencyInfo) -> Any:
         """Create an instance of a dependency."""
-        resolved_dependencies = self._resolve_dependencies(
-            dependency_info.dependencies)
+        resolved_dependencies = self._resolve_dependencies(dependency_info.dependencies)
 
         if dependency_info.factory:
             return self._create_instance_with_factory(dependency_info, resolved_dependencies)
@@ -353,8 +349,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         try:
             factory = cast("Callable[..., Any]", dependency_info.factory)
-            factory_kwargs = self._get_factory_kwargs(
-                factory, resolved_dependencies)
+            factory_kwargs = self._get_factory_kwargs(factory, resolved_dependencies)
             return factory(**factory_kwargs)
         except RuntimeError as e:
             raise DependencyResolutionError(
@@ -378,8 +373,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         try:
             constructor = dependency_info.dependency_type
-            constructor_kwargs = self._get_constructor_kwargs(
-                constructor, resolved_dependencies)
+            constructor_kwargs = self._get_constructor_kwargs(constructor, resolved_dependencies)
             return constructor(**constructor_kwargs)
         except RuntimeError as e:
             raise DependencyResolutionError(
@@ -527,8 +521,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
     def _check_circular_dependency(self, name: str, visited: set[str]) -> None:
         """Check for circular dependencies recursively."""
         if name in visited:
-            raise CircularDependencyError(
-                f"Circular dependency detected involving: {name}")
+            raise CircularDependencyError(f"Circular dependency detected involving: {name}")
 
         if name not in self._dependencies:
             return
@@ -585,8 +578,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
                 for name, info in self._dependencies.items()
                 if info.scope == Scope.SINGLETON and name in self._instances
             ]
-            singletons.sort(
-                key=lambda x: x[1].initialization_order, reverse=True)
+            singletons.sort(key=lambda x: x[1].initialization_order, reverse=True)
 
             for name, info in singletons:
                 try:

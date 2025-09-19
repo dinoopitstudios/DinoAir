@@ -111,8 +111,7 @@ def get_search_engine(
             "user_name": user_name,
             "embedding_generator": embedding_generator,
         }
-        init_kwargs = _filter_kwargs_for_callable(
-            VectorSearchEngine.__init__, init_kwargs)
+        init_kwargs = _filter_kwargs_for_callable(VectorSearchEngine.__init__, init_kwargs)
         logger.debug("Creating VectorSearchEngine via factory")
         return VectorSearchEngine(**init_kwargs)
     except Exception as e:
@@ -143,8 +142,7 @@ def get_context_provider(
             module = import_module("rag.enhanced_context_provider")
             EnhancedContextProvider = module.EnhancedContextProvider
             init_kwargs = {"user_name": user_name, **kwargs}
-            init_kwargs = _filter_kwargs_for_callable(
-                EnhancedContextProvider.__init__, init_kwargs)
+            init_kwargs = _filter_kwargs_for_callable(EnhancedContextProvider.__init__, init_kwargs)
             logger.debug("Creating EnhancedContextProvider via factory")
             return EnhancedContextProvider(**init_kwargs)
         except ImportError as e:
@@ -162,7 +160,6 @@ def get_context_provider(
     module = import_module("rag.context_provider")
     ContextProvider = module.ContextProvider
     init_kwargs = {"user_name": user_name, **kwargs}
-    init_kwargs = _filter_kwargs_for_callable(
-        ContextProvider.__init__, init_kwargs)
+    init_kwargs = _filter_kwargs_for_callable(ContextProvider.__init__, init_kwargs)
     logger.debug("Creating ContextProvider via factory")
     return ContextProvider(**init_kwargs)
