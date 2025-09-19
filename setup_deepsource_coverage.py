@@ -140,7 +140,7 @@ exclude_lines =
     raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
-    class .*\bProtocol\):
+    class .*\\bProtocol\\):
     @(abc\.)?abstractmethod
 
 [html]
@@ -274,9 +274,9 @@ if __name__ == "__main__":
         with open(script_file, "w") as f:
             f.write(script_content)
 
-        # Make executable on Unix systems
+        # Make executable on Unix systems with secure permissions
         if os.name != "nt":
-            os.chmod(script_file, 0o755)
+            os.chmod(script_file, 0o750)  # Owner: read/write/execute, Group: read/execute, Others: none
 
         print(f"✅ Created coverage script: {script_file}")
         return script_file

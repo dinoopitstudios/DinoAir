@@ -91,9 +91,8 @@ class TranslationTask:
 
 class GUITranslatorAdapter:
     """
-    Adapter for integrating the translator with GUI applications
-    """
-
+    Adapter for integrating the translator with GUI applications.
+    
     This class provides a high-level interface that handles threading,
     progress updates, and error handling for GUI applications.
     """

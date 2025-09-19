@@ -178,12 +178,10 @@ class EnhancedInputSanitizer:
             # For URLs, validate and sanitize
             sanitized = self._sanitize_url(sanitized)
             return sanitized
-        return sanitized
-
         elif context == self.CONTEXT_JSON:
             # For JSON, escape special characters
             sanitized = self._sanitize_json(sanitized)
-
+            return sanitized
         else:
             # General context - apply all protections
             # Check for path traversal

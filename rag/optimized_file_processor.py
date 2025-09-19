@@ -251,10 +251,10 @@ class OptimizedFileProcessor(FileProcessor):
                 cid = add_chunk_resp.get("chunk_id")
                 if isinstance(cid, str):
                     chunk_ids.append(cid)
-                    else:
-                        self.logger.error(
-                            f"Chunk ID missing or invalid for file {file_path}, index {c['chunk_index']}"
-                        )
+                else:
+                    self.logger.error(
+                        f"Chunk ID missing or invalid for file {file_path}, index {c['chunk_index']}"
+                    )
                 else:
                     # Continue but record failure
                     self.logger.error(

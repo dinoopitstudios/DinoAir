@@ -300,7 +300,7 @@ def create_watchdog() -> StreamlinedWatchdog:
         StreamlinedWatchdog: Clean Qt-based watchdog instance
     """
     logger.info("Creating streamlined Qt-based watchdog")
-    return StreamlinedWatchdog(config=WatchdogConfig())
+    return StreamlinedWatchdog()
 
 
 # Backward compatibility alias
