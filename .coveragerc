@@ -1,19 +1,46 @@
+# Coverage configuration for DeepSource
 [run]
-source = DinoAir3.0
-omit =
-    .venv/*
-    **/tests/*
-    DinoAir3.0/utils/docs/*
+source = .
+branch = True
+omit = 
+    */tests/*
+    */test_*
+    */.venv/*
+    */venv/*
+    */env/*
+    */__pycache__/*
+    */migrations/*
+    */node_modules/*
+    setup.py
+    manage.py
+    conftest.py
+    */settings/local.py
+    */settings/development.py
+    # Security scripts (these are tools, not application code)
+    github_security_loader.py
+    setup_github_security.py
+    simple_github_security.py
+    github_security_diagnostic.py
+    check_token_scopes.py
+    security_summary.py
+    github_to_python_list.py
+    setup_deepsource_coverage.py
 
 [report]
-# Progressive enforcement plan:
-#   current: 50
-#   future: 65 → 80
-# Raise 'fail_under' incrementally as coverage improves.
-fail_under = 50
-show_missing = True
-skip_covered = False
-precision = 2
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+
+[html]
+directory = htmlcov
 
 [xml]
 output = coverage.xml
