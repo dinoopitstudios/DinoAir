@@ -217,20 +217,15 @@ class SimpleGitHubSecurityLoader:
         # Print summary
         print(f"\n📊 Security Summary for {repo_name}:")
         print(
-            f"   - Code Scanning Alerts: "
-            f"{security_data['summary']['total_code_scanning_alerts']}"
+            f"   - Code Scanning Alerts: {security_data['summary']['total_code_scanning_alerts']}"
         )
         print(
             f"   - Secret Scanning Alerts: "
             f"{security_data['summary']['total_secret_scanning_alerts']}"
         )
+        print(f"   - Dependabot Alerts: {security_data['summary']['total_dependabot_alerts']}")
         print(
-            f"   - Dependabot Alerts: "
-            f"{security_data['summary']['total_dependabot_alerts']}"
-        )
-        print(
-            f"   - Vulnerability Alerts: "
-            f"{security_data['summary']['total_vulnerability_alerts']}"
+            f"   - Vulnerability Alerts: {security_data['summary']['total_vulnerability_alerts']}"
         )
 
         return security_data

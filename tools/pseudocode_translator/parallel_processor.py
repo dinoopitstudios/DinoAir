@@ -56,6 +56,7 @@ class FileTask:
     def __hash__(self):
         return hash((self.file_path, self.priority))
 
+
 @dataclass
 class ProcessingResult:
     """Result of processing a single file"""

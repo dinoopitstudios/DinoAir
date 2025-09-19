@@ -159,21 +159,11 @@ class GitHubSecurityDiagnostic:
     def test_security_endpoints(self, repo_name: str) -> Dict[str, Any]:
         """Test access to each security endpoint."""
         endpoints = {
-            "code_scanning": (
-                f"https://api.github.com/repos/{repo_name}"
-                f"/code-scanning/alerts"
-            ),
-            "secret_scanning": (
-                f"https://api.github.com/repos/{repo_name}"
-                f"/secret-scanning/alerts"
-            ),
-            "dependabot": (
-                f"https://api.github.com/repos/{repo_name}"
-                f"/dependabot/alerts"
-            ),
+            "code_scanning": (f"https://api.github.com/repos/{repo_name}/code-scanning/alerts"),
+            "secret_scanning": (f"https://api.github.com/repos/{repo_name}/secret-scanning/alerts"),
+            "dependabot": (f"https://api.github.com/repos/{repo_name}/dependabot/alerts"),
             "vulnerability_alerts": (
-                f"https://api.github.com/repos/{repo_name}"
-                f"/vulnerability-alerts"
+                f"https://api.github.com/repos/{repo_name}/vulnerability-alerts"
             ),
         }
 
