@@ -55,61 +55,54 @@ class SQLInjectionProtection:
         "--",
         "/*",
         "*/",
-        "@@",
-    """
-    SQL Injection Protection Module.
+        "@",
+        "CHAR(",
+        "NCHAR(",
+        "VARCHAR(",
+        "NVARCHAR(",
+        "EXEC(",
+        "EXECUTE(",
+        "CAST(",
+        "CONVERT(",
+        "0x",
+        "\\x",
+        "PASSWORD(",
+        "ENCRYPT(",
+        "CONCAT(",
+        "SUBSTRING(",
+        "LENGTH(",
+        "ASCII(",
+        "MD5(",
+        "SHA1(",
+        "SHA2(",
+        "ENCODE(",
+        "DECODE(",
+        "BENCHMARK(",
+        "SLEEP(",
+        "WAITFOR",
+    }
 
-    This module provides detection and sanitization methods for identifying and mitigating SQL injection attempts in user-provided input.
-    """
-
-            "@",
-            "CHAR(",
-            "NCHAR(",
-            "VARCHAR(",
-            "NVARCHAR(",
-            "EXEC(",
-            "EXECUTE(",
-            "CAST(",
-            "CONVERT(",
-            "0x",
-            "\\x",
-            "PASSWORD(",
-            "ENCRYPT(",
-            "CONCAT(",
-            "SUBSTRING(",
-            "LENGTH(",
-            "ASCII(",
-            "MD5(",
-            "SHA1(",
-            "SHA2(",
-            "ENCODE(",
-            "DECODE(",
-            "BENCHMARK(",
-            "SLEEP(",
-            "WAITFOR",
-        }
-
-        # Common SQL injection patterns
-        SQL_PATTERNS: list[str] = [
-            r"('\s*OR\s*'?\d*'?\s*=\s*'?\d*'?)",  # ' OR '1'='1' variations
-            r"('\s*OR\s+\d+\s*=\s*\d+)",  # ' OR 1=1
-            r"(;\s*DROP\s+TABLE\s+\w+)",  # ; DROP TABLE
-            r"(;\s*DELETE\s+FROM\s+\w+)",  # ; DELETE FROM
-            r"('\s*;\s*--)",  # '; --
-            r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
-            r"(UNION\s+SELECT)",  # UNION SELECT
-            r"(INTO\s+OUTFILE)",  # INTO OUTFILE
-            r"(LOAD_FILE\s*\()",  # LOAD_FILE(
-            r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
-            r"('\s*AND\s*SLEEP\s*\(),",  # Time-based injection
-            r"('\s*AND\s*BENCHMARK\s*\(),",  # Benchmark injection
-            r"(INFORMATION_SCHEMA)",  # Information schema access
-            r"(sys\.databases)",  # System tables
-            r"(xp_cmdshell)",  # Command execution
-            r"('\s*HAVING\s+\d+\s*=\s*\d+)",  # HAVING clause injection
-            r"('\s*GROUP\s+BY\s+\w+\s*--)",  # GROUP BY injection
-            r"('\s*ORDER\s+BY\s+\d+\s*--)",  # ORDER BY injection
-        ]
+    # Common SQL injection patterns
+    SQL_PATTERNS: list[str] = [
+        r"('\s*OR\s*'?\d*'?\s*=\s*'?\d*'?')",  # ' OR '1'='1' variations
+        r"('\s*OR\s+\d+\s*=\s*\d+)",  # ' OR 1=1
+        r"(;\s*DROP\s+TABLE\s+\w+)",  # ; DROP TABLE
+        r"(;\s*DELETE\s+FROM\s+\w+)",  # ; DELETE FROM
+        r"('\s*;\s*--)",  # '; --
+        r"(UNION\s+ALL\s+SELECT)",  # UNION ALL SELECT
+        r"(UNION\s+SELECT)",  # UNION SELECT
+        r"(INTO\s+OUTFILE)",  # INTO OUTFILE
+        r"(LOAD_FILE\s*\()",  # LOAD_FILE(
+        r"(INTO\s+DUMPFILE)",  # INTO DUMPFILE
+        r"('\s*AND\s*SLEEP\s*\(),",  # Time-based injection
+        r"('\s*AND\s*BENCHMARK\s*\(),",  # Benchmark injection
+        r"(INFORMATION_SCHEMA)",  # Information schema access
+        r"(sys\.databases)",  # System tables
+        r"(xp_cmdshell)",  # Command execution
+        r"('\s*HAVING\s+\d+\s*=\s*\d+)",  # HAVING clause injection
+        r"('\s*GROUP\s+BY\s+\w+\s*--)",  # GROUP BY injection
+        r"('\s*ORDER\s+BY\s+\d+\s*--)",  # ORDER BY injection
+    ]
 
         @staticmethod
         def _has_sql_comments(text: str) -> bool:
@@ -140,7 +133,6 @@ class SQLInjectionProtection:
                     re.search(pattern, text, re.IGNORECASE)
                     for pattern in SQLInjectionProtection.SQL_PATTERNS
                 )
-                """
                 Return True if the text contains hex-encoded SQL patterns
                 (e.g., starting with 0x).
                 """
