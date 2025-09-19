@@ -8,7 +8,7 @@ DeepSource coverage reporting has been successfully configured for the DinoAir p
 
 ### 1. Coverage Configuration (`.coveragerc`)
 - **Branch coverage enabled** for thorough code analysis
-- **Comprehensive exclusions** for tests, virtual environments, and build artifacts  
+- **Comprehensive exclusions** for tests, virtual environments, and build artifacts
 - **Security script exclusions** to focus on application code
 - **Standard coverage patterns** for Python projects
 
@@ -66,7 +66,7 @@ python run_local_coverage.py
 - Masked display in console output (shows only first 30 characters)
 - No hardcoded secrets in any files
 
-### Repository Protection  
+### Repository Protection
 - `.gitignore` prevents coverage artifacts from being committed:
   ```
   coverage.xml
