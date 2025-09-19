@@ -20,56 +20,55 @@ def generate_description_from_name(name: str) -> str:
     # Function patterns
     if name.startswith("get_"):
         return f"Get {' '.join(words[1:]).lower()}."
-    elif name.startswith("set_"):
+    if name.startswith("set_"):
         return f"Set {' '.join(words[1:]).lower()}."
-    elif name.startswith("create_"):
+    if name.startswith("create_"):
         return f"Create {' '.join(words[1:]).lower()}."
-    elif name.startswith("delete_"):
+    if name.startswith("delete_"):
         return f"Delete {' '.join(words[1:]).lower()}."
-    elif name.startswith("update_"):
+    if name.startswith("update_"):
         return f"Update {' '.join(words[1:]).lower()}."
-    elif name.startswith("save_"):
+    if name.startswith("save_"):
         return f"Save {' '.join(words[1:]).lower()}."
-    elif name.startswith("load_"):
+    if name.startswith("load_"):
         return f"Load {' '.join(words[1:]).lower()}."
-    elif name.startswith("find_"):
+    if name.startswith("find_"):
         return f"Find {' '.join(words[1:]).lower()}."
-    elif name.startswith("search_"):
+    if name.startswith("search_"):
         return f"Search {' '.join(words[1:]).lower()}."
-    elif name.startswith("validate_"):
+    if name.startswith("validate_"):
         return f"Validate {' '.join(words[1:]).lower()}."
-    elif name.startswith("process_"):
+    if name.startswith("process_"):
         return f"Process {' '.join(words[1:]).lower()}."
-    elif name.startswith("handle_"):
+    if name.startswith("handle_"):
         return f"Handle {' '.join(words[1:]).lower()}."
-    elif name.startswith("init"):
+    if name.startswith("init"):
         return f"Initialize {' '.join(words[1:]).lower() if len(words) > 1 else 'the instance'}."
-    elif name.startswith("build"):
+    if name.startswith("build"):
         return f"Build {' '.join(words[1:]).lower()}."
-    elif name.startswith("parse"):
+    if name.startswith("parse"):
         return f"Parse {' '.join(words[1:]).lower()}."
-    elif name.startswith("serialize"):
+    if name.startswith("serialize"):
         return f"Serialize {' '.join(words[1:]).lower()}."
-    elif name.startswith("deserialize"):
+    if name.startswith("deserialize"):
         return f"Deserialize {' '.join(words[1:]).lower()}."
-    elif name.startswith("to_"):
+    if name.startswith("to_"):
         return f"Convert to {' '.join(words[1:]).lower()}."
-    elif name.startswith("from_"):
+    if name.startswith("from_"):
         return f"Create from {' '.join(words[1:]).lower()}."
-    elif name.startswith("is_"):
+    if name.startswith("is_"):
         return f"Check if {' '.join(words[1:]).lower()}."
-    elif name.startswith("has_"):
+    if name.startswith("has_"):
         return f"Check if has {' '.join(words[1:]).lower()}."
-    elif name.startswith("can_"):
+    if name.startswith("can_"):
         return f"Check if can {' '.join(words[1:]).lower()}."
-    else:
-        # Generic description
-        words = [w.lower() for w in words]
-        if words:
-            words[0] = words[0].capitalize()
-            return f"{' '.join(words)}."
-        else:
-            return "TODO: Add description."
+
+    # Generic description
+    words = [w.lower() for w in words]
+    if words:
+        words[0] = words[0].capitalize()
+        return f"{' '.join(words')} ."
+    return "TODO: Add description."
 
 
 def generate_class_docstring(name: str, indent: int) -> str:
