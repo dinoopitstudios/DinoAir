@@ -230,16 +230,12 @@ class LLMConfig:
         return base_path / name / f"{name}.gguf"
 
 
-def add_model_config(self, model_config: Any):
-    """Add or update a model configuration (backward compatibility)"""
-    if hasattr(model_config, "name"):
-        self.models[cast("str", model_config.name)] = ModelConfig(
-            name=cast("str", model_config.name),
-            enabled=bool(getattr(model_config, "enabled", True)),
+
             model_path=cast("str | None", getattr(model_config, "model_path", None)),
             temperature=cast("float", getattr(model_config, "temperature", 0.3)),
             max_tokens=cast("int", getattr(model_config, "max_tokens", 1024)),
             auto_download=bool(getattr(model_config, "auto_download", False)),
+
         )
 
 

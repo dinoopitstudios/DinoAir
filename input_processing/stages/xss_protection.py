@@ -138,9 +138,11 @@ class XSSProtection:
             patterns = [
                 rf'\s*{attr}\s*=\s*"[^"]*"',  # Double quotes
                 rf"\s*{attr}\s*=\s*'[^']*'",  # Single quotes
+
                 rf"\s*{attr}\s*=\s*[^\s>]+",  # No quotes
                 rf"\s*{attr}(?=\s|>)",  # Boolean attribute
-            ]
+
+        ]
 
             for pattern in patterns:
                 html_str = re.sub(pattern, "", html_str, flags=re.IGNORECASE)
