@@ -26,28 +26,6 @@ log = logging.getLogger("api.app")
 
 
 class TimeoutMiddleware:
-    """
-    Cancels requests exceeding settings.request_timeout_seconds, returning 504.
-    """
-
-    def __init__(self, asgi_app: ASGIApp, timeout_seconds: int):
-        self.app = asgi_app
-        self.timeout_seconds = max(1, timeout_seconds)
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
-        if scope.get("type") != "http":
-            return await self.app(scope, receive, send)
-
-        # Use move_on_after to avoid version-specific TimeoutError imports and exceptions
-        with move_on_after(self.timeout_seconds) as cancel_scope:
-            await self.app(scope, receive, send)
-        if getattr(cancel_scope, "cancel_called", False) or getattr(
-            cancel_scope, "cancelled_caught", False
-        ):
-            # Request exceeded the timeout window
-            return await self._send_timeout(scope, receive, send)
-        return None
-
     async def _send_timeout(self, scope: Scope, receive: Receive, send: Send):
         from starlette import status
 
@@ -77,13 +55,24 @@ class TimeoutMiddleware:
 
 
 def _get_docs_urls(settings: Settings) -> tuple[str | None, str | None, str | None]:
+    """
+    Return the URL paths for the OpenAPI schema and interactive documentation based on the provided settings.
+
+    If running in development mode with OpenAPI exposure enabled, returns the paths for the OpenAPI JSON, Swagger UI, and Redoc.
+    Otherwise, returns None for each URL, disabling documentation endpoints in production.
+    """
     if settings.is_dev and settings.expose_openapi_in_dev:
         return "/openapi.json", "/docs", "/redoc"
     return None, None, None
 
 
-def _configure_cors(app: FastAPI, settings: Settings) -> None:
-    app.add_middleware(
+def _configure_cors(fastapi_app: FastAPI, settings: Settings) -> None:
+    """
+    Configure Cross-Origin Resource Sharing (CORS) middleware on the FastAPI application.
+
+    Applies strict CORS policies using the allowed origins, methods, headers, and other parameters defined in settings.
+    """
+    fastapi_app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_methods=["GET", "POST", "OPTIONS", "PUT", "PATCH"],

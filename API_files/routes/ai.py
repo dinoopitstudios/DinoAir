@@ -38,6 +38,7 @@ except ImportError:  # pragma: no cover
 
     class ErrorResponseModel(BaseModel):  # type: ignore[misc,unused-ignore]
         """Minimal error response model for FastAPI responses when core_router is unavailable."""
+
         detail: str | None = None
         code: str | None = None
         message: str | None = None
@@ -48,9 +49,7 @@ router = APIRouter()
 
 
 def _get_tool_schemas_from_params(extra_params: Mapping | None) -> list[dict[str, Any]]:
-    """
-    Helper to retrieve tool schemas based on extra_params.
-    """
+    """Helper to retrieve tool schemas based on extra_params."""
     enable_tools = _extract_bool_param(extra_params, "enable_tools", False)
     if not enable_tools:
         return []
@@ -137,8 +136,6 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
     r = router_client.get_router()
     result_obj: Any = _execute_router_call(r, svc_name, tag, policy, payload)
 
-    return result_obj
-
     result_dict: dict[str, Any] | None = (
         cast("dict[str, Any]", result_obj) if isinstance(
             result_obj, dict) else None
@@ -146,7 +143,7 @@ async def ai_chat(req: ChatRequest) -> ChatResponse:
 
     # Handle function calls if present
     function_call_results = []
-    if enable_tools and result_dict and _has_function_calls(result_dict):
+    if mapping_params and mapping_params.get("enable_tools") and result_dict and _has_function_calls(result_dict):
         function_call_results = await _handle_function_calls(result_dict)
 
         # If functions were called, we might want to continue the conversation

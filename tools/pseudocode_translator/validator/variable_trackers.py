@@ -478,6 +478,7 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         return set()
 
     def _bind_match_as(self, pattern: ast.MatchAs) -> set[str]:
+        """Bind names in 'as' pattern and return set of bound names."""
         names: set[str] = set()
         if pattern.name:
             names.add(pattern.name)
@@ -486,9 +487,12 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         return names
 
     def _bind_match_star(self, pattern: ast.MatchStar) -> set[str]:
+        """Bind the star variable in pattern matching, returning its name if present."""
         return {pattern.name} if pattern.name else set()
 
-    def _bind_match_or(self, pattern: ast.MatchOr) -> set[str]:
+    @staticmethod
+    def _bind_match_or(pattern: ast.MatchOr) -> set[str]:
+        """Bind names common to all alternatives in 'or' pattern."""
         alts = [self._collect_pattern_binds(p) for p in pattern.patterns]
         if not alts:
             return set()
@@ -498,12 +502,14 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         return common
 
     def _bind_match_sequence(self, pattern: ast.MatchSequence) -> set[str]:
+        """Bind names in sequence patterns by collecting names from all subpatterns."""
         names: set[str] = set()
         for p in pattern.patterns:
             names.update(self._collect_pattern_binds(p))
         return names
 
     def _bind_match_mapping(self, pattern: ast.MatchMapping) -> set[str]:
+        """Bind names in mapping patterns, including rest variable if present."""
         names: set[str] = set()
         for p in pattern.patterns:
             names.update(self._collect_pattern_binds(p))
@@ -512,6 +518,7 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         return names
 
     def _bind_match_class(self, pattern: ast.MatchClass) -> set[str]:
+        """Bind names in class patterns by collecting names from positional and keyword patterns."""
         names: set[str] = set()
         for p in pattern.patterns:
             names.update(self._collect_pattern_binds(p))

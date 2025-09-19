@@ -497,14 +497,6 @@ class ModelFactory:
         if isinstance(tps, (int, float)):
             return float(tps)
         return 0.0
-                    tps_max = float(tps)
-
-                candidates.append(
-                    (streaming_match, quality_score, tps_max, name))
-            except Exception as e:
-                logger.warning(
-                    f"Error reading capabilities for model '{name}': {e}")
-                continue
 
         if not candidates:
             return None

@@ -161,16 +161,16 @@ class EnhancedInputSanitizer:
         elif context == self.CONTEXT_SQL:
             if self.sql_protection.detect_sql_injection(sanitized):
                 self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
-            return sanitized
-        return sanitized
                 if strict_mode:
                     # In strict mode, reject SQL injection attempts
                     raise ValueError("SQL injection attempt detected")
             sanitized = self.sql_protection.sanitize_sql_input(sanitized)
-
+            return sanitized
         elif context == self.CONTEXT_PLAIN:
             # For plain text, strip all HTML and dangerous content
             sanitized = self.xss_protection.strip_tags(sanitized)
+            return sanitized
+        return sanitized
 
         elif context == self.CONTEXT_FILENAME:
             # For filenames, apply strict rules

@@ -566,16 +566,14 @@ class FileChunker:
 
             if self._is_block_end(i, in_string, brace_count, first_line, current_indent, base_indent):
                 break
-
-        return end_pos
-                # For indentation-based languages (like Python)
-                if (
-                    current_indent <= base_indent
-                    and line.strip()
-                    and not line.strip().startswith(("else", "elif", "except", "finally"))
-                ):
-                    end_pos -= len(line) + 1  # Don't include this line
-                    break
+            # For indentation-based languages (like Python)
+            if (
+                current_indent <= base_indent
+                and line.strip()
+                and not line.strip().startswith(("else", "elif", "except", "finally"))
+            ):
+                end_pos -= len(line) + 1  # Don't include this line
+                break
 
         return min(end_pos, start + len(code[start:]))
 

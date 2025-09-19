@@ -180,14 +180,31 @@ class FormatterConfig:
     date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
+"""
+Module providing an enhanced JSON log formatter with context, exception, and extra fields support.
+"""
+
 class EnhancedJsonFormatter(logging.Formatter):
     """Enhanced JSON formatter with context support."""
 
     def __init__(self, config: FormatterConfig):
+        """Initialize the EnhancedJsonFormatter with the given configuration.
+
+        Args:
+            config (FormatterConfig): Configuration for formatting options.
+        """
         super().__init__()
         self.config = config
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format a LogRecord into a JSON string including standard, context, exception, and extra fields.
+
+        Args:
+            record (logging.LogRecord): The log record to format.
+
+        Returns:
+            str: A JSON string representation of the log record.
+        """
         # Get current context
         context = _context_manager.get_context()
 
@@ -208,6 +225,12 @@ class EnhancedJsonFormatter(logging.Formatter):
         return json.dumps(log_entry, ensure_ascii=False, default=str)
 
     def _add_standard_fields(self, record: logging.LogRecord, log_entry: dict) -> None:
+        """Add standard log fields to the log entry based on formatter configuration.
+
+        Args:
+            record (logging.LogRecord): The log record to extract fields from.
+            log_entry (dict): The dictionary to populate with standard fields.
+        """
         fields = [
             ("include_timestamp", "timestamp", lambda rec: self.formatTime(rec, self.config.date_format)),
             ("include_level", "level", lambda rec: rec.levelname),
@@ -220,12 +243,24 @@ class EnhancedJsonFormatter(logging.Formatter):
                 log_entry[key] = func(record)
 
     def _add_context(self, context: Any, log_entry: dict) -> None:
+        """Add context information to the log entry if enabled and present.
+
+        Args:
+            context (Any): The context object containing contextual data.
+            log_entry (dict): The dictionary to populate with context data.
+        """
         if self.config.include_context:
             context_dict = context.to_dict()
             if context_dict:
                 log_entry["context"] = context_dict
 
     def _add_exception_info(self, record: logging.LogRecord, log_entry: dict) -> None:
+        """Add exception information to the log entry if present in the record.
+
+        Args:
+            record (logging.LogRecord): The log record that may contain exception info.
+            log_entry (dict): The dictionary to populate with exception details.
+        """
         if not record.exc_info:
             return
         if record.exc_info is True:
@@ -237,12 +272,37 @@ class EnhancedJsonFormatter(logging.Formatter):
         elif isinstance(record.exc_info, tuple) and len(record.exc_info) == 3:
             log_entry["exception"] = self.formatException(record.exc_info)
 
-    def _add_extra_fields(self, record: logging.LogRecord, log_entry: dict) -> None:
+    @staticmethod
+    def _add_extra_fields(record: logging.LogRecord, log_entry: dict) -> None:
+        """Add any additional fields from the log record to the log entry,
+        excluding standard attributes.
+
+        Args:
+            record (logging.LogRecord): The log record to extract extra fields from.
+            log_entry (dict): The dictionary to populate with extra fields.
+        """
         excluded = {
-            "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
-            "module", "exc_info", "exc_text", "stack_info", "lineno", "funcName",
-            "created", "msecs", "relativeCreated", "thread", "threadName", "processName",
-            "process", "getMessage",
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_info",
+            "exc_text",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "getMessage",
         }
         for key, value in record.__dict__.items():
             if key not in excluded:

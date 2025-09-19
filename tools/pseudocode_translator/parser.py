@@ -180,7 +180,7 @@ class ParserModule:
         def _update_multiline(stripped_line: str, full_line: str) -> None:
             nonlocal in_multiline, multiline_delimiter
             if not in_multiline:
-                if stripped_line.startswith(('"""', "'''")):
+                if stripped_line.startswith(('"""', "''"")):
                     in_multiline = True
                     multiline_delimiter = stripped_line[:3]
             elif multiline_delimiter and multiline_delimiter in full_line:
@@ -219,8 +219,6 @@ class ParserModule:
             blocks.append(''.join(current_block))
 
         return blocks
-            ):
-                is_new_block = True
             # Check for transition between English and Python using AST
             elif i > 0:
                 try:

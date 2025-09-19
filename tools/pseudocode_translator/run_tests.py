@@ -19,6 +19,7 @@ def run_command(cmd, cwd=None):
 
 
 def add_test_selection_args(parser):
+    """Add arguments for selecting specific tests or directories to run."""
     parser.add_argument(
         "tests",
         nargs="*",
@@ -28,6 +29,7 @@ def add_test_selection_args(parser):
 
 
 def add_test_options_args(parser):
+    """Add standard test options like verbosity, exit on first failure, keyword and mark filtering."""
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("-vv", "--very-verbose", action="store_true", help="Very verbose output")
     parser.add_argument("-q", "--quiet", action="store_true", help="Quiet output")
@@ -47,6 +49,7 @@ def add_test_options_args(parser):
 
 
 def add_coverage_args(parser):
+    """Add coverage-related arguments to the parser for coverage analysis and reporting."""
     parser.add_argument(
         "--cov", "--coverage", action="store_true", help="Run with coverage analysis"
     )
@@ -60,6 +63,7 @@ def add_coverage_args(parser):
 
 
 def add_performance_args(parser):
+    """Add performance testing arguments for parallel test execution and benchmarks."""
     parser.add_argument(
         "-n",
         "--numprocesses",
@@ -70,14 +74,8 @@ def add_performance_args(parser):
     parser.add_argument("--benchmark", action="store_true", help="Run benchmark tests")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Run tests for pseudocode_translator")
-    add_test_selection_args(parser)
-    add_test_options_args(parser)
-    add_coverage_args(parser)
-    add_performance_args(parser)
-
-    # Other options
+def add_general_args(parser):
+    """Add general test and collection options to the parser."""
     parser.add_argument("--pdb", action="store_true", help="Drop into debugger on failures")
     parser.add_argument(
         "--lf",
@@ -101,19 +99,28 @@ def main():
         help="Only collect tests, don't execute them",
     )
 
-    # Code quality options
+
+def add_quality_args(parser):
+    """Add code quality check options to the parser."""
     parser.add_argument("--lint", action="store_true", help="Run linting (flake8) before tests")
     parser.add_argument("--mypy", action="store_true", help="Run type checking (mypy) before tests")
-    parser.add_argument(
-        "--format",
-        action="store_true",
-        help="Check code formatting (ruff) before tests",
-    )
+    parser.add_argument("--format", action="store_true", help="Check code formatting (ruff) before tests")
     parser.add_argument(
         "--all-checks",
         action="store_true",
         help="Run all checks (lint, mypy, format) before tests",
     )
+
+
+def main():
+    """Parse command-line arguments, configure the test environment, and execute the test runner."""
+    parser = argparse.ArgumentParser(description="Run tests for pseudocode_translator")
+    add_test_selection_args(parser)
+    add_test_options_args(parser)
+    add_coverage_args(parser)
+    add_performance_args(parser)
+    add_general_args(parser)
+    add_quality_args(parser)
 
     args = parser.parse_args()
 

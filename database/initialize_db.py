@@ -970,17 +970,6 @@ class DatabaseManager:
             # 3. Clean old backup files
             if cleanup_old_backups:
                 self._cleanup_old_backups(stats, max_backup_age_days)
-        except Exception as e:
-            self.user_feedback(
-                f"Warning: Could not clean user data: {str(e)}")
-
-        return stats
-                                stats["space_freed_mb"] += size_mb
-                                if hasattr(self, "user_feedback"):
-                                    self.user_feedback(
-                                        f"Removed old backup: {backup_file.name}")
-                        except OSError:
-                            pass
 
             # 4. Vacuum all databases to reclaim space
             db_connections = [
@@ -1012,11 +1001,13 @@ class DatabaseManager:
                     f"{stats['backups_removed']} old backups removed, "
                     f"{stats['space_freed_mb']} MB freed"
                 )
-
         except Exception as e:
             if hasattr(self, "user_feedback"):
                 self.user_feedback(
-                    f"Warning: Error during user data cleanup: {str(e)}")
+                    f"Warning: Error during user data cleanup: {str(e)}"
+                )
+
+        return stats
 
         return stats
 

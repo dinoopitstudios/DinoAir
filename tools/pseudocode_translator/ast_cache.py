@@ -86,16 +86,6 @@ def _ast_to_dict(node: ast.AST, max_depth: int = 500) -> dict[str, Any]:
         return str(obj)
 
     return _convert_node(node, 0)
-                        if hasattr(obj, attr):
-                            attr_value = getattr(obj, attr)
-                            # Ensure attribute is JSON-serializable
-                            if (
-                                isinstance(attr_value, str | int | float | bool)
-                                or attr_value is None
-                            ):
-                                result[attr] = attr_value
-                    except Exception as e:
-                        logger.debug(f"Failed to serialize attribute '{attr}': {e}")
 
                 return result
 

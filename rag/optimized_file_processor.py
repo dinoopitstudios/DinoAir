@@ -156,8 +156,8 @@ class OptimizedFileProcessor(FileProcessor):
                         "stats": {"action": "skipped"},
                         "message": "Unchanged file; skipped",
                     }
-            except (OSError, ValueError, TypeError):
-                pass
+        except (OSError, ValueError, TypeError):
+            pass
         return None
 
     def _read_file_text(self, file_path: str) -> str:
@@ -193,64 +193,64 @@ class OptimizedFileProcessor(FileProcessor):
 
         # Index file record
         add_file_resp = self.db.add_indexed_file(
-                file_path=os.path.normpath(file_path),
-                file_hash=file_hash,
-                size=size,
-                modified_date=modified_dt,
-                file_type=file_type,
-                metadata={"source": "optimized_processor"},
-            )
-            if not add_file_resp.get("success"):
-                return {
-                    "success": False,
-                    "error": add_file_resp.get("error") or "Failed to index file",
+            file_path=os.path.normpath(file_path),
+            file_hash=file_hash,
+            size=size,
+            modified_date=modified_dt,
+            file_type=file_type,
+            metadata={"source": "optimized_processor"},
+        )
+        if not add_file_resp.get("success"):
+            return {
+                "success": False,
+                "error": add_file_resp.get("error") or "Failed to index file",
+            }
+
+        file_id = add_file_resp.get("file_id")
+        if not file_id:
+            return {"success": False, "error": "No file_id returned from DB"}
+
+        # Chunk content
+        cs = self.chunk_size or 1000
+        ov = self.chunk_overlap or 200
+        cs = max(100, int(cs))
+        ov = max(0, min(int(ov), cs - 1))
+
+        chunks: list[dict[str, Any]] = []
+        start = 0
+        n = len(text)
+        idx = 0
+        while start < n:
+            end = min(n, start + cs)
+            chunk_text = text[start:end]
+            chunks.append(
+                {
+                    "chunk_index": idx,
+                    "content": chunk_text,
+                    "start_pos": start,
+                    "end_pos": end,
                 }
+            )
+            if end >= n:
+                break
+            start = end - ov
+            idx += 1
 
-            file_id = add_file_resp.get("file_id")
-            if not file_id:
-                return {"success": False, "error": "No file_id returned from DB"}
-
-            # Chunk content
-            cs = self.chunk_size or 1000
-            ov = self.chunk_overlap or 200
-            cs = max(100, int(cs))
-            ov = max(0, min(int(ov), cs - 1))
-
-            chunks: list[dict[str, Any]] = []
-            start = 0
-            n = len(text)
-            idx = 0
-            while start < n:
-                end = min(n, start + cs)
-                chunk_text = text[start:end]
-                chunks.append(
-                    {
-                        "chunk_index": idx,
-                        "content": chunk_text,
-                        "start_pos": start,
-                        "end_pos": end,
-                    }
-                )
-                if end >= n:
-                    break
-                start = end - ov
-                idx += 1
-
-            # Store chunks
-            chunk_ids: list[str] = []
-            for c in chunks:
-                add_chunk_resp = self.db.add_chunk(
-                    file_id=file_id,
-                    chunk_index=c["chunk_index"],
-                    content=c["content"],
-                    start_pos=c["start_pos"],
-                    end_pos=c["end_pos"],
-                    metadata={"file_type": file_type},
-                )
-                if add_chunk_resp.get("success"):
-                    cid = add_chunk_resp.get("chunk_id")
-                    if isinstance(cid, str):
-                        chunk_ids.append(cid)
+        # Store chunks
+        chunk_ids: list[str] = []
+        for c in chunks:
+            add_chunk_resp = self.db.add_chunk(
+                file_id=file_id,
+                chunk_index=c["chunk_index"],
+                content=c["content"],
+                start_pos=c["start_pos"],
+                end_pos=c["end_pos"],
+                metadata={"file_type": file_type},
+            )
+            if add_chunk_resp.get("success"):
+                cid = add_chunk_resp.get("chunk_id")
+                if isinstance(cid, str):
+                    chunk_ids.append(cid)
                     else:
                         self.logger.error(
                             f"Chunk ID missing or invalid for file {file_path}, index {c['chunk_index']}"

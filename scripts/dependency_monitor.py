@@ -482,11 +482,8 @@ def main():
     monitor = DependencyMonitor(args.path)
 
     if args.command == "monitor":
-        handle_monitor(monitor, args.continuous, args.interval)
-                        print(f"🚨 {report['critical_alerts']} critical alerts detected!")
-                    time.sleep(args.interval)
-            except KeyboardInterrupt:
-                print("\nMonitoring stopped by user")
+        if args.continuous:
+            handle_monitor(monitor, args.continuous, args.interval)
         else:
             report = monitor.run_monitoring_cycle()
             print(json.dumps(report, indent=2))

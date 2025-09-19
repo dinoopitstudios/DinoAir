@@ -244,12 +244,6 @@ class WatchdogConfigValidator:
 
         result.corrected_config = corrected
         return result
-                        param_name,
-                        ValidationLevel.ERROR,
-                        f"Invalid value '{value}' for '{param_name}'. Allowed values: {rule.allowed_values}",
-                    )
-                    corrected[param_name] = rule.default_value
-                    continue
 
             # Check numeric ranges
             if isinstance(value, int | float):
