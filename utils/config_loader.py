@@ -18,7 +18,7 @@ Handles loading and managing application configuration
 
 try:
     from .logger import Logger
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     from logger import Logger
 
 

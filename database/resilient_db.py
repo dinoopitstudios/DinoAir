@@ -93,7 +93,7 @@ class ResilientDB:
                         f"Setup attempt {attempt} failed. Trying again in {delay * attempt} seconds..."
                     )
                     time.sleep(delay * attempt)
-            except (sqlite3.OperationalError, PermissionError, OSError) as e:
+            except (sqlite3.OperationalError, OSError) as e:
                 last_exc = e
                 attempt += 1
                 if attempt < retries:

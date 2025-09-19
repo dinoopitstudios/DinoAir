@@ -14,7 +14,6 @@ from utils.dev_cleanup import UserDataCleanupManager
 # Add the parent directory to the path so we can import DinoAir modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-
 def quick_cleanup():
     """Perform a quick cleanup for development."""
     print("DinoAir Development Cleanup")
@@ -58,6 +57,6 @@ if __name__ == "__main__":
         quick_cleanup()
     except KeyboardInterrupt:
         print("\nCleanup cancelled by user.")
-    except (OSError, PermissionError, ImportError) as e:
+    except (OSError, ImportError) as e:
         print(f"Error during cleanup: {e}")
         sys.exit(1)

@@ -111,7 +111,7 @@ class PluginSystem:
                     try:
                         plugin_dir.mkdir(parents=True, exist_ok=True)
                         accessible_dirs.append(plugin_dir)
-                    except (PermissionError, OSError) as e:
+                    except OSError as e:
                         logger.warning(f"Cannot create plugin directory {plugin_dir}: {e}")
                         # Skip directories we can't create
                         continue

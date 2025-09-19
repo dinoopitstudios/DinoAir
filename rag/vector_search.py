@@ -173,7 +173,7 @@ class VectorSearchEngine:
             data = json.loads(raw)
             vec = [float(x) for x in data]
             return vec or None
-        except (ValueError, TypeError, json.JSONDecodeError):
+        except (ValueError, TypeError):
             return None
 
     def _cosine_results(

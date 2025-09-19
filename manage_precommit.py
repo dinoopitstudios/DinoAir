@@ -17,7 +17,7 @@ def run_command(cmd: list[str], capture_output: bool = True) -> subprocess.Compl
         return subprocess.run(
             cmd, capture_output=capture_output, text=True, check=False, cwd=Path(__file__).parent
         )
-    except (subprocess.SubprocessError, OSError, FileNotFoundError):
+    except (subprocess.SubprocessError, OSError):
         sys.exit(1)
 
 

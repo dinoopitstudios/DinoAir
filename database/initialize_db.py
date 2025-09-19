@@ -486,7 +486,7 @@ def _validate_user_data_permissions(path: Path) -> None:
         try:
             test_file.write_text("test", encoding="utf-8")
             test_file.unlink()  # Clean up test file
-        except (OSError, PermissionError) as e:
+        except OSError as e:
             raise PermissionError(f"No write permission for user data directory {path}: {e}") from e
 
         # Test read permissions
@@ -547,7 +547,7 @@ class DatabaseManager:
         # Validate permissions before proceeding
         try:
             _validate_user_data_permissions(self.base_dir)
-        except (PermissionError, OSError) as e:
+        except OSError as e:
             # For tests or when permissions fail, fall back to temp directory
             if os.environ.get("PYTEST_CURRENT_TEST") or "test" in str(self.base_dir).lower():
                 temp_fallback = (
@@ -923,7 +923,7 @@ class DatabaseManager:
                                 stats["space_freed_mb"] += size_mb
                                 if hasattr(self, "user_feedback"):
                                     self.user_feedback(f"Removed temp file: {temp_file.name}")
-                        except (OSError, PermissionError):
+                        except OSError:
                             pass
 
             # 3. Clean old backup files
@@ -941,7 +941,7 @@ class DatabaseManager:
                                 stats["space_freed_mb"] += size_mb
                                 if hasattr(self, "user_feedback"):
                                     self.user_feedback(f"Removed old backup: {backup_file.name}")
-                        except (OSError, PermissionError):
+                        except OSError:
                             pass
 
             # 4. Vacuum all databases to reclaim space

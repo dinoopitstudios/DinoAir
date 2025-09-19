@@ -172,7 +172,7 @@ class HealthChecker:
                 details={"status_code": response.status_code, "url": url},
             )
 
-        except (RuntimeError, httpx.ConnectError, httpx.TimeoutException, httpx.RequestError) as e:
+        except (RuntimeError, httpx.RequestError) as e:
             response_time_ms = (time.perf_counter() - start_time) * 1000
             return HealthCheck(
                 name=name,

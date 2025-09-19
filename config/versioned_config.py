@@ -23,7 +23,7 @@ except ImportError:
 
 try:
     from ..utils.logger import Logger
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     # Simple fallback logger
     class Logger:
         def info(self, msg):

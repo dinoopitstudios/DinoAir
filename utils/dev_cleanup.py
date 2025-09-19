@@ -108,7 +108,7 @@ class UserDataCleanupManager:
 
                             if file.endswith((".db", ".sqlite", ".sqlite3")):
                                 info["db_files"].append(str(file_path))
-                        except (OSError, PermissionError):
+                        except OSError:
                             LOGGER.warning(f"Could not access {file_path}")
 
                 # Extract user names from directory structure
@@ -120,7 +120,7 @@ class UserDataCleanupManager:
                             for d in user_data_path.iterdir()
                             if d.is_dir() and not d.name.startswith(".")
                         ]
-                    except (OSError, PermissionError):
+                    except OSError:
                         LOGGER.warning(f"Could not list users in {user_data_path}")
 
                 info["size_mb"] = round(info["size_mb"], 2)
@@ -172,7 +172,7 @@ class UserDataCleanupManager:
                     stats["directories_removed"] += 1
                     stats["space_freed_mb"] += size_mb
 
-                except (OSError, PermissionError) as e:
+                except OSError as e:
                     LOGGER.warning(f"Could not remove {test_dir}: {e}")
 
         return stats
@@ -205,7 +205,7 @@ class UserDataCleanupManager:
                 shutil.copytree(repo_user_data, backup_path)
                 stats["backup_created"] = True
                 LOGGER.info(f"Created backup at: {backup_path}")
-            except (OSError, PermissionError) as e:
+            except OSError as e:
                 LOGGER.warning(f"Could not create backup: {e}")
 
         # Remove directory
@@ -217,7 +217,7 @@ class UserDataCleanupManager:
                 shutil.rmtree(repo_user_data)
                 stats["files_removed"] = 1
                 stats["space_freed_mb"] = size_mb
-            except (OSError, PermissionError) as e:
+            except OSError as e:
                 LOGGER.error(f"Could not remove {repo_user_data}: {e}")
 
         return stats
@@ -311,9 +311,9 @@ class UserDataCleanupManager:
                     try:
                         file_path = Path(root) / file
                         total_size += file_path.stat().st_size
-                    except (OSError, PermissionError):
+                    except OSError:
                         pass
-        except (OSError, PermissionError):
+        except OSError:
             pass
         return total_size / (1024 * 1024)
 
