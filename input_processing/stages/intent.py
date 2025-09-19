@@ -407,7 +407,8 @@ class IntentClassifier:
             return f"{confidence} based on {' and '.join(reasons)}"
         return f"{confidence} classification"
 
-    def get_intent_description(self, intent_type: IntentType) -> str:
+    @staticmethod
+    def get_intent_description(intent_type: IntentType) -> str:
         """Get a description of what an intent type means.
 
         Args:

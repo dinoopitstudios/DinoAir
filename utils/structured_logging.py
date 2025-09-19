@@ -48,7 +48,8 @@ class RedactionFilter(logging.Filter):
         super().__init__()
         self.keys = {k.lower() for k in keys_to_mask}
 
-    def _mask_value(self, value: Any) -> Any:
+    @staticmethod
+    def _mask_value(value: Any) -> Any:
         try:
             if not value:
                 return value
@@ -71,9 +72,9 @@ class RedactionFilter(logging.Filter):
             elif isinstance(v, dict):
                 sanitized[k] = self._redact_mapping(cast("dict[str, Any]", v))
             elif isinstance(v, list | tuple):
-                sanitized[k] = [self._mask_value(x) for x in cast("Iterable[Any]", v)]
+                sanitized[k] = [RedactionFilter._mask_value(x) for x in cast("Iterable[Any]", v)]
             else:
-                sanitized[k] = self._mask_value(v)
+                sanitized[k] = RedactionFilter._mask_value(v)
         return sanitized
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -94,7 +95,7 @@ class RedactionFilter(logging.Filter):
                     if isinstance(v, dict):
                         record.__dict__[k] = self._redact_mapping(cast("dict[str, Any]", v))
                     elif isinstance(v, list | tuple):
-                        record.__dict__[k] = [self._mask_value(x) for x in cast("Iterable[Any]", v)]
+                        record.__dict__[k] = [RedactionFilter._mask_value(x) for x in cast("Iterable[Any]", v)]
                     elif isinstance(v, str) and v in _ENV_SECRET_VALUES:
                         record.__dict__[k] = "***REDACTED***"
         except RuntimeError:

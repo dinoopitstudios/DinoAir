@@ -401,7 +401,7 @@ class LazyComponentManager:
         component_info.state = ComponentState.INITIALIZING
 
         try:
-            self._create_and_register_component(component_info)
+            LazyComponentManager._create_and_register_component(component_info)
             component_info.init_time = time.perf_counter()
             self._initialization_order.append(component_info.name)
 
@@ -417,7 +417,8 @@ class LazyComponentManager:
                 f"Failed to initialize component '{component_info.name}': {e}"
             ) from e
 
-    def _create_and_register_component(self, component_info: ComponentInfo) -> None:
+    @staticmethod
+    def _create_and_register_component(component_info: ComponentInfo) -> None:
         """Create component instance and mark as initialized."""
         component_info.instance = component_info.factory_func()
         component_info.state = ComponentState.INITIALIZED
@@ -454,7 +455,8 @@ class SignalConnectionManager:
         self._connection_groups: dict[str, list[str]] = defaultdict(list)
         self._performance_monitor = get_performance_monitor()
 
-    def _validate_signal(self, signal: Any) -> None:
+    @staticmethod
+    def _validate_signal(signal: Any) -> None:
         """Validate that the signal has required methods."""
         if not hasattr(signal, "connect"):
             raise ValueError("Signal must have a 'connect' method")
@@ -469,7 +471,7 @@ class SignalConnectionManager:
         """Connect a signal with tracking and validation."""
         try:
             # Validate signal and slot
-            self._validate_signal(signal)
+            SignalConnectionManager._validate_signal(signal)
 
             # Connect the signal
             connection = signal.connect(slot)

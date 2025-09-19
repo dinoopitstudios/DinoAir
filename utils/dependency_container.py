@@ -349,7 +349,7 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         try:
             factory = cast("Callable[..., Any]", dependency_info.factory)
-            factory_kwargs = self._get_factory_kwargs(factory, resolved_dependencies)
+            factory_kwargs = DependencyContainer._get_factory_kwargs(factory, resolved_dependencies)
             return factory(**factory_kwargs)
         except RuntimeError as e:
             raise DependencyResolutionError(
@@ -373,15 +373,16 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         """
         try:
             constructor = dependency_info.dependency_type
-            constructor_kwargs = self._get_constructor_kwargs(constructor, resolved_dependencies)
+            constructor_kwargs = DependencyContainer._get_constructor_kwargs(constructor, resolved_dependencies)
             return constructor(**constructor_kwargs)
         except RuntimeError as e:
             raise DependencyResolutionError(
                 f"Constructor failed for {dependency_info.name}: {e}"
             ) from e
 
+    @staticmethod
     def _get_factory_kwargs(
-        self, factory: Callable[..., Any], resolved_dependencies: dict[str, Any]
+        factory: Callable[..., Any], resolved_dependencies: dict[str, Any]
     ) -> dict[str, Any]:
         """Get keyword arguments for factory function.
 
@@ -403,8 +404,9 @@ class DependencyContainer:  # pylint: disable=too-many-instance-attributes
         }
         return kwargs
 
+    @staticmethod
     def _get_constructor_kwargs(
-        self, constructor: type[Any], resolved_dependencies: dict[str, Any]
+        constructor: type[Any], resolved_dependencies: dict[str, Any]
     ) -> dict[str, Any]:
         """Get keyword arguments for constructor.
 
