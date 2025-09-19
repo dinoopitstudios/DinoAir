@@ -107,7 +107,8 @@ class TestLogContext:
 
     def test_log_context_to_dict_partial(self):
         """Test LogContext to_dict with partial fields."""
-        context = LogContext(correlation_id="corr-123", metadata={"test": "value"})
+        context = LogContext(correlation_id="corr-123",
+                             metadata={"test": "value"})
 
         result = context.to_dict()
         expected = {"correlation_id": "corr-123", "test": "value"}
@@ -469,7 +470,8 @@ class TestEnhancedJsonFormatter:
 
         # Set up context
         with patch("utils.enhanced_logger._context_manager") as mock_manager:
-            mock_context = LogContext(correlation_id="test-123", user_id="user-456")
+            mock_context = LogContext(
+                correlation_id="test-123", user_id="user-456")
             mock_manager.get_context.return_value = mock_context
 
             record = logging.LogRecord(
@@ -597,7 +599,7 @@ class TestAsyncLogHandler:
             raise AssertionError
         if async_handler.queue.maxsize != 100:
             raise AssertionError
-        if not async_handler._worker_thread.is_alive():
+        if not async_handler.is_worker_thread_alive():
             raise AssertionError
 
     def test_async_handler_emit(self):
@@ -705,7 +707,7 @@ class TestEnhancedLogger:
     def test_enhanced_logger_initialization_once(self):
         """Test that initialization only happens once."""
         # Reset singleton for testing
-        EnhancedLogger._instance = None
+        EnhancedLogger.reset_instance()
 
         with patch.object(EnhancedLogger, "_setup_logging"):
             EnhancedLogger()
@@ -766,7 +768,8 @@ class TestEnhancedLogger:
         enhanced_logger = EnhancedLogger()
 
         with patch.object(enhanced_logger, "_setup_logging") as mock_setup:
-            enhanced_logger.update_filter_config(sampling_rate=0.5, enabled=False)
+            enhanced_logger.update_filter_config(
+                sampling_rate=0.5, enabled=False)
 
             if enhanced_logger.config.filter_config.sampling_rate != 0.5:
                 raise AssertionError
@@ -840,7 +843,7 @@ class TestLogAggregator:
         aggregator = LogAggregator()
 
         assert isinstance(aggregator.config, LogAggregationConfig)
-        assert len(aggregator._entries) == 0
+        assert len(aggregator.entries) == 0
 
     def test_add_entry(self):
         """Test adding log entries."""
@@ -856,8 +859,9 @@ class TestLogAggregator:
 
         aggregator.add_entry(entry)
 
-        assert len(aggregator._entries) == 1
-        stored_entry = aggregator._entries[0]
+        entries = aggregator.get_entries()
+        assert len(entries) == 1
+        stored_entry = entries[0]
         if stored_entry["level"] != "INFO":
             raise AssertionError
         if stored_entry["component"] != "test_component":
@@ -937,13 +941,13 @@ class TestLogAggregator:
             }
             aggregator.add_entry(entry)
 
-        assert len(aggregator._entries) == 5
+        assert len(aggregator.entries) == 5
 
         # Clear entries older than 150 seconds
         aggregator.clear_entries(older_than_seconds=150)
 
         # Should keep entries that are less than 150 seconds old
-        remaining = len(aggregator._entries)
+        remaining = len(aggregator.entries)
         if remaining >= 5:
             raise AssertionError
 
@@ -1316,7 +1320,7 @@ class TestIntegrationScenarios:
         # Should complete reasonably quickly (adjust threshold as needed)
         if duration >= 1.0:
             raise AssertionError
-        assert len(aggregator._entries) == 1000
+        assert len(aggregator.get_entries()) == 1000
 
         # Summary generation should also be fast
         summary_start = time.time()

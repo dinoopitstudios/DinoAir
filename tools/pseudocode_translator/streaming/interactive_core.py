@@ -12,10 +12,8 @@ from ..models import BlockType
 from ..models.base_model import TranslationResult as ModelTranslationResult
 from .events import TranslationUpdate
 
-
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, Iterator
-
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +34,8 @@ def process_interactive_input(
         parse_result = translator.parser.get_parse_result(user_input)
         success_attr = getattr(parse_result, "success", None)
         parse_success = (
-            success_attr if isinstance(success_attr, bool) else (len(parse_result.errors) == 0)
+            success_attr if isinstance(success_attr, bool) else (
+                len(parse_result.errors) == 0)
         )
         if not parse_success:
             return None
@@ -45,8 +44,10 @@ def process_interactive_input(
             if block.type == BlockType.ENGLISH:
                 manager = translator.translation_manager
                 if manager is None:
-                    raise RuntimeError("Translation manager is not initialized")
-                res = manager.translate_text_block(text=block.content, context=context)
+                    raise RuntimeError(
+                        "Translation manager is not initialized")
+                res = manager.translate_text_block(
+                    text=block.content, context=context)
                 if (
                     not isinstance(res, ModelTranslationResult)
                     or not getattr(res, "success", False)
@@ -88,16 +89,18 @@ def interactive_translate(
     session_context: list[str] = []
     interaction_count = 0
     for user_input in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
-        session_context.append(f"# User input {interaction_count}:\n{user_input}")
+        translator.wait_if_paused()
+        session_context.append(
+            f"# User input {interaction_count}:\n{user_input}")
         response = process_interactive_input(
             translator, user_input, session_context, interaction_count, on_update
         )
         if response:
             yield f"# Translation {interaction_count}:\n{response}\n\n"
-            session_context.append(f"# Translation {interaction_count}:\n{response}")
+            session_context.append(
+                f"# Translation {interaction_count}:\n{response}")
         interaction_count += 1
 
 
@@ -109,9 +112,9 @@ async def interactive_translate_async(
     session_context: list[str] = []
     interaction_count = 0
     async for user_input in input_stream:
-        if translator._check_cancelled():
+        if translator.check_cancelled():
             break
-        translator._wait_if_paused()
+        translator.wait_if_paused()
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
@@ -125,5 +128,6 @@ async def interactive_translate_async(
         if response:
             yield f"# Translation {interaction_count}:\n{response}\n\n"
             session_context.append(f"# User {interaction_count}: {user_input}")
-            session_context.append(f"# Assistant {interaction_count}: {response}")
+            session_context.append(
+                f"# Assistant {interaction_count}: {response}")
         interaction_count += 1

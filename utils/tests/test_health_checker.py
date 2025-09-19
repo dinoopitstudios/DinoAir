@@ -211,7 +211,7 @@ class TestHealthChecker:
             raise AssertionError
         if checker.retries != 5:
             raise AssertionError
-        assert checker._http_client is None
+        assert checker.http_client is None
 
     def test_health_checker_default_values(self):
         """Test HealthChecker with default values."""
@@ -230,7 +230,7 @@ class TestHealthChecker:
             mock_client.return_value = mock_instance
 
             async with HealthChecker() as checker:
-                if checker._http_client != mock_instance:
+                if checker.http_client != mock_instance:
                     raise AssertionError
                 mock_client.assert_called_once()
 
@@ -436,7 +436,8 @@ class TestHealthChecker:
     async def test_check_postgres_connection_failure(self):
         """Test PostgreSQL check with connection failure."""
         with patch("utils.health_checker.asyncpg") as mock_asyncpg:
-            mock_asyncpg.connect = AsyncMock(side_effect=RuntimeError("Connection failed"))
+            mock_asyncpg.connect = AsyncMock(
+                side_effect=RuntimeError("Connection failed"))
 
             async with HealthChecker() as checker:
                 result = await checker.check_postgres()
@@ -504,7 +505,8 @@ class TestHealthChecker:
         async with HealthChecker() as checker:
             # Mock the HTTP endpoint check since check_lmstudio calls it
             with patch.object(checker, "check_http_endpoint", new_callable=AsyncMock) as mock_check:
-                mock_result = HealthCheck("lmstudio", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_result = HealthCheck(
+                    "lmstudio", HealthStatus.HEALTHY, 100.0, "OK")
                 mock_check.return_value = mock_result
 
                 result = await checker.check_lmstudio(
@@ -513,7 +515,8 @@ class TestHealthChecker:
 
                 if result != mock_result:
                     raise AssertionError
-                mock_check.assert_called_with("test_lmstudio", "http://localhost:1234/v1/models")
+                mock_check.assert_called_with(
+                    "test_lmstudio", "http://localhost:1234/v1/models")
 
     @pytest.mark.asyncio
     async def test_check_all_default_config(self):
@@ -526,8 +529,10 @@ class TestHealthChecker:
                 patch.object(checker, "check_lmstudio", new_callable=AsyncMock) as mock_lmstudio,
             ):
                 # Setup mock results
-                mock_http.return_value = HealthCheck("api", HealthStatus.HEALTHY, 100.0, "OK")
-                mock_redis.return_value = HealthCheck("redis", HealthStatus.HEALTHY, 50.0, "OK")
+                mock_http.return_value = HealthCheck(
+                    "api", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_redis.return_value = HealthCheck(
+                    "redis", HealthStatus.HEALTHY, 50.0, "OK")
                 mock_postgres.return_value = HealthCheck(
                     "postgres", HealthStatus.HEALTHY, 200.0, "OK"
                 )
@@ -556,7 +561,8 @@ class TestHealthChecker:
         config = {
             "http_endpoints": [
                 {"name": "api1", "url": "http://localhost:8001/health"},
-                {"name": "api2", "url": "http://localhost:8002/status", "expected_status": 204},
+                {"name": "api2", "url": "http://localhost:8002/status",
+                    "expected_status": 204},
             ],
             "redis": {"host": "redis.example.com", "port": 6380},
             "postgres": {"dsn": "postgresql://user:pass@db.example.com/mydb"},
@@ -571,8 +577,10 @@ class TestHealthChecker:
                 patch.object(checker, "check_lmstudio", new_callable=AsyncMock) as mock_lmstudio,
             ):
                 # Setup mock results
-                mock_http.return_value = HealthCheck("api", HealthStatus.HEALTHY, 100.0, "OK")
-                mock_redis.return_value = HealthCheck("redis", HealthStatus.HEALTHY, 50.0, "OK")
+                mock_http.return_value = HealthCheck(
+                    "api", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_redis.return_value = HealthCheck(
+                    "redis", HealthStatus.HEALTHY, 50.0, "OK")
                 mock_postgres.return_value = HealthCheck(
                     "postgres", HealthStatus.HEALTHY, 200.0, "OK"
                 )
@@ -603,7 +611,8 @@ class TestHealthChecker:
 
         async with HealthChecker() as checker:
             with patch.object(checker, "check_http_endpoint", new_callable=AsyncMock) as mock_http:
-                mock_http.return_value = HealthCheck("api", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_http.return_value = HealthCheck(
+                    "api", HealthStatus.HEALTHY, 100.0, "OK")
 
                 report = await checker.check_all(config)
 
@@ -622,8 +631,10 @@ class TestHealthChecker:
                 patch.object(checker, "check_redis", new_callable=AsyncMock) as mock_redis,
             ):
                 # Setup mixed results
-                mock_http.return_value = HealthCheck("api", HealthStatus.HEALTHY, 100.0, "OK")
-                mock_redis.return_value = HealthCheck("redis", HealthStatus.UNHEALTHY, 0.0, "Down")
+                mock_http.return_value = HealthCheck(
+                    "api", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_redis.return_value = HealthCheck(
+                    "redis", HealthStatus.UNHEALTHY, 0.0, "Down")
 
                 config = {
                     "http_endpoints": [{"name": "api", "url": "http://localhost:8000/health"}],
@@ -652,7 +663,8 @@ class TestQuickHealthCheck:
             mock_checker = AsyncMock()
             mock_report = HealthReport(
                 overall_status=HealthStatus.HEALTHY,
-                checks=[HealthCheck("test", HealthStatus.HEALTHY, 100.0, "OK")],
+                checks=[HealthCheck(
+                    "test", HealthStatus.HEALTHY, 100.0, "OK")],
                 total_checks=1,
                 healthy_checks=1,
                 degraded_checks=0,
@@ -732,7 +744,8 @@ class TestRetryDecorator:
         """Test that circuit breaker is applied to LM Studio checks."""
         async with HealthChecker() as checker:
             with patch.object(checker, "check_http_endpoint", new_callable=AsyncMock) as mock_check:
-                mock_check.return_value = HealthCheck("lmstudio", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_check.return_value = HealthCheck(
+                    "lmstudio", HealthStatus.HEALTHY, 100.0, "OK")
 
                 result = await checker.check_lmstudio()
 
@@ -760,7 +773,8 @@ class TestPerformanceAndConcurrency:
                 # Start multiple concurrent checks
                 start_time = time.time()
                 tasks = [
-                    checker.check_http_endpoint(f"api{i}", f"http://localhost:800{i}")
+                    checker.check_http_endpoint(
+                        f"api{i}", f"http://localhost:800{i}")
                     for i in range(5)
                 ]
 
@@ -794,7 +808,6 @@ class TestPerformanceAndConcurrency:
                 logging.debug(
                     f"Mock setup complete for test_timeout_handling_under_load. Mock client: {mock_client}"
                 )
-                logging.debug(f"Checker HTTP client type: {type(checker._http_client)}")
 
                 result = await checker.check_http_endpoint("slow_api", "http://localhost:8000")
 
@@ -861,7 +874,8 @@ class TestErrorHandlingAndRecovery:
                 patch.object(checker, "check_redis", new_callable=AsyncMock) as mock_redis,
             ):
                 # HTTP succeeds, Redis fails
-                mock_http.return_value = HealthCheck("api", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_http.return_value = HealthCheck(
+                    "api", HealthStatus.HEALTHY, 100.0, "OK")
                 mock_redis.return_value = HealthCheck(
                     "redis", HealthStatus.UNHEALTHY, 0.0, "Failed"
                 )
@@ -890,7 +904,8 @@ class TestErrorHandlingAndRecovery:
             with patch.object(checker, "check_http_endpoint") as mock_http:
                 mock_http.side_effect = Exception("Unexpected error")
 
-                config = {"http_endpoints": [{"name": "api", "url": "http://localhost:8000"}]}
+                config = {"http_endpoints": [
+                    {"name": "api", "url": "http://localhost:8000"}]}
 
                 # Should handle exception gracefully and continue
                 try:
@@ -946,7 +961,8 @@ class TestIntegrationScenarios:
                 mock_redis.close.return_value = None
                 mock_aioredis.from_url.return_value = mock_redis
 
-                logging.debug("Redis mock setup complete for test_full_system_health_check")
+                logging.debug(
+                    "Redis mock setup complete for test_full_system_health_check")
 
                 result = await quick_health_check()
 
@@ -976,7 +992,8 @@ class TestIntegrationScenarios:
             mock_checker = AsyncMock()
             mock_report = HealthReport(
                 overall_status=HealthStatus.HEALTHY,
-                checks=[HealthCheck("service", HealthStatus.HEALTHY, 100.0, "OK")],
+                checks=[HealthCheck(
+                    "service", HealthStatus.HEALTHY, 100.0, "OK")],
                 total_checks=1,
                 healthy_checks=1,
                 degraded_checks=0,
@@ -1008,7 +1025,8 @@ class TestIntegrationScenarios:
         async with HealthChecker() as checker:
             with patch.object(checker, "check_http_endpoint", new_callable=AsyncMock) as mock_check:
                 # All services healthy
-                mock_check.return_value = HealthCheck("service", HealthStatus.HEALTHY, 100.0, "OK")
+                mock_check.return_value = HealthCheck(
+                    "service", HealthStatus.HEALTHY, 100.0, "OK")
 
                 report = await checker.check_all(config)
 
@@ -1026,10 +1044,12 @@ class TestIntegrationScenarios:
         async with HealthChecker() as checker:
             with patch.object(checker, "check_http_endpoint", new_callable=AsyncMock) as mock_http:
                 # Service responds but slowly
-                slow_check = HealthCheck("slow_api", HealthStatus.HEALTHY, 2000.0, "HTTP 200")
+                slow_check = HealthCheck(
+                    "slow_api", HealthStatus.HEALTHY, 2000.0, "HTTP 200")
                 mock_http.return_value = slow_check
 
-                config = {"http_endpoints": [{"name": "slow_api", "url": "http://localhost:8000"}]}
+                config = {"http_endpoints": [
+                    {"name": "slow_api", "url": "http://localhost:8000"}]}
 
                 report = await checker.check_all(config)
 

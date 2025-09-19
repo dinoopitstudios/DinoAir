@@ -13,7 +13,7 @@ def test_notes_security_uses_fallback_policy_by_default():
     """NotesSecurity should fall back to FallbackSecurity when GUI policy is unavailable."""
     with patch.dict(os.environ, {}, clear=True):
         sec = NotesSecurity()
-        assert isinstance(sec._policy, FallbackSecurity)
+        assert isinstance(sec.policy, FallbackSecurity)
 
 
 def test_can_perform_write_operation_blocked_by_default():
@@ -81,14 +81,16 @@ def test_validate_note_data_errors_and_success():
         raise AssertionError
 
     # Tags not a list
-    res = policy.validate_note_data("ok", "x", "not-a-list")  # type: ignore[arg-type]
+    res = policy.validate_note_data(
+        "ok", "x", "not-a-list")  # type: ignore[arg-type]
     if res["valid"] is not False:
         raise AssertionError
     if not any("tags must be a list" in e.lower() for e in res["errors"]):
         raise AssertionError
 
     # Tag too long and non-string
-    res = policy.validate_note_data("ok", "x", ["a" * 51, 123])  # type: ignore[list-item]
+    res = policy.validate_note_data(
+        "ok", "x", ["a" * 51, 123])  # type: ignore[list-item]
     if res["valid"] is not False:
         raise AssertionError
     errs = " ".join(res["errors"]).lower()

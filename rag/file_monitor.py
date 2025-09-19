@@ -3,16 +3,16 @@ File Monitor for RAG System
 Monitors indexed directories for changes and auto-updates the index.
 """
 
-from collections.abc import Callable
 import os
 import threading
 import time
+from collections.abc import Callable
 from typing import Any
 
 from database.file_search_db import FileSearchDB
 from utils.logger import Logger
-from .file_processor import FileProcessor
 
+from .file_processor import FileProcessor
 
 try:
     from watchdog.events import (
@@ -27,6 +27,7 @@ try:
     WATCHDOG_AVAILABLE = True
 except ImportError:
     WATCHDOG_AVAILABLE = False
+
     # Create dummy classes for type hints
 
     class FileSystemEventHandler:
@@ -107,17 +108,18 @@ class FileChangeHandler(FileSystemEventHandler):
         file_path = os.path.normpath(file_path)
 
         # Check if file should be indexed
-        if not self.file_monitor._should_index_file(file_path):
+        if not self.file_monitor.should_index_file(file_path):
             return
 
         # Add to pending changes with timestamp
         self._pending_changes[file_path] = time.time()
 
         # Log change
-        self.logger.info("File %s: %s", change_type, os.path.basename(file_path))
+        self.logger.info("File %s: %s", change_type,
+                         os.path.basename(file_path))
 
         # Process after debounce period
-        self.file_monitor._schedule_processing()
+        self.file_monitor.schedule_processing()
 
     def _handle_file_deletion(self, file_path: str):
         """
@@ -133,7 +135,7 @@ class FileChangeHandler(FileSystemEventHandler):
         self._pending_changes.pop(file_path, None)
 
         # Remove from index immediately
-        self.file_monitor._remove_from_index(file_path)
+        self.file_monitor.remove_from_index(file_path)
 
         self.logger.info("File deleted: %s", os.path.basename(file_path))
 
@@ -235,7 +237,8 @@ class FileMonitor:
         if WATCHDOG_AVAILABLE:
             self._observer = Observer()
         else:
-            self.logger.error("Cannot create Observer - watchdog not available")
+            self.logger.error(
+                "Cannot create Observer - watchdog not available")
             return
 
         # Add directories to monitor
@@ -245,18 +248,21 @@ class FileMonitor:
                 directory = os.path.normpath(directory)
 
                 # Schedule observer
-                self._observer.schedule(self._handler, directory, recursive=True)
+                self._observer.schedule(
+                    self._handler, directory, recursive=True)
                 self._monitored_dirs.add(directory)
 
                 self.logger.info("Monitoring directory: %s", directory)
             else:
-                self.logger.warning("Directory not found or invalid: %s", directory)
+                self.logger.warning(
+                    "Directory not found or invalid: %s", directory)
 
         # Start observer
         if self._monitored_dirs:
             self._observer.start()
             self._is_monitoring = True
-            self.logger.info(f"File monitor started for {len(self._monitored_dirs)} directories")
+            self.logger.info(
+                f"File monitor started for {len(self._monitored_dirs)} directories")
         else:
             self.logger.warning("No valid directories to monitor")
 
@@ -285,7 +291,8 @@ class FileMonitor:
             directory = os.path.normpath(directory)
 
             if directory not in self._monitored_dirs:
-                self._observer.schedule(self._handler, directory, recursive=True)
+                self._observer.schedule(
+                    self._handler, directory, recursive=True)
                 self._monitored_dirs.add(directory)
 
                 self.logger.info("Added directory to monitor: %s", directory)
@@ -366,7 +373,8 @@ class FileMonitor:
             return  # Already scheduled
 
         # Process after 3 seconds
-        self._process_timer = threading.Timer(3.0, self._process_pending_changes)
+        self._process_timer = threading.Timer(
+            3.0, self._process_pending_changes)
         self._process_timer.start()
 
     def _process_pending_changes(self):
@@ -389,7 +397,8 @@ class FileMonitor:
                     continue
 
                 # Process file
-                result = self.file_processor.process_file(file_path, force_reprocess=True)
+                result = self.file_processor.process_file(
+                    file_path, force_reprocess=True)
 
                 if result["success"]:
                     self.logger.info("Updated index for: %s", file_path)
@@ -401,7 +410,8 @@ class FileMonitor:
                     raise Exception(result.get("error", "Unknown error"))
 
             except Exception as e:
-                self.logger.error("Failed to process %s: %s", file_path, str(e))
+                self.logger.error("Failed to process %s: %s",
+                                  file_path, str(e))
 
                 # Call error callback
                 if self._error_callback:
@@ -434,7 +444,8 @@ class FileMonitor:
                         self._update_callback(file_path, "deleted")
 
         except Exception as e:
-            self.logger.error("Failed to remove %s from index: %s", file_path, str(e))
+            self.logger.error(
+                "Failed to remove %s from index: %s", file_path, str(e))
 
             # Call error callback
             if self._error_callback:
@@ -451,7 +462,7 @@ class FileMonitor:
             "is_monitoring": self._is_monitoring,
             "monitored_directories": list(self._monitored_dirs),
             "file_extensions": list(self._file_extensions),
-            "pending_changes": len(self._handler._pending_changes),
+            "pending_changes": self._handler.get_pending_changes_count(),
         }
 
     def __del__(self):
@@ -477,7 +488,8 @@ def integrate_with_watchdog(watchdog_instance):
 
     # Configure based on watchdog settings if available
     if hasattr(watchdog_instance, "monitored_paths"):
-        directories = [p for p in watchdog_instance.monitored_paths if os.path.isdir(p)]
+        directories = [
+            p for p in watchdog_instance.monitored_paths if os.path.isdir(p)]
         if directories:
             file_monitor.start_monitoring(directories)
 
