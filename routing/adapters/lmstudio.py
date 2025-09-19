@@ -256,8 +256,6 @@ class LMStudioAdapter(ServiceAdapter):
         for attempt in range(1, attempts + 1):
             try:
                 return self._attempt_request(url, body, headers, attempt, attempts)
-            except AdapterError:
-                raise  # Re-raise AdapterError immediately
             except (httpx.TimeoutException, httpx.ConnectError) as exc:
                 last_exc = exc
                 if attempt < attempts:
