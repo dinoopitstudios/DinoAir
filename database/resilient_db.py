@@ -25,6 +25,14 @@ class ResilientDB:
         self.user_feedback = user_feedback or print
 
     def log(self, message: str) -> None:
+        """Log.
+
+        Args:
+            message: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         self.user_feedback(f"{message}")
 
     def connect(self) -> sqlite3.Connection:
@@ -78,6 +86,15 @@ class ResilientDB:
             self.log("Removed damaged database file.")
 
     def connect_with_retry(self, retries: int = 3, delay: int = 1) -> sqlite3.Connection:
+        """Connect with retry.
+
+        Args:
+            retries: TODO: Add description
+            delay: TODO: Add description
+
+        Returns:
+            TODO: Add return description
+        """
         attempt = 0
         last_exc: Exception | None = None
         while attempt < retries:
