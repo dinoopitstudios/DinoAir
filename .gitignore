@@ -358,3 +358,7 @@ DEEPSOURCE_FIXES.md
 *.token
 *_security_issues.json
 github_token.txt
+
+# DeepSource coverage artifacts
+*.lcov
+.nyc_output/
