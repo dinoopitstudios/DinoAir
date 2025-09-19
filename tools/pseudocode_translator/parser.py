@@ -189,8 +189,10 @@ class ParserModule:
         def _is_new_block(line: str, stripped_line: str, current_indent: int) -> bool:
             if in_multiline:
                 return False
-            if self._DEF_RE.match(line) or self._CLASS_RE.match(line) or (
-                self._IMPORT_RE.match(line) and current_indent == 0
+            if (
+                self._DEF_RE.match(line)
+                or self._CLASS_RE.match(line)
+                or (self._IMPORT_RE.match(line) and current_indent == 0)
             ):
                 return True
             if current_indent == 0 and prev_indent > 0:
@@ -208,14 +210,14 @@ class ParserModule:
 
             if _is_new_block(line, stripped, current_indent):
                 if current_block:
-                    blocks.append(''.join(current_block))
+                    blocks.append("".join(current_block))
                     current_block = []
 
             current_block.append(line)
             prev_indent = current_indent
 
         if current_block:
-            blocks.append(''.join(current_block))
+            blocks.append("".join(current_block))
 
         return blocks
 
@@ -304,7 +306,9 @@ class ParserModule:
         self._finalize_metadata(metadata, block)
         return metadata
 
-    def _process_line_metadata(self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int) -> int:
+    def _process_line_metadata(
+        self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int
+    ) -> int:
         # Check for imports
         if self._IMPORT_RE.match(line):
             metadata["has_imports"] = True

@@ -355,9 +355,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             raise
         except (ConnectionError, TimeoutError, OSError) as e:
             # Audit network-specific errors
-            await self._audit_security_event(
-                "network_security_error", client_ip, {"error": str(e)}
-            )
+            await self._audit_security_event("network_security_error", client_ip, {"error": str(e)})
             raise
         except Exception as e:
             # Audit other unexpected errors

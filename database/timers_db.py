@@ -33,13 +33,13 @@ class TimersDatabase:
         elapsed_seconds: float,
     ) -> dict[str, Any]:
         """Create log.
-        
+
         Args:
             task_name: TODO: Add description
             start_time: TODO: Add description
             end_time: TODO: Add description
             elapsed_seconds: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
