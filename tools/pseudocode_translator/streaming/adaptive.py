@@ -35,6 +35,7 @@ from dataclasses import dataclass
 @dataclass
 class _ConfigSnapshot:
     """Holds immutable configuration parameters for AdaptiveChunkSizer."""
+
     min_size: int
     max_size: int
     target_ms: int
