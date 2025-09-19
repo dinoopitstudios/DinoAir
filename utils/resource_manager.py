@@ -304,6 +304,7 @@ class ResourceManager:
 
             return active_resources
 
+    @staticmethod
     def _shutdown_single_resource(
         self, resource_info: ResourceInfo, timeout: float | None = None
     ) -> bool:
