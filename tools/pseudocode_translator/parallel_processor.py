@@ -53,6 +53,8 @@ class FileTask:
             return NotImplemented
         return self.file_path == other.file_path and self.priority == other.priority
 
+    def __hash__(self):
+        return hash((self.file_path, self.priority))
 
 @dataclass
 class ProcessingResult:

@@ -159,16 +159,29 @@ class GitHubSecurityDiagnostic:
     def test_security_endpoints(self, repo_name: str) -> Dict[str, Any]:
         """Test access to each security endpoint."""
         endpoints = {
-            "code_scanning": f"https://api.github.com/repos/{repo_name}/code-scanning/alerts",
-            "secret_scanning": f"https://api.github.com/repos/{repo_name}/secret-scanning/alerts",
-            "dependabot": f"https://api.github.com/repos/{repo_name}/dependabot/alerts",
-            "vulnerability_alerts": f"https://api.github.com/repos/{repo_name}/vulnerability-alerts",
+            "code_scanning": (
+                f"https://api.github.com/repos/{repo_name}"
+                f"/code-scanning/alerts"
+            ),
+            "secret_scanning": (
+                f"https://api.github.com/repos/{repo_name}"
+                f"/secret-scanning/alerts"
+            ),
+            "dependabot": (
+                f"https://api.github.com/repos/{repo_name}"
+                f"/dependabot/alerts"
+            ),
+            "vulnerability_alerts": (
+                f"https://api.github.com/repos/{repo_name}"
+                f"/vulnerability-alerts"
+            ),
         }
 
         results = {}
         print("🧪 Testing Security Endpoints:")
 
         for endpoint_name, url in endpoints.items():
+            display_name = endpoint_name.replace("_", " ").title()
             try:
                 response = requests.get(url, headers=self.headers)
                 results[endpoint_name] = {
@@ -179,9 +192,10 @@ class GitHubSecurityDiagnostic:
 
                 if response.status_code == 200:
                     data = response.json()
-                    results[endpoint_name]["count"] = len(data) if isinstance(data, list) else 1
+                    count = len(data) if isinstance(data, list) else 1
+                    results[endpoint_name]["count"] = count
                     icon = "✅"
-                    message = f"Accessible ({results[endpoint_name]['count']} items)"
+                    message = f"Accessible ({count} items)"
                 elif response.status_code == 403:
                     icon = "🔒"
                     message = "Forbidden (insufficient permissions)"
@@ -192,11 +206,15 @@ class GitHubSecurityDiagnostic:
                     icon = "❌"
                     message = f"HTTP {response.status_code}"
 
-                print(f"   {icon} {endpoint_name.replace('_', ' ').title()}: {message}")
+                print(f"   {icon} {display_name}: {message}")
 
             except Exception as e:
-                results[endpoint_name] = {"status_code": None, "accessible": False, "error": str(e)}
-                print(f"   ❌ {endpoint_name.replace('_', ' ').title()}: Error - {e}")
+                results[endpoint_name] = {
+                    "status_code": None,
+                    "accessible": False,
+                    "error": str(e),
+                }
+                print(f"   ❌ {display_name}: Error - {e}")
 
         return results
 
@@ -283,7 +301,7 @@ def main():
         # Save diagnostic results
         with open("security_diagnostic.json", "w") as f:
             json.dump(results, f, indent=2)
-        print(f"\n💾 Full diagnostic saved to security_diagnostic.json")
+        print("\n💾 Full diagnostic saved to security_diagnostic.json")
 
         return results
 

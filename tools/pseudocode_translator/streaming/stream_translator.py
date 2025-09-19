@@ -17,11 +17,6 @@ from ..exceptions import StreamingError
 from ..models import CodeBlock
 from ..parser import ParserModule
 from ..translator import TranslationManager
-from .async_core import (
-    async_translate_block_by_block,
-    async_translate_full_document,
-    async_translate_line_by_line,
-)
 from .buffer import BufferConfig, ContextBuffer, StreamBuffer
 from .chunker import ChunkConfig, CodeChunker
 from .event_runtime import EventRuntime

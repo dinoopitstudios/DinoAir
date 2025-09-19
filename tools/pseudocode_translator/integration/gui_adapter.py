@@ -31,26 +31,28 @@ except ImportError:
         """Dummy QtObject used when PySide6 is unavailable. Acts as a stand-in for QObject."""
 
         def __init__(self, parent=None):
+            """No-op constructor for dummy QtObject."""
             pass
 
     class QtSignal:
         """Dummy QtSignal used when PySide6 is unavailable. Provides emit() method placeholder."""
 
         def __init__(self, *args):
-            pass
+            """No-op dummy initializer."""
+            pass  # intentionally empty
 
-        def emit(self, *args):
-            pass
-
+        """Module providing GUI adapter stubs for pseudocode translator integration when PySide6 is unavailable."""
+                def emit(self, *args):
+                    """No-op dummy emit. Does nothing when PySide6 is unavailable."""
+                    pass  # intentionally empty
     class QtThread:
         """Dummy QtThread used when PySide6 is unavailable. Serves as placeholder for QThread."""
-
-        pass
 
     def Slot(*_args):
         """Dummy Slot decorator"""
 
         def decorator(func):
+            """Dummy decorator that returns the original function unchanged."""
             return func
 
         return decorator
@@ -129,6 +131,7 @@ class GUITranslatorAdapter:
 
         # Progress callback
         def on_progress(data: CallbackData):
+            """Called when a progress update is received. Updates the GUI progress bar."""
             if data.type == CallbackType.PROGRESS and self.gui_updater:
                 percentage = data.data.get("percentage", 0)
                 message = data.message or "Processing..."
@@ -138,6 +141,7 @@ class GUITranslatorAdapter:
 
         # Status callback
         def on_status(data: CallbackData):
+            """Called when a status update is received. Updates the GUI status display."""
             if data.type == CallbackType.STATUS and self.gui_updater:
                 self.gui_updater.update_status(data.message or "Unknown", data.data)
 
@@ -145,6 +149,7 @@ class GUITranslatorAdapter:
 
         # Error callback
         def on_error(data: CallbackData):
+            """Called when an error occurs. Displays the error message in the GUI."""
             if data.type == CallbackType.ERROR and self.gui_updater:
                 self.gui_updater.show_error(data.message or "Unknown error", data.data)
 
@@ -404,54 +409,53 @@ def create_result_handler(
 
 
 # Example usage
-"""Example Usage:
-
-    # Basic GUI adapter usage
-    from pseudocode_translator.integration.gui_adapter import GUITranslatorAdapter
-
-    class MyGUI:
-        def __init__(self):
-            self.adapter = GUITranslatorAdapter(gui_updater=self)
-
-        def update_progress(self, percentage, message):
-            self.progress_bar.set_value(percentage)
-            self.status_label.set_text(message)
-
-        def show_result(self, code, language):
-            self.code_editor.set_text(code)
-
-        def translate_clicked(self):
-            pseudocode = self.input_editor.get_text()
-            self.adapter.translate(pseudocode, "python")
-
-    # Qt integration
-    if HAS_QT:
-        from pseudocode_translator.integration.gui_adapter import QtTranslatorWidget
-
-        class MainWindow(QMainWindow):
-            def __init__(self):
-                super().__init__()
-
-                # Create translator widget
-                self.translator = QtTranslatorWidget(self)
-
-                # Connect signals
-                self.translator.progressUpdated.connect(
-                    self.on_progress_update
-                )
-                self.translator.translationCompleted.connect(
-                    self.on_translation_complete
-                )
-
-            def on_translate_button(self):
-                code = self.input_text.toPlainText()
-                lang = self.language_combo.currentText()
-                self.translator.translate(code, lang)
-
-            def on_progress_update(self, percentage, message):
-                self.progress_bar.setValue(percentage)
-                self.status_bar.showMessage(message)
-
-            def on_translation_complete(self, code, language):
-                self.output_text.setPlainText(code)
-"""
+# Example Usage:
+# 
+#     # Basic GUI adapter usage
+#     from pseudocode_translator.integration.gui_adapter import GUITranslatorAdapter
+#
+#     class MyGUI:
+#         def __init__(self):
+#             self.adapter = GUITranslatorAdapter(gui_updater=self)
+#
+#         def update_progress(self, percentage, message):
+#             self.progress_bar.set_value(percentage)
+#             self.status_label.set_text(message)
+#
+#         def show_result(self, code, language):
+#             self.code_editor.set_text(code)
+#
+#         def translate_clicked(self):
+#             pseudocode = self.input_editor.get_text()
+#             self.adapter.translate(pseudocode, "python")
+#
+#     # Qt integration
+#     if HAS_QT:
+#         from pseudocode_translator.integration.gui_adapter import QtTranslatorWidget
+#
+#         class MainWindow(QMainWindow):
+#             def __init__(self):
+#                 super().__init__()
+#
+#                 # Create translator widget
+#                 self.translator = QtTranslatorWidget(self)
+#
+#                 # Connect signals
+#                 self.translator.progressUpdated.connect(
+#                     self.on_progress_update
+#                 )
+#                 self.translator.translationCompleted.connect(
+#                     self.on_translation_complete
+#                 )
+#
+#             def on_translate_button(self):
+#                 code = self.input_text.toPlainText()
+#                 lang = self.language_combo.currentText()
+#                 self.translator.translate(code, lang)
+#
+#             def on_progress_update(self, percentage, message):
+#                 self.progress_bar.setValue(percentage)
+#                 self.status_bar.showMessage(message)
+#
+#             def on_translation_complete(self, code, language):
+#                 self.output_text.setPlainText(code)

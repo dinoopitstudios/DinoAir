@@ -106,12 +106,11 @@ class SimpleGitHubSecurityLoader:
                 alerts = response.json()
                 print(f"✅ Found {len(alerts)} code scanning alerts")
                 return alerts
-            elif response.status_code == 404:
+            if response.status_code == 404:
                 print("ℹ️  Code scanning not enabled or no alerts found")
                 return []
-            else:
-                print(f"⚠️  Code scanning alerts: HTTP {response.status_code}")
-                return []
+            print(f"⚠️  Code scanning alerts: HTTP {response.status_code}")
+            return []
 
         except Exception as e:
             print(f"❌ Error fetching code scanning alerts: {e}")
@@ -127,12 +126,11 @@ class SimpleGitHubSecurityLoader:
                 alerts = response.json()
                 print(f"✅ Found {len(alerts)} secret scanning alerts")
                 return alerts
-            elif response.status_code == 404:
+            if response.status_code == 404:
                 print("ℹ️  Secret scanning not enabled or no alerts found")
                 return []
-            else:
-                print(f"⚠️  Secret scanning alerts: HTTP {response.status_code}")
-                return []
+            print(f"⚠️  Secret scanning alerts: HTTP {response.status_code}")
+            return []
 
         except Exception as e:
             print(f"❌ Error fetching secret scanning alerts: {e}")
@@ -148,12 +146,11 @@ class SimpleGitHubSecurityLoader:
                 alerts = response.json()
                 print(f"✅ Found {len(alerts)} Dependabot alerts")
                 return alerts
-            elif response.status_code == 404:
+            if response.status_code == 404:
                 print("ℹ️  Dependabot not enabled or no alerts found")
                 return []
-            else:
-                print(f"⚠️  Dependabot alerts: HTTP {response.status_code}")
-                return []
+            print(f"⚠️  Dependabot alerts: HTTP {response.status_code}")
+            return []
 
         except Exception as e:
             print(f"❌ Error fetching Dependabot alerts: {e}")
@@ -178,7 +175,6 @@ class SimpleGitHubSecurityLoader:
                     )
             except (GithubException, AttributeError) as e:
                 print(f"ℹ️  Vulnerability alerts not available or not enabled: {e}")
-                pass  # Vulnerability alerts not available or not enabled
 
             return alerts
 
@@ -221,14 +217,20 @@ class SimpleGitHubSecurityLoader:
         # Print summary
         print(f"\n📊 Security Summary for {repo_name}:")
         print(
-            f"   - Code Scanning Alerts: {security_data['summary']['total_code_scanning_alerts']}"
+            f"   - Code Scanning Alerts: "
+            f"{security_data['summary']['total_code_scanning_alerts']}"
         )
         print(
-            f"   - Secret Scanning Alerts: {security_data['summary']['total_secret_scanning_alerts']}"
+            f"   - Secret Scanning Alerts: "
+            f"{security_data['summary']['total_secret_scanning_alerts']}"
         )
-        print(f"   - Dependabot Alerts: {security_data['summary']['total_dependabot_alerts']}")
         print(
-            f"   - Vulnerability Alerts: {security_data['summary']['total_vulnerability_alerts']}"
+            f"   - Dependabot Alerts: "
+            f"{security_data['summary']['total_dependabot_alerts']}"
+        )
+        print(
+            f"   - Vulnerability Alerts: "
+            f"{security_data['summary']['total_vulnerability_alerts']}"
         )
 
         return security_data

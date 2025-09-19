@@ -205,7 +205,6 @@ class OptimizedFileProcessor(FileProcessor):
                 "success": False,
                 "error": add_file_resp.get("error") or "Failed to index file",
             }
-
         file_id = add_file_resp.get("file_id")
         if not file_id:
             return {"success": False, "error": "No file_id returned from DB"}
@@ -255,11 +254,11 @@ class OptimizedFileProcessor(FileProcessor):
                     self.logger.error(
                         f"Chunk ID missing or invalid for file {file_path}, index {c['chunk_index']}"
                     )
-                else:
-                    # Continue but record failure
-                    self.logger.error(
-                        f"Failed to add chunk {c['chunk_index']} for {file_path}: {add_chunk_resp.get('error')}"
-                    )
+            else:
+                # Continue but record failure
+                self.logger.error(
+                    f"Failed to add chunk {c['chunk_index']} for {file_path}: {add_chunk_resp.get('error')}"
+                )
 
             # Optionally generate embeddings immediately
             embeddings_generated = 0

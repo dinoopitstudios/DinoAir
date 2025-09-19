@@ -39,7 +39,8 @@ class SecurityMonitor:
 
         # Log the attempt
         log_message = (
-            f"SECURITY: {attack_type} attack detected at {timestamp} Payload: {payload[:100]}..."
+            f"SECURITY: {attack_type} attack detected at {timestamp} "
+            f"Payload: {payload[:100]}..."
         )
 
         if source_info:
@@ -52,7 +53,10 @@ class SecurityMonitor:
 
         # Alert if threshold exceeded
         if self.attack_counts[attack_type] > 10:
-            alert_message = f"SECURITY ALERT: Multiple {attack_type} attacks detected! Count: {self.attack_counts[attack_type]}"
+            alert_message = (
+                f"SECURITY ALERT: Multiple {attack_type} attacks detected! "
+                f"Count: {self.attack_counts[attack_type]}"
+            )
             if self.logger:
                 self.logger.error(alert_message)
             else:
@@ -154,50 +158,53 @@ class EnhancedInputSanitizer:
         strict_mode: bool,
     ) -> str:
         """Dispatch to context-specific sanitizers."""
-        if context == self.CONTEXT_HTML:
-            if self.xss_protection.detect_xss_attempt(sanitized):
-                self.security_monitor.log_attack_attempt("XSS", sanitized)
-            return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
-        elif context == self.CONTEXT_SQL:
-            if self.sql_protection.detect_sql_injection(sanitized):
-                self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
-                if strict_mode:
-                    # In strict mode, reject SQL injection attempts
-                    raise ValueError("SQL injection attempt detected")
-            sanitized = self.sql_protection.sanitize_sql_input(sanitized)
-            return sanitized
-        elif context == self.CONTEXT_PLAIN:
-            # For plain text, strip all HTML and dangerous content
+        handlers = {
+            self.CONTEXT_HTML: self._sanitize_context_html,
+            self.CONTEXT_SQL: self._sanitize_context_sql,
+            self.CONTEXT_PLAIN: self._sanitize_context_plain,
+            self.CONTEXT_FILENAME: self._sanitize_context_filename,
+            self.CONTEXT_URL: self._sanitize_context_url,
+            self.CONTEXT_JSON: self._sanitize_context_json,
+        }
+        handler = handlers.get(context, self._sanitize_context_general)
+        return handler(sanitized, strict_mode)
+
+    def _sanitize_context_html(self, sanitized: str, strict_mode: bool) -> str:
+        if self.xss_protection.detect_xss_attempt(sanitized):
+            self.security_monitor.log_attack_attempt("XSS", sanitized)
+        return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
+
+    def _sanitize_context_sql(self, sanitized: str, strict_mode: bool) -> str:
+        if self.sql_protection.detect_sql_injection(sanitized):
+            self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
+            if strict_mode:
+                raise ValueError("SQL injection attempt detected")
+        return self.sql_protection.sanitize_sql_input(sanitized)
+
+    def _sanitize_context_plain(self, sanitized: str, strict_mode: bool) -> str:
+        return self.xss_protection.strip_tags(sanitized)
+
+    def _sanitize_context_filename(self, sanitized: str, strict_mode: bool) -> str:
+        return self._sanitize_filename(sanitized)
+
+    def _sanitize_context_url(self, sanitized: str, strict_mode: bool) -> str:
+        return self._sanitize_url(sanitized)
+
+    def _sanitize_context_json(self, sanitized: str, strict_mode: bool) -> str:
+        return self._sanitize_json(sanitized)
+
+    def _sanitize_context_general(self, sanitized: str, strict_mode: bool) -> str:
+        # General context - apply all protections
+        if self._detect_path_traversal(sanitized):
+            self.security_monitor.log_attack_attempt("Path Traversal", sanitized)
+            sanitized = self._sanitize_path_traversal(sanitized)
+        if self._detect_command_injection(sanitized):
+            self.security_monitor.log_attack_attempt("Command Injection", sanitized)
+            sanitized = self._sanitize_command_injection(sanitized)
+        if self.xss_protection.detect_xss_attempt(sanitized):
+            self.security_monitor.log_attack_attempt("XSS", sanitized)
             sanitized = self.xss_protection.strip_tags(sanitized)
-            return sanitized
-        elif context == self.CONTEXT_FILENAME:
-            # For filenames, apply strict rules
-            sanitized = self._sanitize_filename(sanitized)
-            return sanitized
-        elif context == self.CONTEXT_URL:
-            # For URLs, validate and sanitize
-            sanitized = self._sanitize_url(sanitized)
-            return sanitized
-        elif context == self.CONTEXT_JSON:
-            # For JSON, escape special characters
-            sanitized = self._sanitize_json(sanitized)
-            return sanitized
-        else:
-            # General context - apply all protections
-            # Check for path traversal
-            if self._detect_path_traversal(sanitized):
-                self.security_monitor.log_attack_attempt("Path Traversal", sanitized)
-                sanitized = self._sanitize_path_traversal(sanitized)
-
-            # Check for command injection
-            if self._detect_command_injection(sanitized):
-                self.security_monitor.log_attack_attempt("Command Injection", sanitized)
-                sanitized = self._sanitize_command_injection(sanitized)
-
-            # Check for XSS
-            if self.xss_protection.detect_xss_attempt(sanitized):
-                self.security_monitor.log_attack_attempt("XSS", sanitized)
-                sanitized = self.xss_protection.strip_tags(sanitized)
+        return sanitized
 
             # Check for SQL injection
             if self.sql_protection.detect_sql_injection(sanitized):
@@ -205,12 +212,12 @@ class EnhancedInputSanitizer:
                 sanitized = self.sql_protection.sanitize_sql_input(sanitized)
 
         # Step 3: Final validation
-        if (not sanitized or (strict_mode and sanitized != user_input)) and self.logger:
-            self.logger.info(f"Input modified during sanitization (context={context})")
+        if (not sanitized or (strict_mode and sanitized != self.user_input)) and self.logger:
+            self.logger.info(f"Input modified during sanitization (context={self.context})")
 
         # Apply final length limit
-        if max_length and len(sanitized) > max_length:
-            sanitized = sanitized[:max_length]
+        if self.max_length and len(sanitized) > self.max_length:
+            sanitized = sanitized[:self.max_length]
 
         return sanitized.strip()
 
