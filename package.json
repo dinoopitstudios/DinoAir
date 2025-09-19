@@ -20,14 +20,14 @@
     "@types/react-router-dom": "^5.3.3",
     "express": "^5.1.0",
     "playwright": "^1.55.0",
-    "react": "^18.2.0",
+    "react": "^19.1.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.9.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
     "@types/node": "^24.5.2",
-    "@types/react": "^18.2.45",
+    "@types/react": "^19.1.13",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
