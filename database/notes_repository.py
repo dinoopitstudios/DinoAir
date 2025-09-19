@@ -226,7 +226,9 @@ class NotesRepository:
                 update_fields.append(sql_template)
                 if field == "tags":
                     # Normalize tags before storage
-                    normalized_tags = NotesRepository._normalize_tags(updates[field]) if updates[field] else []
+                    normalized_tags = (
+                        NotesRepository._normalize_tags(updates[field]) if updates[field] else []
+                    )
                     params.append(json.dumps(normalized_tags))
                 else:
                     params.append(updates[field])
