@@ -503,16 +503,35 @@ def _get_default_user_data_directory() -> Path:
         root_sub = "DinoAir"
     else:
         # Unix/Linux/MacOS
-        root_dir = (
-            Path(os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")))
-            .expanduser()
-            .resolve()
-        )
-        if not is_safe_user_root(root_dir):
-            logging.warning(
-                f"Rejected XDG_DATA_HOME environment var as unsafe. Using default location."
-            )
-            root_dir = get_default_root_dir()
+        # Securely get XDG_DATA_HOME: only allow paths inside the user's home directory
+        xdg_env_path = os.environ.get("XDG_DATA_HOME", None)
+        user_home = Path.home().resolve()
+        default_xdg = Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
+        if xdg_env_path:
+            candidate = Path(os.path.expanduser(xdg_env_path)).expanduser().resolve()
+            # Accept only if candidate is strictly inside user_home
+            try:
+                # Python 3.9+: use is_relative_to
+                is_within = getattr(candidate, "is_relative_to", None)
+                if is_within:
+                    safe_env = candidate.is_relative_to(user_home)
+                else:
+                    # Manual check for < 3.9
+                    safe_env = str(candidate).startswith(str(user_home) + os.sep)
+                if safe_env:
+                    root_dir = candidate
+                else:
+                    logging.warning(
+                        f"Rejected XDG_DATA_HOME environment var as unsafe (outside user home). Using default location."
+                    )
+                    root_dir = default_xdg
+            except Exception:
+                logging.warning(
+                    f"Exception processing XDG_DATA_HOME environment var. Using default location."
+                )
+                root_dir = default_xdg
+        else:
+            root_dir = default_xdg
 
         root_sub = "dinoair"
     app_root = root_dir / root_sub
