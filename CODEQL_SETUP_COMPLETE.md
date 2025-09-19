@@ -83,7 +83,9 @@ codeql database analyze my-database codeql/python-queries --format=sarif-latest 
 ```
 
 ## GitHub Actions Integration
+
 - **Workflow File**: `.github/workflows/codeql-analysis.yml`
+- **CodeQL Action Version**: v3 (updated from deprecated v2)
 - **Triggers**: Push to main, pull requests, weekly schedule
 - **Languages**: Python and JavaScript
 - **Auto-upload**: Results automatically uploaded to GitHub Security tab
