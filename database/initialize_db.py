@@ -508,10 +508,12 @@ def _get_default_user_data_directory() -> Path:
         user_home = Path.home().resolve()
         default_xdg = Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
         if xdg_env_path:
-            candidate = Path(os.path.expanduser(xdg_env_path)).expanduser().resolve()
-            # Accept only if candidate is strictly inside user_home
+            # Normalize BEFORE Path object creation; avoid dangerous expansion
+            expanded_env_path = os.path.expanduser(xdg_env_path)
+            norm_env_path = os.path.normpath(expanded_env_path)
             try:
-                # Python 3.9+: use is_relative_to
+                candidate = Path(norm_env_path).resolve()
+                # Accept only if candidate is strictly inside user_home
                 is_within = getattr(candidate, "is_relative_to", None)
                 if is_within:
                     safe_env = candidate.is_relative_to(user_home)
