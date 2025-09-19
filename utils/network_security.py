@@ -169,7 +169,9 @@ class NetworkSecurityConfig:
         elif security_level == SecurityLevel.STAGING:
             network_config.require_https = True
             network_config.cors_allow_origins = [
-                "https://staging.dinoair.com", "http://localhost:3000"]
+                "https://staging.dinoair.com",
+                "http://localhost:3000",
+            ]
 
         elif security_level == SecurityLevel.PRODUCTION:
             network_config.require_https = True
@@ -185,7 +187,8 @@ class NetworkSecurityConfig:
             # Ambulance/healthcare environment settings - relaxed for small team
             network_config.require_https = True
             network_config.tls_min_version = "1.3"
-            network_config.cors_allow_origins = ["https://secure.dinoair.healthcare"]
+            network_config.cors_allow_origins = [
+                "https://secure.dinoair.healthcare"]
             network_config.allow_private_ips = True  # Allow private IPs for small team
             network_config.max_request_size = 5 * 1024 * 1024  # 5MB limit
             network_config.request_timeout = 30  # Standard timeout
@@ -283,7 +286,8 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.security_config = security_config
         self.audit_callback = audit_callback
-        self.rate_limiter = RateLimitStore(security_config.rate_limit_storage_ttl)
+        self.rate_limiter = RateLimitStore(
+            security_config.rate_limit_storage_ttl)
         self.blocked_ips: Dict[str, float] = {}  # IP -> block_until_timestamp
         self.ddos_tracker: Dict[str, deque] = defaultdict(deque)
 
