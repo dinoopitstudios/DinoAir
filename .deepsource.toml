@@ -31,7 +31,7 @@ exclude_patterns = [
 name = "python"
 
   [analyzers.meta]
-  runtime_version = "3.x"
+  runtime_version = "3.x.x"
   max_line_length = 100
 
 # JavaScript/TypeScript analyzer for frontend
