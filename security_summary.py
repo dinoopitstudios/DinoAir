@@ -6,6 +6,7 @@ Parse the security data and create a readable summary of security issues.
 """
 
 import json
+import os
 from collections import Counter, defaultdict
 
 
