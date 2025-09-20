@@ -158,7 +158,7 @@ class EnhancedInputSanitizer:
             if self.xss_protection.detect_xss_attempt(sanitized):
                 self.security_monitor.log_attack_attempt("XSS", sanitized)
             return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
-        elif context == self.CONTEXT_SQL:
+        if context == self.CONTEXT_SQL:
             if self.sql_protection.detect_sql_injection(sanitized):
                 self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
                 if strict_mode:
@@ -166,21 +166,19 @@ class EnhancedInputSanitizer:
                     raise ValueError("SQL injection attempt detected")
             sanitized = self.sql_protection.sanitize_sql_input(sanitized)
             return sanitized
-        elif context == self.CONTEXT_PLAIN:
+        if context == self.CONTEXT_PLAIN:
             # For plain text, strip all HTML and dangerous content
             sanitized = self.xss_protection.strip_tags(sanitized)
             return sanitized
-        elif context == self.CONTEXT_FILENAME:
+        if context == self.CONTEXT_FILENAME:
             # For filenames, apply strict rules
             sanitized = self._sanitize_filename(sanitized)
             return sanitized
-        elif context == self.CONTEXT_URL:
+        if context == self.CONTEXT_URL:
             # For URLs, validate and sanitize
             sanitized = self._sanitize_url(sanitized)
             return sanitized
-        return sanitized
-
-        elif context == self.CONTEXT_JSON:
+        if context == self.CONTEXT_JSON:
             # For JSON, escape special characters
             sanitized = self._sanitize_json(sanitized)
 

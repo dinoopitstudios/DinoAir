@@ -229,12 +229,6 @@ class LLMConfig:
         # New structure: models/{model_name}/{model_name}.gguf
         return base_path / name / f"{name}.gguf"
 
-        model_path=cast("str | None", getattr(model_config, "model_path", None)),
-        temperature=cast("float", getattr(model_config, "temperature", 0.3)),
-        max_tokens=cast("int", getattr(model_config, "max_tokens", 1024)),
-        auto_download=bool(getattr(model_config, "auto_download", False)),
-        )
-
 
 @dataclass
 class StreamingConfig:

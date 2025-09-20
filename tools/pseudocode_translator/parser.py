@@ -218,23 +218,7 @@ class ParserModule:
             blocks.append(''.join(current_block))
 
         return blocks
-            # Check for match statements (Python 3.10+)
-            elif re.match(r"^\s*match\s+.+:", line):
-                is_new_block = True
 
-            if is_new_block and current_block:
-                # Save current block
-                blocks.append("".join(current_block))
-                current_block = []
-
-            current_block.append(line)
-            prev_indent = current_indent
-
-        # Don't forget the last block
-        if current_block:
-            blocks.append("".join(current_block))
-
-        return blocks
     def _classify_block(self, block: str) -> BlockType:
         """
         Determine the type of a code block
