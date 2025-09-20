@@ -174,63 +174,32 @@ class ParserModule:
         in_multiline = False
         multiline_delimiter = None
 
-        for line in lines:
-            stripped = line.strip()
-            in_multiline, multiline_delimiter = self._update_multiline_state(
-                in_multiline, multiline_delimiter, stripped, line
-            )
+        def _update_multiline(stripped_line: str, full_line: str) -> None:
+            nonlocal in_multiline, multiline_delimiter
+            if not in_multiline:
+                if stripped_line.startswith(('"""', "'''")):
+                    in_multiline = True
+                    multiline_delimiter = stripped_line[:3]
+            elif multiline_delimiter and multiline_delimiter in full_line:
+                in_multiline = False
+                multiline_delimiter = None
 
-            indent_match = self._INDENT_PATTERN_RE.match(line)
-            current_indent = len(indent_match.group(0)) if indent_match else 0
-
-            if self._should_start_new_block(
-                in_multiline, line, stripped, current_indent, prev_indent
+        def _is_new_block(line: str, stripped_line: str, current_indent: int) -> bool:
+            if in_multiline:
+                return False
+            if (
+                self._DEF_RE.match(line)
+                or self._CLASS_RE.match(line)
+                or (self._IMPORT_RE.match(line) and current_indent == 0)
             ):
-                if current_block:
-                    blocks.append("".join(current_block))
-                    current_block = []
-            current_block.append(line)
-            prev_indent = current_indent
-
-        if current_block:
-            blocks.append("".join(current_block))
+                return True
+            if current_indent == 0 and prev_indent > 0:
+                return True
+            if current_indent < prev_indent - 4:
+                return True
+            return False
 
         return blocks
-
-    def _update_multiline_state(self, in_multiline, delimiter, _stripped_line, full_line):
-        """Determine if the parser is entering or exiting a multiline string block.
-
-        Args:
-            in_multiline (bool): Whether currently inside a multiline string.
-            delimiter (str or None): The string delimiter used for the multiline block.
-            stripped_line (str): The line content with leading/trailing whitespace removed.
-            full_line (str): The original line content.
-
-        Returns:
-            tuple: A pair (in_multiline, delimiter) indicating the updated state and current delimiter.
-        """
-        if not in_multiline and _stripped_line.startswith(('"""', "'''")):
-            return True, _stripped_line[:3]
-        if in_multiline and delimiter and delimiter in full_line:
-            return False, None
-        return in_multiline, delimiter
-
-    def _should_start_new_block(
-        self, in_multiline, line, stripped_line, current_indent, prev_indent
-    ):
-        if in_multiline:
-            return False
-        if (
-            self._DEF_RE.match(line)
-            or self._CLASS_RE.match(line)
-            or (self._IMPORT_RE.match(line) and current_indent == 0)
-        ):
-            return True
-        if current_indent == 0 and prev_indent > 0:
-            return True
-        if current_indent < prev_indent - 4:
-            return True
-        return False
 
     def _classify_block(self, block: str) -> BlockType:
         """
@@ -332,6 +301,7 @@ class ParserModule:
         Returns:
             The updated maximum indentation level for the block.
         """
+
         # Check for imports
         if self._IMPORT_RE.match(line):
             metadata["has_imports"] = True

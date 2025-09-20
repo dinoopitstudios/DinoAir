@@ -158,21 +158,34 @@ class EnhancedInputSanitizer:
         strict_mode: bool,
     ) -> str:
         """Dispatch to context-specific sanitizers."""
-        handlers = {
-            self.CONTEXT_HTML: self._sanitize_context_html,
-            self.CONTEXT_SQL: self._sanitize_context_sql,
-            self.CONTEXT_PLAIN: self._sanitize_context_plain,
-            self.CONTEXT_FILENAME: self._sanitize_context_filename,
-            self.CONTEXT_URL: self._sanitize_context_url,
-            self.CONTEXT_JSON: self._sanitize_context_json,
-        }
-        handler = handlers.get(context, self._sanitize_context_general)
-        return handler(sanitized, strict_mode)
 
-    def _sanitize_context_html(self, sanitized: str, strict_mode: bool) -> str:
-        if self.xss_protection.detect_xss_attempt(sanitized):
-            self.security_monitor.log_attack_attempt("XSS", sanitized)
-        return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
+        if context == self.CONTEXT_HTML:
+            if self.xss_protection.detect_xss_attempt(sanitized):
+                self.security_monitor.log_attack_attempt("XSS", sanitized)
+            return self.xss_protection.sanitize(sanitized, allow_html=not strict_mode)
+        if context == self.CONTEXT_SQL:
+            if self.sql_protection.detect_sql_injection(sanitized):
+                self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
+                if strict_mode:
+                    # In strict mode, reject SQL injection attempts
+                    raise ValueError("SQL injection attempt detected")
+            sanitized = self.sql_protection.sanitize_sql_input(sanitized)
+            return sanitized
+        if context == self.CONTEXT_PLAIN:
+            # For plain text, strip all HTML and dangerous content
+            sanitized = self.xss_protection.strip_tags(sanitized)
+            return sanitized
+        if context == self.CONTEXT_FILENAME:
+            # For filenames, apply strict rules
+            sanitized = self._sanitize_filename(sanitized)
+            return sanitized
+        if context == self.CONTEXT_URL:
+            # For URLs, validate and sanitize
+            sanitized = self._sanitize_url(sanitized)
+            return sanitized
+        if context == self.CONTEXT_JSON:
+            # For JSON, escape special characters
+            sanitized = self._sanitize_json(sanitized)
 
     def _sanitize_context_sql(self, sanitized: str, strict_mode: bool) -> str:
         if self.sql_protection.detect_sql_injection(sanitized):
