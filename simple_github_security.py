@@ -6,20 +6,20 @@ A simplified version that fetches security information using GitHub's REST API
 through PyGithub with correct method calls.
 """
 
+from datetime import datetime
 import json
 import os
 import sys
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import requests
 from github import Github, GithubException
+import requests
 
 
 class SimpleGitHubSecurityLoader:
     """Load security issues from GitHub repositories using REST API."""
 
-    def __init__(self, token: Optional[str] = None):
+    def __init__(self, token: str | None = None):
         """Initialize with GitHub token."""
         self.token = token or os.getenv("GITHUB_TOKEN")
         if not self.token:
@@ -38,7 +38,7 @@ class SimpleGitHubSecurityLoader:
 
             # Test authentication
             self.user = self.github.get_user()
-            print(f"✅ Authenticated as: {self.user.login}")
+            print("✅ GitHub authentication successful")
 
             # Setup for direct API calls
             self.headers = {
@@ -49,7 +49,7 @@ class SimpleGitHubSecurityLoader:
         except GithubException as e:
             raise ValueError(f"Failed to authenticate with GitHub: {e}")
 
-    def get_repository_info(self, repo_name: str) -> Dict[str, Any]:
+    def get_repository_info(self, repo_name: str) -> dict[str, Any]:
         """Get basic repository information."""
         try:
             repo = self.github.get_repo(repo_name)
@@ -66,11 +66,11 @@ class SimpleGitHubSecurityLoader:
                 "has_issues": repo.has_issues,
                 "security_and_analysis": self._get_security_features(repo_name),
             }
-        except GithubException as e:
-            print(f"❌ Error fetching repository info: {e}")
+        except GithubException:
+            print("❌ Error fetching repository info: GitHub API error")
             return {}
 
-    def _get_security_features(self, repo_name: str) -> Dict[str, Any]:
+    def _get_security_features(self, repo_name: str) -> dict[str, Any]:
         """Get security features status using direct API call."""
         try:
             url = f"https://api.github.com/repos/{repo_name}"
@@ -92,11 +92,11 @@ class SimpleGitHubSecurityLoader:
                         "dependabot_security_updates", {}
                     ).get("status", "unknown"),
                 }
-        except Exception as e:
-            print(f"⚠️  Could not fetch security features: {e}")
+        except Exception:
+            print("⚠️  Could not fetch security features: API error")
         return {}
 
-    def get_code_scanning_alerts(self, repo_name: str) -> List[Dict[str, Any]]:
+    def get_code_scanning_alerts(self, repo_name: str) -> list[dict[str, Any]]:
         """Get code scanning alerts using direct API call."""
         try:
             url = f"https://api.github.com/repos/{repo_name}/code-scanning/alerts"
@@ -112,11 +112,11 @@ class SimpleGitHubSecurityLoader:
             print(f"⚠️  Code scanning alerts: HTTP {response.status_code}")
             return []
 
-        except Exception as e:
-            print(f"❌ Error fetching code scanning alerts: {e}")
+        except Exception:
+            print("❌ Error fetching code scanning alerts: API error")
             return []
 
-    def get_secret_scanning_alerts(self, repo_name: str) -> List[Dict[str, Any]]:
+    def get_secret_scanning_alerts(self, repo_name: str) -> list[dict[str, Any]]:
         """Get secret scanning alerts using direct API call."""
         try:
             url = f"https://api.github.com/repos/{repo_name}/secret-scanning/alerts"
@@ -132,11 +132,11 @@ class SimpleGitHubSecurityLoader:
             print(f"⚠️  Secret scanning alerts: HTTP {response.status_code}")
             return []
 
-        except Exception as e:
-            print(f"❌ Error fetching secret scanning alerts: {e}")
+        except Exception:
+            print("❌ Error fetching secret scanning alerts: API error")
             return []
 
-    def get_dependabot_alerts(self, repo_name: str) -> List[Dict[str, Any]]:
+    def get_dependabot_alerts(self, repo_name: str) -> list[dict[str, Any]]:
         """Get Dependabot alerts using direct API call."""
         try:
             url = f"https://api.github.com/repos/{repo_name}/dependabot/alerts"
@@ -152,11 +152,11 @@ class SimpleGitHubSecurityLoader:
             print(f"⚠️  Dependabot alerts: HTTP {response.status_code}")
             return []
 
-        except Exception as e:
-            print(f"❌ Error fetching Dependabot alerts: {e}")
+        except Exception:
+            print("❌ Error fetching Dependabot alerts: API error")
             return []
 
-    def get_vulnerability_alerts(self, repo_name: str) -> List[Dict[str, Any]]:
+    def get_vulnerability_alerts(self, repo_name: str) -> list[dict[str, Any]]:
         """Get vulnerability alerts using PyGithub."""
         try:
             repo = self.github.get_repo(repo_name)
@@ -173,18 +173,18 @@ class SimpleGitHubSecurityLoader:
                             "timestamp": datetime.now().isoformat(),
                         }
                     )
-            except (GithubException, AttributeError) as e:
-                print(f"ℹ️  Vulnerability alerts not available or not enabled: {e}")
+            except (GithubException, AttributeError):
+                print("ℹ️  Vulnerability alerts not available or not enabled")
 
             return alerts
 
-        except GithubException as e:
-            print(f"❌ Error fetching vulnerability alerts: {e}")
+        except GithubException:
+            print("❌ Error fetching vulnerability alerts: API error")
             return []
 
-    def get_all_security_data(self, repo_name: str) -> Dict[str, Any]:
+    def get_all_security_data(self, repo_name: str) -> dict[str, Any]:
         """Get comprehensive security data for a repository."""
-        print(f"🔍 Fetching security data for {repo_name}...")
+        print("🔍 Fetching security data for repository...")
 
         # Get repository information
         repo_info = self.get_repository_info(repo_name)
@@ -215,14 +215,11 @@ class SimpleGitHubSecurityLoader:
         }
 
         # Print summary
-        print(f"\n📊 Security Summary for {repo_name}:")
+        print("\n📊 Security Summary:")
         print(
             f"   - Code Scanning Alerts: {security_data['summary']['total_code_scanning_alerts']}"
         )
-        # print(
-        #     f"   - Secret Scanning Alerts: "
-        #     f"{security_data['summary']['total_secret_scanning_alerts']}"
-        # )
+        # Note: Secret scanning alerts are available but not displayed for security reasons
         print(f"   - Dependabot Alerts: {security_data['summary']['total_dependabot_alerts']}")
         print(
             f"   - Vulnerability Alerts: {security_data['summary']['total_vulnerability_alerts']}"
@@ -230,7 +227,7 @@ class SimpleGitHubSecurityLoader:
 
         return security_data
 
-    def save_to_file(self, data: Dict[str, Any], filename: str = "security_data.json"):
+    def save_to_file(self, data: dict[str, Any], filename: str = "security_data.json"):
         """Save security data to a JSON file."""
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -252,8 +249,8 @@ def main():
 
         return security_data
 
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    except Exception:
+        print("❌ Error occurred during security data collection")
         sys.exit(1)
 
 
