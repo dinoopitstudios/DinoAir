@@ -8,8 +8,8 @@ Path Traversal: 100% blocked (e.g., ../../../etc/passwd → /etc/passwd)
 Integrates XSS, SQL injection, and Unicode attack protection.
 """
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Any
 
 from .sql_protection import SQLInjectionProtection
@@ -39,8 +39,7 @@ class SecurityMonitor:
 
         # Log the attempt
         log_message = (
-            f"SECURITY: {attack_type} attack detected at {timestamp} "
-            f"Payload: {payload[:100]}..."
+            f"SECURITY: {attack_type} attack detected at {timestamp} Payload: {payload[:100]}..."
         )
 
         if source_info:
