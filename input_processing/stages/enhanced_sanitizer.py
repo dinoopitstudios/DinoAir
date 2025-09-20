@@ -225,6 +225,8 @@ class EnhancedInputSanitizer:
         if self.sql_protection.detect_sql_injection(sanitized):
             self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
             sanitized = self.sql_protection.sanitize_sql_input(sanitized)
+        
+        return sanitized
 
         # Step 3: Final validation
         if (not sanitized or (strict_mode and sanitized != self.user_input)) and self.logger:
