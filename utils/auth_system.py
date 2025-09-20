@@ -12,20 +12,12 @@ This module implements enterprise-grade authentication and authorization includi
 
 from __future__ import annotations
 
-import asyncio
-import base64
-import hashlib
-import hmac
-import json
-import os
 import re
 import secrets
-import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
 
 try:
@@ -39,6 +31,7 @@ except ImportError:
     # Graceful fallback
     bcrypt = pyotp = qrcode = Image = None
     CRYPTO_AVAILABLE = False
+
 
 try:
     from fastapi import Depends, HTTPException, Request, status

@@ -5,7 +5,6 @@ DeepSource Coverage Setup Script
 Safely configure DeepSource code coverage reporting without exposing secrets.
 """
 
-import json
 import os
 import subprocess
 import sys
