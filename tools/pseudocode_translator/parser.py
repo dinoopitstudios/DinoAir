@@ -174,7 +174,6 @@ class ParserModule:
         in_multiline = False
         multiline_delimiter = None
 
-
         def _update_multiline(stripped_line: str, full_line: str) -> None:
             nonlocal in_multiline, multiline_delimiter
             if not in_multiline:
@@ -290,7 +289,6 @@ class ParserModule:
     def _process_line_metadata(
         self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int
     ) -> int:
-
         """
         Process a single line of code to extract metadata flags and track indentation.
 
