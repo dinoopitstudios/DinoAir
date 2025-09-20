@@ -14,6 +14,7 @@ from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import total_ordering
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,7 @@ class ProcessingMode(Enum):
     HYBRID = "hybrid"
 
 
+@total_ordering
 @dataclass
 class FileTask:
     """Represents a file processing task"""
@@ -44,6 +46,15 @@ class FileTask:
     def __lt__(self, other):
         """Priority comparison for queue ordering"""
         return self.priority > other.priority  # Higher priority first
+
+    def __eq__(self, other):
+        """Equality comparison based on file path and priority"""
+        if not isinstance(other, FileTask):
+            return NotImplemented
+        return self.file_path == other.file_path and self.priority == other.priority
+
+    def __hash__(self):
+        return hash((self.file_path, self.priority))
 
 
 @dataclass

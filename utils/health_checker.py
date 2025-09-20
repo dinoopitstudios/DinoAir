@@ -322,7 +322,7 @@ class HealthChecker:
                 details={"error": str(e)},
             )
 
-    @circuit_breaker(name="lmstudio")
+    @circuit_breaker(_name="lmstudio")
     async def check_lmstudio(
         self, name: str = "lmstudio", base_url: str = "http://localhost:1234"
     ) -> HealthCheck:

@@ -33,11 +33,8 @@ class DeepSourceCoverageSetup:
             print("\n💡 Your DSN should look like:")
             print("   https://f86b5205816f43d5a274d22d6232be60@app.deepsource.com")
             return False
-        else:
-            print(
-                f"✅ DEEPSOURCE_DSN found: {self.deepsource_dsn[:20]}...{self.deepsource_dsn[-10:]}"
-            )
-            return True
+        print(f"✅ DEEPSOURCE_DSN found: {self.deepsource_dsn[:20]}...{self.deepsource_dsn[-10:]}")
+        return True
 
     def install_deepsource_cli(self):
         """Install DeepSource CLI if not present."""
@@ -143,8 +140,8 @@ exclude_lines =
     raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
-    class .*\bProtocol\):
-    @(abc\.)?abstractmethod
+    class .*\\bProtocol\\):
+    @(abc\\.)?abstractmethod
 
 [html]
 directory = htmlcov
@@ -277,9 +274,9 @@ if __name__ == "__main__":
         with open(script_file, "w") as f:
             f.write(script_content)
 
-        # Make executable on Unix systems
+        # Make executable on Unix systems with secure permissions
         if os.name != "nt":
-            os.chmod(script_file, 0o755)
+            os.chmod(script_file, 0o700)  # Owner: read/write/execute, Group: none, Others: none
 
         print(f"✅ Created coverage script: {script_file}")
         return script_file

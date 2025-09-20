@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigInfo(TypedDict):
+    """Information about the configuration file including its path, existence, version, validation status, issues, and migration requirement."""
     path: str
     exists: bool
     version: str
@@ -43,14 +44,17 @@ class ConfigInfo(TypedDict):
 
 # Typed default factories to satisfy strict type checkers
 def _empty_str_modelconfig_dict() -> dict[str, "ModelConfig"]:
+    """Return an empty dictionary keyed by string with ModelConfig values."""
     return {}
 
 
 def _empty_str_any_dict() -> dict[str, Any]:
+    """Return an empty dictionary keyed by string with arbitrary values."""
     return {}
 
 
 def _empty_str_list() -> list[str]:
+    """Return an empty list of strings."""
     return []
 
 
@@ -153,8 +157,10 @@ class LLMConfig:
         Validate LLM configuration.
 
         Returns:
-            - Backward-compatible mode (strict=False when called by Config.validate): list[str] of errors
-            - New structured mode: {"errors": [...], "warnings": [...]} when used directly
+            - Backward-compatible mode (strict=False when called by Config.validate):
+              list[str] of errors
+            - New structured mode: {"errors": [...], "warnings": [...]}
+              when used directly
         """
         errors: list[str] = []
         warnings: list[str] = []
@@ -348,26 +354,20 @@ class StreamingConfig:
             errors.append("adaptive_max_chunk_size must be >= adaptive_min_chunk_size")
         if self.adaptive_target_latency_ms <= 0:
             errors.append("adaptive_target_latency_ms must be > 0")
-        if not (0.0 < self.adaptive_smoothing_alpha <= 1.0):
+        if not 0.0 < self.adaptive_smoothing_alpha <= 1.0:
             errors.append("adaptive_smoothing_alpha must be in (0.0, 1.0]")
         if self.adaptive_cooldown_chunks < 0:
             errors.append("adaptive_cooldown_chunks must be >= 0")
         if self.adaptive_hysteresis_pct < 0.0:
             errors.append("adaptive_hysteresis_pct must be >= 0.0")
 
-        # Warnings (non-fatal)
         if self.adaptive_hysteresis_pct > 0.5:
             warnings.append("adaptive_hysteresis_pct is high (> 0.5); may reduce responsiveness")
-        if self.adaptive_initial_chunk_size is not None:
-            if not (
-                self.adaptive_min_chunk_size
-                <= int(self.adaptive_initial_chunk_size)
-                <= self.adaptive_max_chunk_size
-            ):
-                warnings.append(
-                    "adaptive_initial_chunk_size will be clamped to "
-                    "[adaptive_min_chunk_size, adaptive_max_chunk_size] at runtime"
-                )
+        if self.adaptive_initial_chunk_size is not None and not self.adaptive_min_chunk_size <= int(self.adaptive_initial_chunk_size) <= self.adaptive_max_chunk_size:
+            warnings.append(
+                "adaptive_initial_chunk_size will be clamped to "
+                "[adaptive_min_chunk_size, adaptive_max_chunk_size] at runtime"
+            )
 
         result = {"errors": errors, "warnings": warnings}
 
@@ -377,7 +377,6 @@ class StreamingConfig:
 
             raise ConfigurationError(f"Invalid streaming configuration: {preview}")
 
-        # Backward-compatible behavior (legacy callers expect list[str] of errors)
         return result if strict else errors
 
 
@@ -390,7 +389,6 @@ class ExecutionConfig:
     process_pool_max_workers: int | None = (
         None  # None -> resolve at runtime to max(2, os.cpu_count() or 2)
     )
-    # {"parse_validate","parse_only","validate_only"}
     process_pool_target: str = "parse_validate"
 
     # Task constraints
@@ -413,7 +411,8 @@ class ExecutionConfig:
         allowed_targets = {"parse_validate", "parse_only", "validate_only"}
         if self.process_pool_target not in allowed_targets:
             errors.append(
-                f"process_pool_target must be one of {sorted(allowed_targets)}, got '{self.process_pool_target}'"
+                f"process_pool_target must be one of {sorted(allowed_targets)}, "
+                f"got '{self.process_pool_target}'"
             )
 
         # Timeouts and limits
@@ -433,7 +432,8 @@ class ExecutionConfig:
         # Max workers
         if self.process_pool_max_workers is not None and self.process_pool_max_workers < 1:
             errors.append(
-                f"process_pool_max_workers must be >= 1 when set, got {self.process_pool_max_workers}"
+                f"process_pool_max_workers must be >= 1 when set, got "
+                f"{self.process_pool_max_workers}"
             )
 
         result = {"errors": errors, "warnings": warnings}
@@ -449,6 +449,14 @@ class ExecutionConfig:
 
 
 @dataclass
+"""
+Configuration module for ASTCache used in pseudocode translator.
+
+This module provides the CacheConfig class for configuring and validating
+cache behavior such as eviction mode, size limits, TTL, memory usage,
+and persistence.
+"""
+
 class CacheConfig:
     """Cache configuration for ASTCache"""
 
@@ -459,13 +467,26 @@ class CacheConfig:
     persistent_path: str | None = None
     enable_compression: bool = True
 
-    def validate(self, strict: bool = False) -> dict[str, list[str]] | list[str]:
+    def validate(
+        self,
+        strict: bool = False
+    ) -> dict[str, list[str]] | list[str]:
+        """Validate cache configuration parameters.
+
+        Args:
+            strict (bool): If True, return both errors and warnings as a dict;
+                otherwise, return only the list of errors.
+
+        Returns:
+            dict[str, list[str]] | list[str]: Validation issues found in the configuration.
+        """
         errors: list[str] = []
         warnings: list[str] = []
 
         if self.eviction_mode not in {"lru", "lfu_lite"}:
             errors.append(
-                f"cache.eviction_mode must be one of ['lru', 'lfu_lite'], got '{self.eviction_mode}'"
+                f"cache.eviction_mode must be one of ['lru', 'lfu_lite'], got '"
+                f"{self.eviction_mode}'"
             )
         if self.max_size < 1:
             errors.append(f"cache.max_size must be >= 1, got {self.max_size}")
@@ -642,96 +663,104 @@ class Config:
         }
         return mapping.get(key)
 
-    def _coerce_override_value(self, path: str, raw: str) -> tuple[bool, Any]:
-        """Coerce raw env value to expected type with identical error logging."""
+    """
+    Configuration module for coercing override values.
 
-        # Helpers to preserve original warning messages
-        def _try_float(val: str, warn_msg: str) -> tuple[bool, Any]:
-            try:
-                return True, float(val)
-            except ValueError:
-                logger.warning(warn_msg)
-                return False, None
+    This module provides functionality to coerce environment variable
+    values to their expected types with consistent logging behavior.
+    """
+        def _coerce_override_value(self, path: str, raw: str) -> tuple[bool, Any]:
+            """Coerce raw env value to expected type with identical error logging."""
 
-        def _try_int(val: str, warn_msg: str) -> tuple[bool, Any]:
-            try:
-                return True, int(val)
-            except ValueError:
-                logger.warning(warn_msg)
-                return False, None
+            # Helpers to preserve original warning messages
+            def _try_float(val: str, warn_msg: str) -> tuple[bool, Any]:
+                """Try to convert a string to a float. Returns (True, float) on success; logs warning and returns (False, None) on failure."""
+                try:
+                    return True, float(val)
+                except ValueError:
+                    logger.warning(warn_msg)
+                    return False, None
 
-        truthy = ("true", "1", "yes", "on")
+            def _try_int(val: str, warn_msg: str) -> tuple[bool, Any]:
+                """Try to convert a string to an integer. Returns (True, int) on success; logs warning and returns (False, None) on failure."""
+                try:
+                    return True, int(val)
+                except ValueError:
+                    logger.warning(warn_msg)
+                    return False, None
 
-        coercers: dict[str, Callable[[str], tuple[bool, Any]]] = {
-            "llm.model_type": lambda v: (True, v),
-            "llm.temperature": lambda v: _try_float(v, f"Invalid temperature value from env: {v}"),
-            "llm.n_threads": lambda v: _try_int(v, f"Invalid threads value from env: {v}"),
-            "llm.n_gpu_layers": lambda v: _try_int(v, f"Invalid GPU layers value from env: {v}"),
-            "streaming.enabled": lambda v: (True, v.lower() in truthy),
-            "streaming.chunk_size": lambda v: _try_int(
-                v, f"Invalid chunk size value from env: {v}"
-            ),
-            "validate_imports": lambda v: (True, v.lower() in truthy),
-            "check_undefined_vars": lambda v: (True, v.lower() in truthy),
-            # Adaptive streaming overrides
-            "streaming.adaptive_chunking_enabled": lambda v: (
-                True,
-                v.lower() in truthy,
-            ),
-            "streaming.adaptive_target_latency_ms": lambda v: _try_int(
-                v, f"Invalid adaptive target ms from env: {v}"
-            ),
-            "streaming.adaptive_min_chunk_size": lambda v: _try_int(
-                v, f"Invalid adaptive min size from env: {v}"
-            ),
-            "streaming.adaptive_max_chunk_size": lambda v: _try_int(
-                v, f"Invalid adaptive max size from env: {v}"
-            ),
-            "streaming.adaptive_hysteresis_pct": lambda v: _try_float(
-                v, f"Invalid adaptive hysteresis from env: {v}"
-            ),
-            "streaming.adaptive_cooldown_chunks": lambda v: _try_int(
-                v, f"Invalid adaptive cooldown from env: {v}"
-            ),
-            "streaming.adaptive_smoothing_alpha": lambda v: _try_float(
-                v, f"Invalid adaptive alpha from env: {v}"
-            ),
-            "streaming.adaptive_initial_chunk_size": lambda v: _try_int(
-                v, f"Invalid adaptive initial size from env: {v}"
-            ),
-            # Execution/process pool coercers
-            "execution.process_pool_enabled": lambda v: (True, v.lower() in truthy),
-            "execution.process_pool_max_workers": lambda v: _try_int(
-                v, f"Invalid pool max workers value from env: {v}"
-            ),
-            "execution.process_pool_target": lambda v: (True, v),
-            "execution.process_pool_task_timeout_ms": lambda v: _try_int(
-                v, f"Invalid pool timeout ms value from env: {v}"
-            ),
-            "execution.process_pool_job_max_chars": lambda v: _try_int(
-                v, f"Invalid pool job max chars value from env: {v}"
-            ),
-            "execution.process_pool_retry_on_timeout": lambda v: (
-                True,
-                v.lower() in truthy,
-            ),
-            "execution.process_pool_retry_limit": lambda v: _try_int(
-                v, f"Invalid pool retry limit value from env: {v}"
-            ),
-            "execution.process_pool_start_method": lambda v: (True, v),
-            # Cache coercers
-            "cache.eviction_mode": lambda v: (True, v),
-            "cache.max_size": lambda v: _try_int(v, f"Invalid cache max size from env: {v}"),
-            "cache.ttl_seconds": lambda v: _try_int(v, f"Invalid cache ttl seconds from env: {v}"),
-            "cache.max_memory_mb": lambda v: _try_float(
-                v, f"Invalid cache max memory MB from env: {v}"
-            ),
-            "cache.persistent_path": lambda v: (True, v),
-            "cache.enable_compression": lambda v: (True, v.lower() in truthy),
-        }
+            truthy = ("true", "1", "yes", "on")
 
-        fn = coercers.get(path)
-        return fn(raw) if fn else (False, None)
+            coercers: dict[str, Callable[[str], tuple[bool, Any]]] = {
+                "llm.model_type": lambda v: (True, v),
+                "llm.temperature": lambda v: _try_float(v, f"Invalid temperature value from env: {v}"),
+                "llm.n_threads": lambda v: _try_int(v, f"Invalid threads value from env: {v}"),
+                "llm.n_gpu_layers": lambda v: _try_int(v, f"Invalid GPU layers value from env: {v}"),
+                "streaming.enabled": lambda v: (True, v.lower() in truthy),
+                "streaming.chunk_size": lambda v: _try_int(
+                    v, f"Invalid chunk size value from env: {v}"
+                ),
+                "validate_imports": lambda v: (True, v.lower() in truthy),
+                "check_undefined_vars": lambda v: (True, v.lower() in truthy),
+                # Adaptive streaming overrides
+                "streaming.adaptive_chunking_enabled": lambda v: (
+                    True,
+                    v.lower() in truthy,
+                ),
+                "streaming.adaptive_target_latency_ms": lambda v: _try_int(
+                    v, f"Invalid adaptive target ms from env: {v}"
+                ),
+                "streaming.adaptive_min_chunk_size": lambda v: _try_int(
+                    v, f"Invalid adaptive min size from env: {v}"
+                ),
+                "streaming.adaptive_max_chunk_size": lambda v: _try_int(
+                    v, f"Invalid adaptive max size from env: {v}"
+                ),
+                "streaming.adaptive_hysteresis_pct": lambda v: _try_float(
+                    v, f"Invalid adaptive hysteresis from env: {v}"
+                ),
+                "streaming.adaptive_cooldown_chunks": lambda v: _try_int(
+                    v, f"Invalid adaptive cooldown from env: {v}"
+                ),
+                "streaming.adaptive_smoothing_alpha": lambda v: _try_float(
+                    v, f"Invalid adaptive alpha from env: {v}"
+                ),
+                "streaming.adaptive_initial_chunk_size": lambda v: _try_int(
+                    v, f"Invalid adaptive initial size from env: {v}"
+                ),
+                # Execution/process pool coercers
+                "execution.process_pool_enabled": lambda v: (True, v.lower() in truthy),
+                "execution.process_pool_max_workers": lambda v: _try_int(
+                    v, f"Invalid pool max workers value from env: {v}"
+                ),
+                "execution.process_pool_target": lambda v: (True, v),
+                "execution.process_pool_task_timeout_ms": lambda v: _try_int(
+                    v, f"Invalid pool timeout ms value from env: {v}"
+                ),
+                "execution.process_pool_job_max_chars": lambda v: _try_int(
+                    v, f"Invalid pool job max chars value from env: {v}"
+                ),
+                "execution.process_pool_retry_on_timeout": lambda v: (
+                    True,
+                    v.lower() in truthy,
+                ),
+                "execution.process_pool_retry_limit": lambda v: _try_int(
+                    v, f"Invalid pool retry limit value from env: {v}"
+                ),
+                "execution.process_pool_start_method": lambda v: (True, v),
+                # Cache coercers
+                "cache.eviction_mode": lambda v: (True, v),
+                "cache.max_size": lambda v: _try_int(v, f"Invalid cache max size from env: {v}"),
+                "cache.ttl_seconds": lambda v: _try_int(v, f"Invalid cache ttl seconds from env: {v}"),
+                "cache.max_memory_mb": lambda v: _try_float(
+                    v, f"Invalid cache max memory MB from env: {v}"
+                ),
+                "cache.persistent_path": lambda v: (True, v),
+                "cache.enable_compression": lambda v: (True, v.lower() in truthy),
+            }
+
+            fn = coercers.get(path)
+            return fn(raw) if fn else (False, None)
 
     def _get_value_by_path(self, path: str) -> Any:
         """Read current config value by dotted path."""
@@ -815,6 +844,11 @@ class ConfigManager:
 
     @staticmethod
     def _truthy_env(name: str) -> bool:
+        """Return True if the environment variable with the given name is truthy.
+
+        Retrieves the environment variable's value and returns True if it is non-empty
+        and its stripped, lowercase representation is one of {"1", "true", "yes", "on"}.
+        """
         val = os.getenv(name)
         return bool(val) and val.strip().lower() in {"1", "true", "yes", "on"}
 
@@ -945,7 +979,7 @@ class ConfigManager:
                 if "version" not in data or data["version"] != config.version:
                     old_ver = data.get("version", "1.0")
                     logger.info(
-                        f"Upgrading configuration from version {old_ver} to {config.version}"
+                        "Upgrading configuration from version %s to %s", old_ver, config.version
                     )
                     ConfigManager._upgrade_config(config, old_ver)
 
@@ -956,149 +990,158 @@ class ConfigManager:
             logger.info("No configuration file found, using defaults")
 
         # 3) Apply environment overrides last so env always wins
-        config.apply_env_overrides()
+    """Pseudocode translator configuration management module.
 
-        # Strictness gating via env flag (lenient opt-out)
-        # If PSEUDOCODE_LENIENT_CONFIG in {"1","true","yes"}, downgrade strict to False
-        strict_default = not ConfigManager._truthy_env("PSEUDOCODE_LENIENT_CONFIG")
+    This module provides functionality for loading, saving, and interactively creating
+    configuration for the pseudocode translator, including utilities for prompting user input.
+    """
+            config.apply_env_overrides()
 
-        # Validate and fail-fast on critical invalids
-        mgr = ConfigManager()
-        result = mgr._validate_all(config, strict=strict_default)
+            # Strictness gating via env flag (lenient opt-out)
+            # If PSEUDOCODE_LENIENT_CONFIG in {"1","true","yes"}, downgrade strict to False
+            strict_default = not ConfigManager._truthy_env("PSEUDOCODE_LENIENT_CONFIG")
 
-        # Log warnings when present (do not abort on warnings)
-        for w in result.get("warnings", []):
-            logger.warning("Config warning: %s", w)
+            # Validate and fail-fast on critical invalids
+            mgr = ConfigManager()
+            result = mgr._validate_all(config, strict=strict_default)
 
-        return config
+            # Log warnings when present (do not abort on warnings)
+            for w in result.get("warnings", []):
+                logger.warning("Config warning: %s", w)
 
-    @staticmethod
-    def save(config: Config, path: str | Path | None = None):
-        """Save configuration to file"""
-        config_path = Path(path) if path else ConfigManager.DEFAULT_CONFIG_PATH
+            return config
 
-        # Ensure directory exists
-        config_path.parent.mkdir(parents=True, exist_ok=True)
+        @staticmethod
+        def save(config: Config, path: str | Path | None = None):
+            """Save configuration to file."""
+            config_path = Path(path) if path else ConfigManager.DEFAULT_CONFIG_PATH
 
-        # Save based on file extension
-        if "../" in str(config_path) or "..\\" in str(config_path):
-            raise Exception("Invalid file path")
-        with open(config_path, "w") as f:
-            if config_path.suffix in [".yaml", ".yml"]:
-                yaml.dump(config.to_dict(), f, default_flow_style=False, sort_keys=False)
-            else:
-                json.dump(config.to_dict(), f, indent=2)
+            # Ensure directory exists
+            config_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info("Configuration saved to %s", config_path)
+            # Save based on file extension
+            if "../" in str(config_path) or "..\\" in str(config_path):
+                raise Exception("Invalid file path")
+            with open(config_path, "w") as f:
+                if config_path.suffix in [".yaml", ".yml"]:
+                    yaml.dump(config.to_dict(), f, default_flow_style=False, sort_keys=False)
+                else:
+                    json.dump(config.to_dict(), f, indent=2)
 
-    @staticmethod
-    def _upgrade_config(config: Config, old_version: str):
-        """Simple config upgrade logic"""
-        # Version 1.0 -> 3.0: Move flat settings to nested structure
-        if old_version in {"1.0", "2.0"} and not config.llm.models:
-            config.llm.models[config.llm.model_type] = ModelConfig(
-                name=config.llm.model_type,
-                temperature=config.llm.temperature,
-                max_tokens=config.llm.max_tokens,
-            )
+            logger.info("Configuration saved to %s", config_path)
 
-    @staticmethod
-    def create_wizard() -> Config:
-        """Interactive configuration wizard with validation and non-interactive safe defaults."""
+        @staticmethod
+        def _upgrade_config(config: Config, old_version: str):
+            """Simple config upgrade logic."""
+            # Version 1.0 -> 3.0: Move flat settings to nested structure
+            if old_version in {"1.0", "2.0"} and not config.llm.models:
+                config.llm.models[config.llm.model_type] = ModelConfig(
+                    name=config.llm.model_type,
+                    temperature=config.llm.temperature,
+                    max_tokens=config.llm.max_tokens,
+                )
 
-        def safe_input(prompt: str) -> str:
-            with suppress(EOFError):
-                return input(prompt)
-            return ""
+        @staticmethod
+        def create_wizard() -> Config:
+            """Interactive configuration wizard with validation and non-interactive safe defaults."""
 
-        def prompt_int(
-            prompt: str,
-            default: int,
-            min_val: int | None = None,
-            max_val: int | None = None,
-        ) -> int:
-            raw = safe_input(prompt).strip()
-            if not raw:
-                return default
-            try:
-                val = int(raw)
-            except ValueError:
-                return default
-            if min_val is not None and val < min_val:
-                return min_val
-            if max_val is not None and val > max_val:
-                return max_val
-            return val
+            def safe_input(prompt: str) -> str:
+                """Read user input safely, returning an empty string on EOF or error."""
+                with suppress(EOFError):
+                    return input(prompt)
+                return ""
 
-        def prompt_float(
-            prompt: str,
-            default: float,
-            min_val: float | None = None,
-            max_val: float | None = None,
-        ) -> float:
-            raw = safe_input(prompt).strip()
-            if not raw:
-                return default
-            try:
-                val = float(raw)
-            except ValueError:
-                return default
-            if min_val is not None and val < min_val:
-                return min_val
-            if max_val is not None and val > max_val:
-                return max_val
-            return val
+            def prompt_int(
+                prompt: str,
+                default: int,
+                min_val: int | None = None,
+                max_val: int | None = None,
+            ) -> int:
+                """Prompt the user for an integer, using default on invalid input and enforcing optional bounds."""
+                raw = safe_input(prompt).strip()
+                if not raw:
+                    return default
+                try:
+                    val = int(raw)
+                except ValueError:
+                    return default
+                if min_val is not None and val < min_val:
+                    return min_val
+                if max_val is not None and val > max_val:
+                    return max_val
+                return val
 
-        def prompt_yes_no(prompt: str, default: bool) -> bool:
-            default_str = "y" if default else "n"
-            raw = safe_input(f"{prompt} (y/n) [{default_str}]: ").strip().lower()
-            return (raw or default_str).startswith("y")
+            def prompt_float(
+                prompt: str,
+                default: float,
+                min_val: float | None = None,
+                max_val: float | None = None,
+            ) -> float:
+                """Prompt the user for a float, using default on invalid input and enforcing optional bounds."""
+                raw = safe_input(prompt).strip()
+                if not raw:
+                    return default
+                try:
+                    val = float(raw)
+                except ValueError:
+                    return default
+                if min_val is not None and val < min_val:
+                    return min_val
+                if max_val is not None and val > max_val:
+                    return max_val
+                return val
 
-        # Non-interactive environments: return sensible defaults without prompting
-        is_tty = True
-        with suppress(Exception):
-            is_tty = bool(getattr(sys.stdin, "isatty", lambda: False)())
-        if not is_tty:
-            return ConfigManager.create_profile(ConfigProfile.DEVELOPMENT)
+            def prompt_yes_no(prompt: str, default: bool) -> bool:
+                """Prompt the user for a yes/no question, returning True for yes and False for no, with a default."""
+                default_str = "y" if default else "n"
+                raw = safe_input(f"{prompt} (y/n) [{default_str}]: ").strip().lower()
+                return (raw or default_str).startswith("y")
 
-        # Profile selection
+            # Non-interactive environments: return sensible defaults without prompting
+            is_tty = True
+            with suppress(Exception):
+                is_tty = bool(getattr(sys.stdin, "isatty", lambda: False)())
+            if not is_tty:
+                return ConfigManager.create_profile(ConfigProfile.DEVELOPMENT)
 
-        choice = safe_input("\nEnter choice [1-4] (default: 1): ").strip() or "1"
+            # Profile selection
 
-        profile_map = {
-            "1": ConfigProfile.DEVELOPMENT,
-            "2": ConfigProfile.PRODUCTION,
-            "3": ConfigProfile.TESTING,
-            "4": ConfigProfile.CUSTOM,
-        }
-        profile = profile_map.get(choice, ConfigProfile.DEVELOPMENT)
-        config = ConfigManager.create_profile(profile)
+            choice = safe_input("\nEnter choice [1-4] (default: 1): ").strip() or "1"
 
-        if profile == ConfigProfile.CUSTOM:
-            default_model = config.llm.model_type
-            model_type_raw = safe_input(f"Model type [{default_model}]: ").strip()
-            config.llm.model_type = model_type_raw or default_model
+            profile_map = {
+                "1": ConfigProfile.DEVELOPMENT,
+                "2": ConfigProfile.PRODUCTION,
+                "3": ConfigProfile.TESTING,
+                "4": ConfigProfile.CUSTOM,
+            }
+            profile = profile_map.get(choice, ConfigProfile.DEVELOPMENT)
+            config = ConfigManager.create_profile(profile)
 
-            config.llm.n_threads = prompt_int(
-                f"CPU threads [{config.llm.n_threads}] (1-32): ",
-                config.llm.n_threads,
-                1,
-                32,
-            )
+            if profile == ConfigProfile.CUSTOM:
+                default_model = config.llm.model_type
+                model_type_raw = safe_input(f"Model type [{default_model}]: ").strip()
+                config.llm.model_type = model_type_raw or default_model
 
-            config.llm.n_gpu_layers = prompt_int(
-                f"GPU layers (0 for CPU only) [{config.llm.n_gpu_layers}] (0-100): ",
-                config.llm.n_gpu_layers,
-                0,
-                100,
-            )
+                config.llm.n_threads = prompt_int(
+                    f"CPU threads [{config.llm.n_threads}] (1-32): ",
+                    config.llm.n_threads,
+                    1,
+                    32,
+                )
 
-            config.llm.temperature = prompt_float(
-                f"Temperature (0.0-2.0) [{config.llm.temperature}]: ",
-                config.llm.temperature,
-                0.0,
-                2.0,
-            )
+                config.llm.n_gpu_layers = prompt_int(
+                    f"GPU layers (0 for CPU only) [{config.llm.n_gpu_layers}] (0-100): ",
+                    config.llm.n_gpu_layers,
+                    0,
+                    100,
+                )
+
+                config.llm.temperature = prompt_float(
+                    f"Temperature (0.0-2.0) [{config.llm.temperature}]: ",
+                    config.llm.temperature,
+                    0.0,
+                    2.0,
+                )
 
             config.use_type_hints = prompt_yes_no("Use type hints?", config.use_type_hints)
             config.validate_imports = prompt_yes_no("Validate imports?", config.validate_imports)
@@ -1301,10 +1344,19 @@ def validate_config(config: TranslatorConfig) -> list[str]:
 
 # Stub classes for backward compatibility
 @dataclass
+"""Module for configuring prompt templates in the pseudocode translator tool.
+
+This module defines PromptConfig, which manages the formatting of user instructions
+and code refinement prompts to ensure consistency in prompt generation."""
+
 class PromptConfig:
     """Configuration for prompt templates (backward compatibility)"""
 
-    system_prompt: str = "You are an expert Python programmer. Your task is to convert English instructions into clean, efficient Python code."
+    system_prompt: str = (
+        "You are an expert Python programmer."
+        " Your task is to convert English instructions"
+        " into clean, efficient Python code."
+    )
     instruction_template: str = "Convert: {instruction}"
     refinement_template: str = "Fix: {code}"
     code_style: str = "pep8"
@@ -1312,9 +1364,25 @@ class PromptConfig:
     include_docstrings: bool = True
 
     def format_instruction(self, instruction: str, context: str | None = None) -> str:
+        """Format the given instruction by applying it to the instruction template.
+
+        Parameters:
+            instruction (str): The user instruction to format.
+            context (str | None): Optional additional context for formatting.
+
+        Returns:
+            str: The formatted instruction prompt."""
         return self.instruction_template.format(instruction=instruction)
 
     def format_refinement(self, code: str, error: str) -> str:
+        """Format the given code refinement prompt by applying it to the refinement template.
+
+        Parameters:
+            code (str): The code snippet to refine.
+            error (str): Description of the error or issue to fix.
+
+        Returns:
+            str: The formatted refinement prompt."""
         return self.refinement_template.format(code=code)
 
 

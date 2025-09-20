@@ -400,7 +400,6 @@ class ModelFactory:
 
         # Otherwise, build chain based on priority
         fallbacks = []
-        failed_priority = ModelPriority.LOW
 
         # Get failed model priority (if it exists in registry)
         if failed_model in cls._registry:
@@ -490,13 +489,6 @@ class ModelFactory:
         if isinstance(tps, (int, float)):
             return float(tps)
         return 0.0
-
-        if not candidates:
-            return None
-
-        # Rank: streaming match (if required), quality, TPS desc, name asc for stability
-        candidates.sort(key=lambda x: (-x[0], -x[1], -x[2], x[3]))
-        return candidates[0][3]
 
     @classmethod
     def discover_models(cls, package_path: Path | None = None) -> int:

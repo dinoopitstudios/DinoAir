@@ -21,76 +21,74 @@ def generate_description_from_name(name: str) -> str:
     if "tool" in name.lower():
         if name.startswith("get_"):
             return f"Get {' '.join(words[1:]).lower()}."
-        elif name.startswith("create_"):
+        if name.startswith("create_"):
             return f"Create {' '.join(words[1:]).lower()}."
-        elif name.startswith("list_"):
+        if name.startswith("list_"):
             return f"List {' '.join(words[1:]).lower()}."
-        elif name.startswith("search_"):
+        if name.startswith("search_"):
             return f"Search {' '.join(words[1:]).lower()}."
-        elif name.startswith("update_"):
+        if name.startswith("update_"):
             return f"Update {' '.join(words[1:]).lower()}."
-        elif name.startswith("delete_"):
+        if name.startswith("delete_"):
             return f"Delete {' '.join(words[1:]).lower()}."
-        else:
-            return f"Tool function for {' '.join(words).lower()}."
+        return f"Tool function for {' '.join(words).lower()}."
 
     # Standard patterns
     if name.startswith("get_"):
         return f"Get {' '.join(words[1:]).lower()}."
-    elif name.startswith("set_"):
+    if name.startswith("set_"):
         return f"Set {' '.join(words[1:]).lower()}."
-    elif name.startswith("create_"):
+    if name.startswith("create_"):
         return f"Create {' '.join(words[1:]).lower()}."
-    elif name.startswith("delete_"):
+    if name.startswith("delete_"):
         return f"Delete {' '.join(words[1:]).lower()}."
-    elif name.startswith("update_"):
+    if name.startswith("update_"):
         return f"Update {' '.join(words[1:]).lower()}."
-    elif name.startswith("list_"):
+    if name.startswith("list_"):
         return f"List {' '.join(words[1:]).lower()}."
-    elif name.startswith("search_"):
+    if name.startswith("search_"):
         return f"Search {' '.join(words[1:]).lower()}."
-    elif name.startswith("find_"):
+    if name.startswith("find_"):
         return f"Find {' '.join(words[1:]).lower()}."
-    elif name.startswith("add_"):
+    if name.startswith("add_"):
         return f"Add {' '.join(words[1:]).lower()}."
-    elif name.startswith("remove_"):
+    if name.startswith("remove_"):
         return f"Remove {' '.join(words[1:]).lower()}."
-    elif name.startswith("process_"):
+    if name.startswith("process_"):
         return f"Process {' '.join(words[1:]).lower()}."
-    elif name.startswith("handle_"):
+    if name.startswith("handle_"):
         return f"Handle {' '.join(words[1:]).lower()}."
-    elif name.startswith("validate_"):
+    if name.startswith("validate_"):
         return f"Validate {' '.join(words[1:]).lower()}."
-    elif name.startswith("parse_"):
+    if name.startswith("parse_"):
         return f"Parse {' '.join(words[1:]).lower()}."
-    elif name.startswith("format_"):
+    if name.startswith("format_"):
         return f"Format {' '.join(words[1:]).lower()}."
-    elif name.startswith("render_"):
+    if name.startswith("render_"):
         return f"Render {' '.join(words[1:]).lower()}."
-    elif name.startswith("build_"):
+    if name.startswith("build_"):
         return f"Build {' '.join(words[1:]).lower()}."
-    elif name.startswith("execute_"):
+    if name.startswith("execute_"):
         return f"Execute {' '.join(words[1:]).lower()}."
-    elif name.startswith("run_"):
+    if name.startswith("run_"):
         return f"Run {' '.join(words[1:]).lower()}."
-    elif name.startswith("start_"):
+    if name.startswith("start_"):
         return f"Start {' '.join(words[1:]).lower()}."
-    elif name.startswith("stop_"):
+    if name.startswith("stop_"):
         return f"Stop {' '.join(words[1:]).lower()}."
-    elif name.startswith("init"):
+    if name.startswith("init"):
         return f"Initialize {' '.join(words[1:]).lower() if len(words) > 1 else 'the instance'}."
-    elif name.startswith("setup"):
+    if name.startswith("setup"):
         return f"Set up {' '.join(words[1:]).lower()}."
-    elif name.startswith("cleanup"):
+    if name.startswith("cleanup"):
         return f"Clean up {' '.join(words[1:]).lower()}."
-    else:
-        # Generic description
-        words = [w.lower() for w in words]
-        if words:
-            words[0] = words[0].capitalize()
-            return f"{' '.join(words)}."
-        else:
-            return "TODO: Add description."
+
+    # Generic description
+    words = [w.lower() for w in words]
+    if words:
+        words[0] = words[0].capitalize()
+        return f"{' '.join(words)}."
+    return "TODO: Add description."
 
 
 def generate_function_docstring(name: str, args: list, has_return: bool, indent: int) -> str:

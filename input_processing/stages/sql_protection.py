@@ -153,43 +153,42 @@ class SQLInjectionProtection:
             return True
         if SQLInjectionProtection._excessive_sql_keywords(text):
             return True
-            if SQLInjectionProtection._contains_sql_operator(text):
-                return True
-            if SQLInjectionProtection._matches_sql_patterns(text):
-                return True
-            if SQLInjectionProtection._contains_hex_encoded_sql(text):
-                return True
-            if SQLInjectionProtection._has_string_concat_in_sql_context(text):
-                return True
-            return False
+        if SQLInjectionProtection._contains_sql_operator(text):
+            return True
+        if SQLInjectionProtection._matches_sql_patterns(text):
+            return True
+        if SQLInjectionProtection._contains_hex_encoded_sql(text):
+            return True
+        if SQLInjectionProtection._has_string_concat_in_sql_context(text):
+            return True
+        return False
 
-        @staticmethod
-        def sanitize_sql_input(text: str) -> str:
-            """Sanitize input text to mitigate SQL injection by removing comments, escaping quotes, and filtering dangerous characters."""
-            if not text:
-                return text
-
-            # Remove SQL comments
-            text = re.sub(r"--.*$", "", text, flags=re.MULTILINE)
-            text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
-
-            # Escape single quotes (double them for SQL)
-            text = text.replace("'", "''")
-
-            # Remove/escape other dangerous characters
-            dangerous_chars = {
-                ";": "",  # Remove semicolons
-                "\\": "\\\\",  # Escape backslashes
-                "\x00": "",  # Remove null bytes
-                "\n": " ",  # Replace newlines with spaces
-                "\r": " ",  # Replace carriage returns
-                "\x1a": "",  # Remove SUB character
-                '"': '""',  # Escape double quotes
-            }
-
-            for char, replacement in dangerous_chars.items():
-                text = text.replace(char, replacement)
+    @staticmethod
+    def sanitize_sql_input(text: str) -> str:
+        """Sanitize input text to mitigate SQL injection by removing comments, escaping quotes, and filtering dangerous characters."""
+        if not text:
             return text
+
+        # Remove SQL comments
+        text = re.sub(r"--.*$", "", text, flags=re.MULTILINE)
+        text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
+        # Escape single quotes (double them for SQL)
+        text = text.replace("'", "''")
+
+        # Remove/escape other dangerous characters
+        dangerous_chars = {
+            ";": "",  # Remove semicolons
+            "\\": "\\\\",  # Escape backslashes
+            "\x00": "",  # Remove null bytes
+            "\n": " ",  # Replace newlines with spaces
+            "\r": " ",  # Replace carriage returns
+            "\x1a": "",  # Remove SUB character
+            '"': '""',  # Escape double quotes
+        }
+
+        for char, replacement in dangerous_chars.items():
+            text = text.replace(char, replacement)
 
         # Remove any remaining control characters
         text = re.sub(r"[\x00-\x1f\x7f]", "", text)
