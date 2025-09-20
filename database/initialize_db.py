@@ -461,8 +461,7 @@ def _get_default_user_data_directory() -> Path:
     def get_default_root_dir() -> Path:
         if os.name == "nt":
             return Path(os.path.expanduser("~/AppData/Local")).expanduser().resolve()
-        else:
-            return Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
+        return Path(os.path.expanduser("~/.local/share")).expanduser().resolve()
 
     # Helper to determine if the resolved root directory is safe
     def is_safe_user_root(path: Path) -> bool:
@@ -548,11 +547,10 @@ def _get_default_user_data_directory() -> Path:
         user_dir = Path(user_data_path).expanduser().resolve()
         if is_path_within(root_dir, user_dir):
             return user_dir
-        else:
-            logging.warning(
-                f"Rejected DINOAIR_USER_DATA outside of permitted root '{root_dir}': '{user_dir}'"
-            )
-            # Fall through to default construction
+        logging.warning(
+            f"Rejected DINOAIR_USER_DATA outside of permitted root '{root_dir}': '{user_dir}'"
+        )
+        # Fall through to default construction
 
     # For tests, always use temp directory
     if os.environ.get("PYTEST_CURRENT_TEST"):

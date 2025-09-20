@@ -353,3 +353,12 @@ $RECYCLE.BIN/
 *.lnk
 test-deepsource-config.ps1
 DEEPSOURCE_FIXES.md
+
+# Security and credentials
+*.token
+*_security_issues.json
+github_token.txt
+
+# DeepSource coverage artifacts
+*.lcov
+.nyc_output/

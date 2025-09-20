@@ -21,9 +21,7 @@ except ImportError:
 
 
 class ParserModule:
-    """
-    Main parser class that processes mixed English/Python pseudocode
-    """
+    """Main parser class that processes mixed English/Python pseudocode"""
 
     # Pre-compiled regex patterns for better performance
     _PYTHON_KEYWORDS_RE = re.compile(
@@ -35,7 +33,7 @@ class ParserModule:
     _PYTHON_DELIMITERS_RE = re.compile(r"[\(\)\[\]\{\}\,\:\;]")
     _INDENT_PATTERN_RE = re.compile(r"^[ \t]*")
     _COMMENT_PATTERN_RE = re.compile(r"^\s*#.*$")
-    _DOCSTRING_PATTERN_RE = re.compile(r'^\s*["\'][\"\'][\"\'].*["\'][\"\'][\"\']')
+    _DOCSTRING_PATTERN_RE = re.compile(r'^\s*["\']["\']["\'].*["\']["\']["\']')
 
     # Additional pre-compiled patterns used in hot paths
     _FUNCTION_CALL_RE = re.compile(r"\w+\s*\(.*\)")
@@ -189,8 +187,10 @@ class ParserModule:
         def _is_new_block(line: str, stripped_line: str, current_indent: int) -> bool:
             if in_multiline:
                 return False
-            if self._DEF_RE.match(line) or self._CLASS_RE.match(line) or (
-                self._IMPORT_RE.match(line) and current_indent == 0
+            if (
+                self._DEF_RE.match(line)
+                or self._CLASS_RE.match(line)
+                or (self._IMPORT_RE.match(line) and current_indent == 0)
             ):
                 return True
             if current_indent == 0 and prev_indent > 0:
@@ -199,42 +199,8 @@ class ParserModule:
                 return True
             return False
 
-        for line in lines:
-            stripped = line.strip()
-            _update_multiline(stripped, line)
-
-            indent_match = self._INDENT_PATTERN_RE.match(line)
-            current_indent = len(indent_match.group(0)) if indent_match else 0
-
-            if _is_new_block(line, stripped, current_indent):
-                if current_block:
-                    blocks.append(''.join(current_block))
-                    current_block = []
-
-            current_block.append(line)
-            prev_indent = current_indent
-
-        if current_block:
-            blocks.append(''.join(current_block))
-
         return blocks
-            # Check for match statements (Python 3.10+)
-            elif re.match(r"^\s*match\s+.+:", line):
-                is_new_block = True
 
-            if is_new_block and current_block:
-                # Save current block
-                blocks.append("".join(current_block))
-                current_block = []
-
-            current_block.append(line)
-            prev_indent = current_indent
-
-        # Don't forget the last block
-        if current_block:
-            blocks.append("".join(current_block))
-
-        return blocks
     def _classify_block(self, block: str) -> BlockType:
         """
         Determine the type of a code block
@@ -320,7 +286,22 @@ class ParserModule:
         self._finalize_metadata(metadata, block)
         return metadata
 
-    def _process_line_metadata(self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int) -> int:
+    def _process_line_metadata(
+        self, line: str, metadata: dict[str, Any], indent_chars: set[str], current_max_indent: int
+    ) -> int:
+        """
+        Process a single line of code to extract metadata flags and track indentation.
+
+        Args:
+            line: A single line from the code block.
+            metadata: Dictionary of metadata being built.
+            indent_chars: Set collecting all indentation characters encountered.
+            current_max_indent: Current maximum indentation level.
+
+        Returns:
+            The updated maximum indentation level for the block.
+        """
+
         # Check for imports
         if self._IMPORT_RE.match(line):
             metadata["has_imports"] = True
@@ -348,6 +329,16 @@ class ParserModule:
         return current_max_indent
 
     def _finalize_metadata(self, metadata: dict[str, Any], block: str) -> None:
+        """
+        Finalize metadata by assessing docstrings, completeness, and indentation details.
+
+        Args:
+            metadata: The metadata dictionary collected so far.
+            block: The full text block that was analyzed.
+
+        Returns:
+            None. Updates metadata in place.
+        """
         # Check for docstring
         if self._DOCSTRING_RE.search(block):
             metadata["has_docstring"] = True
@@ -355,6 +346,16 @@ class ParserModule:
         # Determine completeness
         if not block.strip().endswith(":"):
             metadata["likely_complete"] = False
+
+        # Split block into lines and determine indentation characters and max indent
+        lines = block.splitlines()
+        indent_chars = set()
+        max_indent = 0
+        for line in lines:
+            leading = line[: len(line) - len(line.lstrip())]
+            if leading:
+                indent_chars.update(leading)
+                max_indent = max(max_indent, len(leading))
 
         # Determine indentation type
         if " " in indent_chars and "\t" not in indent_chars:

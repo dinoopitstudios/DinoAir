@@ -22,11 +22,10 @@ exclude_patterns = [
   "coverage/**",
   "docs/_build/**",
   "*.min.js",
-  "*.min.css",
-  "dinoair_test_files_archive.zip"
+  "*.min.css"
 ]
 
-# Python analyzer - should come first
+# Python analyzer
 [[analyzers]]
 name = "python"
 
@@ -44,19 +43,6 @@ name = "javascript"
     "browser",
     "nodejs"
   ]
-
-# Security analyzer for secrets detection
-[[analyzers]]
-
-name = "test-coverage"
-
-[[analyzers]]
-name = "python"
-
-  [analyzers.meta]
-  runtime_version = "3.x.x"
-  max_line_length = 100
-
 
 # Test coverage analyzer
 [[analyzers]]

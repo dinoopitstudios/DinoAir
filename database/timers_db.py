@@ -31,19 +31,18 @@ class TimersDatabase:
         start_time: datetime,
         end_time: datetime,
         elapsed_seconds: float,
-    ):
+    ) -> dict[str, Any]:
         """Create log.
-        
+
         Args:
             task_name: TODO: Add description
             start_time: TODO: Add description
             end_time: TODO: Add description
             elapsed_seconds: TODO: Add description
-            
+
         Returns:
             TODO: Add return description
         """
-    ) -> dict[str, Any]:
         try:
             with self.db_manager.get_timers_connection() as conn:
                 cursor = conn.cursor()
