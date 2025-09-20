@@ -110,17 +110,13 @@ class WatchdogCommandHandler:
             metrics = self.watchdog.get_current_metrics()
 
             if metrics:
-                status_lines = ["📊 **Watchdog Status**\n"]
-                status_lines.append(
-                    f"**Status:** {'🟢 Running' if self.watchdog.monitoring else '🔴 Stopped'}"
-                )
-                status_lines.append(
-                    f"**VRAM:** {metrics['vram_percent']:.1f}% ({metrics['vram_used']:.1f}/{metrics['vram_total']:.1f} GB)"
-                )
-                status_lines.append(
-                    f"**RAM:** {metrics['ram_percent']:.1f}% ({metrics['ram_used']:.1f}/{metrics['ram_total']:.1f} GB)"
-                )
-                status_lines.append(f"**CPU:** {metrics['cpu_percent']:.1f}%")
+                status_lines = [
+                    "📊 **Watchdog Status**\n",
+                    f"**Status:** {{'🟢 Running' if self.watchdog.monitoring else '🔴 Stopped'}}",
+                    f"**VRAM:** {metrics['vram_percent']:.1f}% ({metrics['vram_used']:.1f}/{metrics['vram_total']:.1f} GB)",
+                    f"**RAM:** {metrics['ram_percent']:.1f}% ({metrics['ram_used']:.1f}/{metrics['ram_total']:.1f} GB)",
+                    f"**CPU:** {metrics['cpu_percent']:.1f}%",
+                ]
 
                 return CommandResult(
                     success=True,

@@ -422,8 +422,7 @@ class WatchdogConfigValidator:
         Returns:
             Formatted configuration summary
         """
-        lines = ["Watchdog Configuration Summary:"]
-        lines.append("=" * 40)
+        lines = ["Watchdog Configuration Summary:", "=" * 40]
 
         # Group parameters by category
         categories = {
