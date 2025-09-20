@@ -1304,7 +1304,9 @@ def validate_config(config: TranslatorConfig) -> list[str]:
 class PromptConfig:
     """Configuration for prompt templates (backward compatibility)"""
 
-    system_prompt: str = "You are an expert Python programmer. Your task is to convert English instructions into clean, efficient Python code."
+    system_prompt: str = (
+        "You are an expert Python programmer. Your task is to convert English instructions into clean, efficient Python code."
+    )
     instruction_template: str = "Convert: {instruction}"
     refinement_template: str = "Fix: {code}"
     code_style: str = "pep8"
