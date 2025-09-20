@@ -39,8 +39,7 @@ class SecurityMonitor:
 
         # Log the attempt
         log_message = (
-            f"SECURITY: {attack_type} attack detected at {timestamp} "
-            f"Payload: {payload[:100]}..."
+            f"SECURITY: {attack_type} attack detected at {timestamp} Payload: {payload[:100]}..."
         )
 
         if source_info:
@@ -186,6 +185,10 @@ class EnhancedInputSanitizer:
         if context == self.CONTEXT_JSON:
             # For JSON, escape special characters
             sanitized = self._sanitize_json(sanitized)
+            return sanitized
+
+        # Default: apply general sanitization for unknown contexts
+        return self._sanitize_context_general(sanitized, strict_mode)
 
     def _sanitize_context_sql(self, sanitized: str, strict_mode: bool) -> str:
         if self.sql_protection.detect_sql_injection(sanitized):
@@ -217,12 +220,13 @@ class EnhancedInputSanitizer:
         if self.xss_protection.detect_xss_attempt(sanitized):
             self.security_monitor.log_attack_attempt("XSS", sanitized)
             sanitized = self.xss_protection.strip_tags(sanitized)
-        return sanitized
 
-            # Check for SQL injection
-            if self.sql_protection.detect_sql_injection(sanitized):
-                self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
-                sanitized = self.sql_protection.sanitize_sql_input(sanitized)
+        # Check for SQL injection
+        if self.sql_protection.detect_sql_injection(sanitized):
+            self.security_monitor.log_attack_attempt("SQL Injection", sanitized)
+            sanitized = self.sql_protection.sanitize_sql_input(sanitized)
+        
+        return sanitized
 
         # Step 3: Final validation
         if (not sanitized or (strict_mode and sanitized != self.user_input)) and self.logger:
@@ -230,7 +234,7 @@ class EnhancedInputSanitizer:
 
         # Apply final length limit
         if self.max_length and len(sanitized) > self.max_length:
-            sanitized = sanitized[:self.max_length]
+            sanitized = sanitized[: self.max_length]
 
         return sanitized.strip()
 

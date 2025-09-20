@@ -166,40 +166,14 @@ class ParserModule:
         Returns:
             List of block strings
         """
-        blocks: list[str] = []
-        current_block: list[str] = []
-        lines = text.splitlines(keepends=True)
-
-        prev_indent = 0
-        in_multiline = False
-        multiline_delimiter = None
-
-        def _update_multiline(stripped_line: str, full_line: str) -> None:
-            nonlocal in_multiline, multiline_delimiter
-            if not in_multiline:
-                if stripped_line.startswith(('"""', "'''")):
-                    in_multiline = True
-                    multiline_delimiter = stripped_line[:3]
-            elif multiline_delimiter and multiline_delimiter in full_line:
-                in_multiline = False
-                multiline_delimiter = None
-
-        def _is_new_block(line: str, stripped_line: str, current_indent: int) -> bool:
-            if in_multiline:
-                return False
-            if (
-                self._DEF_RE.match(line)
-                or self._CLASS_RE.match(line)
-                or (self._IMPORT_RE.match(line) and current_indent == 0)
-            ):
-                return True
-            if current_indent == 0 and prev_indent > 0:
-                return True
-            if current_indent < prev_indent - 4:
-                return True
-            return False
-
-        return blocks
+        # TODO: Implement block identification logic
+        #       - Determine block boundaries using blank lines or specific delimiters
+        #       - Handle headings, list items, and code segments separately
+        #       - Preserve original formatting within each block
+        # For now, return the entire text as a single block
+        if not text.strip():
+            return []
+        return [text]
 
     def _classify_block(self, block: str) -> BlockType:
         """
