@@ -167,6 +167,9 @@ class ParserModule:
             List of block strings
         """
         # TODO: Implement block identification logic
+        #       - Determine block boundaries using blank lines or specific delimiters
+        #       - Handle headings, list items, and code segments separately
+        #       - Preserve original formatting within each block
         # For now, return the entire text as a single block
         if not text.strip():
             return []
