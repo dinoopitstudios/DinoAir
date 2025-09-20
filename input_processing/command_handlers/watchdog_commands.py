@@ -112,9 +112,17 @@ class WatchdogCommandHandler:
             if metrics:
                 status_lines = [
                     "📊 **Watchdog Status**\n",
-                    f"**Status:** {{'🟢 Running' if self.watchdog.monitoring else '🔴 Stopped'}}",
-                    f"**VRAM:** {metrics['vram_percent']:.1f}% ({metrics['vram_used']:.1f}/{metrics['vram_total']:.1f} GB)",
-                    f"**RAM:** {metrics['ram_percent']:.1f}% ({metrics['ram_used']:.1f}/{metrics['ram_total']:.1f} GB)",
+                    "**Status:** {{'🟢 Running' if self.watchdog.monitoring else '🔴 Stopped'}}",
+                    (
+                        f"**VRAM:** {metrics['vram_percent']:.1f}% "
+                        f"({metrics['vram_used']:.1f}/"
+                        f"{metrics['vram_total']:.1f} GB)"
+                    ),
+                    (
+                        f"**RAM:** {metrics['ram_percent']:.1f}% "
+                        f"({metrics['ram_used']:.1f}/"
+                        f"{metrics['ram_total']:.1f} GB)"
+                    ),
                     f"**CPU:** {metrics['cpu_percent']:.1f}%",
                 ]
 
