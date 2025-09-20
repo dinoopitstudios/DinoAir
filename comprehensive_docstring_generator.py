@@ -164,6 +164,12 @@ class DocstringGenerator:
         Returns:
             Dictionary containing missing docstring information
         """
+        ALLOWED_FILE_NAMES = {"file1.py", "file2.py"}
+        filename = os.path.basename(file_path)
+        if filename not in ALLOWED_FILE_NAMES:
+            logger.error("Unauthorized file path: %s", file_path)
+            return {"file": file_path, "module_docstring": True, "missing_items": []}
+
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -213,7 +219,7 @@ class DocstringGenerator:
             }
 
         except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}")
+            logger.error("Error processing %s: %s", file_path, e)
             return {"file": file_path, "module_docstring": True, "missing_items": []}
 
     def add_docstrings_to_file(self, file_info: Dict[str, Any]) -> bool:

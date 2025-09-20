@@ -229,9 +229,13 @@ class SimpleGitHubSecurityLoader:
 
     def save_to_file(self, data: dict[str, Any], filename: str = "security_data.json"):
         """Save security data to a JSON file."""
-        with open(filename, "w", encoding="utf-8") as f:
+        allowed_filenames = {"security_data.json"}
+        if filename not in allowed_filenames:
+            raise ValueError(f"Invalid filename: {filename}")
+        file_path = os.path.join(os.getcwd(), filename)
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"💾 Security data saved to {filename}")
+        print(f"💾 Security data saved to {file_path}")
 
 
 def main():

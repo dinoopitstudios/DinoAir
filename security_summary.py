@@ -6,12 +6,17 @@ Parse the security data and create a readable summary of security issues.
 """
 
 import json
+import os
 from collections import Counter, defaultdict
 
 
 def load_security_data(filename="dinoair_security_data.json"):
     """Load the security data from JSON file."""
-    with open(filename, "r", encoding="utf-8") as f:
+    allowed_filenames = {"dinoair_security_data.json"}
+    if filename not in allowed_filenames:
+        raise ValueError(f"Invalid filename: {filename}")
+    safe_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(safe_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
